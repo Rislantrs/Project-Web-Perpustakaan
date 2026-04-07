@@ -9,6 +9,7 @@ import StrukturOrganisasi from './pages/StrukturOrganisasi';
 import Prestasi from './pages/Prestasi';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RiwayatPinjaman from './pages/RiwayatPinjaman';
 
 import BlogList from './pages/BlogList';
 import ArticleDetail from './pages/ArticleDetail';
@@ -41,6 +42,7 @@ function App() {
           <Route path="galendo" element={<Galendo />} />
           <Route path="ppid" element={<Ppid />} />
           <Route path="zona-integritas" element={<ZonaIntegritas />} />
+          <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
         </Route>
         
         {/* Auth Routes */}
