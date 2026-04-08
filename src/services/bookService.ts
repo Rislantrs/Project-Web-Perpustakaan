@@ -410,6 +410,36 @@ export const filterBooks = (options: {
   return books;
 };
 
+// === BOOK CRUD (Admin) ===
+
+const generateBookId = (): string =>
+  'bk' + Date.now().toString(36) + Math.random().toString(36).substr(2, 3);
+
+export const addBook = (data: Omit<Book, 'id'>): { success: boolean; message: string; book?: Book } => {
+  const books = getBooks();
+  const newBook: Book = { id: generateBookId(), ...data };
+  books.push(newBook);
+  localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+  return { success: true, message: `Buku "${newBook.judul}" berhasil ditambahkan.`, book: newBook };
+};
+
+export const updateBook = (id: string, updates: Partial<Book>): { success: boolean; message: string } => {
+  const books = getBooks();
+  const idx = books.findIndex(b => b.id === id);
+  if (idx === -1) return { success: false, message: 'Buku tidak ditemukan.' };
+  books[idx] = { ...books[idx], ...updates };
+  localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+  return { success: true, message: 'Buku berhasil diperbarui.' };
+};
+
+export const deleteBook = (id: string): { success: boolean; message: string } => {
+  const books = getBooks().filter(b => b.id !== id);
+  localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+  return { success: true, message: 'Buku berhasil dihapus.' };
+};
+
+export const getAllBorrows = (): BorrowRecord[] => getBorrows();
+
 // === BORROW FUNCTIONS ===
 
 export const getBorrows = (): BorrowRecord[] => {

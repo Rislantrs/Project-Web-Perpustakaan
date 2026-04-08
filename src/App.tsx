@@ -10,7 +10,7 @@ import Prestasi from './pages/Prestasi';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RiwayatPinjaman from './pages/RiwayatPinjaman';
-
+import Profil from './pages/Profil';
 import BlogList from './pages/BlogList';
 import ArticleDetail from './pages/ArticleDetail';
 import Galendo from './pages/Galendo';
@@ -24,6 +24,9 @@ import ManageArticles from './pages/admin/ManageArticles';
 import ArticleEditor from './pages/admin/ArticleEditor';
 import ManageMedia from './pages/admin/ManageMedia';
 import MediaEditor from './pages/admin/MediaEditor';
+import ManageBooks from './pages/admin/ManageBooks';
+import BookEditor from './pages/admin/BookEditor';
+import ManageAdmins from './pages/admin/ManageAdmins';
 
 function App() {
   return (
@@ -44,10 +47,11 @@ function App() {
           <Route path="zona-integritas" element={<ZonaIntegritas />} />
           <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
         </Route>
-        
+
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profil" element={<Profil />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -58,6 +62,10 @@ function App() {
           <Route path="media" element={<ManageMedia />} />
           <Route path="media/new" element={<MediaEditor />} />
           <Route path="media/edit/:id" element={<MediaEditor />} />
+          <Route path="books" element={<ManageBooks />} />
+          <Route path="books/new" element={<BookEditor />} />
+          <Route path="books/edit/:id" element={<BookEditor />} />
+          <Route path="admins" element={<ManageAdmins />} />
         </Route>
       </Routes>
     </Router>

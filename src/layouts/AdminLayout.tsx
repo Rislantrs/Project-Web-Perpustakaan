@@ -1,16 +1,22 @@
-import { Link, Outlet, useLocation } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield } from 'lucide-react';
+import { logoutAdmin } from '../services/authService';
 
 export default function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    { name: 'Kelola Buku', path: '/admin/books', icon: <BookOpen size={20} /> },
     { name: 'Semua Artikel', path: '/admin/articles', icon: <FileText size={20} /> },
     { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
     { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
+    { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
     { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
+
+  const handleLogout = () => { logoutAdmin(); navigate('/'); };
 
   return (
     <div className="flex h-screen bg-[#f8f9fa] overflow-hidden font-sans">
@@ -51,7 +57,7 @@ export default function AdminLayout() {
             <ChevronLeft size={18} />
             Kembali ke Web
           </Link>
-          <button className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
             <LogOut size={18} />
             Keluar
           </button>

@@ -183,6 +183,12 @@ export default function Navbar() {
                       </div>
 
                       <Link
+                        to="/profil"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d] transition-colors"
+                      >
+                        <User size={16} className="text-gray-400" /> Profil Saya
+                      </Link>
+                      <Link
                         to="/perpustakaan"
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d] transition-colors"
                       >
