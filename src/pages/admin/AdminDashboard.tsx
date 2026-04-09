@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { getArticles, Article } from '../../services/dataService';
 import { getBooks, getAllBorrows, BorrowRecord } from '../../services/bookService';
 import { getMembers } from '../../services/authService';
-import { FileText, TrendingUp, Users, BookOpen, Clock, History } from 'lucide-react';
+import { FileText, TrendingUp, Users, BookOpen, Clock, History as LucideHistory } from 'lucide-react';
 import { Link } from 'react-router';
 
 export default function AdminDashboard() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [booksCount, setBooksCount] = useState(0);
   const [activeBorrows, setActiveBorrows] = useState(0);
+  const [pendingPickups, setPendingPickups] = useState(0);
   const [membersCount, setMembersCount] = useState(0);
   const [recentBorrows, setRecentBorrows] = useState<BorrowRecord[]>([]);
 
@@ -17,14 +18,15 @@ export default function AdminDashboard() {
     setBooksCount(getBooks().length);
     const borrows = getAllBorrows();
     setActiveBorrows(borrows.filter(b => b.status === 'dipinjam').length);
+    setPendingPickups(borrows.filter(b => b.status === 'menunggu_diambil').length);
     setMembersCount(getMembers().length);
     setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
   }, []);
 
   const stats = [
     { title: 'Total Artikel', value: articles.length, icon: <FileText size={24} className="text-blue-500" />, bg: 'bg-blue-50' },
-    { title: 'Koleksi Buku', value: booksCount, icon: <BookOpen size={24} className="text-[#d6a54a]" />, bg: 'bg-[#d6a54a]/10' },
-    { title: 'Peminjaman Aktif', value: activeBorrows, icon: <Clock size={24} className="text-emerald-500" />, bg: 'bg-emerald-50' },
+    { title: 'Konfirmasi Ambil', value: pendingPickups, icon: <Clock size={24} className="text-red-500" />, bg: 'bg-red-50' },
+    { title: 'Peminjaman Aktif', value: activeBorrows, icon: <LucideHistory size={24} className="text-emerald-500" />, bg: 'bg-emerald-50' },
     { title: 'Total Anggota', value: membersCount, icon: <Users size={24} className="text-purple-500" />, bg: 'bg-purple-50' },
   ];
 
@@ -78,7 +80,7 @@ export default function AdminDashboard() {
         {/* Recent Borrows */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><History size={20} className="text-gray-400" /> Peminjaman Terbaru</h2>
+            <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><LucideHistory size={20} className="text-gray-400" /> Peminjaman Terbaru</h2>
             <Link to="/admin/books" className="text-sm text-blue-600 font-medium hover:underline text-right">Kelola Buku</Link>
           </div>
           <div className="divide-y divide-gray-100 flex-1">
@@ -92,8 +94,14 @@ export default function AdminDashboard() {
                     <span>{borrow.tanggalPinjam}</span>
                   </div>
                 </div>
-                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${borrow.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 'bg- emerald-100 text-emerald-700'}`}>
-                  {borrow.status === 'dipinjam' ? 'Sedang Dipinjam' : 'Dikembalikan'}
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
+                  borrow.status === 'menunggu_diambil' ? 'bg-red-100 text-red-700' : 
+                  borrow.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 
+                  'bg-emerald-100 text-emerald-700'
+                }`}>
+                  {borrow.status === 'menunggu_diambil' ? 'Batas Ambil' : 
+                   borrow.status === 'dipinjam' ? 'Sedang Dipinjam' : 
+                   'Dikembalikan'}
                 </span>
               </div>
             ))}

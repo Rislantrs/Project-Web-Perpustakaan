@@ -166,11 +166,14 @@ export default function RiwayatPinjaman() {
                         {book && <p className="text-sm text-gray-500 mt-0.5">{book.penulis} • {book.penerbit}</p>}
                       </div>
                       <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold ${
+                        record.status === 'menunggu_diambil' ? 'bg-orange-100 text-orange-700' :
                         record.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' :
                         record.status === 'dikembalikan' ? 'bg-emerald-100 text-emerald-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {record.status === 'dipinjam' ? '📖 Dipinjam' : record.status === 'dikembalikan' ? '✅ Dikembalikan' : '⚠️ Terlambat'}
+                        {record.status === 'menunggu_diambil' ? '⏰ Menunggu Ambil' : 
+                         record.status === 'dipinjam' ? '📖 Dipinjam' : 
+                         record.status === 'dikembalikan' ? '✅ Dikembalikan' : '⚠️ Terlambat'}
                       </span>
                     </div>
 
@@ -192,7 +195,7 @@ export default function RiwayatPinjaman() {
                     </div>
 
                     {/* Pickup Deadline */}
-                    {record.status === 'dipinjam' && record.batasAmbil && (
+                    {record.status === 'menunggu_diambil' && record.batasAmbil && (
                       <div className="mt-2 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 flex items-center gap-2">
                         <Timer size={14} className="text-orange-500 shrink-0" />
                         <p className="text-xs text-orange-700">

@@ -28,7 +28,7 @@ export interface BorrowRecord {
   tanggalKembali: string;
   batasAmbil: string; // Deadline pengambilan 1x24 jam
   tanggalDikembalikan?: string;
-  status: 'dipinjam' | 'dikembalikan' | 'terlambat' | 'batal';
+  status: 'menunggu_diambil' | 'dipinjam' | 'dikembalikan' | 'terlambat' | 'batal';
 }
 
 export interface QueueRecord {
@@ -488,7 +488,7 @@ export const borrowBook = (bookId: string, memberId: string, memberName: string)
     tanggalPinjam: formatDate(now),
     tanggalKembali: formatDate(returnDate),
     batasAmbil: formatDateTime(pickupDeadline),
-    status: 'dipinjam',
+    status: 'menunggu_diambil',
   };
 
   // Decrease stock
@@ -515,6 +515,25 @@ export const borrowBook = (bookId: string, memberId: string, memberName: string)
     success: true,
     message: `Buku "${book.judul}" berhasil dipinjam!\n⏰ Ambil sebelum: ${formatDateTime(pickupDeadline)}\n📅 Batas pengembalian: ${formatDate(returnDate)} (7 hari)`
   };
+};
+
+export const getPendingBorrows = (): BorrowRecord[] => {
+  return getBorrows().filter(b => b.status === 'menunggu_diambil');
+};
+
+export const confirmPickup = (borrowId: string): { success: boolean; message: string } => {
+  const borrows = getBorrows();
+  const idx = borrows.findIndex(b => b.id === borrowId);
+  if (idx === -1) return { success: false, message: 'Data peminjaman tidak ditemukan.' };
+
+  if (borrows[idx].status !== 'menunggu_diambil') {
+    return { success: false, message: 'Status peminjaman bukan menunggu pengambilan.' };
+  }
+
+  borrows[idx].status = 'dipinjam';
+  localStorage.setItem(BORROWS_KEY, JSON.stringify(borrows));
+
+  return { success: true, message: 'Pengambilan buku berhasil dikonfirmasi!' };
 };
 
 export const returnBook = (borrowId: string): { success: boolean; message: string } => {

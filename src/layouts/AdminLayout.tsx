@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users } from 'lucide-react';
 import { logoutAdmin } from '../services/authService';
 
 export default function AdminLayout() {
@@ -8,7 +8,9 @@ export default function AdminLayout() {
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    { name: 'Konfirmasi Ambil', path: '/admin/borrows', icon: <LucideHistory size={20} /> },
     { name: 'Kelola Buku', path: '/admin/books', icon: <BookOpen size={20} /> },
+    { name: 'Kelola Member', path: '/admin/members', icon: <Users size={20} /> },
     { name: 'Semua Artikel', path: '/admin/articles', icon: <FileText size={20} /> },
     { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
     { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },

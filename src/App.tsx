@@ -27,6 +27,8 @@ import MediaEditor from './pages/admin/MediaEditor';
 import ManageBooks from './pages/admin/ManageBooks';
 import BookEditor from './pages/admin/BookEditor';
 import ManageAdmins from './pages/admin/ManageAdmins';
+import ManageMembers from './pages/admin/ManageMembers';
+import ManageBorrows from './pages/admin/ManageBorrows';
 
 function App() {
   return (
@@ -66,6 +68,8 @@ function App() {
           <Route path="books/new" element={<BookEditor />} />
           <Route path="books/edit/:id" element={<BookEditor />} />
           <Route path="admins" element={<ManageAdmins />} />
+          <Route path="members" element={<ManageMembers />} />
+          <Route path="borrows" element={<ManageBorrows />} />
         </Route>
       </Routes>
     </Router>

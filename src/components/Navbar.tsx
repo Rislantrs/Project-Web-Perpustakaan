@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { User, ChevronDown, Menu, X, LogOut, History, BookOpen } from 'lucide-react';
+import { User, ChevronDown, Menu, X, LogOut, History, BookOpen, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getCurrentUser, isLoggedIn, logout, getInitials, type Member } from '../services/authService';
+import { getCurrentUser, isLoggedIn, logout, getInitials, isAdminLoggedIn, type Member } from '../services/authService';
 
 const navLinks = [
   { name: 'Beranda', path: '/' },
@@ -58,6 +58,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [user, setUser] = useState<Member | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const userDropdownRef = useRef<HTMLDivElement>(null);
@@ -73,6 +74,7 @@ export default function Navbar() {
   // Refresh user state on route change
   useEffect(() => {
     setUser(getCurrentUser());
+    setIsAdmin(isAdminLoggedIn());
     setShowUserDropdown(false);
     setIsMobileMenuOpen(false);
   }, [location]);
@@ -201,6 +203,14 @@ export default function Navbar() {
                         <History size={16} className="text-gray-400" /> Riwayat Pinjaman
                       </Link>
 
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-blue-600 bg-blue-50/50 hover:bg-blue-50 transition-colors font-bold"
+                        >
+                          <Shield size={16} className="text-blue-500" /> Panel Admin
+                        </Link>
+                      )}
                       <div className="border-t border-gray-100 mt-1 pt-1">
                         <button
                           onClick={handleLogout}
@@ -279,6 +289,9 @@ export default function Navbar() {
                </button>
                {user ? (
                  <>
+                   <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-2 rounded border border-gray-300 text-gray-700 text-sm font-medium w-full flex justify-center items-center gap-2">
+                     <User size={16} /> Profil Saya
+                   </Link>
                    <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-2 rounded border border-gray-300 text-gray-700 text-sm font-medium w-full flex justify-center items-center gap-2">
                      <History size={16} /> Riwayat Pinjaman
                    </Link>

@@ -338,15 +338,27 @@ export default function Profil() {
                 <div className="space-y-3">
                   {borrows.slice(0, 8).map(b => (
                     <div key={b.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${b.status === 'dipinjam' ? 'bg-amber-50' : 'bg-emerald-50'}`}>
-                        {b.status === 'dipinjam' ? <Clock size={15} className="text-amber-600" /> : <CheckCircle2 size={15} className="text-emerald-600" />}
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        b.status === 'menunggu_diambil' ? 'bg-red-50' : 
+                        b.status === 'dipinjam' ? 'bg-amber-50' : 'bg-emerald-50'
+                      }`}>
+                        {b.status === 'menunggu_diambil' ? <Clock size={15} className="text-red-600" /> : 
+                         b.status === 'dipinjam' ? <Clock size={15} className="text-amber-600" /> : 
+                         <CheckCircle2 size={15} className="text-emerald-600" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{b.bookTitle}</p>
-                        <p className="text-xs text-gray-400">{b.tanggalPinjam} · Kembali: {b.tanggalKembali}</p>
+                        <p className="text-xs text-gray-400">
+                          {b.status === 'menunggu_diambil' ? `Ambil sebelum: ${b.batasAmbil}` : `${b.tanggalPinjam} · Kembali: ${b.tanggalKembali}`}
+                        </p>
                       </div>
-                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${b.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                        {b.status === 'dipinjam' ? '📖 Dipinjam' : '✅ Kembali'}
+                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        b.status === 'menunggu_diambil' ? 'bg-red-100 text-red-700' :
+                        b.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 
+                        'bg-emerald-100 text-emerald-700'
+                      }`}>
+                        {b.status === 'menunggu_diambil' ? '⏰ Ambil' : 
+                         b.status === 'dipinjam' ? '📖 Dipinjam' : '✅ Kembali'}
                       </span>
                     </div>
                   ))}
