@@ -442,10 +442,7 @@ export const getAllBorrows = (): BorrowRecord[] => getBorrows();
 
 // === BORROW FUNCTIONS ===
 
-export const getBorrows = (): BorrowRecord[] => {
-  const data = localStorage.getItem(BORROWS_KEY);
-  return data ? JSON.parse(data) : [];
-};
+// getBorrows is now defined at the bottom with auto-cancel logic
 
 export const getMemberBorrows = (memberId: string): BorrowRecord[] => {
   return getBorrows().filter(b => b.memberId === memberId);
@@ -645,4 +642,52 @@ export const cancelQueue = (queueId: string): { success: boolean; message: strin
 
   return { success: true, message: 'Antrian berhasil dibatalkan.' };
 };
+
+/**
+ * AUTOMATIC LOGIC: Cancel borrows that are not picked up within 24 hours.
+ * This runs locally on the user's browser whenever they access borrowing lists.
+ */
+export const checkAndCancelOverdueBorrows = () => {
+  const borrowsRaw = localStorage.getItem(BORROWS_KEY);
+  const booksRaw = localStorage.getItem(BOOKS_KEY);
+  
+  if (!borrowsRaw || !booksRaw) return;
+  
+  const borrows = JSON.parse(borrowsRaw) as BorrowRecord[];
+  const books = JSON.parse(booksRaw) as Book[];
+  let changed = false;
+  const now = new Date();
+
+  const updatedBorrows = borrows.map(record => {
+    // Only check records that are waiting for pickup
+    if (record.status === 'menunggu_diambil') {
+      const deadline = new Date(record.batasAmbil);
+      if (now > deadline) {
+        // Mark as cancelled (failed to pickup)
+        record.status = 'batal';
+        changed = true;
+        
+        // Return stock to book
+        const bookIdx = books.findIndex(b => b.id === record.bookId);
+        if (bookIdx !== -1) {
+          books[bookIdx].stok += 1;
+        }
+      }
+    }
+    return record;
+  });
+
+  if (changed) {
+    localStorage.setItem(BORROWS_KEY, JSON.stringify(updatedBorrows));
+    localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+  }
+};
+
+// Hook into getBorrows logic
+export const getBorrows = (): BorrowRecord[] => {
+  checkAndCancelOverdueBorrows();
+  const data = localStorage.getItem(BORROWS_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
 

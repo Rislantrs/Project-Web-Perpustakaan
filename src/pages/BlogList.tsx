@@ -138,7 +138,12 @@ export default function BlogList() {
                     className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
                   >
                     <div className="w-full aspect-square overflow-hidden relative">
-                      <img src={article.img} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img 
+                        src={article.img} 
+                        alt={article.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        style={{ objectPosition: article.imgPosition || 'center' }}
+                      />
                       {(article.category === 'Media Mewarnai' || article.category === 'Galeri') && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold">
                           Lihat Penuh
@@ -157,7 +162,12 @@ export default function BlogList() {
               return (
                 <article key={idx} className="flex flex-col md:flex-row gap-8 group">
                   <Link to={`/artikel/${article.slug}`} className="w-full md:w-[40%] block overflow-hidden rounded-xl h-64 md:h-auto shadow-sm">
-                    <img src={article.img} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <img 
+                      src={article.img} 
+                      alt={article.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                      style={{ objectPosition: article.imgPosition || 'center' }}
+                    />
                   </Link>
 
                   <div className="w-full md:w-[60%] flex flex-col justify-center">
@@ -246,7 +256,11 @@ export default function BlogList() {
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image content
             >
               <div className="w-full bg-gray-100 flex items-center justify-center overflow-auto max-h-[70vh]">
-                <img src={lightboxImg.src} alt={lightboxImg.title} className="max-w-full h-auto object-contain" />
+                <img 
+                  src={lightboxImg.src} 
+                  alt={lightboxImg.title} 
+                  className="max-w-full h-auto object-contain" 
+                />
               </div>
               
               <div className="w-full bg-white p-6 flex items-center justify-between border-t border-gray-100">

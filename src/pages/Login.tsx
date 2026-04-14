@@ -12,6 +12,18 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  
+  /* 
+     PROFESSIONAL CAPTCHA INTEGRATION (API BASED):
+     ----------------------------------------------
+     To use Google reCAPTCHA, import the library and add the component here:
+     import ReCAPTCHA from "react-google-recaptcha";
+     const [captchaToken, setCaptchaToken] = useState(null);
+     
+     In the form:
+     <ReCAPTCHA sitekey="YOUR_SITE_KEY" onChange={token => setCaptchaToken(token)} />
+  */
 
   // Show registration success message if redirected from register
   useEffect(() => {
@@ -19,8 +31,15 @@ export default function Login() {
     if (state?.registeredMessage) {
       setToast({ show: true, message: state.registeredMessage, type: 'success' });
       setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000);
-      // Clear the state
+    // Clear the state
       window.history.replaceState({}, document.title);
+    }
+
+    // Check remembered email
+    const saved = localStorage.getItem('remembered_user_id');
+    if (saved) {
+      setEmailOrId(saved);
+      setRememberMe(true);
     }
   }, [location]);
 
@@ -29,25 +48,29 @@ export default function Login() {
 
     if (!emailOrId || !password) {
       setToast({ show: true, message: 'Harap isi semua field.', type: 'error' });
-      setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
       return;
     }
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
       const result = login(emailOrId, password);
-      setToast({ show: true, message: result.message, type: result.success ? 'success' : 'error' });
-
+      
       if (result.success) {
-        setTimeout(() => {
-          navigate('/perpustakaan');
-        }, 1500);
+        if (rememberMe) localStorage.setItem('remembered_user_id', emailOrId);
+        else localStorage.removeItem('remembered_user_id');
+        
+        // Immediate redirection
+        window.location.href = '/perpustakaan';
       } else {
+        setToast({ show: true, message: result.message, type: 'error' });
         setIsSubmitting(false);
-        setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
       }
-    }, 600);
+    } catch (err) {
+      console.error(err);
+      setToast({ show: true, message: 'Gagal menghubungi database lokal.', type: 'error' });
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -131,7 +154,7 @@ export default function Login() {
             <div>
               <div className="flex justify-between mb-1">
                 <label className="block text-sm font-medium text-gray-700">Password</label>
-                <a href="#" className="text-sm font-medium text-[#d6a54a] hover:underline">Lupa Password?</a>
+                <Link to="/forgot-password" className="text-sm font-medium text-[#d6a54a] hover:underline">Lupa Password?</Link>
               </div>
               <div className="relative">
                 <input
@@ -149,6 +172,18 @@ export default function Login() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+            </div>
+
+            <div className="flex items-center">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  checked={rememberMe} 
+                  onChange={e => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-[#0c2f3d] focus:ring-[#0c2f3d]"
+                />
+                <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Ingat Saya</span>
+              </label>
             </div>
 
             <button

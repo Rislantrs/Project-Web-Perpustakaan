@@ -67,6 +67,7 @@ export default function ArticleDetail() {
                 src={article.img} 
                 alt={article.title} 
                 className="w-full h-full object-cover"
+                style={{ objectPosition: article.imgPosition || 'center' }}
               />
             ) : (
                <div className="text-gray-400">Gambar tidak tersedia</div>

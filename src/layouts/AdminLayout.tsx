@@ -1,10 +1,17 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users } from 'lucide-react';
-import { logoutAdmin } from '../services/authService';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare } from 'lucide-react';
+import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
+import { useEffect } from 'react';
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAdminLoggedIn()) {
+      navigate('/login-admin');
+    }
+  }, [navigate]);
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
@@ -15,6 +22,7 @@ export default function AdminLayout() {
     { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
     { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
     { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
+    { name: 'Laporan Warga', path: '/admin/reports', icon: <MessageSquare size={20} /> },
     { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 

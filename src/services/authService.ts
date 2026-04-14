@@ -1,36 +1,15 @@
-// Auth Service — localStorage-based authentication for Disipusda Perpustakaan
+import { dbGet, dbSave, DB_KEYS, initializeDB, Member as MemberType, Admin as AdminType } from './db';
 
-export interface Member {
-  id: string;
-  nomorAnggota: string;
-  namaLengkap: string;
-  nik: string;
-  email: string;
-  password: string;
-  alamat: string;
-  telepon: string;
-  jenisKelamin: 'L' | 'P';
-  tanggalLahir: string;
-  tanggalDaftar: string;
-  avatarColor: string;
-  avatarUrl?: string; // base64 atau URL foto profil
-  bio?: string;
-}
+export type Member = MemberType;
+export type Admin = AdminType;
 
-export interface Admin {
-  id: string;
-  namaLengkap: string;
-  email: string;
-  password: string;
-  role: 'super_admin' | 'admin';
-  tanggalDibuat: string;
-  avatarColor: string;
-}
-
-const MEMBERS_KEY = 'disipusda_members';
+const MEMBERS_KEY = DB_KEYS.MEMBERS;
+const ADMINS_KEY = DB_KEYS.ADMINS;
 const CURRENT_USER_KEY = 'disipusda_current_user';
-const ADMINS_KEY = 'disipusda_admins';
 const CURRENT_ADMIN_KEY = 'disipusda_current_admin';
+
+// Initialize DB on first import
+initializeDB();
 
 const avatarColors = [
   '#8b1c24', '#0c2f3d', '#d6a54a', '#0f6063', '#6b5840',
@@ -46,7 +25,7 @@ const generateMemberNumber = (): string => {
   return `PWK-${year}-${random}`;
 };
 
-const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const formatDateNow = (): string => {
   const now = new Date();
   return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
@@ -55,33 +34,32 @@ const formatDateNow = (): string => {
 // === MEMBER FUNCTIONS ===
 
 export const getMembers = (): Member[] => {
-  const data = localStorage.getItem(MEMBERS_KEY);
-  return data ? JSON.parse(data) : [];
+  return dbGet<Member[]>(MEMBERS_KEY, []);
 };
 
-export const register = (data: {
-  namaLengkap: string;
-  nik: string;
-  email: string;
-  password: string;
-  alamat: string;
-  telepon: string;
-  jenisKelamin: 'L' | 'P';
-  tanggalLahir: string;
-}): { success: boolean; message: string; member?: Member } => {
+const maskNik = (nik: string) => {
+  if (!nik) return '';
+  return '*'.repeat(nik.length - 4) + nik.slice(-4);
+};
+
+export const register = (data: Omit<Member, 'id' | 'nomorAnggota' | 'tanggalDaftar' | 'avatarColor'>): { success: boolean; message: string; member?: Member } => {
   const members = getMembers();
 
-  if (members.find(m => m.email === data.email))
-    return { success: false, message: 'Email sudah terdaftar. Silakan gunakan email lain.' };
+  // Check duplicate NIK (masking check)
+  const maskedTarget = maskNik(data.nik);
+  if (members.find(m => m.nik === maskedTarget)) {
+    return { success: false, message: 'NIK ini sudah terdaftar sebagai anggota.' };
+  }
 
-  if (members.find(m => m.nik === data.nik))
-    return { success: false, message: 'NIK sudah terdaftar. Silakan hubungi petugas perpustakaan.' };
+  if (members.find(m => m.email === data.email)) {
+    return { success: false, message: 'Email sudah digunakan.' };
+  }
 
   const newMember: Member = {
     id: generateId(),
     nomorAnggota: generateMemberNumber(),
     namaLengkap: data.namaLengkap,
-    nik: data.nik,
+    nik: maskedTarget,
     email: data.email,
     password: data.password,
     alamat: data.alamat,
@@ -97,12 +75,12 @@ export const register = (data: {
   return { success: true, message: `Pendaftaran berhasil! Nomor anggota Anda: ${newMember.nomorAnggota}`, member: newMember };
 };
 
-export const login = (emailOrId: string, password: string): { success: boolean; message: string; member?: Member } => {
+export const login = (emailOrIdOrNik: string, password: string): { success: boolean; message: string; member?: Member } => {
   const members = getMembers();
   const member = members.find(
-    m => (m.email === emailOrId || m.nomorAnggota === emailOrId) && m.password === password
+    m => (m.email === emailOrIdOrNik || m.nomorAnggota === emailOrIdOrNik || m.nik === emailOrIdOrNik) && m.password === password
   );
-  if (!member) return { success: false, message: 'Email/Nomor Anggota atau password salah.' };
+  if (!member) return { success: false, message: 'Email/ID/NIK atau password salah.' };
 
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(member));
   return { success: true, message: `Selamat datang, ${member.namaLengkap}!`, member };
@@ -113,11 +91,23 @@ export const logout = (): void => {
 };
 
 export const getCurrentUser = (): Member | null => {
-  const data = localStorage.getItem(CURRENT_USER_KEY);
-  return data ? JSON.parse(data) : null;
+  return dbGet<Member | null>(CURRENT_USER_KEY, null);
 };
 
 export const isLoggedIn = (): boolean => !!getCurrentUser();
+
+export const resetPassword = (email: string, nik: string, newPass: string): { success: boolean; message: string } => {
+  const members = getMembers();
+  // Find member matching email AND masked nik
+  const idx = members.findIndex(m => m.email === email && m.nik === nik);
+
+  if (idx !== -1) {
+    members[idx].password = newPass;
+    dbSave(DB_KEYS.MEMBERS, members);
+    return { success: true, message: 'Password berhasil direset. Silakan login.' };
+  }
+  return { success: false, message: 'Data tidak cocok. Pastikan Email & NIK benar.' };
+};
 
 export const updateMember = (id: string, updates: Partial<Member>): { success: boolean; message: string; member?: Member } => {
   const members = getMembers();

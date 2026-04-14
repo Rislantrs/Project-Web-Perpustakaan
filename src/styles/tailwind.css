@@ -85,3 +85,38 @@ h4,
     scrollbar-width: none;
     /* Firefox */
 }
+
+/* =========================================
+   KIOSK MODE (DIGITAL SIGNAGE / VERTICAL TV)
+   ========================================= */
+@media (aspect-ratio < 1) and (min-width: 1080px) and (min-height: 1920px) {
+    /* Optimization for Large Vertical Displays (1080x1920 or 2160x3840) */
+    html {
+        font-size: 16px; /* Base scale for kiosk */
+    }
+    
+    .kiosk-mode-nav {
+        display: none !important; /* Optionally hide navbar on pure displays */
+    }
+    
+    /* Make touch targets significantly larger */
+    button, a, input, select, textarea {
+        min-height: 80px !important;
+        font-size: 1.5rem !important;
+    }
+
+    h1 {
+        font-size: 5rem !important;
+        line-height: 1.1 !important;
+    }
+    
+    p {
+        font-size: 1.75rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .kiosk-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 2rem !important;
+    }
+}

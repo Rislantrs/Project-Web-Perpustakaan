@@ -148,9 +148,9 @@ export default function Navbar() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="bg-[#1f3e4e] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#0c2f3d] transition-colors shadow-sm">
+            <Link to="/lapor-warga" className="bg-[#1f3e4e] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#0c2f3d] transition-colors shadow-sm">
               Laporan Warga
-            </button>
+            </Link>
 
             {user ? (
               /* Logged-in User Avatar & Dropdown */
@@ -203,14 +203,7 @@ export default function Navbar() {
                         <History size={16} className="text-gray-400" /> Riwayat Pinjaman
                       </Link>
 
-                      {isAdmin && (
-                        <Link
-                          to="/admin"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-blue-600 bg-blue-50/50 hover:bg-blue-50 transition-colors font-bold"
-                        >
-                          <Shield size={16} className="text-blue-500" /> Panel Admin
-                        </Link>
-                      )}
+                      {/* Removed Admin Panel link from here for security and clarity */}
                       <div className="border-t border-gray-100 mt-1 pt-1">
                         <button
                           onClick={handleLogout}
@@ -284,9 +277,9 @@ export default function Navbar() {
               </div>
             ))}
             <div className="pt-4 flex flex-col space-y-2 px-3">
-               <button className="bg-[#1f3e4e] text-white px-4 py-2 rounded text-sm font-medium w-full text-center">
+               <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-[#1f3e4e] text-white px-4 py-2 rounded text-sm font-medium w-full text-center">
                   Laporan Warga
-               </button>
+               </Link>
                {user ? (
                  <>
                    <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-2 rounded border border-gray-300 text-gray-700 text-sm font-medium w-full flex justify-center items-center gap-2">
