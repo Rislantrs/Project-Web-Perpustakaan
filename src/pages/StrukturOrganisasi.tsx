@@ -1,5 +1,9 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router';
+import { useState, useEffect } from 'react';
+import { getStructure, type StructureNode } from '../services/settingsService';
+import { getInitials } from '../services/authService';
+
 
 // Dummy data using Unsplash portraits for illustration
 const leaders = [
@@ -25,22 +29,47 @@ const sekretariat = [
 
 function ProfileCard({ data, size = "md" }: { data: any, size?: "lg" | "md" | "sm" }) {
   const isLg = size === "lg";
+  const avatarColor = ['#0c2f3d', '#d6a54a', '#1f3e4e', '#8b1c24'][Math.floor(Math.random() * 4)];
+  
   return (
     <div className="flex flex-col items-center group">
-      <div className={`overflow-hidden rounded-xl shadow-lg border-2 border-white mb-4 bg-gray-200 transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-xl group-hover:border-[#d6a54a]
-        ${isLg ? 'w-full aspect-[3/4]' : 'w-full aspect-[3/4] max-w-[200px]'}`}
+      <div className={`overflow-hidden rounded-2xl shadow-lg border-4 border-white mb-4 transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-xl group-hover:border-[#d6a54a] flex items-center justify-center
+        ${isLg ? 'w-48 h-64' : (size === "md" ? 'w-36 h-48' : 'w-24 h-32')}`}
+        style={{ backgroundColor: avatarColor + '20' }}
       >
-        <img src={data.img} alt={data.name} className="w-full h-full object-cover object-center" />
+        {data.img ? (
+           <img src={data.img} alt={data.name} className="w-full h-full object-cover object-center" />
+        ) : (
+           <div className="flex flex-col items-center text-center p-4">
+             <div className="text-2xl font-black mb-2" style={{ color: avatarColor }}>{getInitials(data.name)}</div>
+             <UserIcon size={isLg ? 40 : 24} style={{ color: avatarColor, opacity: 0.3 }} />
+           </div>
+        )}
       </div>
       <div className="text-center px-2">
-        <h3 className={`font-bold text-[#0c2f3d] ${isLg ? 'text-xl' : 'text-sm'} mb-1`}>{data.name}</h3>
-        <p className={`text-gray-500 font-medium ${isLg ? 'text-sm' : 'text-xs'}`}>{data.role}</p>
+        <h3 className={`font-bold text-[#0c2f3d] ${isLg ? 'text-lg' : 'text-sm'} mb-1`}>{data.name}</h3>
+        <p className={`text-gray-500 font-bold uppercase tracking-widest ${isLg ? 'text-[10px]' : 'text-[8px]'}`}>{data.role}</p>
       </div>
     </div>
   );
 }
 
+
 export default function StrukturOrganisasi() {
+  const [nodes, setNodes] = useState<StructureNode[]>([]);
+  
+  useEffect(() => {
+    const data = getStructure();
+    setNodes(data);
+  }, []);
+
+  const hasData = nodes.length > 0;
+  
+  // Use current data or fallbacks
+  const level1 = hasData ? nodes.filter(n => n.level === 1) : leaders;
+  const level2 = hasData ? nodes.filter(n => n.level === 2) : bidang;
+  const others = hasData ? nodes.filter(n => n.level >= 3) : sekretariat;
+
   return (
     <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,34 +84,35 @@ export default function StrukturOrganisasi() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="font-serif text-4xl font-bold text-[#0c2f3d]">Struktur Organisasi</h1>
+          <p className="text-xs font-black text-[#d6a54a] uppercase tracking-[0.3em] mt-4">Disipusda Kabupaten Purwakarta</p>
         </div>
 
-        <div className="space-y-16">
-          {/* Top Level - Kepala & Sekretaris */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {leaders.map((leader, i) => <ProfileCard key={i} data={leader} size="lg" />)}
+        <div className="space-y-20">
+          {/* Top Level */}
+          <div className="flex flex-wrap justify-center gap-12 max-w-5xl mx-auto">
+            {level1.map((leader, i) => (
+              <ProfileCard key={i} data={{ name: leader.name || (leader as any).name, role: leader.position || (leader as any).role, img: (leader as any).img }} size="lg" />
+            ))}
           </div>
 
-          <div className="w-full border-t border-gray-200"></div>
+          <div className="max-w-px h-16 bg-gray-200 mx-auto"></div>
 
-          {/* Bidang - 4 Columns */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {bidang.map((b, i) => <ProfileCard key={i} data={b} size="md" />)}
+          {/* Level 2 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {level2.map((b, i) => (
+              <ProfileCard key={i} data={{ name: b.name || (b as any).name, role: b.position || (b as any).role, img: (b as any).img }} size="md" />
+            ))}
           </div>
 
-          <div className="w-full border-t border-gray-200"></div>
+          <div className="w-full h-px bg-gray-100"></div>
 
-          {/* Sekretariat Section */}
+          {/* Others */}
           <div className="text-center">
-            <h2 className="font-serif text-3xl font-bold text-[#d6a54a] mb-10">Sekretariat</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-              {sekretariat.map((s, i) => <ProfileCard key={i} data={s} size="sm" />)}
-            </div>
-            
-            {/* Third Row (More sub staffs) just reusing same array for visual completeness of user screenshot */}
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mt-8">
-               {[...sekretariat].reverse().map((s, i) => <ProfileCard key={`sub-${i}`} data={{...s, role: 'Staf Administrasi / Teknis'}} size="sm" />)}
-            </div>
+             <div className="grid grid-cols-2 lg:grid-cols-6 gap-6">
+               {others.map((s, i) => (
+                 <ProfileCard key={i} data={{ name: s.name || (s as any).name, role: s.position || (s as any).role, img: (s as any).img }} size="sm" />
+               ))}
+             </div>
           </div>
         </div>
 
@@ -90,3 +120,4 @@ export default function StrukturOrganisasi() {
     </div>
   );
 }
+

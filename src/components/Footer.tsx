@@ -1,7 +1,18 @@
 import { Link } from 'react-router';
 import { MapPin, Phone, Mail, Instagram, Facebook, Youtube } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getSiteSettings, type SiteSettings } from '../services/settingsService';
+
 
 export default function Footer() {
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+
+  useEffect(() => {
+    setSettings(getSiteSettings());
+  }, []);
+
+  if (!settings) return null;
+
   return (
     <footer className="bg-[#0c2f3d] text-white pt-16 pb-8 border-t-4 border-[#d6a54a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,22 +20,29 @@ export default function Footer() {
           
           {/* Brand Info */}
           <div className="col-span-1 md:col-span-1">
-            <h3 className="font-serif text-2xl font-bold text-[#d6a54a] mb-4">Disipusda Purwakarta</h3>
+            <h3 className="font-serif text-2xl font-bold text-[#d6a54a] mb-4">{settings.namaInstansi}</h3>
             <p className="text-gray-300 text-sm leading-relaxed mb-6">
               Menjaga memori kolektif bangsa dan mencerdaskan kehidupan masyarakat melalui tata kelola kearsipan dan perpustakaan yang modern.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#d6a54a] transition-colors">
-                <Facebook size={16} />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#d6a54a] transition-colors">
-                <Instagram size={16} />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#d6a54a] transition-colors">
-                <Youtube size={16} />
-              </a>
+              {settings.facebookUrl && (
+                <a href={settings.facebookUrl} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#d6a54a] transition-colors">
+                  <Facebook size={16} />
+                </a>
+              )}
+              {settings.instagramUrl && (
+                <a href={settings.instagramUrl} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#d6a54a] transition-colors">
+                  <Instagram size={16} />
+                </a>
+              )}
+              {settings.youtubeUrl && (
+                <a href={settings.youtubeUrl} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#d6a54a] transition-colors">
+                  <Youtube size={16} />
+                </a>
+              )}
             </div>
           </div>
+
 
           {/* Quick Links */}
           <div className="col-span-1">
@@ -44,18 +62,19 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-gray-300">
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="text-[#d6a54a] shrink-0 mt-0.5" />
-                <span>Jl. Veteran No.46, Nagri Kaler, Kec. Purwakarta, Kabupaten Purwakarta, Jawa Barat 41115</span>
+                <span className="leading-relaxed">{settings.alamatInstansi}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-[#d6a54a] shrink-0" />
-                <span>(0264) 200000</span>
+                <span>{settings.teleponKontak}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-[#d6a54a] shrink-0" />
-                <span>info@disipusda.purwakarta.go.id</span>
+                <span className="truncate">{settings.emailKontak}</span>
               </li>
             </ul>
           </div>
+
 
           {/* Map Placeholder */}
           <div className="col-span-1">

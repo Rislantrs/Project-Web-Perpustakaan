@@ -35,6 +35,9 @@ import LaporWarga from './pages/LaporWarga';
 import AdminSettings from './pages/admin/Settings';
 import LoginAdmin from './pages/admin/LoginAdmin';
 import ManageReports from './pages/admin/ManageReports';
+import ManageSchedules from './pages/admin/ManageSchedules';
+import ManageStructure from './pages/admin/ManageStructure';
+
 
 function App() {
   return (
@@ -81,6 +84,8 @@ function App() {
           <Route path="borrows" element={<ManageBorrows />} />
           <Route path="reports" element={<ManageReports />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="schedules" element={<ManageSchedules />} />
+          <Route path="structure" element={<ManageStructure />} />
         </Route>
 
         {/* 404 Generic Error Route */}

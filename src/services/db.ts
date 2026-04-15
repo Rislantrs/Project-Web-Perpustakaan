@@ -36,7 +36,11 @@ export const DB_KEYS = {
   BORROWS: 'disipusda_borrows',
   REPORTS: 'disipusda_reports',
   SETTINGS: 'disipusda_settings',
-  MEDIA: 'disipusda_media'
+  MEDIA: 'disipusda_media',
+  STRUCTURE: 'disipusda_structure',
+  ACHIEVEMENTS: 'disipusda_achievements',
+  SCHEDULES: 'disipusda_schedules',
+  SYSTEM_INFO: 'disipusda_system'
 };
 
 export const dbSave = (key: string, data: any) => {
@@ -98,5 +102,38 @@ export const initializeDB = () => {
   } else {
     // If found but using old dummy format, we could update it here
     // For now, if it exists, we leave it to let user change their password
+  }
+  
+  // Initialize system info if empty
+  const systemInfo = dbGet(DB_KEYS.SYSTEM_INFO, null);
+  if (!systemInfo) {
+    dbSave(DB_KEYS.SYSTEM_INFO, {
+      siteName: 'Disipusda Purwakarta',
+      tagline: 'Dinas Arsip & Perpustakaan Daerah Kabupaten Purwakarta',
+      address: 'Jl. Veteran No. 46, Purwakarta, Jawa Barat',
+      email: 'disipusda@purwakartakab.go.id',
+      phone: '(0264) 200234',
+      whatsapp: '081234567890',
+      socials: {
+        instagram: 'https://instagram.com/disipusdapwk',
+        facebook: 'https://facebook.com/disipusdapwk',
+        youtube: 'https://youtube.com/disipusdapwk'
+      },
+      logo: '',
+      operatingHours: {
+        weekday: '08:00 - 16:00',
+        weekend: 'Tutup'
+      }
+    });
+  }
+
+  // Initialize schedules if empty
+  const schedules = dbGet(DB_KEYS.SCHEDULES, []);
+  if (schedules.length === 0) {
+    dbSave(DB_KEYS.SCHEDULES, [
+      { id: '1', day: 'Senin - Kamis', hours: '08:00 - 15:30', note: 'Layanan Mandiri & Pinjam' },
+      { id: '2', day: 'Jumat', hours: '08:00 - 16:00', note: 'Layanan Terbatas' },
+      { id: '3', day: 'Sabtu', hours: '09:00 - 12:00', note: 'Layanan Weekend' },
+    ]);
   }
 };

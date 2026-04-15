@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network } from 'lucide-react';
 import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
 import { useEffect } from 'react';
 
@@ -21,10 +21,13 @@ export default function AdminLayout() {
     { name: 'Semua Artikel', path: '/admin/articles', icon: <FileText size={20} /> },
     { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
     { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
-    { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
+    { name: 'Struktur & Prestasi', path: '/admin/structure', icon: <Network size={20} /> },
+    { name: 'Jadwal Layanan', path: '/admin/schedules', icon: <Clock size={20} /> },
     { name: 'Laporan Warga', path: '/admin/reports', icon: <MessageSquare size={20} /> },
     { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
+    { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
   ];
+
 
   const handleLogout = () => { logoutAdmin(); navigate('/'); };
 

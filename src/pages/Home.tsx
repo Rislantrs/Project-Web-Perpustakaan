@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Calendar, MapPin, Clock, ExternalLink, Archive, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getArticles, Article } from '../services/dataService';
+import { getSchedules, Schedule } from '../services/settingsService';
+
 
 const bgImages = [
   "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
@@ -14,9 +16,14 @@ export default function Home() {
   const [currentBg, setCurrentBg] = useState(0);
   const [isSundanese, setIsSundanese] = useState(false);
   const [news, setNews] = useState<Article[]>([]);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [activeNewsIdx, setActiveNewsIdx] = useState(0);
 
   useEffect(() => {
-    setNews(getArticles().slice(0, 5));
+    const allNews = getArticles();
+    setNews(allNews);
+    setSchedules(getSchedules().slice(0, 3));
+
     const bgInterval = setInterval(() => {
       setCurrentBg((prev) => (prev + 1) % bgImages.length);
     }, 5000);
@@ -25,10 +32,20 @@ export default function Home() {
       setIsSundanese((prev) => !prev);
     }, 3000);
 
+    const newsInterval = setInterval(() => {
+      setActiveNewsIdx((prev) => {
+        const nextLimit = Math.min(allNews.length, 5);
+        return nextLimit > 0 ? (prev + 1) % nextLimit : 0;
+      });
+    }, 6000);
+
+
     return () => {
       clearInterval(bgInterval);
       clearInterval(fontInterval);
+      clearInterval(newsInterval);
     };
+
   }, []);
   return (
     <div className="flex flex-col min-h-screen">
@@ -114,64 +131,84 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Main Featured Article */}
-            <div className="lg:col-span-7 group cursor-pointer relative rounded-2xl overflow-hidden card-elevated h-[500px]">
-              {news[0] ? (
-                <Link to={`/artikel/${news[0].slug}`} className="block h-full relative">
-                  <img 
-                    src={news[0].img} 
-                    alt={news[0].title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-8 w-full">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="bg-[#d6a54a] text-white text-xs font-bold px-3 py-1 rounded">EKSKLUSIF</span>
-                      <span className="text-gray-300 text-sm">{news[0].date} • Oleh {news[0].author}</span>
-                    </div>
-                    <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-[#d6a54a] transition-colors leading-tight line-clamp-2">
-                      {news[0].title}
-                    </h3>
-                    <div className="flex justify-between items-center text-white border-t border-white/20 pt-4 mt-6">
-                      <span className="text-sm font-medium tracking-wider">BACA SELENGKAPNYA</span>
-                    </div>
+            {/* Main Featured Article (Auto Sliding) */}
+            <div className="lg:col-span-7 group cursor-pointer relative rounded-2xl overflow-hidden shadow-lg h-[500px]">
+              <AnimatePresence mode="wait">
+                {news[activeNewsIdx] ? (
+                  <motion.div 
+                    key={news[activeNewsIdx].id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.6 }}
+                    className="absolute inset-0"
+                  >
+                    <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative">
+                      <img 
+                        src={news[activeNewsIdx].img} 
+                        alt={news[activeNewsIdx].title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent"></div>
+                      <div className="absolute bottom-0 left-0 p-8 w-full">
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="bg-[#d6a54a] text-white text-[10px] font-black px-3 py-1 rounded tracking-widest">HIGHLIGHT</span>
+                          <span className="text-gray-300 text-sm font-medium">{news[activeNewsIdx].date}</span>
+                        </div>
+                        <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-[#d6a54a] transition-colors leading-tight line-clamp-2">
+                          {news[activeNewsIdx].title}
+                        </h3>
+                        <div className="flex justify-between items-center text-white border-t border-white/10 pt-4 mt-6">
+                          <span className="text-xs font-bold tracking-[0.2em] flex items-center gap-2">
+                            BACA SELENGKAPNYA <ArrowRight size={14} />
+                          </span>
+                          <div className="flex gap-1.5">
+                            {news.slice(0, 5).map((_, i) => (
+                              <div key={i} className={`h-1 rounded-full transition-all ${i === activeNewsIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/30'}`} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-400 rounded-xl border-2 border-dashed border-gray-100">
+                    Memuat berita terbaru...
                   </div>
-                </Link>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 rounded-xl">
-                  Memuat berita...
-                </div>
-              )}
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* List of articles */}
-            <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
-              {news.slice(1).map((article, idx) => (
-                <Link to={`/artikel/${article.slug}`} key={idx} className="card-elevated p-5 rounded-xl group cursor-pointer flex gap-4 flex-1">
-                  <div className="flex-1 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-2">
-                       <span className={`text-xs font-bold ${article.category === 'Pojok Carita' ? 'text-blue-600' : 'text-emerald-600'}`}>{article.category.toUpperCase()}</span>
-                       <span className="text-gray-400 text-xs">{article.date}</span>
+            {/* Side Articles (Dynamic adjustment) */}
+            <div className="lg:col-span-5 flex flex-col gap-4 h-[500px]">
+              {news.length > 0 ? (
+                // Filter out the currently active featured news to show OTHERS on the side
+                news.filter((_, idx) => idx !== activeNewsIdx).slice(0, 4).map((article, idx) => (
+                  <Link to={`/artikel/${article.slug}`} key={article.id} className="bg-white p-5 rounded-2xl group cursor-pointer flex gap-4 flex-1 border border-gray-100 hover:shadow-xl hover:border-[#d6a54a]/30 transition-all overflow-hidden">
+                    <div className="flex-1 flex flex-col justify-center min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                         <span className="text-[10px] font-black text-[#d6a54a] uppercase tracking-widest">{article.category}</span>
+                         <span className="text-gray-400 text-[10px] font-medium uppercase">{article.date}</span>
+                      </div>
+                      <h4 className="font-bold text-gray-800 leading-tight group-hover:text-[#0c2f3d] transition-colors line-clamp-2 text-sm md:text-base">
+                        {article.title}
+                      </h4>
                     </div>
-                    <h4 className="font-bold text-gray-800 leading-snug group-hover:text-[#d6a54a] transition-colors line-clamp-2">
-                      {article.title}
-                    </h4>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-hover:bg-[#0c2f3d] group-hover:text-white group-hover:border-[#0c2f3d] transition-colors">
-                      <ArrowRight size={16} className="-rotate-45" />
+                    <div className="flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#0c2f3d] group-hover:text-white transition-all transform group-hover:rotate-45">
+                        <ArrowRight size={16} />
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-              
-              {news.length <= 1 && (
-                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                  Belum ada berita lainnya.
+                  </Link>
+                ))
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-300 text-sm font-medium italic">
+                  Tidak ada berita tersedia.
                 </div>
               )}
             </div>
           </div>
+
         </div>
       </section>
 
@@ -243,38 +280,40 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Events Map/List */}
-            <div className="lg:col-span-1 flex flex-col">
-              <h3 className="font-serif text-2xl text-[#0c2f3d] mb-6 font-bold">Jadwal Mendatang</h3>
-              <div className="space-y-4 flex-grow">
-                {[
-                  { date: '15 Okt, 2024', time: '09:00 - 15:00 WIB', title: 'Alun-Alun Kota', loc: 'Sisi Timur, Dekat Menara Pandang' },
-                  { date: '17 Okt, 2024', time: '10:00 - 17:00 WIB', title: 'Taman Budaya', loc: 'Area Parkir Utara' },
-                  { date: '20 Okt, 2024', time: '08:00 - 14:00 WIB', title: 'Kampus Merdeka', loc: 'Halaman Gedung Rektorat' }
-                ].map((event, idx) => (
-                  <div key={idx} className="bg-[#1f3e4e] text-white p-5 rounded-xl border border-[#0c2f3d] hover:border-[#d6a54a] transition-colors cursor-pointer group">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2 text-[#d6a54a] font-medium text-sm">
-                        <Calendar size={14} /> <span>{event.date}</span>
+            {/* Events Map/List (Dynamic) */}
+            <div className="lg:col-span-1 flex flex-col h-full">
+              <h3 className="font-serif text-2xl text-[#0c2f3d] mb-6 font-bold flex items-center gap-2">
+                <Clock className="text-[#d6a54a]" size={20} /> Jadwal Mendatang
+              </h3>
+              <div className="space-y-4 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[400px]">
+                {schedules.length > 0 ? (
+                  schedules.map((event, idx) => (
+                    <div key={event.id} className="bg-white border-2 border-transparent hover:border-[#d6a54a]/20 p-5 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer group">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2 text-[#d6a54a] font-black text-[10px] uppercase tracking-widest">
+                          <Calendar size={12} /> <span>{event.day}</span>
+                        </div>
+                        {idx === 0 && <span className="bg-[#0c2f3d] text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Terdekat</span>}
                       </div>
-                      {idx === 0 && <span className="bg-[#0c2f3d] text-white text-[10px] px-2 py-0.5 rounded border border-white/10 uppercase tracking-widest">HARI INI</span>}
-                    </div>
-                    <h4 className="font-bold text-lg mb-2">{event.title}</h4>
-                    <div className="space-y-1 text-gray-400 text-xs">
-                      <div className="flex items-center gap-2 bg-white/5 w-fit px-2 py-1 rounded">
-                        <Clock size={12} /> {event.time}
-                      </div>
-                      <div className="flex items-center gap-2 px-2 py-1">
-                        <MapPin size={12} className="text-[#d6a54a]" /> {event.loc}
+                      <h4 className="font-bold text-[#0c2f3d] text-lg mb-3 line-clamp-1">{event.note || 'Layanan Disipusda'}</h4>
+                      <div className="bg-[#f8f9fa] p-2.5 rounded-xl border border-gray-100">
+                        <div className="flex items-center gap-2 text-[#0c2f3d] font-bold text-xs uppercase tracking-widest">
+                          <Clock size={12} className="text-[#d6a54a]" /> {event.hours}
+                        </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-10 bg-white/50 rounded-2xl border-2 border-dashed border-gray-100">
+                    <p className="text-xs text-gray-400 font-medium italic">Belum ada jadwal operasional diatur.</p>
                   </div>
-                ))}
+                )}
               </div>
-              <button className="mt-4 text-[#0c2f3d] font-semibold text-sm hover:text-[#d6a54a] transition-colors flex items-center justify-center gap-2 py-2">
-                Lihat Seluruh Jadwal <ArrowRight size={16} />
-              </button>
+              <Link to="/perpustakaan" className="mt-6 text-[10px] font-black uppercase tracking-widest text-[#0c2f3d] hover:text-[#d6a54a] transition-all flex items-center justify-center gap-2 bg-white/50 py-3 rounded-xl border border-gray-100 hover:border-[#d6a54a]/30">
+                Lihat Detail Layanan <ArrowRight size={14} />
+              </Link>
             </div>
+
           </div>
         </div>
       </section>
