@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Network, Trophy, Plus, Trash2, Save, CheckCircle, AlertCircle, User, Briefcase, Image as ImageIcon, Edit2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getStructure, saveStructure, getAchievements, saveAchievements, type StructureNode, type Achievement } from '../../services/settingsService';
+import { compressImage } from '../../services/imageUtils';
 
 const CATEGORIES = [
   { id: 'pimpinan', label: 'Pimpinan' },
@@ -79,39 +80,42 @@ export default function ManageStructure() {
     showToast(res.message, res.success ? 'success' : 'error');
   };
 
-  const handleFileChange = (id: string, file: File | null) => {
+  const handleFileChange = async (id: string, file: File | null) => {
     if (!file) {
       updateNode(id, 'img', '');
       return;
     }
     
-    // Check file size (limit to 2MB for localStorage safety)
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('Ukuran file terlalu besar (Maks 2MB)', 'error');
+    // Check file size (limit to 5MB before compression)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Ukuran file terlalu besar (Maks 5MB)', 'error');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      updateNode(id, 'img', reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Compress to WebP and resize
+      const compressedWebp = await compressImage(file, 5, 800);
+      updateNode(id, 'img', compressedWebp);
+    } catch (error: any) {
+      showToast(error.message || 'Gagal memproses gambar', 'error');
+    }
   };
 
-  const handleAchievementFileChange = (id: string, file: File | null) => {
+  const handleAchievementFileChange = async (id: string, file: File | null) => {
     if (!file) {
       updateAchievement(id, 'img', '');
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('Ukuran file terlalu besar (Maks 2MB)', 'error');
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Ukuran file terlalu besar (Maks 5MB)', 'error');
       return;
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      updateAchievement(id, 'img', reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedWebp = await compressImage(file, 5, 800);
+      updateAchievement(id, 'img', compressedWebp);
+    } catch (error: any) {
+      showToast(error.message || 'Gagal memproses gambar', 'error');
+    }
   };
 
   return (

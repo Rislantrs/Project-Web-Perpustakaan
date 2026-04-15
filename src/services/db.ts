@@ -45,6 +45,8 @@ export const DB_KEYS = {
 
 export const dbSave = (key: string, data: any) => {
   localStorage.setItem(key, JSON.stringify(data));
+  // Dispatch a custom event so same-tab components can react
+  window.dispatchEvent(new CustomEvent('dbChange', { detail: { key } }));
 };
 
 export const dbGet = <T,>(key: string, defaultValue: T): T => {

@@ -42,9 +42,21 @@ export default function Home() {
   const [activeCultureIdx, setActiveCultureIdx] = useState(0);
 
   useEffect(() => {
-    const allNews = getArticles();
-    setNews(allNews);
-    setSchedules(getSchedules().slice(0, 3));
+    let currentNewsCount = 0;
+
+    const fetchData = () => {
+      const articles = getArticles();
+      setNews(articles);
+      currentNewsCount = articles.length;
+      setSchedules(getSchedules().slice(0, 3));
+    };
+
+    fetchData(); // Initial fetch
+
+    // Sync Data changes from other tabs or same tab Admin
+    const handleStorageChange = () => fetchData();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('dbChange', handleStorageChange);
 
     const bgInterval = setInterval(() => {
       setCurrentBg((prev) => (prev + 1) % bgImages.length);
@@ -56,7 +68,7 @@ export default function Home() {
 
     const newsInterval = setInterval(() => {
       setActiveNewsIdx((prev) => {
-        const nextLimit = Math.min(allNews.length, 5);
+        const nextLimit = Math.min(currentNewsCount, 5);
         return nextLimit > 0 ? (prev + 1) % nextLimit : 0;
       });
     }, 6000);
@@ -70,6 +82,8 @@ export default function Home() {
       clearInterval(fontInterval);
       clearInterval(newsInterval);
       clearInterval(cultureInterval);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('dbChange', handleStorageChange);
     };
 
   }, []);

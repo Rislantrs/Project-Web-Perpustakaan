@@ -1,17 +1,14 @@
-import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import { Link, Outlet, useLocation, Navigate, useNavigate } from 'react-router';
 import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network } from 'lucide-react';
 import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
-import { useEffect } from 'react';
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAdminLoggedIn()) {
-      navigate('/login-admin');
-    }
-  }, [navigate]);
+  if (!isAdminLoggedIn()) {
+    return <Navigate to="/login-admin" replace />;
+  }
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
