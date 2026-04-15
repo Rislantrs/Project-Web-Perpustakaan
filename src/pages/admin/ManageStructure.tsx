@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Network, Trophy, Plus, Trash2, Save, CheckCircle, AlertCircle, User, Star, ChevronRight, Briefcase } from 'lucide-react';
+import { Network, Trophy, Plus, Trash2, Save, CheckCircle, AlertCircle, User, Briefcase, Image as ImageIcon, Edit2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getStructure, saveStructure, getAchievements, saveAchievements, type StructureNode, type Achievement } from '../../services/settingsService';
+
+const CATEGORIES = [
+  { id: 'pimpinan', label: 'Pimpinan' },
+  { id: 'sekretariat', label: 'Sekretariat' },
+  { id: 'bidang_pembinaan', label: 'Bidang Pembinaan' },
+  { id: 'bidang_pengelolaan', label: 'Bidang Pengelolaan' },
+  { id: 'bidang_layanan', label: 'Bidang Layanan' },
+  { id: 'bidang_pengembangan', label: 'Bidang Pengembangan' },
+  { id: 'diorama', label: 'Bale Panyawangan Diorama' }
+];
 
 export default function ManageStructure() {
   const [activeTab, setActiveTab] = useState<'struktur' | 'prestasi'>('struktur');
@@ -25,10 +35,13 @@ export default function ManageStructure() {
       id: Date.now().toString(),
       name: '',
       position: '',
-      level: 1
+      level: 3,
+      category: 'sekretariat',
+      img: ''
     };
     setNodes([...nodes, newNode]);
   };
+
 
   const removeNode = (id: string) => {
     setNodes(nodes.filter(n => n.id !== id));
@@ -37,7 +50,6 @@ export default function ManageStructure() {
   const updateNode = (id: string, field: keyof StructureNode, value: string | number) => {
     setNodes(nodes.map(n => n.id === id ? { ...n, [field]: value } : n));
   };
-
   const handleSaveStructure = () => {
     const res = saveStructure(nodes);
     showToast(res.message, res.success ? 'success' : 'error');
@@ -67,8 +79,43 @@ export default function ManageStructure() {
     showToast(res.message, res.success ? 'success' : 'error');
   };
 
+  const handleFileChange = (id: string, file: File | null) => {
+    if (!file) {
+      updateNode(id, 'img', '');
+      return;
+    }
+    
+    // Check file size (limit to 2MB for localStorage safety)
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Ukuran file terlalu besar (Maks 2MB)', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      updateNode(id, 'img', reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAchievementFileChange = (id: string, file: File | null) => {
+    if (!file) {
+      updateAchievement(id, 'img', '');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Ukuran file terlalu besar (Maks 2MB)', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      updateAchievement(id, 'img', reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto pb-32">
       {/* Toast */}
       <AnimatePresence>
         {toast.show && (
@@ -130,38 +177,78 @@ export default function ManageStructure() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 pb-24">
+            <div className="grid grid-cols-1 gap-4">
               {nodes.map((node, i) => (
-                <div key={node.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 items-center">
-                  <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[#d6a54a] font-black text-xs">#{i + 1}</div>
-                  
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1 shadow-transparent">Nama Pejabat/Staf</label>
-                      <div className="relative">
-                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input value={node.name} onChange={e => updateNode(node.id, 'name', e.target.value)} placeholder="Contoh: Drs. H. Nama Pimpinan" className="w-full pl-9 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
+                <div key={node.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+                  {/* Foto Upload */}
+                  <div className="shrink-0">
+                    <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-2">Pas Foto</label>
+                    <div className="relative group cursor-pointer">
+                      <div className="w-24 h-32 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden flex items-center justify-center group-hover:border-[#d6a54a] transition-all">
+                        {node.img ? (
+                          <img src={node.img} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="flex flex-col items-center gap-1 text-gray-300">
+                            <ImageIcon size={24} />
+                            <span className="text-[8px] font-bold">upload</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Jabatan</label>
-                      <div className="relative">
-                        <Briefcase size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input value={node.position} onChange={e => updateNode(node.id, 'position', e.target.value)} placeholder="Contoh: Kepala Dinas" className="w-full pl-9 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Level Hirarki</label>
-                      <select value={node.level} onChange={e => updateNode(node.id, 'level', parseInt(e.target.value))} className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none appearance-none">
-                        <option value={1}>Level 1 (Kepala / Pimpinan)</option>
-                        <option value={2}>Level 2 (Sekretaris / Kabid)</option>
-                        <option value={3}>Level 3 (Kasi / Staf Ahli)</option>
-                        <option value={4}>Level 4 (Staf Teknis)</option>
-                      </select>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(node.id, e.target.files?.[0] || null)}
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                      />
+                      {node.img && (
+                        <button 
+                          onClick={() => updateNode(node.id, 'img', '')}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  <button onClick={() => removeNode(node.id)} className="p-3 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all">
+                  <div className="flex-1 space-y-4 w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4"
+>
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1 shadow-transparent">Nama Pejabat/Staf</label>
+                        <input value={node.name} onChange={e => updateNode(node.id, 'name', e.target.value)} placeholder="Nama Lengkap" className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-xs font-bold text-[#0c2f3d] focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Jabatan</label>
+                        <input value={node.position} onChange={e => updateNode(node.id, 'position', e.target.value)} placeholder="Jabatan" className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-xs font-medium text-gray-600 focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Kategori Bagian</label>
+                        <select value={node.category} onChange={e => updateNode(node.id, 'category', e.target.value)} className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-[10px] font-bold focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none appearance-none uppercase tracking-wider">
+                          {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Level Hirarki</label>
+                        <div className="flex gap-2">
+                          {[1, 2, 3, 4].map((l) => (
+                            <button 
+                              key={l}
+                              onClick={() => updateNode(node.id, 'level', l)}
+                              className={`flex-1 py-2.5 rounded-xl text-[10px] font-bold transition-all border ${node.level === l ? 'bg-[#0c2f3d] text-white border-[#0c2f3d]' : 'bg-white text-gray-400 border-gray-100 hover:border-gray-200'}`}
+                            >
+                              LV {l}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button onClick={() => removeNode(node.id)} className="p-3 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all self-center">
                     <Trash2 size={20} />
                   </button>
                 </div>
@@ -176,6 +263,7 @@ export default function ManageStructure() {
               </div>
             )}
           </motion.div>
+
         ) : (
           <motion.div 
             key="prestasi"
@@ -202,8 +290,40 @@ export default function ManageStructure() {
 
             <div className="grid grid-cols-1 gap-6 pb-24">
               {achievements.map((item) => (
-                <div key={item.id} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8">
-                  <div className="flex-1 space-y-4">
+                <div key={item.id} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 items-start">
+                  
+                  {/* Foto Penghargaan */}
+                  <div className="shrink-0">
+                    <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-2">Foto / Ikon</label>
+                    <div className="relative group cursor-pointer">
+                      <div className="w-24 h-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden flex items-center justify-center group-hover:border-[#d6a54a] transition-all">
+                        {item.img ? (
+                          <img src={item.img} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="flex flex-col items-center gap-1 text-gray-300">
+                            <ImageIcon size={24} />
+                            <span className="text-[8px] font-bold text-center">pilih foto</span>
+                          </div>
+                        )}
+                      </div>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => handleAchievementFileChange(item.id, e.target.files?.[0] || null)}
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                      />
+                      {item.img && (
+                        <button 
+                          onClick={() => updateAchievement(item.id, 'img', '')}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 space-y-4 w-full">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="md:col-span-3">
                         <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Nama Penghargaan</label>
@@ -219,7 +339,7 @@ export default function ManageStructure() {
                       <textarea value={item.description} onChange={e => updateAchievement(item.id, 'description', e.target.value)} rows={2} placeholder="Ceritakan sedikit tentang pencapaian ini..." className="w-full px-4 py-4 bg-gray-50 border-none rounded-2xl text-sm text-gray-600 outline-none resize-none" />
                     </div>
                   </div>
-                  <button onClick={() => removeAchievement(item.id)} className="p-3 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all self-start">
+                  <button onClick={() => removeAchievement(item.id)} className="p-3 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all self-center">
                     <Trash2 size={24} />
                   </button>
                 </div>

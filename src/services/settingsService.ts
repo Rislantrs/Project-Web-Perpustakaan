@@ -1,4 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
 import { dbGet, dbSave, DB_KEYS } from './db';
+
 
 export interface SystemInfo {
   siteName: string;
@@ -49,7 +51,7 @@ export interface Achievement {
   title: string;
   year: string;
   description: string;
-  icon?: string;
+  img?: string;
 }
 
 export interface StructureNode {
@@ -58,7 +60,10 @@ export interface StructureNode {
   position: string;
   level: number;
   parentId?: string;
+  category: string;
+  img?: string;
 }
+
 
 // System Info
 export const getSystemInfo = (): SystemInfo => {
@@ -139,6 +144,17 @@ export const saveAchievements = (achievements: Achievement[]) => {
 // Structure
 export const getStructure = (): StructureNode[] => {
   return dbGet<StructureNode[]>(DB_KEYS.STRUCTURE, []);
+};
+
+export const addStructureNode = (node: Omit<StructureNode, 'id'>): StructureNode => {
+  const nodes = getStructure();
+  const newNode = { ...node, id: uuidv4() };
+  dbSave(DB_KEYS.STRUCTURE, [...nodes, newNode]);
+  return newNode;
+};
+
+export const getStructureByCategory = (category: string): StructureNode[] => {
+  return getStructure().filter(node => node.category === category);
 };
 
 export const saveStructure = (nodes: StructureNode[]) => {

@@ -1,4 +1,5 @@
-import { ChevronRight, Award, Star } from 'lucide-react';
+import { ChevronRight, Award, Star, Trophy } from 'lucide-react';
+
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
 import { getAchievements, type Achievement } from '../services/settingsService';
@@ -42,7 +43,7 @@ export default function Prestasi() {
     title: d.title,
     year: d.year,
     description: d.desc,
-    icon: d.img // Reusing as image
+    img: d.img
   }));
 
   return (
@@ -73,8 +74,8 @@ export default function Prestasi() {
             <div key={item.id} className="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100 flex flex-col md:flex-row group transition-all hover:shadow-2xl hover:border-[#d6a54a]/30">
               {/* Image side */}
               <div className="w-full md:w-2/5 h-64 md:h-auto overflow-hidden relative bg-gray-50 flex items-center justify-center">
-                 {item.icon ? (
-                    <img src={item.icon} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                 {item.img ? (
+                    <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                  ) : (
                     <Trophy size={64} className="text-gray-200" />
                  )}

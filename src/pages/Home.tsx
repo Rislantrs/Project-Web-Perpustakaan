@@ -12,12 +12,34 @@ const bgImages = [
   "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
 ];
 
+const cultureSlides = [
+  {
+    title: "Keajaiban di Balik Rak Buku",
+    desc: "Membaca bukan sekadar memindai kata; ia adalah sebuah perjalanan melintasi waktu. Di sini, setiap halaman yang terbuka adalah gerbang menuju dunia yang belum pernah Anda jamah sebelumnya...",
+    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+    meta: "5 menit membaca"
+  },
+  {
+    title: "Kearifan Lokal Bale Panyawangan",
+    desc: "Jelajahi sejarah panjang purwakarta lewat arsip digital dan diorama interaktif. Menjaga warisan budaya agar tetap hidup dan relevan untuk generasi mendatang.",
+    img: "https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=1000&q=80",
+    meta: "Diorama Budaya"
+  },
+  {
+    title: "Melestarikan Memori Bangsa",
+    desc: "Setiap lembar arsip menyimpan cerita masa lalu yang membentuk identitas kita hari ini. Temukan ragam koleksi sejarah yang mencerahkan pikiran.",
+    img: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&w=1000&q=80",
+    meta: "Arsip Nasional"
+  }
+];
+
 export default function Home() {
   const [currentBg, setCurrentBg] = useState(0);
   const [isSundanese, setIsSundanese] = useState(false);
   const [news, setNews] = useState<Article[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [activeNewsIdx, setActiveNewsIdx] = useState(0);
+  const [activeCultureIdx, setActiveCultureIdx] = useState(0);
 
   useEffect(() => {
     const allNews = getArticles();
@@ -39,14 +61,38 @@ export default function Home() {
       });
     }, 6000);
 
+    const cultureInterval = setInterval(() => {
+      setActiveCultureIdx((prev) => (prev + 1) % cultureSlides.length);
+    }, 7000);
 
     return () => {
       clearInterval(bgInterval);
       clearInterval(fontInterval);
       clearInterval(newsInterval);
+      clearInterval(cultureInterval);
     };
 
   }, []);
+
+  const nextNews = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const limit = Math.min(news.length, 5);
+    if (limit > 0) setActiveNewsIdx((prev) => (prev + 1) % limit);
+  };
+
+  const prevNews = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const limit = Math.min(news.length, 5);
+    if (limit > 0) setActiveNewsIdx((prev) => (prev - 1 + limit) % limit);
+  };
+
+  const nextCulture = () => {
+    setActiveCultureIdx((prev) => (prev + 1) % cultureSlides.length);
+  };
+
+  const prevCulture = () => {
+    setActiveCultureIdx((prev) => (prev - 1 + cultureSlides.length) % cultureSlides.length);
+  };
   return (
     <div className="flex flex-col min-h-screen">
       
@@ -133,14 +179,22 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main Featured Article (Auto Sliding) */}
             <div className="lg:col-span-7 group cursor-pointer relative rounded-2xl overflow-hidden shadow-lg h-[500px]">
+              <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-20 pointer-events-none">
+                <button onClick={prevNews} className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                  <ArrowRight size={20} className="rotate-180" />
+                </button>
+                <button onClick={nextNews} className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                  <ArrowRight size={20} />
+                </button>
+              </div>
               <AnimatePresence mode="wait">
                 {news[activeNewsIdx] ? (
                   <motion.div 
                     key={news[activeNewsIdx].id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.6 }}
+                    initial={{ opacity: 0, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                   >
                     <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative">
@@ -150,7 +204,7 @@ export default function Home() {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent"></div>
-                      <div className="absolute bottom-0 left-0 p-8 w-full">
+                      <div className="absolute bottom-0 left-0 p-8 w-full z-10">
                         <div className="flex items-center gap-3 mb-4">
                           <span className="bg-[#d6a54a] text-white text-[10px] font-black px-3 py-1 rounded tracking-widest">HIGHLIGHT</span>
                           <span className="text-gray-300 text-sm font-medium">{news[activeNewsIdx].date}</span>
@@ -163,7 +217,7 @@ export default function Home() {
                             BACA SELENGKAPNYA <ArrowRight size={14} />
                           </span>
                           <div className="flex gap-1.5">
-                            {news.slice(0, 5).map((_, i) => (
+                            {news.slice(0, Math.min(news.length, 5)).map((_, i) => (
                               <div key={i} className={`h-1 rounded-full transition-all ${i === activeNewsIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/30'}`} />
                             ))}
                           </div>
@@ -262,57 +316,87 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Quote Block */}
-            <div className="lg:col-span-2 card-elevated rounded-2xl overflow-hidden relative min-h-[400px]">
-              <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Library Background" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-[#0c2f3d]/80"></div>
-              <div className="absolute inset-0 p-10 flex flex-col justify-center text-white">
-                <span className="bg-[#d6a54a] text-[#0c2f3d] text-xs font-bold px-3 py-1 rounded w-fit mb-6">FEATURED COLUMN</span>
-                <h3 className="font-serif text-4xl lg:text-5xl font-bold mb-6 italic leading-tight">Keajaiban di Balik Rak Buku</h3>
-                <p className="text-gray-200 text-lg leading-relaxed max-w-xl">
-                  Membaca bukan sekadar memindai kata; ia adalah sebuah perjalanan melintasi waktu. Di sini, setiap halaman yang terbuka adalah gerbang menuju dunia yang belum pernah Anda jamah sebelumnya...
-                </p>
-                <div className="mt-8 flex items-center gap-6">
-                  <button className="bg-white text-[#0c2f3d] px-6 py-2 rounded font-bold hover:bg-gray-100 transition-colors shadow">
-                    Baca Selengkapnya
-                  </button>
-                  <span className="text-sm font-medium text-gray-300">5 menit membaca</span>
-                </div>
+            <div className="lg:col-span-2 card-elevated rounded-2xl overflow-hidden relative min-h-[400px] flex group">
+              {/* Navigation arrows */}
+              <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button onClick={prevCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                  <ArrowRight size={20} className="rotate-180" />
+                </button>
+                <button onClick={nextCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={activeCultureIdx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="absolute inset-0 w-full h-full"
+                >
+                  <img src={cultureSlides[activeCultureIdx].img} alt="Budaya dan Literasi" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out scale-100 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 to-transparent"></div>
+                  
+                  <div className="absolute inset-0 p-10 flex flex-col justify-end text-white z-20">
+                    <span className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md">KHAZANAH BUDAYA</span>
+                    <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{cultureSlides[activeCultureIdx].title}</h3>
+                    <p className="text-gray-200 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
+                      {cultureSlides[activeCultureIdx].desc}
+                    </p>
+                    <div className="flex items-center justify-between border-t border-white/20 pt-6">
+                      <button className="bg-transparent border border-white text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm">
+                        Eksplorasi Lebih Lanjut
+                      </button>
+                      <span className="text-xs font-bold tracking-[0.1em] text-gray-300 uppercase">{cultureSlides[activeCultureIdx].meta}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Slider indicators */}
+              <div className="absolute top-6 right-6 flex gap-1.5 z-20">
+                {cultureSlides.map((_, i) => (
+                  <div key={i} className={`h-1.5 rounded-full transition-all ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/40'}`} />
+                ))}
               </div>
             </div>
 
-            {/* Events Map/List (Dynamic) */}
+            {/* Events Map/List (Dynamic - Restored Dark Theme) */}
             <div className="lg:col-span-1 flex flex-col h-full">
               <h3 className="font-serif text-2xl text-[#0c2f3d] mb-6 font-bold flex items-center gap-2">
-                <Clock className="text-[#d6a54a]" size={20} /> Jadwal Mendatang
+                Jadwal Mendatang
               </h3>
-              <div className="space-y-4 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[400px]">
+              <div className="space-y-4 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[420px]">
                 {schedules.length > 0 ? (
                   schedules.map((event, idx) => (
-                    <div key={event.id} className="bg-white border-2 border-transparent hover:border-[#d6a54a]/20 p-5 rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer group">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-2 text-[#d6a54a] font-black text-[10px] uppercase tracking-widest">
-                          <Calendar size={12} /> <span>{event.day}</span>
+                    <div key={event.id} className="bg-[#1f3e4e] text-white p-5 rounded-xl border border-[#0c2f3d] hover:border-[#d6a54a] transition-all cursor-pointer group shadow-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2 text-[#d6a54a] font-medium text-xs">
+                          <Calendar size={14} /> <span>{event.day}</span>
                         </div>
-                        {idx === 0 && <span className="bg-[#0c2f3d] text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Terdekat</span>}
+                        {idx === 0 && <span className="bg-[#0c2f3d] text-white text-[10px] px-2 py-0.5 rounded border border-white/10 uppercase tracking-widest">TERDEKAT</span>}
                       </div>
-                      <h4 className="font-bold text-[#0c2f3d] text-lg mb-3 line-clamp-1">{event.note || 'Layanan Disipusda'}</h4>
-                      <div className="bg-[#f8f9fa] p-2.5 rounded-xl border border-gray-100">
-                        <div className="flex items-center gap-2 text-[#0c2f3d] font-bold text-xs uppercase tracking-widest">
-                          <Clock size={12} className="text-[#d6a54a]" /> {event.hours}
+                      <h4 className="font-bold text-lg mb-3 group-hover:text-[#d6a54a] transition-colors">{event.note || 'Layanan Disipusda'}</h4>
+                      <div className="space-y-2 text-gray-400 text-xs">
+                        <div className="flex items-center gap-2 bg-white/5 w-fit px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
+                          <Clock size={12} className="text-[#d6a54a]" /> <span className="text-gray-200 font-medium">{event.hours}</span>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-10 bg-white/50 rounded-2xl border-2 border-dashed border-gray-100">
+                  <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
                     <p className="text-xs text-gray-400 font-medium italic">Belum ada jadwal operasional diatur.</p>
                   </div>
                 )}
               </div>
-              <Link to="/perpustakaan" className="mt-6 text-[10px] font-black uppercase tracking-widest text-[#0c2f3d] hover:text-[#d6a54a] transition-all flex items-center justify-center gap-2 bg-white/50 py-3 rounded-xl border border-gray-100 hover:border-[#d6a54a]/30">
-                Lihat Detail Layanan <ArrowRight size={14} />
+              <Link to="/perpustakaan" className="mt-6 text-sm font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors flex items-center justify-center gap-2 py-2">
+                Lihat Seluruh Jadwal <ArrowRight size={16} />
               </Link>
             </div>
+
 
           </div>
         </div>
