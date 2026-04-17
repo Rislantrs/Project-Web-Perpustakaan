@@ -129,76 +129,129 @@ export const initializeDB = () => {
     });
   }
 
-  // Initialize structure if empty or insufficient
-  const structure = dbGet(DB_KEYS.STRUCTURE, []);
-  if (structure.length < 10) {
-    const fullStructure = [
-      // PIMPINAN
-      { id: 'S1', name: 'AAN, S.Pd.I., K.P., M.Si.', position: 'Kepala Dinas', level: 1, category: 'pimpinan', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600' },
-      { id: 'S2', name: 'Dr. Kusnandar, S.Pd, M.T', position: 'Sekretaris Dinas', level: 1, category: 'pimpinan', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600' },
+  // Initialize structure
+  const structure = dbGet<any[]>(DB_KEYS.STRUCTURE, []);
+  const defaultStructure = [
+    // PIMPINAN
+    { id: 'S1', name: 'AAN, S.Pd.I., K.P., M.Si.', position: 'Kepala Dinas', level: 1, category: 'pimpinan', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600' },
+    { id: 'S2', name: 'Dr. Kusnandar, S.Pd, M.T', position: 'Sekretaris Dinas', level: 1, category: 'pimpinan', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600' },
 
-      // SEKRETARIAT
-      { id: 'S3', name: 'Lasmi Binawati, S.E', position: 'Kepala Sub Bagian Keuangan', level: 2, category: 'sekretariat' },
-      { id: 'S4', name: 'Hj. Elly Setiadewi, S.T, M.M', position: 'Analis Sumber Daya Manusia Aparatur', level: 2, category: 'sekretariat' },
-      { id: 'S5', name: 'Abdul Gani, S.E, M.M', position: 'Perencana Ahli Muda', level: 2, category: 'sekretariat' },
-      { id: 'S6', name: 'Rd. Ronnie Kurniawan, S.T', position: 'Bendahara Pengeluaran', level: 3, category: 'sekretariat' },
-      { id: 'S7', name: 'Ika Puspita Sari', position: 'Pengelola Kepegawaian', level: 3, category: 'sekretariat' },
-      { id: 'S8', name: 'Sri Cahyani', position: 'Pengadministrasi Keuangan', level: 3, category: 'sekretariat' },
-      { id: 'S9', name: 'Ratni Nuryati', position: 'Pengelola Akuntansi', level: 3, category: 'sekretariat' },
-      { id: 'S10', name: 'Ahmad Kosidin', position: 'Pengelola Sarana dan Prasarana', level: 3, category: 'sekretariat' },
-      { id: 'S11', name: 'Abdul Rauf', position: 'Pengadministrasi Umum', level: 3, category: 'sekretariat' },
-      { id: 'S12', name: 'Evi Sri Nuryanti, A.Md', position: 'JF Arsiparis Penyelia', level: 3, category: 'sekretariat' },
-      { id: 'S13', name: 'Bibo Satrio, A.Md', position: 'JF Arsiparis Pelaksana Lanjutan', level: 3, category: 'sekretariat' },
-      { id: 'S14', name: 'Diki Waryanto, A.Md', position: 'JF Arsiparis Pelaksana Lanjutan', level: 3, category: 'sekretariat' },
-      { id: 'S15', name: 'Fabianto Wahyu K.J., S.Komp', position: 'JF Pranata Komputer Ahli Pertama', level: 3, category: 'sekretariat' },
+    // SEKRETARIAT
+    { id: 'S3', name: 'Lasmi Binawati, S.E', position: 'Kepala Sub Bagian Keuangan', level: 2, category: 'sekretariat' },
+    { id: 'S4', name: 'Hj. Elly Setiadewi, S.T, M.M', position: 'Analis Sumber Daya Manusia Aparatur', level: 2, category: 'sekretariat' },
+    { id: 'S5', name: 'Abdul Gani, S.E, M.M', position: 'Perencana Ahli Muda', level: 2, category: 'sekretariat' },
+    { id: 'S6', name: 'Rd. Ronnie Kurniawan, S.T', position: 'Bendahara Pengeluaran', level: 3, category: 'sekretariat' },
+    { id: 'S7', name: 'Ika Puspita Sari', position: 'Pengelola Kepegawaian', level: 3, category: 'sekretariat' },
+    { id: 'S8', name: 'Sri Cahyani', position: 'Pengadministrasi Keuangan', level: 3, category: 'sekretariat' },
+    { id: 'S9', name: 'Ratni Nuryati', position: 'Pengelola Akuntansi', level: 3, category: 'sekretariat' },
+    { id: 'S10', name: 'Ahmad Kosidin', position: 'Pengelola Sarana dan Prasarana', level: 3, category: 'sekretariat' },
+    { id: 'S11', name: 'Abdul Rauf', position: 'Pengadministrasi Umum', level: 3, category: 'sekretariat' },
+    { id: 'S12', name: 'Evi Sri Nuryanti, A.Md', position: 'JF Arsiparis Penyelia', level: 3, category: 'sekretariat' },
+    { id: 'S13', name: 'Bibo Satrio, A.Md', position: 'JF Arsiparis Pelaksana Lanjutan', level: 3, category: 'sekretariat' },
+    { id: 'S14', name: 'Diki Waryanto, A.Md', position: 'JF Arsiparis Pelaksana Lanjutan', level: 3, category: 'sekretariat' },
+    { id: 'S15', name: 'Fabianto Wahyu K.J., S.Komp', position: 'JF Pranata Komputer Ahli Pertama', level: 3, category: 'sekretariat' },
+    { id: 'S16', name: 'Hendra Irawan, S.T', position: 'JF Pranata Komputer Ahli Pertama', level: 3, category: 'sekretariat' },
+    { id: 'S17', name: 'Maudina Hanifah, S.M', position: 'Pengelola Kearsipan', level: 3, category: 'sekretariat' },
+    { id: 'S18', name: 'Muhammad Ghiffari', position: 'Pengelola Kearsipan', level: 3, category: 'sekretariat' },
+    { id: 'S19', name: 'Zahran Labib Sulaiman', position: 'Pengelola Kearsipan', level: 3, category: 'sekretariat' },
+    { id: 'S20', name: 'Setiawan', position: 'Pengelola Barang dan Jasa', level: 3, category: 'sekretariat' },
+    { id: 'S21', name: 'Karyono', position: 'Petugas Kebersihan', level: 3, category: 'sekretariat' },
+    { id: 'S22', name: 'Ade Jakaria', position: 'Petugas Kebersihan', level: 3, category: 'sekretariat' },
+    { id: 'S23', name: 'Markuwat', position: 'Petugas Keamanan', level: 3, category: 'sekretariat' },
+    { id: 'S24', name: 'Sutrisno', position: 'Petugas Kebersihan', level: 3, category: 'sekretariat' },
+    { id: 'S25', name: 'Muhamad Fahri Mubarok', position: 'Petugas Keamanan', level: 3, category: 'sekretariat' },
 
-      // BIDANG PEMBINAAN
-      { id: 'B1-1', name: 'Desi Hendrayani, S.TP, M.P', position: 'Kepala Bidang Pembinaan, Pelestarian dan Pengembangan Kearsipan', level: 2, category: 'bidang_pembinaan' },
-      { id: 'B1-2', name: 'Eko Sulistiawan, S.E', position: 'Arsiparis Ahli Muda', level: 3, category: 'bidang_pembinaan' },
-      { id: 'B1-3', name: 'Namira Ramadhina Putri, A.md.MRA', position: 'JF Arsiparis Pelaksana Terampil', level: 3, category: 'bidang_pembinaan' },
-      { id: 'B1-4', name: 'Deni Jatnika Supardi, S.H', position: 'Pranata Kearsipan', level: 3, category: 'bidang_pembinaan' },
-      { id: 'B1-5', name: 'Soleh Supena', position: 'Pengadministrasi Keuangan', level: 3, category: 'bidang_pembinaan' },
-      { id: 'B1-6', name: 'Yogie Friansyah, S.T', position: 'Pengelola Kearsipan', level: 3, category: 'bidang_pembinaan' },
+    // DIORAMA
+    { id: 'D1', name: 'Edi Rasidi, A.Md', position: 'Kepala UPTD Diorama Kearsipan', level: 2, category: 'diorama' },
+    { id: 'D2', name: 'Arie Lukmanul Hakim, S.Ip', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D3', name: 'Fairuz Hadiani Mardhiyah Putri, S.Pd.M.Pd', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D4', name: 'Indri Sukma Wirawati, S.T', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D5', name: 'Chandra Januar W., S.Sos', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D6', name: 'Yopi Aprianto, S.T', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D7', name: 'Dina Meylinda, S.E', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D8', name: 'Hadi Kusuma, S.Kom', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D9', name: 'Mutia Faramida, A.Md I.Kom', position: 'Guide', level: 3, category: 'diorama' },
+    { id: 'D10', name: 'Rina Sintia', position: 'Penerima Tamu', level: 3, category: 'diorama' },
+    { id: 'D11', name: 'Rani Meydianti', position: 'Penerima Tamu', level: 3, category: 'diorama' },
+    { id: 'D12', name: 'Amirah S. Zahra', position: 'Penerima Tamu', level: 3, category: 'diorama' },
+    { id: 'D13', name: 'Erika Putri Hidayah', position: 'Penerima Tamu', level: 3, category: 'diorama' },
+    { id: 'D14', name: 'Rifan Pratama', position: 'Petugas Kebersihan', level: 3, category: 'diorama' },
+    { id: 'D15', name: 'Ari Riyanto', position: 'Petugas Kebersihan', level: 3, category: 'diorama' },
+    { id: 'D16', name: 'Derry Wijaya Kusumah, S.M', position: 'Petugas Kebersihan', level: 3, category: 'diorama' },
+    { id: 'D17', name: 'Ali Muslihat', position: 'Petugas Kebersihan', level: 3, category: 'diorama' },
+    { id: 'D18', name: 'Eggy Apriyana Putra', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D19', name: 'Hendra Sujana', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D20', name: 'Muhamad Jembar', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D21', name: 'Enjang Hasanudin', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D22', name: 'Rachman Saleh', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D23', name: 'Muhamad Mansyur', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D24', name: 'Irvan Maulana', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D25', name: 'Zulkarnaen', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+    { id: 'D26', name: 'Mohamad Saepuloh', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
 
-      // BIDANG PENGELOLAAN
-      { id: 'B2-1', name: 'Minar R.S, S.E, M.AP', position: 'Kepala Bidang Pengelolaan dan Pemeliharaan Kearsipan', level: 2, category: 'bidang_pengelolaan' },
-      { id: 'B2-2', name: 'Yeni Ernawati, S.H', position: 'Arsiparis Ahli Muda', level: 3, category: 'bidang_pengelolaan' },
-      { id: 'B2-3', name: 'Puri Prameswari, S.H', position: 'Arsiparis Ahli Muda', level: 3, category: 'bidang_pengelolaan' },
-      { id: 'B2-4', name: 'Yani Lestari', position: 'Pranata Kearsipan', level: 3, category: 'bidang_pengelolaan' },
-      { id: 'B2-5', name: 'Asep Sodikin', position: 'Arsiparis Ahli Pertama', level: 3, category: 'bidang_pengelolaan' },
-      { id: 'B2-6', name: 'Silvia Dwi Apriliani, A.Md', position: 'JF Arsiparis Pelaksana Terampil', level: 3, category: 'bidang_pengelolaan' },
-      { id: 'B2-7', name: 'Maryadi Sudarmono', position: 'Pengelola Kearsipan', level: 3, category: 'bidang_pengelolaan' },
+    // BIDANG PEMBINAAN
+    { id: 'B1-1', name: 'Desi Hendrayani, S.TP, M.P', position: 'Kepala Bidang Pembinaan, Pelestarian dan Pengembangan Kearsipan', level: 2, category: 'bidang_pembinaan' },
+    { id: 'B1-2', name: 'Eko Sulistiawan, S.E', position: 'Arsiparis Ahli Muda', level: 3, category: 'bidang_pembinaan' },
+    
+    // BIDANG PENGELOLAAN
+    { id: 'B2-1', name: 'Minar R.S, S.E, M.AP', position: 'Kepala Bidang Pengelolaan dan Pemeliharaan Kearsipan', level: 2, category: 'bidang_pengelolaan' },
+    
+    // BIDANG LAYANAN
+    { id: 'B3-1', name: 'Dra. Hj. Uce Martina, AF.MP', position: 'Kepala Bidang Layanan dan Otomasi Perpustakaan', level: 2, category: 'bidang_layanan' },
+    { id: 'B3-2', name: 'Emma Hermawati, S.Sos', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-3', name: 'Ritta Utami Herawati, S.Sos', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-4', name: 'Imadudin Somantri, S.H', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-5', name: 'Farhan Kamaludin, A.Md', position: 'JF Pustakawan Terampil', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-6', name: 'Ajeng Indah Sulastri, A.Md', position: 'JF Pustakawan Terampil', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-7', name: 'Yana Supriatna', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-8', name: 'Dhany Mudyana, S.Pd', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-9', name: 'Muhamad Noval', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-10', name: 'Renaldo Eliferd Potu', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-11', name: 'Jesica Prisilia H., S.I.Pus', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-12', name: 'Misbah Munir, S.Pdi', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-13', name: 'Lia Mulyahati', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    { id: 'B3-14', name: 'Hana Sari Nurjihan, S.Pd', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
 
-      // BIDANG LAYANAN
-      { id: 'B3-1', name: 'Dra. Hj. Uce Martina, AF.MP', position: 'Kepala Bidang Layanan dan Otomasi Perpustakaan', level: 2, category: 'bidang_layanan' },
-      { id: 'B3-2', name: 'Emma Hermawati, S.Sos', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-3', name: 'Ritta Utami Herawati, S.Sos', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-4', name: 'Imadudin Somantri, S.H', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-5', name: 'Farhan Kamaludin, A.Md', position: 'JF Pustakawan Terampil', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-6', name: 'Ajeng Indah Sulastri, A.Md', position: 'JF Pustakawan Terampil', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-7', name: 'Yana Supriatna', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-8', name: 'Dhany Mudyana, S.Pd', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-9', name: 'Renaldo Eliferd Potu', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
-      { id: 'B3-10', name: 'Lia Mulyahati', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_layanan' },
+    // BIDANG PENGEMBANGAN
+    { id: 'B4-1', name: 'Iyus Jayusman, S.T., M.M', position: 'Kepala Bidang Pengembangan dan Pelestarian Perpustakaan', level: 2, category: 'bidang_pengembangan' },
+  ];
 
-      // BIDANG PENGEMBANGAN
-      { id: 'B4-1', name: 'Iyus Jayusman, S.T., M.M', position: 'Kepala Bidang Pengembangan dan Pelestarian Perpustakaan', level: 2, category: 'bidang_pengembangan' },
-      { id: 'B4-2', name: 'Irma, S.E', position: 'Pustakawan Ahli Muda', level: 3, category: 'bidang_pengembangan' },
-      { id: 'B4-3', name: 'Tonny Prasetya Nugraha', position: 'JF Arsiparis Ahli Pertama', level: 3, category: 'bidang_pengembangan' },
-      { id: 'B4-4', name: 'Rendy Iwan Hardian', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_pengembangan' },
-      { id: 'B4-5', name: 'Ecin Kuraesin', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_pengembangan' },
-      { id: 'B4-6', name: 'Dewi Sri Susilawati, S.I.Pus', position: 'Pengelola Perpustakaan', level: 3, category: 'bidang_pengembangan' },
+  if (structure.length === 0) {
+    dbSave(DB_KEYS.STRUCTURE, defaultStructure);
+  }
 
-      // DIORAMA
-      { id: 'D1', name: 'Edi Rasidi, A.Md', position: 'Kepala UPTD Diorama Kearsipan', level: 2, category: 'diorama' },
-      { id: 'D2', name: 'Arie Lukmanul Hakim, S.Ip', position: 'Guide', level: 3, category: 'diorama' },
-      { id: 'D3', name: 'Indri Sukma Wirawati, S.T', position: 'Guide', level: 3, category: 'diorama' },
-      { id: 'D4', name: 'Indri Sukma Wirawati, S.T', position: 'Guide', level: 3, category: 'diorama' },
-      { id: 'D5', name: 'Hadi Kusuma, S.Kom', position: 'Guide', level: 3, category: 'diorama' },
-      { id: 'D6', name: 'Rina Sintia', position: 'Penerima Tamu', level: 3, category: 'diorama' },
-      { id: 'D7', name: 'Eggy Apriyana Putra', position: 'Petugas Keamanan', level: 3, category: 'diorama' },
+  // Initialize achievements
+  const achievements = dbGet<any[]>(DB_KEYS.ACHIEVEMENTS, []);
+  if (achievements.length <= 1) {
+    const defaultAchievements = [
+      { id: 'AC-1', year: '2025', title: 'Penghargaan Pengawasan Kearsipan Eksternal Tahun 2025', description: 'Piagam Penghargaan Pengawasan Kearsipan - Pengawasan Kearsipan Eksternal Tahun 2025' },
+      { id: 'AC-2', year: '2025', title: 'Penghargaan Dinas Arsip dan Perpustakaan 2025', description: 'Berperan Aktif dalam Kegiatan Perbaikan Arsip Korporasi PhUsaka - Piagam Penghargaan Provinsi Jawa Barat' },
+      { id: 'AC-3', year: '2024', title: 'Terbaik ke 2 Penyedia Jasa Informasi Kearsipan Melalui SIKN/JIKN Tahun 2024', description: 'Piagam Penghargaan Provinsi Jawa Barat' },
+      { id: 'AC-4', year: '2024', title: 'Dinas Arsip dan Purwakarta Memperoleh Penghargaan Inovasi', description: 'Piagam Penghargaan Inovasi PADI Purwakarta - Juara Harapan 1 Optimalisasi Pelayanan Website' },
+      { id: 'AC-5', year: '2024', title: 'Penghargaan Inovasi Disarpus Terbanyak', description: 'Penghargaan Lomba Inovasi Daerah - Peserta Inovasi Terbanyak' },
+      { id: 'AC-6', year: '2023', title: 'Perpustakaan Umum Prosentasi Pengunjung Terbanyak dibanding Jumlah Penduduk Tahun 2023', description: 'Penghargaan Disipusda Jabar' },
+      { id: 'AC-7', year: '2023', title: 'Duta Baca Favorit Tingkat Provinsi 2023', description: 'Prestasi Duta Baca Favorit' },
+      { id: 'AC-8', year: '2023', title: 'NOMINEE ANUGRAH PURWAKALGRHA INDONESIA MUSEUM AWARD 2023', description: 'Kategori Museum Cerdas - Komunitas Jelajah Jakarta' },
+      { id: 'AC-9', year: '2023', title: 'Penggerak TPBIS Tahun 2023', description: 'PENGERAK TPBIS TINGKAT PROVINSI - Transformasi Perpustakaan Berbasis Inklusi Sosial' },
+      { id: 'AC-10', year: '2022', title: 'Inovasi Gerakan Anak Membaca Buku (AMBU) Tingkat Kabupaten', description: 'Inovasi Literasi Daerah' },
+      { id: 'AC-11', year: '2021', title: 'Terbaik Dalam Implementasi Program TPBIS', description: 'Dinas Perpustakaan Kabupaten/Kota Terbaik Dalam Implementasi Program Transformasi Perpustakaan Berbasis Inklusi Sosial (TPBIS) Tingkat Nasional' },
+      { id: 'AC-12', year: '2020', title: 'Perpustakaan Kabupaten Terbaik Tingkat Nasional', description: 'Penghargaan Perpustakaan Terbaik' },
+      { id: 'AC-13', year: '2020', title: 'Duta Baca Tingkat Provinsi Harapan 1', description: 'Prestasi Literasi Jawa Barat' },
+      { id: 'AC-14', year: '2018', title: 'Sistem Informasi Pelayanan Publik (SIMADU)', description: 'Tingkat Provinsi Jawa Barat Kategori TOP 22' },
+      { id: 'AC-15', year: '2015', title: 'Juara ke 3 LKD Terbaik Nasional', description: 'Lembaga Kearsipan Daerah Terbaik Nasional oleh ANRI' },
+      { id: 'AC-16', year: '2011', title: 'Juara peringkat V Pemilihan Arsip Teladan', description: 'Tingkat Propinsi Jawa Barat' },
+      { id: 'AC-17', year: '2011', title: 'Juara II Penyelenggraan Kearsipan', description: 'Tingkat Propinsi Jawa Barat' },
+      { id: 'AC-18', year: '2010', title: 'Juara III Lomba mengetik denga Komputer', description: 'Dalam Rangka Hari Jadi Purwakarta Ke.179 tahun 2010' },
+      { id: 'AC-19', year: '2009', title: 'Terbaik II penyelenggaraan Kearsipan', description: 'Kategori Kabupaten/Kota tingkat Propinsi Jawa Barat' },
+      { id: 'AC-20', year: '2008', title: 'Meraih Juara Kearsipan II (Dua) Tingkat Provinsi Jawa Barat', description: 'Lomba Evaluasi Penyelenggaraan Kearsipan Tingkat Provinsi Jawa Barat' },
+      { id: 'AC-21', year: '2006', title: 'Juara I Pengelolaan Administrasi Kepegawaian Terbaik', description: 'Tingkat Kabupaten Purwakarta' },
+      { id: 'AC-22', year: '2005', title: 'Evaluasi Pengelolaan Arsip Tingkat Kecamatan', description: 'Terbaik I: Pasawahan, Terbaik II: Campaka, Terbaik III: Babakancikao' },
+      { id: 'AC-23', year: '2005', title: 'Prestasi Kinerja Tenaga Fungsional Arsiparis Terbaik I', description: 'Tingkat Propinsi Jawa Barat (Arsiparis Teladan)' },
+      { id: 'AC-24', year: '2004', title: 'Meraih Juara Arsiparis Teladan I (Satu)', description: 'Tingkat Propinsi Jawa Barat' },
+      { id: 'AC-25', year: '2004', title: 'Meraih Juara Kearsipan I (satu) Tingkat Propinsi Jawa Barat', description: 'Kantor Arsip Daerah Percontohan di Propinsi Jawa Barat' },
+      { id: 'AC-26', year: '2003', title: 'Meraih Juara II terbaik Kearsipan Tingkat Propinsi Jawa Barat', description: 'Penghargaan Kearsipan' },
+      { id: 'AC-27', year: '2003', title: 'Meraih Juara Harapan III Lomba Arsiparis Teladan', description: 'Terbaik I Lomba Evaluasi penyelenggaraan Kearsipan' },
     ];
-    dbSave(DB_KEYS.STRUCTURE, fullStructure);
+    dbSave(DB_KEYS.ACHIEVEMENTS, defaultAchievements);
   }
 };
-

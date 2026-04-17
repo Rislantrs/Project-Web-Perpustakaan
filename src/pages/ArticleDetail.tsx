@@ -1,10 +1,54 @@
-import { ChevronLeft, User, Calendar, Clock, Share2, Bookmark } from 'lucide-react';
+import { ChevronLeft, User, Calendar, Clock, Share2, Bookmark, Check } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { getArticleBySlug } from '../services/dataService';
+import { useState, useEffect } from 'react';
 
 export default function ArticleDetail() {
   const { slug } = useParams();
   const article = getArticleBySlug(slug || '');
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [shareStatus, setShareStatus] = useState(false);
+
+  useEffect(() => {
+    if (article) {
+      const saved = JSON.parse(localStorage.getItem('disipusda_bookmarks') || '[]');
+      setIsBookmarked(saved.includes(article.id));
+    }
+  }, [article]);
+
+  const toggleBookmark = () => {
+    if (!article) return;
+    const saved = JSON.parse(localStorage.getItem('disipusda_bookmarks') || '[]');
+    let newList;
+    if (isBookmarked) {
+      newList = saved.filter((id: string) => id !== article.id);
+    } else {
+      newList = [...saved, article.id];
+    }
+    localStorage.setItem('disipusda_bookmarks', JSON.stringify(newList));
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleShare = async () => {
+    if (!article) return;
+    const shareData = {
+      title: article.title,
+      text: `Baca artikel menarik: ${article.title}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setShareStatus(true);
+        setTimeout(() => setShareStatus(false), 2000);
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
 
   if (!article) {
     return (
@@ -52,9 +96,26 @@ export default function ArticleDetail() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-gray-400">
-               <button className="p-2 hover:text-[#0c2f3d] hover:bg-gray-50 rounded-full transition-colors"><Share2 size={20} /></button>
-               <button className="p-2 hover:text-[#0c2f3d] hover:bg-gray-50 rounded-full transition-colors"><Bookmark size={20} /></button>
+            <div className="flex items-center gap-3">
+               <button 
+                 onClick={handleShare}
+                 className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
+                   shareStatus ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400 hover:bg-[#0c2f3d]/5 hover:text-[#0c2f3d]'
+                 }`}
+               >
+                 {shareStatus ? <Check size={18} /> : <Share2 size={18} />}
+                 <span className="hidden md:inline">{shareStatus ? 'Link Disalin' : 'Share'}</span>
+               </button>
+               
+               <button 
+                 onClick={toggleBookmark}
+                 className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
+                   isBookmarked ? 'bg-[#d6a54a]/10 text-[#d6a54a]' : 'bg-gray-50 text-gray-400 hover:bg-[#0c2f3d]/5 hover:text-[#0c2f3d]'
+                 }`}
+               >
+                 <Bookmark size={18} className={isBookmarked ? 'fill-current' : ''} />
+                 <span className="hidden md:inline">{isBookmarked ? 'Tersimpan' : 'Simpan'}</span>
+               </button>
             </div>
           </div>
         </header>

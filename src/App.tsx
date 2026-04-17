@@ -37,6 +37,7 @@ import LoginAdmin from './pages/admin/LoginAdmin';
 import ManageReports from './pages/admin/ManageReports';
 import ManageSchedules from './pages/admin/ManageSchedules';
 import ManageStructure from './pages/admin/ManageStructure';
+import JadwalLayanan from './pages/JadwalLayanan';
 
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
           <Route path="zona-integritas" element={<ZonaIntegritas />} />
           <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
           <Route path="lapor-warga" element={<LaporWarga />} />
+          <Route path="jadwal" element={<JadwalLayanan />} />
         </Route>
 
         {/* Auth Routes */}

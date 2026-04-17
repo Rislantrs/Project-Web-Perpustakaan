@@ -61,7 +61,7 @@ export default function Home() {
     const bgInterval = setInterval(() => {
       setCurrentBg((prev) => (prev + 1) % bgImages.length);
     }, 5000);
-    
+
     const fontInterval = setInterval(() => {
       setIsSundanese((prev) => !prev);
     }, 3000);
@@ -109,16 +109,16 @@ export default function Home() {
   };
   return (
     <div className="flex flex-col min-h-screen">
-      
+
       {/* Hero Section */}
       <section className="relative h-[85vh] flex items-center bg-white overflow-hidden">
         {/* Background Image - Right half */}
         <div className="absolute right-0 top-0 w-full lg:w-3/5 h-full z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent lg:via-white/50 z-10"></div>
           <AnimatePresence mode="wait">
-            <motion.img 
+            <motion.img
               key={currentBg}
-              src={bgImages[currentBg]} 
+              src={bgImages[currentBg]}
               className="absolute w-full h-full object-cover object-right"
               alt="Library Books"
               initial={{ opacity: 0 }}
@@ -130,7 +130,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -138,27 +138,27 @@ export default function Home() {
           >
             <p className="text-[#d6a54a] font-bold text-sm tracking-widest uppercase mb-4">Identitas Daerah</p>
             <div className="h-[180px] mb-6 flex items-center overflow-visible">
-               <AnimatePresence mode="wait">
-                 {!isSundanese ? (
-                   <motion.h1 
-                     key="ind"
-                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                     transition={{ duration: 0.4 }}
-                     className="font-serif text-5xl lg:text-6xl font-bold text-[#0c2f3d] leading-tight"
-                   >
-                     Disipusda <br/><span className="text-[#1f3e4e]">Purwakarta</span>
-                   </motion.h1>
-                 ) : (
-                   <motion.h1 
-                     key="sun"
-                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                     transition={{ duration: 0.4 }}
-                     className="sundanese-text text-5xl lg:text-5xl xl:text-6xl font-bold text-[#d6a54a] leading-normal pb-2 mt-4"
-                   >
-                     ᮓᮤᮞᮤᮕᮥᮞ᮪ᮓ <br/><span className="text-[#c09440] text-4xl lg:text-5xl">ᮕᮥᮁᮝᮊᮁᮒ</span>
-                   </motion.h1>
-                 )}
-               </AnimatePresence>
+              <AnimatePresence mode="wait">
+                {!isSundanese ? (
+                  <motion.h1
+                    key="ind"
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4 }}
+                    className="font-serif text-5xl lg:text-6xl font-bold text-[#0c2f3d] leading-tight"
+                  >
+                    Disipusda <br /><span className="text-[#1f3e4e]">Purwakarta</span>
+                  </motion.h1>
+                ) : (
+                  <motion.h1
+                    key="sun"
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4 }}
+                    className="sundanese-text text-5xl lg:text-5xl xl:text-6xl font-bold text-[#d6a54a] leading-normal pb-2 mt-4"
+                  >
+                    ᮓᮤᮞᮤᮕᮥᮞ᮪ᮓ <br /><span className="text-[#c09440] text-4xl lg:text-5xl">ᮕᮥᮁᮝᮊᮁᮒ</span>
+                  </motion.h1>
+                )}
+              </AnimatePresence>
             </div>
             <p className="text-gray-600 text-lg mb-8 leading-relaxed">
               Instansi Pemerintah yang mengelola kearsipan & perpustakaan. Rumah bagi museum <span className="text-[#0c2f3d] font-semibold italic">Bale Panyawangan Diorama</span>, tempat sejarah bertemu masa depan.
@@ -203,7 +203,7 @@ export default function Home() {
               </div>
               <AnimatePresence mode="wait">
                 {news[activeNewsIdx] ? (
-                  <motion.div 
+                  <motion.div
                     key={news[activeNewsIdx].id}
                     initial={{ opacity: 0, scale: 1.02 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -212,8 +212,8 @@ export default function Home() {
                     className="absolute inset-0"
                   >
                     <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative">
-                      <img 
-                        src={news[activeNewsIdx].img} 
+                      <img
+                        src={news[activeNewsIdx].img}
                         alt={news[activeNewsIdx].title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
@@ -255,8 +255,8 @@ export default function Home() {
                   <Link to={`/artikel/${article.slug}`} key={article.id} className="bg-white p-5 rounded-2xl group cursor-pointer flex gap-4 flex-1 border border-gray-100 hover:shadow-xl hover:border-[#d6a54a]/30 transition-all overflow-hidden">
                     <div className="flex-1 flex flex-col justify-center min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                         <span className="text-[10px] font-black text-[#d6a54a] uppercase tracking-widest">{article.category}</span>
-                         <span className="text-gray-400 text-[10px] font-medium uppercase">{article.date}</span>
+                        <span className="text-[10px] font-black text-[#d6a54a] uppercase tracking-widest">{article.category}</span>
+                        <span className="text-gray-400 text-[10px] font-medium uppercase">{article.date}</span>
                       </div>
                       <h4 className="font-bold text-gray-800 leading-tight group-hover:text-[#0c2f3d] transition-colors line-clamp-2 text-sm md:text-base">
                         {article.title}
@@ -284,42 +284,42 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-3xl font-bold text-[#0c2f3d] mb-12 text-center sm:text-left">Akses Langsung Layanan Kami</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Layanan 1 */}
             <a href="#" className="card-elevated rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden block">
-               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Kearsipan</h3>
-               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10">
-                 Berdasarkan peraturan Daerah kabupaten Purwakarta Nomor 11 tahun 2008 tentang Pembentukan Lembaga Teknis Daerah maka ditetapkannya Kantor Arsip Daerah...
-               </p>
-               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
-                 <ArrowRight size={20} />
-               </div>
-               <img src="https://images.unsplash.com/photo-1544396821-4dd40b938ad3?q=80&w=600" alt="Arsip" className="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-tl-full opacity-60 group-hover:scale-110 transition-transform duration-500" />
+              <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Kearsipan</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10">
+                Berdasarkan peraturan Daerah kabupaten Purwakarta Nomor 11 tahun 2008 tentang Pembentukan Lembaga Teknis Daerah maka ditetapkannya Kantor Arsip Daerah...
+              </p>
+              <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
+                <ArrowRight size={20} />
+              </div>
+              <img src="https://images.unsplash.com/photo-1544396821-4dd40b938ad3?q=80&w=600" alt="Arsip" className="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-tl-full opacity-60 group-hover:scale-110 transition-transform duration-500" />
             </a>
 
             {/* Layanan 2 */}
             <Link to="/perpustakaan" className="card-elevated rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden block">
-               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Perpustakaan</h3>
-               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10">
-                 Keberadaan perpustakaan daerah di Kabupaten Purwakarta telah dimulai sejak tahun 1953 dengan keputusan Kepala JAPERNAS Kementrian Pendidikan...
-               </p>
-               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
-                 <ArrowRight size={20} />
-               </div>
-               <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=600" alt="Perpustakaan" className="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-tl-full opacity-60 group-hover:scale-110 transition-transform duration-500" />
+              <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Perpustakaan</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10">
+                Keberadaan perpustakaan daerah di Kabupaten Purwakarta telah dimulai sejak tahun 1953 dengan keputusan Kepala JAPERNAS Kementrian Pendidikan...
+              </p>
+              <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
+                <ArrowRight size={20} />
+              </div>
+              <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=600" alt="Perpustakaan" className="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-tl-full opacity-60 group-hover:scale-110 transition-transform duration-500" />
             </Link>
 
             {/* Layanan 3 */}
             <a href="#" className="card-elevated rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden block">
-               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Bale Panyawangan Diorama</h3>
-               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10">
-                 Bale Panyawangan Diorama Purwakarta merupakan ungkapan sejarah Purwakarta dan perkembangan dari masa ke masa yang ditampilkan melalui perpaduan arsip, seni, dan teknologi.
-               </p>
-               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
-                 <ArrowRight size={20} />
-               </div>
-               <img src="https://images.unsplash.com/photo-1541703082531-fa953187c71e?q=80&w=600" alt="Diorama" className="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-tl-[100px] opacity-60 group-hover:scale-110 transition-transform duration-500" />
+              <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Bale Panyawangan Diorama</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10">
+                Bale Panyawangan Diorama Purwakarta merupakan ungkapan sejarah Purwakarta dan perkembangan dari masa ke masa yang ditampilkan melalui perpaduan arsip, seni, dan teknologi.
+              </p>
+              <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
+                <ArrowRight size={20} />
+              </div>
+              <img src="https://images.unsplash.com/photo-1541703082531-fa953187c71e?q=80&w=600" alt="Diorama" className="absolute -bottom-10 -right-10 w-64 h-48 object-cover rounded-tl-[100px] opacity-60 group-hover:scale-110 transition-transform duration-500" />
             </a>
           </div>
         </div>
@@ -342,7 +342,7 @@ export default function Home() {
               </div>
 
               <AnimatePresence mode="wait">
-                <motion.div 
+                <motion.div
                   key={activeCultureIdx}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -352,7 +352,7 @@ export default function Home() {
                 >
                   <img src={cultureSlides[activeCultureIdx].img} alt="Budaya dan Literasi" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out scale-100 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 to-transparent"></div>
-                  
+
                   <div className="absolute inset-0 p-10 flex flex-col justify-end text-white z-20">
                     <span className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md">KHAZANAH BUDAYA</span>
                     <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{cultureSlides[activeCultureIdx].title}</h3>
@@ -406,7 +406,7 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <Link to="/perpustakaan" className="mt-6 text-sm font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors flex items-center justify-center gap-2 py-2">
+              <Link to="/jadwal" className="mt-6 text-sm font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors flex items-center justify-center gap-2 py-2">
                 Lihat Seluruh Jadwal <ArrowRight size={16} />
               </Link>
             </div>
@@ -430,40 +430,40 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Pameran Virtual Card */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-               <img src="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&q=80&w=1200" alt="Pameran Virtual" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent opacity-90 transition-opacity duration-300"></div>
-               
-               <div className="absolute inset-0 p-10 flex flex-col justify-end">
-                 <div className="bg-white/20 backdrop-blur-md w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-white/30 text-white">
-                   <Globe size={32} />
-                 </div>
-                 <h3 className="font-serif text-3xl font-bold text-white mb-3">Pameran Virtual 360°</h3>
-                 <p className="text-gray-200 mb-8 max-w-md line-clamp-3">
-                   Eksplorasi virtual ke berbagai sudut Bale Panyawangan Diorama Purwakarta seolah-olah Anda berada tepat di sana. Temukan arsip sejarah dengan visualisasi menakjubkan.
-                 </p>
-                 <a href="#" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#d6a54a] text-white px-6 py-3 rounded-lg font-bold w-fit hover:bg-[#c09440] transition-colors">
-                   Mulai Tur Virtual <ExternalLink size={18} />
-                 </a>
-               </div>
+              <img src="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&q=80&w=1200" alt="Pameran Virtual" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent opacity-90 transition-opacity duration-300"></div>
+
+              <div className="absolute inset-0 p-10 flex flex-col justify-end">
+                <div className="bg-white/20 backdrop-blur-md w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-white/30 text-white">
+                  <Globe size={32} />
+                </div>
+                <h3 className="font-serif text-3xl font-bold text-white mb-3">Pameran Virtual 360°</h3>
+                <p className="text-gray-200 mb-8 max-w-md line-clamp-3">
+                  Eksplorasi virtual ke berbagai sudut Bale Panyawangan Diorama Purwakarta seolah-olah Anda berada tepat di sana. Temukan arsip sejarah dengan visualisasi menakjubkan.
+                </p>
+                <a href="https://jikn.anri.go.id/pameran-virtual" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#d6a54a] text-white px-6 py-3 rounded-lg font-bold w-fit hover:bg-[#c09440] transition-colors">
+                  Mulai Tur Virtual <ExternalLink size={18} />
+                </a>
+              </div>
             </div>
 
             {/* SIKN/JIKN Card */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-               <img src="https://images.unsplash.com/photo-1455853659719-4b521eebc76d?auto=format&fit=crop&q=80&w=1200" alt="Arsip Nasional SIKN JIKN" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#5a3b21] via-[#5a3b21]/70 to-transparent opacity-90 transition-opacity duration-300"></div>
-               
-               <div className="absolute inset-0 p-10 flex flex-col justify-end">
-                 <div className="bg-white/20 backdrop-blur-md w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-white/30 text-white">
-                   <Archive size={32} />
-                 </div>
-                 <h3 className="font-serif text-3xl font-bold text-white mb-3">Simpul Jaringan SIKN & JIKN</h3>
-                 <p className="text-gray-200 mb-8 max-w-md line-clamp-3">
-                   Akses jutaan khazanah arsip sebagai bukti pertanggungjawaban memori kolektif bangsa melalui Sistem Informasi Kearsipan Nasional (SIKN) dan JIKN Terintegrasi.
-                 </p>
-                 <a href="#" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-[#5a3b21] px-6 py-3 rounded-lg font-bold w-fit hover:bg-gray-100 transition-colors">
-                   Telusuri Arsip Nasional <ExternalLink size={18} />
-                 </a>
-               </div>
+              <img src="https://images.unsplash.com/photo-1455853659719-4b521eebc76d?auto=format&fit=crop&q=80&w=1200" alt="Arsip Nasional SIKN JIKN" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#5a3b21] via-[#5a3b21]/70 to-transparent opacity-90 transition-opacity duration-300"></div>
+
+              <div className="absolute inset-0 p-10 flex flex-col justify-end">
+                <div className="bg-white/20 backdrop-blur-md w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-white/30 text-white">
+                  <Archive size={32} />
+                </div>
+                <h3 className="font-serif text-3xl font-bold text-white mb-3">Simpul Jaringan SIKN & JIKN</h3>
+                <p className="text-gray-200 mb-8 max-w-md line-clamp-3">
+                  Akses jutaan khazanah arsip sebagai bukti pertanggungjawaban memori kolektif bangsa melalui Sistem Informasi Kearsipan Nasional (SIKN) dan JIKN Terintegrasi.
+                </p>
+                <a href="https://jikn.anri.go.id/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-[#5a3b21] px-6 py-3 rounded-lg font-bold w-fit hover:bg-gray-100 transition-colors">
+                  Telusuri Arsip Nasional <ExternalLink size={18} />
+                </a>
+              </div>
             </div>
           </div>
         </div>

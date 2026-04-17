@@ -2,6 +2,8 @@ import { ChevronRight, FileText, Upload } from 'lucide-react';
 import { Link } from 'react-router';
 
 export default function Galendo() {
+  const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLScmEHkT9TF292LBObgTAS_RMZJbSlVxLsxzu4IG7Z0Hf9Yn2g/viewform?pli=1";
+
   return (
     <div className="bg-white min-h-screen pt-12 pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,9 +25,14 @@ export default function Galendo() {
           <p className="text-xl text-gray-600 mb-8 italic">
             "Hayu urang sadayana ngalastarikeun sareng ngamumulé Naskah Kuno nu aya di wewengkon Purwakarta"
           </p>
-          <button className="bg-[#fc6c52] text-white px-8 py-3 rounded-md font-bold hover:bg-[#e0563e] transition-colors shadow-lg flex items-center justify-center mx-auto gap-2 text-lg">
-            <Upload size={20} /> Kirim Informasi Keberadaan Naskah
-          </button>
+          <a 
+            href={googleFormUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-3 bg-[#fc6c52] text-white px-10 py-4 rounded-xl font-black hover:bg-[#e0563e] transition-all shadow-xl hover:shadow-[#fc6c52]/30 active:scale-95 text-lg"
+          >
+            <Upload size={22} /> Kirim Informasi Keberadaan Naskah
+          </a>
         </div>
 
         {/* Content Alternating */}
@@ -73,7 +80,7 @@ export default function Galendo() {
                 <li>Hunting keberadaan Naskah kuno yang dimiliki oleh Masyarakat pada 17 Kecamatan di Kabupaten Purwakarta</li>
                 <li>Pembinaan dengan cara memberikan informasi secara rinci tata cara merawat, menyimpan, melestarikan dan Pendaftaran Naskah Kuno kepada Pemilik Naskah yang baik dan benar</li>
                 <li>Pendataan, Pemberian Nomor Klasifikasi dan Alih Media Naskah (Scan dan foto)</li>
-                <li>Mendaftarkan Naskah Kuno yang dimiliki oleh masyarakat ke Perpustakaan Nasional RI melalui Website <a href="#" className="text-[#d6a54a] font-bold">pernaskahan.perpusnas.go.id</a></li>
+                <li>Mendaftarkan Naskah Kuno yang dimiliki oleh masyarakat ke Perpustakaan Nasional RI melalui Website <a href="https://pernaskahan.perpusnas.go.id" target="_blank" className="text-[#d6a54a] font-bold">pernaskahan.perpusnas.go.id</a></li>
                 <li>Pemberian Penghargaan kepada Masyarakat yang sudah melestarikan, menyimpan dan mendaftarkan naskah kuno.</li>
               </ul>
             </div>

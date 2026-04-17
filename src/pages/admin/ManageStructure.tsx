@@ -32,15 +32,16 @@ export default function ManageStructure() {
 
   // --- Structure Logic ---
   const addNode = () => {
-    const newNode: StructureNode = {
+    const newNode: StructureNode & { isNew?: boolean } = {
       id: Date.now().toString(),
       name: '',
       position: '',
       level: 3,
       category: 'sekretariat',
-      img: ''
+      img: '',
+      isNew: true
     };
-    setNodes([...nodes, newNode]);
+    setNodes([newNode, ...nodes]);
   };
 
 
@@ -51,20 +52,25 @@ export default function ManageStructure() {
   const updateNode = (id: string, field: keyof StructureNode, value: string | number) => {
     setNodes(nodes.map(n => n.id === id ? { ...n, [field]: value } : n));
   };
+
   const handleSaveStructure = () => {
-    const res = saveStructure(nodes);
+    // Strip isNew flag before saving to DB
+    const cleanedNodes = nodes.map(({ isNew, ...rest }: any) => rest);
+    const res = saveStructure(cleanedNodes);
+    setNodes(cleanedNodes); // Update state to reflect clean data
     showToast(res.message, res.success ? 'success' : 'error');
   };
 
   // --- Achievement Logic ---
   const addAchievement = () => {
-    const newAchievement: Achievement = {
+    const newAchievement: Achievement & { isNew?: boolean } = {
       id: Date.now().toString(),
       title: '',
       year: new Date().getFullYear().toString(),
-      description: ''
+      description: '',
+      isNew: true
     };
-    setAchievements([...achievements, newAchievement]);
+    setAchievements([newAchievement, ...achievements]);
   };
 
   const removeAchievement = (id: string) => {
@@ -76,7 +82,10 @@ export default function ManageStructure() {
   };
 
   const handleSaveAchievements = () => {
-    const res = saveAchievements(achievements);
+    // Strip isNew flag before saving
+    const cleaned = achievements.map(({ isNew, ...rest }: any) => rest);
+    const res = saveAchievements(cleaned);
+    setAchievements(cleaned);
     showToast(res.message, res.success ? 'success' : 'error');
   };
 
@@ -182,8 +191,22 @@ export default function ManageStructure() {
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              {nodes.map((node, i) => (
-                <div key={node.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+              {nodes
+                .sort((a: any, b: any) => {
+                  // PRIORITY: "Sticky" new nodes always at the absolute top until saved
+                  if (a.isNew && !b.isNew) return -1;
+                  if (!a.isNew && b.isNew) return 1;
+                  
+                  // SECONDARY: Sort by category grouping
+                  const catA = CATEGORIES.findIndex(c => c.id === a.category);
+                  const catB = CATEGORIES.findIndex(c => c.id === b.category);
+                  if (catA !== catB) return catA - catB;
+                  
+                  // TERTIARY: Sort by level (1, 2, 3...)
+                  return (a.level || 3) - (b.level || 3);
+                })
+                .map((node, i) => (
+                  <div key={node.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-6 items-start">
                   {/* Foto Upload */}
                   <div className="shrink-0">
                     <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-2">Pas Foto</label>
@@ -259,13 +282,11 @@ export default function ManageStructure() {
               ))}
             </div>
 
-            {nodes.length > 0 && (
-              <div className="fixed bottom-10 right-10 z-30">
-                <button onClick={handleSaveStructure} className="bg-[#0c2f3d] text-white px-8 py-4 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform flex items-center gap-3">
-                  Simpan Bagan <Save size={20} />
-                </button>
-              </div>
-            )}
+            <div className="fixed bottom-10 right-10 z-30">
+              <button onClick={handleSaveStructure} className="bg-[#0c2f3d] text-white px-8 py-4 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform flex items-center gap-3">
+                Simpan Bagan <Save size={20} />
+              </button>
+            </div>
           </motion.div>
 
         ) : (
@@ -293,8 +314,16 @@ export default function ManageStructure() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 pb-24">
-              {achievements.map((item) => (
-                <div key={item.id} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 items-start">
+              {achievements
+                .sort((a: any, b: any) => {
+                  // PRIORITY: New entries at top
+                  if (a.isNew && !b.isNew) return -1;
+                  if (!a.isNew && b.isNew) return 1;
+                  // SECONDARY: Sort by Year descending
+                  return parseInt(b.year) - parseInt(a.year);
+                })
+                .map((item) => (
+                  <div key={item.id} className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 items-start">
                   
                   {/* Foto Penghargaan */}
                   <div className="shrink-0">
@@ -350,13 +379,11 @@ export default function ManageStructure() {
               ))}
             </div>
 
-            {achievements.length > 0 && (
-              <div className="fixed bottom-10 right-10 z-30">
-                <button onClick={handleSaveAchievements} className="bg-[#d6a54a] text-white px-8 py-4 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform flex items-center gap-3">
-                  Simpan Prestasi <Save size={20} />
-                </button>
-              </div>
-            )}
+            <div className="fixed bottom-10 right-10 z-30">
+              <button onClick={handleSaveAchievements} className="bg-[#d6a54a] text-white px-8 py-4 rounded-3xl font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform flex items-center gap-3">
+                Simpan Prestasi <Save size={20} />
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

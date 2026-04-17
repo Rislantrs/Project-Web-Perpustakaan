@@ -45,7 +45,11 @@ export default function StrukturOrganisasi() {
     setNodes(data);
   }, []);
 
-  const getByCategory = (cat: string) => nodes.filter(n => n.category === cat);
+  const getByCategory = (cat: string) => {
+    return nodes
+      .filter(n => n.category === cat)
+      .sort((a, b) => (a.level || 3) - (b.level || 3));
+  };
 
   const Section = ({ title, cat, gridCols = "grid-cols-2 md:grid-cols-3 lg:grid-cols-5" }: { title: string, cat: string, gridCols?: string }) => {
     const allMembers = getByCategory(cat);
