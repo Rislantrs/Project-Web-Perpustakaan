@@ -160,11 +160,19 @@ export default function MediaEditor() {
           </label>
           {mediaFile ? (
             <div className="relative group rounded-xl overflow-hidden aspect-video bg-gray-100 border border-gray-200">
-              <img src={mediaFile} alt="Cover" className="w-full h-full object-contain" />
+              {mediaFile.startsWith('data:application/pdf') ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-red-50 text-red-600 font-bold p-10">
+                   <PenTool size={48} className="mb-4" />
+                   <span>File PDF Terpilih</span>
+                   <p className="text-xs font-normal text-gray-500 mt-2">Disediakan untuk diunduh & diprint</p>
+                </div>
+              ) : (
+                <img src={mediaFile} alt="Cover" className="w-full h-full object-contain" />
+              )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <label className="cursor-pointer bg-white text-gray-900 px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-gray-50">
                   Ganti Berkas
-                  <input type="file" accept="image/*" className="hidden" onChange={changeMediaFile} />
+                  <input type="file" accept={category === 'Media Mewarnai' ? ".jpg,.jpeg,.png,.pdf" : "image/*"} className="hidden" onChange={changeMediaFile} />
                 </label>
               </div>
             </div>
@@ -172,8 +180,8 @@ export default function MediaEditor() {
             <label className="cursor-pointer flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
               <ImageIcon className="text-gray-400 mb-3" size={36} />
               <span className="text-sm font-medium text-gray-600">Klik untuk menjelajah file dari komputer Anda</span>
-              <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG (Max 5MB karena LocalStorage)</span>
-              <input type="file" accept="image/*" className="hidden" onChange={changeMediaFile} />
+              <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG, PDF (Silakan upload PDF untuk Print)</span>
+              <input type="file" accept={category === 'Media Mewarnai' ? ".jpg,.jpeg,.png,.pdf" : "image/*"} className="hidden" onChange={changeMediaFile} />
             </label>
           )}
         </div>

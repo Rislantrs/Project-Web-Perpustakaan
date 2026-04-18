@@ -5,6 +5,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, CATEGORIES, type Book } from '../services/bookService';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
 
+import heroImg from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
+import perpusImg from '../assets/layanan/perpustakaan/Perpustakaan-Purwakarta-02.webp';
+
+
 const BOOKS_PER_PAGE = 12;
 
 export default function Perpustakaan() {
@@ -329,11 +333,10 @@ export default function Perpustakaan() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#0c2f3d] text-white shadow-md'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-[#0c2f3d] hover:text-[#0c2f3d]'
-                }`}
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === cat
+                  ? 'bg-[#0c2f3d] text-white shadow-md'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-[#0c2f3d] hover:text-[#0c2f3d]'
+                  }`}
               >
                 {cat}
               </button>
@@ -422,11 +425,10 @@ export default function Perpustakaan() {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-xl text-sm font-bold transition-colors ${
-                  currentPage === page
-                    ? 'bg-[#0c2f3d] text-white shadow-md'
-                    : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
+                className={`w-10 h-10 rounded-xl text-sm font-bold transition-colors ${currentPage === page
+                  ? 'bg-[#0c2f3d] text-white shadow-md'
+                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  }`}
               >
                 {page}
               </button>
@@ -445,52 +447,83 @@ export default function Perpustakaan() {
       {/* Sejarah Perpustakaan Section */}
       <section className="bg-white py-24 border-t border-gray-100" id="sejarah">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 max-w-3xl mx-auto">
+          <div className="text-center mb-20 max-w-3xl mx-auto">
             <h2 className="font-serif text-4xl font-bold text-[#1a1a1a] mb-6">Sejarah Perpustakaan Daerah Kabupaten Purwakarta</h2>
-            <p className="text-lg text-gray-600 font-medium italic">
-              Membangun Budaya Baca di Seluruh Lapisan Masyarakat Kabupaten Purwakarta
-            </p>
+            <div className="w-20 h-1 bg-[#8b1c24] mx-auto mb-6"></div>
           </div>
 
-          <div className="space-y-20">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="order-2 lg:order-1 relative h-80 rounded-2xl overflow-hidden shadow-xl">
-                <img src="https://images.unsplash.com/photo-1541123437800-141315fc38c0?auto=format&fit=crop&q=80&w=1000" alt="Bangunan Lama" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+          <div className="space-y-24">
+            {/* 1953 - 1978 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="order-2 lg:order-1 relative h-96 rounded-2xl overflow-hidden shadow-2xl">
+                <img src={heroImg} alt="Bangunan Lama" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                <div className="absolute top-4 left-4 bg-[#8b1c24] text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">Era 1953</div>
               </div>
               <div className="order-1 lg:order-2">
-                <h3 className="font-serif text-3xl font-bold text-[#8b1c24] mb-4">Masa Awal Berdiri (1953)</h3>
+                <h3 className="font-serif text-3xl font-bold text-[#8b1c24] mb-6 underline decoration-[#d6a54a] decoration-4 underline-offset-8">Masa Awal Berdiri</h3>
+                <p className="text-gray-600 leading-relaxed text-lg mb-4">
+                  Keberadaan perpustakaan daerah di Kabupaten Purwakarta telah dimulai sejak tahun <strong>1953</strong> dengan keputusan Kepala JAPERNAS Kementrian Pendidikan, Pengajaran dan Kebudayaan tanggal 26 Nopember 1953.
+                </p>
                 <p className="text-gray-600 leading-relaxed text-lg">
-                  Keberadaan perpustakaan daerah di Kabupaten Purwakarta telah dimulai sejak tahun 1953 dengan keputusan Kepala JAPERNAS Kementrian Pendidikan, Pengajaran dan Kebudayaan tanggal 26 Nopember 1953 tentang Peraturan Penyelenggaraan Perpustakaan Rakyat Jabatan Pendidikan Masyarakat.
+                  Pada tahun 1978 didirikan Taman Pustaka Masyarakat dengan status TPM/C yang beralamat di Komplek SD Singawinata Jl. K.K Singawinata di bawah naungan Cabang Dinas Pendidikan Kabupaten Purwakarta.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="order-1 lg:order-1">
-                <h3 className="font-serif text-3xl font-bold text-[#8b1c24] mb-4">Perkembangan Status</h3>
+            {/* 1990 - 2008 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="lg:w-full">
+                <h3 className="font-serif text-3xl font-bold text-[#0c2f3d] mb-6 underline decoration-[#d6a54a] decoration-4 underline-offset-8">Transformasi & Status</h3>
                 <div className="space-y-4 text-gray-600 leading-relaxed text-lg">
                   <p>
-                    Pada tahun 1990 TPM/C berubah status menjadi Unit Pelaksana Teknis Daerah (UPTD) Perpustakaan dengan ditetapkannya Peraturan Daerah Kabupaten Purwakarta No. 6 tahun 1990.
+                    Tahun 1990 statusnya berubah menjadi Unit Pelaksana Teknis Daerah (UPTD) Perpustakaan. Kemudian pada tahun 2000 kembali berubah menjadi Kantor Perpustakaan Daerah Kabupaten Purwakarta.
                   </p>
                   <p>
-                    Pada tahun 2000 UPTD Perpustakaan kembali berubah status menjadi Kantor Perpustakaan Daerah Kabupaten Purwakarta sesuai dengan Surat Keputusan Bupati Purwakarta No. 4 Tahun 2000. Sejak Tahun 2017, statusnya resmi bertransformasi menjadi <strong className="text-[#1a1a1a]">Dinas Kearsipan dan Perpustakaan</strong> yang melayani kemajuan era digital secara inklusif.
+                    Status ini diperkuat dengan Peraturan Daerah Nomor 11 Tahun 2008, berlokasi di kawasan wisata Situ Buleud yang ikonik. 
                   </p>
                 </div>
               </div>
-              <div className="order-2 lg:order-2 relative h-80 rounded-2xl overflow-hidden shadow-xl">
-                <img src="https://images.unsplash.com/photo-1497604401993-f2e922e5cb0a?auto=format&fit=crop&q=80&w=1000" alt="Gedung Baru" className="w-full h-full object-cover" />
+              <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                <img src={perpusImg} alt="Gedung Baru" className="w-full h-full object-cover" />
+                <div className="absolute bottom-4 right-4 bg-[#0c2f3d] text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">Era 2000-an</div>
               </div>
             </div>
 
-            <div className="bg-[#1f3e4e] p-10 md:p-16 rounded-3xl text-center relative overflow-hidden mt-10 shadow-2xl">
+            {/* Media Quote */}
+            <div className="bg-[#1f3e4e] p-10 md:p-16 rounded-3xl text-center relative overflow-hidden shadow-2xl">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              <blockquote className="relative z-10 font-serif text-2xl md:text-4xl text-white italic mb-6 leading-tight max-w-4xl mx-auto">
-                "Perpustakaan Digital Pertama di Jawa Barat. Mengubah wajah kearsipan dan budaya literasi menjadi sesuatu yang membanggakan."
+              <blockquote className="relative z-10 font-serif text-2xl md:text-3xl text-white italic mb-6 leading-tight max-w-4xl mx-auto">
+                "Perpustakaan Digital Pertama di Jawa Barat"
               </blockquote>
               <div className="relative z-10">
-                <div className="w-12 h-1 bg-[#d6a54a] mx-auto mb-4"></div>
-                <p className="font-bold text-[#d6a54a] uppercase tracking-widest text-sm">Media Indonesia</p>
-                <p className="text-sm text-gray-400">Edisi 14 Februari 2019</p>
+                <div className="w-12 h-0.5 bg-[#d6a54a] mx-auto mb-4"></div>
+                <p className="font-bold text-[#e2b769] text-base">Media Indonesia (14 Februari 2019)</p>
+              </div>
+            </div>
+
+            {/* Visi & Misi */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-gray-50 p-8 lg:p-12 rounded-3xl border border-gray-200">
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-[#1a1a1a] mb-4">Visi Bidang Layanan</h3>
+                <p className="text-gray-700 text-lg italic border-l-4 border-[#8b1c24] pl-5 py-2">
+                  "Membangun Budaya Baca di Seluruh Lapisan Masyarakat Kabupaten Purwakarta"
+                </p>
+              </div>
+              <div>
+                <h3 className="font-serif text-2xl font-bold text-[#1a1a1a] mb-4">Misi Strategis</h3>
+                <ul className="space-y-3 text-gray-600 text-sm">
+                  {[
+                    'Menyelenggarakan Layanan Perpustakaan',
+                    'Membina, mengembangkan minat dan budaya membaca masyarakat',
+                    'Mendayagunakan semua jenis perpustakaan',
+                    'Penataan layanan mengarah ke Otomasi',
+                    'Mengembangkan dan melestarikan buku perpustakaan'
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      <CheckCircle size={16} className="text-emerald-600" /> {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

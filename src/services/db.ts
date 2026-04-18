@@ -44,9 +44,18 @@ export const DB_KEYS = {
 };
 
 export const dbSave = (key: string, data: any) => {
-  localStorage.setItem(key, JSON.stringify(data));
-  // Dispatch a custom event so same-tab components can react
-  window.dispatchEvent(new CustomEvent('dbChange', { detail: { key } }));
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    // Dispatch a custom event so same-tab components can react
+    window.dispatchEvent(new CustomEvent('dbChange', { detail: { key } }));
+  } catch (err: any) {
+    if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      alert("⚠️ Memori browser (LocalStorage) sudah penuh!\n\nWebsite ini menyimpan data direktori di browser Anda. Untuk menyimpan data baru, Anda perlu menghapus beberapa Berita/Media atau Buku yang sudah ada.");
+    } else {
+      console.error("Gagal menyimpan ke database:", err);
+      alert("Terjadi kesalahan saat menyimpan data.");
+    }
+  }
 };
 
 export const dbGet = <T,>(key: string, defaultValue: T): T => {
