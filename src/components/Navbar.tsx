@@ -4,6 +4,9 @@ import { User, ChevronDown, Menu, X, LogOut, History, BookOpen, Shield } from 'l
 import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, logout, getInitials, isAdminLoggedIn, type Member } from '../services/authService';
 
+// Import Logo
+import logo from '../assets/logo/logoDisispuda.webp';
+
 const navLinks = [
   { name: 'Beranda', path: '/' },
   { 
@@ -104,9 +107,7 @@ export default function Navbar() {
           
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="font-serif text-2xl font-bold text-[#0c2f3d]">
-              Disipusda
-            </span>
+            <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" />
           </Link>
 
           {/* Desktop Menu */}

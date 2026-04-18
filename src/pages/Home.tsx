@@ -7,7 +7,7 @@ import { getSchedules, Schedule } from '../services/settingsService';
 
 // Import Assets for Service Cards
 import gedungArsip from '../assets/layanan/kearsipan/Gedung_Arsip.webp';
-import perpusImg from '../assets/layanan/perpustakaan/Perpustakaan-Purwakarta-02.webp';
+import perpustakaanImg from '../assets/layanan/perpustakaan/mohHatta.webp';
 import dioramaImg from '../assets/layanan/dioramaPurwakarta/image-1.webp';
 
 
@@ -301,7 +301,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
               </div>
-              <img src={gedungArsip} alt="Arsip" className="absolute -bottom-6 -right-6 w-72 h-48 object-cover rounded-tl-[80px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
+              <img src={gedungArsip} alt="Arsip" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
 
             {/* Layanan 2: Perpustakaan */}
@@ -313,7 +313,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
               </div>
-              <img src={perpusImg} alt="Perpustakaan" className="absolute -bottom-6 -right-6 w-72 h-48 object-cover rounded-tl-[80px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
+              <img src={perpustakaanImg} alt="Perpustakaan" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover object-top rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
 
             {/* Layanan 3: Diorama */}
@@ -325,7 +325,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
               </div>
-              <img src={dioramaImg} alt="Diorama" className="absolute -bottom-6 -right-6 w-72 h-48 object-cover rounded-tl-[80px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
+              <img src={dioramaImg} alt="Diorama" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
           </div>
         </div>

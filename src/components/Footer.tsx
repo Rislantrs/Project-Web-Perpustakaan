@@ -3,6 +3,8 @@ import { MapPin, Phone, Mail, Instagram, Facebook, Youtube } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { getSiteSettings, type SiteSettings } from '../services/settingsService';
 
+// Import Logo
+import logo from '../assets/logo/logoDisispuda.webp';
 
 export default function Footer() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -20,6 +22,9 @@ export default function Footer() {
           
           {/* Brand Info */}
           <div className="col-span-1 md:col-span-1">
+            <div className="mb-4">
+              <img src={logo} alt="Logo Disipusda" className="h-16 w-auto object-contain" />
+            </div>
             <h3 className="font-serif text-2xl font-bold text-[#d6a54a] mb-4">{settings.namaInstansi}</h3>
             <p className="text-gray-300 text-sm leading-relaxed mb-6">
               Menjaga memori kolektif bangsa dan mencerdaskan kehidupan masyarakat melalui tata kelola kearsipan dan perpustakaan yang modern.
