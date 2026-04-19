@@ -11,7 +11,17 @@ export default function BlogList() {
   const urlCategory = searchParams.get('kategori') || '';
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(urlCategory);
+
+  // Search Debouncing: Tunggu 300ms sebelum mulai menyaring data
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [selectedYear, setSelectedYear] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -47,12 +57,15 @@ export default function BlogList() {
       const articleDate = parseIndoDate(article.date);
       if (articleDate > now) return false;
 
-      const matchSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      // Gunakan debouncedSearchQuery agar tidak berat saat mengetik
+      const query = debouncedSearchQuery.toLowerCase();
+      const matchSearch = article.title.toLowerCase().includes(query) || article.excerpt.toLowerCase().includes(query);
+      
       const matchCategory = selectedCategory ? article.category === selectedCategory : (urlCategory ? article.category === urlCategory : true);
       const matchYear = selectedYear ? article.year === selectedYear : true;
       return matchSearch && matchCategory && matchYear;
     });
-  }, [articles, searchQuery, selectedCategory, urlCategory, selectedYear]);
+  }, [articles, debouncedSearchQuery, selectedCategory, urlCategory, selectedYear]);
 
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
   const paginatedArticles = filteredArticles.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -86,6 +99,7 @@ export default function BlogList() {
       <img 
         src={src} 
         alt={alt} 
+        loading="lazy"
         onError={() => setIsError(true)}
         className={className} 
         style={{ objectPosition: position || 'center' }}

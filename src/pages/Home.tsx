@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
-import { ArrowRight, Calendar, MapPin, Clock, ExternalLink, Archive, Globe } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Clock, ExternalLink, Archive, Globe, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getArticles, Article } from '../services/dataService';
 import { getSchedules, Schedule } from '../services/settingsService';
@@ -51,8 +51,13 @@ export default function Home() {
 
     const fetchData = () => {
       const articles = getArticles();
-      setNews(articles);
-      currentNewsCount = articles.length;
+      // Only show articles for highlight that have images, and sort by date (newest first)
+      const featuredCandidates = articles
+        .filter(a => a.img && a.img.trim() !== '')
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      setNews(featuredCandidates.length > 0 ? featuredCandidates : articles);
+      currentNewsCount = featuredCandidates.length > 0 ? featuredCandidates.length : articles.length;
       setSchedules(getSchedules().slice(0, 3));
     };
 
@@ -134,7 +139,7 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20">
+        <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -184,7 +189,7 @@ export default function Home() {
 
       {/* Berita Terkini Section */}
       <section className="py-24 bg-[#fcfafc]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-10">
             <div>
               <p className="text-[#d6a54a] font-bold text-xs tracking-widest uppercase mb-2">Edisi Digital</p>
@@ -216,12 +221,22 @@ export default function Home() {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                   >
-                    <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative">
-                      <img
-                        src={news[activeNewsIdx].img}
-                        alt={news[activeNewsIdx].title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
+                    <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative overflow-hidden bg-[#0c2f3d]">
+                      {news[activeNewsIdx].img ? (
+                        <img
+                          src={news[activeNewsIdx].img}
+                          alt={news[activeNewsIdx].title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        /* Premium Fallback Design - displayed only if truly no image */
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0c2f3d] via-[#1a4254] to-[#1f3e4e]">
+                          <div className="flex flex-col items-center gap-4 text-white/10 group-hover:text-white/20 transition-colors">
+                            <BookOpen size={160} strokeWidth={1} />
+                          </div>
+                        </div>
+                      )}
+
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent"></div>
                       <div className="absolute bottom-0 left-0 p-8 w-full z-10">
                         <div className="flex items-center gap-3 mb-4">
@@ -285,7 +300,7 @@ export default function Home() {
 
       {/* Akses Layanan Kami */}
       <section className="py-24 bg-[#fcfafc] border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl font-bold text-[#0c2f3d] mb-4">Akses Langsung Layanan Kami</h2>
             <div className="w-20 h-1 bg-[#d6a54a] mx-auto"></div>
@@ -333,7 +348,7 @@ export default function Home() {
 
       {/* Featured Quote & Events */}
       <section className="py-24 bg-[#fcfafc] border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Quote Block */}
             <div className="lg:col-span-2 card-elevated rounded-2xl overflow-hidden relative min-h-[400px] flex group">
@@ -353,32 +368,55 @@ export default function Home() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <img src={cultureSlides[activeCultureIdx].img} alt="Budaya dan Literasi" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out scale-100 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 to-transparent"></div>
+                  <motion.img 
+                    initial={{ scale: 1.05 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 8, ease: "easeOut" }}
+                    src={cultureSlides[activeCultureIdx].img} 
+                    alt="Budaya dan Literasi" 
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 sm:via-[#0c2f3d]/60 to-transparent"></div>
 
-                  <div className="absolute inset-0 p-10 flex flex-col justify-end text-white z-20">
-                    <span className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md">KHAZANAH BUDAYA</span>
-                    <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{cultureSlides[activeCultureIdx].title}</h3>
-                    <p className="text-gray-200 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
+                  <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end text-white z-20">
+                    <motion.span 
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+                      className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md"
+                    >
+                      KHAZANAH BUDAYA
+                    </motion.span>
+                    <motion.h3 
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+                      className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-tight"
+                    >
+                      {cultureSlides[activeCultureIdx].title}
+                    </motion.h3>
+                    <motion.p 
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
+                      className="text-gray-200 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-6 sm:mb-8 line-clamp-4 sm:line-clamp-none"
+                    >
                       {cultureSlides[activeCultureIdx].desc}
-                    </p>
-                    <div className="flex items-center justify-between border-t border-white/20 pt-6">
-                      <button className="bg-transparent border border-white text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm">
+                    </motion.p>
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/20 pt-5 sm:pt-6 gap-4 sm:gap-0"
+                    >
+                      <button className="bg-transparent border border-white text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm w-full sm:w-auto text-center">
                         Eksplorasi Lebih Lanjut
                       </button>
-                      <span className="text-xs font-bold tracking-[0.1em] text-gray-300 uppercase">{cultureSlides[activeCultureIdx].meta}</span>
-                    </div>
+                      <span className="text-[10px] sm:text-xs font-bold tracking-[0.1em] text-gray-400 sm:text-gray-300 uppercase">{cultureSlides[activeCultureIdx].meta}</span>
+                    </motion.div>
                   </div>
                 </motion.div>
               </AnimatePresence>
 
               {/* Slider indicators */}
-              <div className="absolute top-6 right-6 flex gap-1.5 z-20">
+              <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1.5 z-20 bg-black/20 px-2 py-1.5 rounded-full backdrop-blur-sm">
                 {cultureSlides.map((_, i) => (
-                  <div key={i} className={`h-1.5 rounded-full transition-all ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/40'}`} />
+                  <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/60 hover:bg-white'}`} />
                 ))}
               </div>
             </div>
@@ -424,7 +462,7 @@ export default function Home() {
 
       {/* Modern Integrations: SIKN & Pameran Virtual */}
       <section className="py-24 bg-[#fcfafc] border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-serif text-3xl font-bold text-[#0c2f3d]">Jelajah Literasi & Arsip Digital Terpadu</h2>
             <div className="w-20 h-1 bg-[#d6a54a] mx-auto mt-4 mb-4"></div>

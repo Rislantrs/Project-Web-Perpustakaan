@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { dbGet, dbSave, DB_KEYS } from './db';
+import { sanitizeObject } from '../utils/security';
+import { supabase } from './supabase';
 
-
+// Interfaces remain the same...
 export interface SystemInfo {
   siteName: string;
   tagline: string;
@@ -21,7 +23,6 @@ export interface SystemInfo {
   };
 }
 
-// Added for backward compatibility with Settings.tsx
 export interface SiteSettings {
   namaInstansi: string;
   emailKontak: string;
@@ -37,7 +38,6 @@ export interface SiteSettings {
   visi: string;
   misi: string[];
 }
-
 
 export interface Schedule {
   id: string;
@@ -64,6 +64,58 @@ export interface StructureNode {
   img?: string;
 }
 
+// --- SYNC ENGINE ---
+export const refreshSettings = async () => {
+  try {
+    // 1. Sync Settings
+    const { data: setts } = await supabase.from('settings').select('*');
+    if (setts && setts.length > 0) {
+      const siteSetts = setts.find(s => s.key === 'site_settings')?.value;
+      if (siteSetts) dbSave(DB_KEYS.SETTINGS, siteSetts);
+    } else {
+      const local = getSiteSettings();
+      await supabase.from('settings').upsert({ key: 'site_settings', value: local });
+    }
+
+    // 2. Sync Schedules
+    const { data: scheds } = await supabase.from('schedules').select('*');
+    if (scheds && scheds.length > 0) dbSave(DB_KEYS.SCHEDULES, scheds);
+    else {
+      const locals = getSchedules();
+      if (locals.length > 0) await supabase.from('schedules').insert(locals.map(s => pick(s, ['id', 'day', 'hours', 'note'])));
+    }
+
+    // 3. Sync Achievements
+    const { data: achs } = await supabase.from('achievements').select('*');
+    if (achs && achs.length > 0) dbSave(DB_KEYS.ACHIEVEMENTS, achs);
+    else {
+      const locals = getAchievements();
+      if (locals.length > 0) await supabase.from('achievements').insert(locals.map(a => pick(a, ['id', 'title', 'year', 'description', 'img'])));
+    }
+
+    // 4. Sync Structure
+    const { data: struct } = await supabase.from('structure').select('*');
+    if (struct && struct.length > 0) dbSave(DB_KEYS.STRUCTURE, struct);
+    else {
+      const locals = getStructure();
+      if (locals.length > 0) await supabase.from('structure').insert(locals.map(n => pick(n, ['id', 'name', 'position', 'level', 'parentId', 'category', 'img'])));
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Settings sync failed:', err);
+    return false;
+  }
+};
+
+// Helper to filter object keys
+function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+  const result = {} as Pick<T, K>;
+  keys.forEach(key => {
+    if (key in obj) result[key] = obj[key];
+  });
+  return result;
+}
 
 // System Info
 export const getSystemInfo = (): SystemInfo => {
@@ -87,12 +139,14 @@ export const getSystemInfo = (): SystemInfo => {
   });
 };
 
-export const saveSystemInfo = (info: SystemInfo) => {
-  dbSave(DB_KEYS.SYSTEM_INFO, info);
+export const saveSystemInfo = async (info: SystemInfo) => {
+  const cleanInfo = sanitizeObject(info);
+  dbSave(DB_KEYS.SYSTEM_INFO, cleanInfo);
+  await supabase.from('settings').upsert({ key: 'system_info', value: cleanInfo });
   return { success: true, message: 'Pengaturan sistem berhasil diperbarui.' };
 };
 
-// Site Settings (Used by Settings.tsx)
+// Site Settings
 export const getSiteSettings = (): SiteSettings => {
   return dbGet<SiteSettings>(DB_KEYS.SETTINGS, {
     namaInstansi: 'Disipusda Purwakarta',
@@ -115,19 +169,26 @@ export const getSiteSettings = (): SiteSettings => {
   });
 };
 
-export const updateSiteSettings = (settings: SiteSettings) => {
-  dbSave(DB_KEYS.SETTINGS, settings);
+export const updateSiteSettings = async (settings: SiteSettings) => {
+  const cleanSettings = sanitizeObject(settings);
+  dbSave(DB_KEYS.SETTINGS, cleanSettings);
+  await supabase.from('settings').upsert({ key: 'site_settings', value: cleanSettings });
   return { success: true, message: 'Pengaturan berhasil disimpan!' };
 };
-
 
 // Schedules
 export const getSchedules = (): Schedule[] => {
   return dbGet<Schedule[]>(DB_KEYS.SCHEDULES, []);
 };
 
-export const saveSchedules = (schedules: Schedule[]) => {
-  dbSave(DB_KEYS.SCHEDULES, schedules);
+export const saveSchedules = async (schedules: Schedule[]) => {
+  const cleanSchedules = schedules.map(s => sanitizeObject(s));
+  dbSave(DB_KEYS.SCHEDULES, cleanSchedules);
+  await supabase.from('schedules').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  if (cleanSchedules.length > 0) {
+    const toInsert = cleanSchedules.map(s => pick(s, ['id', 'day', 'hours', 'note']));
+    await supabase.from('schedules').insert(toInsert);
+  }
   return { success: true, message: 'Jadwal layanan berhasil diperbarui.' };
 };
 
@@ -136,8 +197,14 @@ export const getAchievements = (): Achievement[] => {
   return dbGet<Achievement[]>(DB_KEYS.ACHIEVEMENTS, []);
 };
 
-export const saveAchievements = (achievements: Achievement[]) => {
-  dbSave(DB_KEYS.ACHIEVEMENTS, achievements);
+export const saveAchievements = async (achievements: Achievement[]) => {
+  const cleanAchievements = achievements.map(a => sanitizeObject(a));
+  dbSave(DB_KEYS.ACHIEVEMENTS, cleanAchievements);
+  await supabase.from('achievements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  if (cleanAchievements.length > 0) {
+    const toInsert = cleanAchievements.map(a => pick(a, ['id', 'title', 'year', 'description', 'img']));
+    await supabase.from('achievements').insert(toInsert);
+  }
   return { success: true, message: 'Data prestasi berhasil diperbarui.' };
 };
 
@@ -146,10 +213,13 @@ export const getStructure = (): StructureNode[] => {
   return dbGet<StructureNode[]>(DB_KEYS.STRUCTURE, []);
 };
 
-export const addStructureNode = (node: Omit<StructureNode, 'id'>): StructureNode => {
+export const addStructureNode = async (node: Omit<StructureNode, 'id'>): Promise<StructureNode> => {
   const nodes = getStructure();
-  const newNode = { ...node, id: uuidv4() };
-  dbSave(DB_KEYS.STRUCTURE, [...nodes, newNode]);
+  const cleanNode = sanitizeObject(node as any);
+  const newNode = { ...cleanNode, id: uuidv4() } as StructureNode;
+  const updatedNodes = [...nodes, newNode];
+  dbSave(DB_KEYS.STRUCTURE, updatedNodes);
+  await supabase.from('structure').insert(pick(newNode, ['id', 'name', 'position', 'level', 'parentId', 'category', 'img']));
   return newNode;
 };
 
@@ -157,7 +227,13 @@ export const getStructureByCategory = (category: string): StructureNode[] => {
   return getStructure().filter(node => node.category === category);
 };
 
-export const saveStructure = (nodes: StructureNode[]) => {
-  dbSave(DB_KEYS.STRUCTURE, nodes);
+export const saveStructure = async (nodes: StructureNode[]) => {
+  const cleanNodes = nodes.map(n => sanitizeObject(n));
+  dbSave(DB_KEYS.STRUCTURE, cleanNodes);
+  await supabase.from('structure').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  if (cleanNodes.length > 0) {
+    const toInsert = cleanNodes.map(n => pick(n, ['id', 'name', 'position', 'level', 'parentId', 'category', 'img']));
+    await supabase.from('structure').insert(toInsert);
+  }
   return { success: true, message: 'Bagan organisasi berhasil diperbarui.' };
 };

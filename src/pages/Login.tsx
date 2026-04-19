@@ -1,8 +1,9 @@
 import { Link, useNavigate, useLocation } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { LogIn, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { login } from '../services/authService';
+import { dbGet, DB_KEYS } from '../services/db';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,6 +14,16 @@ export default function Login() {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Dynamic Stats Logic
+  const stats = useMemo(() => {
+    const books = dbGet<any[]>(DB_KEYS.BOOKS, []);
+    const categories = new Set(books.map(b => b.category).filter(Boolean));
+    return {
+      totalBooks: books.length || 0,
+      totalCategories: categories.size || 0
+    };
+  }, []);
   
   /* 
      PROFESSIONAL CAPTCHA INTEGRATION (API BASED):
@@ -116,11 +127,11 @@ export default function Login() {
 
           <div className="mt-12 grid grid-cols-3 gap-4">
             <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-              <p className="text-2xl font-bold text-[#d6a54a]">40+</p>
+              <p className="text-2xl font-bold text-[#d6a54a]">{stats.totalBooks}{stats.totalBooks > 0 ? '+' : ''}</p>
               <p className="text-xs text-gray-300 mt-1">Koleksi Buku</p>
             </div>
             <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-              <p className="text-2xl font-bold text-[#d6a54a]">11</p>
+              <p className="text-2xl font-bold text-[#d6a54a]">{stats.totalCategories || 0}</p>
               <p className="text-xs text-gray-300 mt-1">Kategori</p>
             </div>
             <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">

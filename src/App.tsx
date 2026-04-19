@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router';
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Kearsipan from './pages/Kearsipan';
@@ -22,26 +22,31 @@ import ZonaIntegritas from './pages/ZonaIntegritas';
 import Referensi from './pages/Referensi';
 import LayananRentan from './pages/LayananRentan';
 import JasaKearsipan from './pages/JasaKearsipan';
+import LaporWarga from './pages/LaporWarga';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ManageArticles from './pages/admin/ManageArticles';
-import ArticleEditor from './pages/admin/ArticleEditor';
-import ManageMedia from './pages/admin/ManageMedia';
-import MediaEditor from './pages/admin/MediaEditor';
-import ManageBooks from './pages/admin/ManageBooks';
-import BookEditor from './pages/admin/BookEditor';
-import ManageAdmins from './pages/admin/ManageAdmins';
-import ManageMembers from './pages/admin/ManageMembers';
-import ManageBorrows from './pages/admin/ManageBorrows';
-import LaporWarga from './pages/LaporWarga';
-import AdminSettings from './pages/admin/Settings';
 import LoginAdmin from './pages/admin/LoginAdmin';
-import ManageReports from './pages/admin/ManageReports';
-import ManageSchedules from './pages/admin/ManageSchedules';
-import ManageStructure from './pages/admin/ManageStructure';
+
+// Admin Pages (Lazy Loaded for Performance)
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const ManageArticles = lazy(() => import('./pages/admin/ManageArticles'));
+const ArticleEditor = lazy(() => import('./pages/admin/ArticleEditor'));
+const ManageMedia = lazy(() => import('./pages/admin/ManageMedia'));
+const MediaEditor = lazy(() => import('./pages/admin/MediaEditor'));
+const ManageBooks = lazy(() => import('./pages/admin/ManageBooks'));
+const BookEditor = lazy(() => import('./pages/admin/BookEditor'));
+const ManageAdmins = lazy(() => import('./pages/admin/ManageAdmins'));
+const ManageMembers = lazy(() => import('./pages/admin/ManageMembers'));
+const ManageBorrows = lazy(() => import('./pages/admin/ManageBorrows'));
+const AdminSettings = lazy(() => import('./pages/admin/Settings'));
+const ManageReports = lazy(() => import('./pages/admin/ManageReports'));
+const ManageSchedules = lazy(() => import('./pages/admin/ManageSchedules'));
+const ManageStructure = lazy(() => import('./pages/admin/ManageStructure'));
 import JadwalLayanan from './pages/JadwalLayanan';
+
+import { refreshArticles } from './services/dataService';
+import { refreshSettings } from './services/settingsService';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -53,6 +58,26 @@ function ScrollToTop() {
 }
 
 function App() {
+  // Global Data Sync on Startup
+  useEffect(() => {
+    const syncData = async () => {
+      console.log('🔄 Memulai Sinkronisasi Data dengan Supabase...');
+      try {
+        await Promise.all([
+          refreshArticles(),
+          refreshSettings()
+        ]);
+        console.log('✅ Sinkronisasi Berhasil! Data Anda sudah aman di Cloud.');
+        // Trigger a custom event to let components know data has been refreshed
+        window.dispatchEvent(new CustomEvent('dbChange'));
+      } catch (err) {
+        console.error('❌ Sinkronisasi Gagal:', err);
+      }
+    };
+    
+    syncData();
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />
@@ -86,7 +111,15 @@ function App() {
         <Route path="/profil" element={<Profil />} />
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin" element={
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="w-10 h-10 border-4 border-[#0c2f3d]/10 border-t-[#d6a54a] rounded-full animate-spin"></div>
+            </div>
+          }>
+            <AdminLayout />
+          </Suspense>
+        }>
           <Route index element={<AdminDashboard />} />
           <Route path="articles" element={<ManageArticles />} />
           <Route path="articles/new" element={<ArticleEditor />} />

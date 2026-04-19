@@ -102,7 +102,7 @@ export default function Navbar() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/95 backdrop-blur-sm shadow-sm'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           
           {/* Logo */}
@@ -226,22 +226,53 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-gray-600 hover:text-gray-900">
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          <div className="md:hidden flex items-center gap-4">
+            {/* Action Mobile Button (Lapor Warga / Login) */}
+            {!user ? (
+               <Link to="/login" className="bg-[#0c2f3d] text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-[#1a4254] transition shadow-sm">
+                 Masuk
+               </Link>
+            ) : (
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: user.avatarColor }}
+                >
+                  {getInitials(user.namaLengkap)}
+                </div>
+            )}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+              className="p-2.5 rounded-full bg-gray-50 text-[#0c2f3d] hover:bg-[#d6a54a] hover:text-white border border-gray-200 transition-all active:scale-90 shadow-sm flex items-center justify-center"
+              aria-label="Menu"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Menu */}
+      {/* Mobile Menu Backdrop */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="md:hidden bg-white border-t border-gray-100 px-4 pt-2 pb-4 space-y-1 overflow-hidden"
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40" 
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu Panel */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0, y: -20 }}
+            animate={{ height: 'auto', opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -20 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="md:hidden absolute top-20 left-4 right-4 bg-white border border-gray-100 shadow-2xl rounded-2xl px-5 pt-4 pb-6 space-y-2 overflow-y-auto max-h-[80vh] z-50 flex flex-col"
           >
             {/* User Info on Mobile */}
             {user && (
@@ -262,42 +293,39 @@ export default function Navbar() {
             )}
 
             {navLinks.map((item) => (
-              <div key={item.name}>
-                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-[#d6a54a] hover:bg-gray-50 rounded-md">
+              <div key={item.name} className="border-b border-gray-50 last:border-0 pb-1">
+                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors rounded-lg">
                   {item.name}
                 </Link>
                 {item.subLinks && (
-                  <div className="pl-6 space-y-1">
+                  <div className="pl-4 border-l-2 border-gray-100 ml-4 mb-2 space-y-1">
                     {item.subLinks.map(sub => (
-                      <Link key={sub.name} to={sub.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-[#d6a54a]">
-                        -- {sub.name}
+                      <Link key={sub.name} to={sub.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-[#d6a54a] hover:bg-gray-50 rounded-lg transition-colors">
+                        {sub.name}
                       </Link>
                     ))}
                   </div>
                 )}
               </div>
             ))}
-            <div className="pt-4 flex flex-col space-y-2 px-3">
-               <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-[#1f3e4e] text-white px-4 py-2 rounded text-sm font-medium w-full text-center">
+            
+            <div className="pt-6 flex flex-col space-y-3 mt-auto">
+               <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-[#1f3e4e] text-white px-4 py-3 rounded-xl text-sm font-bold w-full text-center shadow-md active:scale-95 transition-all">
                   Laporan Warga
                </Link>
                {user ? (
                  <>
-                   <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-2 rounded border border-gray-300 text-gray-700 text-sm font-medium w-full flex justify-center items-center gap-2">
+                   <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
                      <User size={16} /> Profil Saya
                    </Link>
-                   <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-2 rounded border border-gray-300 text-gray-700 text-sm font-medium w-full flex justify-center items-center gap-2">
+                   <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
                      <History size={16} /> Riwayat Pinjaman
                    </Link>
-                   <button onClick={handleLogout} className="px-4 py-2 rounded bg-red-50 text-red-600 text-sm font-medium w-full flex justify-center items-center gap-2 border border-red-200">
+                   <button onClick={handleLogout} className="px-4 py-3 rounded-xl bg-[#fff5f5] text-red-600 text-sm font-bold w-full flex justify-center items-center gap-2 border border-red-100 hover:bg-red-50">
                      <LogOut size={16} /> Keluar
                    </button>
                  </>
-               ) : (
-                 <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-2 rounded border border-gray-300 text-gray-700 text-sm font-medium w-full flex justify-center items-center gap-2">
-                   <User size={16} /> Login Akun
-                 </Link>
-               )}
+               ) : null}
             </div>
           </motion.div>
         )}

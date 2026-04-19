@@ -14,7 +14,7 @@ export default function ManageArticles() {
   }, []);
 
   const parseIndoDate = (dateStr: string) => {
-    const months: {[key: string]: number} = {
+    const months: { [key: string]: number } = {
       'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
       'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
     };
@@ -56,8 +56,8 @@ export default function ManageArticles() {
           <h1 className="text-3xl font-bold text-gray-900">Kelola Artikel</h1>
           <p className="text-gray-500 mt-1">Daftar semua artikel Publik, Pojok Carita, dan Kedinasan.</p>
         </div>
-        <Link 
-          to="/admin/articles/new" 
+        <Link
+          to="/admin/articles/new"
           className="flex items-center gap-2 bg-[#0c2f3d] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-[#164153] transition-colors"
         >
           <Plus size={18} /> Tulis Baru
@@ -68,36 +68,36 @@ export default function ManageArticles() {
         <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row gap-4">
           <div className="relative flex-grow max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Cari judul artikel..." 
+            <input
+              type="text"
+              placeholder="Cari judul artikel..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a]"
             />
           </div>
-          
-          <div className="flex gap-3">
-             <select 
-               value={filterCategory} 
-               onChange={(e) => setFilterCategory(e.target.value)}
-               className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#d6a54a]"
-             >
-               <option value="">Semua Kategori</option>
-               <option value="Kedinasan">Kedinasan</option>
-               <option value="Pojok Carita">Pojok Carita</option>
-               <option value="Berita Terkini">Berita Terkini</option>
-             </select>
 
-             <select 
-               value={filterStatus} 
-               onChange={(e) => setFilterStatus(e.target.value)}
-               className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#d6a54a]"
-             >
-               <option value="">Semua Status</option>
-               <option value="Published">Terbit</option>
-               <option value="Scheduled">Terjadwal</option>
-             </select>
+          <div className="flex gap-3">
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#d6a54a]"
+            >
+              <option value="">Semua Kategori</option>
+              <option value="Kedinasan">Kedinasan</option>
+              <option value="Pojok Carita">Pojok Carita</option>
+              <option value="Berita Terkini">Berita Terkini</option>
+            </select>
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#d6a54a]"
+            >
+              <option value="">Semua Status</option>
+              <option value="Published">Terbit</option>
+              <option value="Scheduled">Terjadwal</option>
+            </select>
           </div>
         </div>
 
@@ -117,7 +117,7 @@ export default function ManageArticles() {
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);
                 const isFuture = parseIndoDate(article.date) > now;
-                
+
                 return (
                   <tr key={article.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-900 max-w-xs truncate" title={article.title}>
