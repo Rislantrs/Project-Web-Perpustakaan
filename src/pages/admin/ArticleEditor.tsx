@@ -5,9 +5,11 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
 import { 
   Bold, Italic, Strikethrough, Heading1, Heading2, 
-  List, ListOrdered, Quote, Image as ImageIcon, Save, ArrowLeft, Maximize2 
+  List, ListOrdered, Quote, Image as ImageIcon, Save, ArrowLeft, Maximize2,
+  AlignCenter, AlignLeft, AlignRight, Type
 } from 'lucide-react';
 
 export default function ArticleEditor() {
@@ -20,14 +22,40 @@ export default function ArticleEditor() {
   const [excerpt, setExcerpt] = useState('');
   const [coverImg, setCoverImg] = useState('');
   const [imgPosition, setImgPosition] = useState('center');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Setup Editor
+  const toIndoDate = (isoStr: string) => {
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const d = new Date(isoStr);
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  };
+
+  const fromIndoDate = (indoStr: string) => {
+    if (!indoStr) return new Date().toISOString().split('T')[0];
+    const months: {[key: string]: string} = {
+      'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
+      'Juli': '07', 'Agustus': '08', 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
+    };
+    const parts = indoStr.split(' ');
+    if (parts.length !== 3) return new Date().toISOString().split('T')[0];
+    const day = parts[0].padStart(2, '0');
+    const month = months[parts[1]];
+    const year = parts[2];
+    return `${year}-${month}-${day}`;
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit,
       Image,
       Placeholder.configure({
         placeholder: 'Mulai menulis kisah Anda di sini...',
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph', 'image'],
       }),
     ],
     content: '',
@@ -48,6 +76,7 @@ export default function ArticleEditor() {
         setExcerpt(article.excerpt);
         setCoverImg(article.img);
         setImgPosition(article.imgPosition || 'center');
+        setDate(fromIndoDate(article.date));
         if (editor) {
           editor.commands.setContent(article.content);
         }
@@ -68,6 +97,7 @@ export default function ArticleEditor() {
       excerpt,
       img: coverImg || undefined,
       imgPosition,
+      date: toIndoDate(date),
       content: editor?.getHTML(),
     });
     
@@ -82,9 +112,16 @@ export default function ArticleEditor() {
         editor.chain().focus().setImage({ src: base64 }).run();
       }
     }
-    // reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const addCaptionPlaceholder = () => {
+    if (editor) {
+      editor.chain().focus()
+        .insertContent('<p style="text-align: center; font-size: 11px; color: #6b7280; font-style: italic; margin-top: -8px;">Keterangan gambar...</p>')
+        .run();
     }
   };
 
@@ -117,10 +154,9 @@ export default function ArticleEditor() {
         </button>
       </div>
 
-      {/* Editor Canvas (Medium Style) */}
       <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100">
         
-        {/* Cover Image */}
+        {/* Cover Image Section */}
         <div className="mb-8">
           <label className="block text-sm font-medium text-gray-500 mb-2">Gambar Sampul</label>
           {coverImg ? (
@@ -140,7 +176,6 @@ export default function ArticleEditor() {
                 </div>
               </div>
               
-              {/* Refined Image Focus UI */}
               <div className="bg-gray-50 border-t border-gray-100 p-6 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                    <div className="flex items-center gap-2">
@@ -152,9 +187,7 @@ export default function ArticleEditor() {
                        <p className="text-[10px] text-gray-400 mt-0.5 font-medium">Geser untuk menyesuaikan bagian yang tampil</p>
                      </div>
                    </div>
-                   <span className="text-xs font-black text-[#d6a54a] bg-[#d6a54a]/10 px-3 py-1 rounded-full">
-                     {imgPosition === 'center' ? '50%' : imgPosition.split(' ')[1]}
-                   </span>
+                   <span className="text-xs font-black text-[#d6a54a] bg-[#d6a54a]/10 px-3 py-1 rounded-full">{imgPosition === 'center' ? '50%' : imgPosition.split(' ')[1]}</span>
                 </div>
                 
                 <div className="relative h-2 flex items-center group/slider">
@@ -178,33 +211,47 @@ export default function ArticleEditor() {
         </div>
 
         {/* Metadata Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="space-y-6 mb-8">
           <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Kategori</label>
-            <select 
-              value={category} 
-              onChange={e => setCategory(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400 focus:ring-0"
-            >
-              <option value="Berita Terkini">Berita Terkini</option>
-              <option value="Pojok Carita">Pojok Carita</option>
-              <option value="Perpustakaan Keliling">Perpustakaan Keliling</option>
-              <option value="Serba-Serbi Purwakarta">Serba-Serbi Purwakarta</option>
-              <option disabled>──────────</option>
-              <option value="Kedinasan">Artikel - Kedinasan</option>
-              <option value="Edukasi">Artikel - Edukasi</option>
-              <option value="Statistik">Artikel - Statistik</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Ringkasan (Tampil di Daftar)</label>
-            <input 
-              type="text" 
-              placeholder="Tulis ringkasan singkat..." 
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Ringkasan Singkat</label>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${excerpt.length >= 180 ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
+                {excerpt.length} / 200
+              </span>
+            </div>
+            <textarea 
+              rows={2}
+              maxLength={200}
+              placeholder="Tulis ringkasan narasi yang akan muncul di daftar berita..." 
               value={excerpt}
               onChange={e => setExcerpt(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400 focus:ring-0"
+              className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base focus:outline-none focus:border-[#d6a54a] transition-all bg-gray-50/30 font-serif leading-relaxed"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Kategori Artikel</label>
+              <select 
+                value={category} 
+                onChange={e => setCategory(e.target.value)}
+                className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#d6a54a] bg-white"
+              >
+                <option value="Berita Terkini">Berita Terkini</option>
+                <option value="Kedinasan">Kedinasan</option>
+                <option value="Pojok Carita">Pojok Carita</option>
+                <option value="Perpustakaan Keliling">Perpus Keliling</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Rilis</label>
+              <input 
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#d6a54a] bg-white h-[46px]"
+              />
+            </div>
           </div>
         </div>
 
@@ -225,9 +272,6 @@ export default function ArticleEditor() {
           <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('italic') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
             <Italic size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleStrike().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('strike') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
-            <Strikethrough size={18} />
-          </button>
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
           
@@ -240,29 +284,48 @@ export default function ArticleEditor() {
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
+          {/* Alignment Controls */}
+          <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+            <AlignLeft size={18} />
+          </button>
+          <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+            <AlignCenter size={18} />
+          </button>
+          <button onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+            <AlignRight size={18} />
+          </button>
+
+          <div className="w-px h-6 bg-gray-200 mx-1"></div>
+
           <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bulletList') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
             <List size={18} />
           </button>
           <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('orderedList') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
             <ListOrdered size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleBlockquote().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('blockquote') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
-            <Quote size={18} />
-          </button>
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
-          <label className="p-2 cursor-pointer text-gray-600 hover:text-[#0c2f3d] hover:bg-gray-100 rounded-lg transition-colors">
+          <label className="p-2 cursor-pointer text-gray-600 hover:text-[#0c2f3d] hover:bg-gray-100 rounded-lg transition-colors group relative">
             <ImageIcon size={18} />
             <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={addImageToEditor} />
           </label>
+
+          {/* Caption Button */}
+          <button 
+            onClick={addCaptionPlaceholder} 
+            className="p-2 text-gray-600 hover:text-[#0c2f3d] hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
+            title="Tambah Keterangan Gambar"
+          >
+            <Type size={16} />
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Caption</span>
+          </button>
         </div>
 
         {/* Editor Instance */}
         <div className="min-h-[500px]">
           <EditorContent editor={editor} />
         </div>
-
       </div>
     </div>
   );

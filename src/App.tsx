@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router';
+import { useEffect } from 'react';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Kearsipan from './pages/Kearsipan';
@@ -18,6 +19,9 @@ import ArticleDetail from './pages/ArticleDetail';
 import Galendo from './pages/Galendo';
 import Ppid from './pages/Ppid';
 import ZonaIntegritas from './pages/ZonaIntegritas';
+import Referensi from './pages/Referensi';
+import LayananRentan from './pages/LayananRentan';
+import JasaKearsipan from './pages/JasaKearsipan';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -39,10 +43,19 @@ import ManageSchedules from './pages/admin/ManageSchedules';
 import ManageStructure from './pages/admin/ManageStructure';
 import JadwalLayanan from './pages/JadwalLayanan';
 
+// Scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} />
@@ -60,6 +73,9 @@ function App() {
           <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
           <Route path="lapor-warga" element={<LaporWarga />} />
           <Route path="jadwal" element={<JadwalLayanan />} />
+          <Route path="referensi" element={<Referensi />} />
+          <Route path="layanan-rentan" element={<LayananRentan />} />
+          <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
         </Route>
 
         {/* Auth Routes */}

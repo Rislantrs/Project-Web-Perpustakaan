@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from 'react-router';
-import { ChevronRight, Calendar, Clock, User, Search, Filter, ChevronLeft, X, Download } from 'lucide-react';
+import { ChevronRight, Calendar, User, Search, Filter, ChevronLeft, X, Download, Image as ImageIcon } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getArticles, Article } from '../services/dataService';
@@ -20,21 +20,33 @@ export default function BlogList() {
     setArticles(getArticles());
   }, []);
 
-  // Sync URL params to local state if navbar links are clicked while already on the page
   useEffect(() => {
     setSelectedCategory(searchParams.get('kategori') || '');
     setCurrentPage(1);
   }, [searchParams]);
 
-  // State for Lightbox (Media Mewarnai / Galeri)
   const [lightboxImg, setLightboxImg] = useState<{src: string, title: string} | null>(null);
 
-  // Check if current category requires Grid & Lightbox mode
   const isGridMode = ['Media Mewarnai', 'Galeri', 'Video Terkini'].includes(selectedCategory || urlCategory);
 
-  // Filter Logic
+  const parseIndoDate = (dateStr: string) => {
+    const months: {[key: string]: number} = {
+      'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
+      'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
+    };
+    const parts = dateStr.split(' ');
+    if (parts.length !== 3) return new Date();
+    return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
+  };
+
   const filteredArticles = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
     return articles.filter(article => {
+      const articleDate = parseIndoDate(article.date);
+      if (articleDate > now) return false;
+
       const matchSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       const matchCategory = selectedCategory ? article.category === selectedCategory : (urlCategory ? article.category === urlCategory : true);
       const matchYear = selectedYear ? article.year === selectedYear : true;
@@ -42,7 +54,6 @@ export default function BlogList() {
     });
   }, [articles, searchQuery, selectedCategory, urlCategory, selectedYear]);
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
   const paginatedArticles = filteredArticles.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -55,18 +66,43 @@ export default function BlogList() {
 
   const currentCategoryDisplay = selectedCategory || urlCategory || 'Ruang Literasi & Berita';
 
+  const ArticleImage = ({ src, alt, className, position }: { src?: string, alt: string, className?: string, position?: string }) => {
+    const [isError, setIsError] = useState(false);
+    
+    if (!src || isError) {
+      return (
+        <div className={`bg-gray-50 flex flex-col items-center justify-center p-6 text-center border-b border-gray-100 ${className}`}>
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-300 mb-3">
+             <ImageIcon size={24} />
+          </div>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 line-clamp-2 leading-tight">
+            {alt}
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <img 
+        src={src} 
+        alt={alt} 
+        onError={() => setIsError(true)}
+        className={className} 
+        style={{ objectPosition: position || 'center' }}
+      />
+    );
+  };
+
   return (
     <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24 relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb */}
         <div className="flex items-center text-sm text-gray-500 mb-10">
           <Link to="/" className="hover:text-[#0c2f3d]">Beranda</Link>
           <ChevronRight size={14} className="mx-2" />
           <span className="text-[#0c2f3d] font-medium">{currentCategoryDisplay}</span>
         </div>
 
-        {/* Header Section */}
         <div className="border-b border-gray-200 pb-8 mb-8">
           <h1 className="font-serif text-5xl font-bold text-[#1a1a1a] mb-4">
             {currentCategoryDisplay}
@@ -78,7 +114,6 @@ export default function BlogList() {
           </p>
         </div>
 
-        {/* Search & Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-12 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -101,7 +136,6 @@ export default function BlogList() {
               <option value="Kedinasan">Kedinasan</option>
               <option value="Pojok Carita">Pojok Carita</option>
               <option value="Media Mewarnai">Media Mewarnai</option>
-              <option value="Video Terkini">Video Terkini</option>
               <option value="Perpustakaan Keliling">Perpus Keliling</option>
             </select>
 
@@ -117,35 +151,31 @@ export default function BlogList() {
           </div>
         </div>
 
-        {/* Article List / Gallery Feed */}
         {paginatedArticles.length > 0 ? (
           <div className={isGridMode ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" : "space-y-16 max-w-5xl mx-auto"}>
-            {paginatedArticles.map((article, idx) => {
-              
-              // GRID MODE (KOTAK-KOTAK)
+            {paginatedArticles.map((article, index) => {
               if (isGridMode) {
                 return (
                   <div 
-                    key={idx} 
+                    key={article.id || index} 
                     onClick={() => {
                       if (article.category === 'Media Mewarnai' || article.category === 'Galeri') {
                         setLightboxImg({ src: article.img, title: article.title });
                       } else {
-                        // For video it might still go to detail or open video modal
                         window.location.href = `/artikel/${article.slug}`;
                       }
                     }}
-                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col"
+                    className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col h-full"
                   >
                     <div className="w-full aspect-square overflow-hidden relative">
-                      <img 
-                        src={article.img} 
-                        alt={article.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                        style={{ objectPosition: article.imgPosition || 'center' }}
+                      <ArticleImage 
+                         src={article.img} 
+                         alt={article.title} 
+                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                         position={article.imgPosition}
                       />
-                      {(article.category === 'Media Mewarnai' || article.category === 'Galeri') && (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold">
+                      {(article.category === 'Media Mewarnai' || article.category === 'Galeri') && !!article.img && (
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold text-xs">
                           Lihat Penuh
                         </div>
                       )}
@@ -158,15 +188,14 @@ export default function BlogList() {
                 );
               }
 
-              // LIST MODE (MEDIUM STYLE)
               return (
-                <article key={idx} className="flex flex-col md:flex-row gap-8 group">
-                  <Link to={`/artikel/${article.slug}`} className="w-full md:w-[40%] block overflow-hidden rounded-xl h-64 md:h-auto shadow-sm">
-                    <img 
-                      src={article.img} 
-                      alt={article.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                      style={{ objectPosition: article.imgPosition || 'center' }}
+                <article key={article.id || index} className="flex flex-col md:flex-row gap-8 group">
+                  <Link to={`/artikel/${article.slug}`} className="w-full md:w-[40%] block overflow-hidden rounded-xl h-64 md:h-80 shadow-sm transition-all group-hover:shadow-md">
+                    <ArticleImage 
+                       src={article.img} 
+                       alt={article.title} 
+                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                       position={article.imgPosition}
                     />
                   </Link>
 
@@ -183,7 +212,7 @@ export default function BlogList() {
                       </h2>
                     </Link>
                     
-                    <p className="text-gray-600 text-lg leading-relaxed mb-6 font-serif line-clamp-3">
+                    <p className="text-gray-600 text-lg leading-relaxed mb-6 font-serif line-clamp-3 text-justify">
                       {article.excerpt}
                     </p>
                     
@@ -209,7 +238,6 @@ export default function BlogList() {
           </div>
         )}
 
-        {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="mt-20 flex justify-center items-center gap-2">
              <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className={`p-2 rounded-lg border ${currentPage === 1 ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-[#0c2f3d] text-[#0c2f3d] hover:bg-[#0c2f3d] hover:text-white'} transition-colors`}>
@@ -230,7 +258,6 @@ export default function BlogList() {
 
       </div>
 
-      {/* Lightbox Modal Overlay untuk Media Mewarnai & Galeri */}
       <AnimatePresence>
         {lightboxImg && (
           <motion.div 
@@ -240,7 +267,6 @@ export default function BlogList() {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 md:p-10"
             onClick={() => setLightboxImg(null)}
           >
-            {/* Close Button */}
             <button 
               className="absolute top-6 right-6 text-white/70 hover:text-white bg-black/50 hover:bg-black p-2 rounded-full transition-all"
               onClick={() => setLightboxImg(null)}
@@ -253,7 +279,7 @@ export default function BlogList() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               className="relative max-w-4xl max-h-[85vh] flex flex-col items-center bg-white rounded-2xl overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image content
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="w-full bg-gray-100 flex items-center justify-center overflow-auto max-h-[70vh]">
                 <img 

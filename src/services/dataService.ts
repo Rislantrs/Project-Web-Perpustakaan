@@ -38,8 +38,12 @@ export const saveArticle = (articleData: Partial<Article>) => {
   } else {
     const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     const now = new Date();
-    const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    // Default today string if none provided
+    const todayStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
     
+    const finalDate = articleData.date || todayStr;
+    const yearFromDate = finalDate.split(' ').pop() || now.getFullYear().toString();
+
     const newArticle: Article = {
       id: uuidv4(),
       slug: (articleData.title || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
@@ -47,8 +51,8 @@ export const saveArticle = (articleData: Partial<Article>) => {
       excerpt: articleData.excerpt || '',
       category: articleData.category || 'Umum',
       author: articleData.author || 'Admin',
-      date: dateStr,
-      year: now.getFullYear().toString(),
+      date: finalDate,
+      year: yearFromDate,
       readTime: '3 min read',
       img: articleData.img || '',
       imgPosition: articleData.imgPosition || 'center',
