@@ -320,13 +320,13 @@ export default function ArticleEditor() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Ringkasan Singkat</label>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${excerpt.length >= 180 ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
-                {excerpt.length} / 200
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${excerpt.length >= 230 ? 'bg-red-50 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
+                {excerpt.length} / 250
               </span>
             </div>
             <textarea 
               rows={2}
-              maxLength={200}
+              maxLength={250}
               placeholder="Tulis ringkasan narasi yang akan muncul di daftar berita..." 
               value={excerpt}
               onChange={e => setExcerpt(e.target.value)}

@@ -17,31 +17,12 @@ const bgImages = [
   "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
 ];
 
-const cultureSlides = [
-  {
-    title: "Keajaiban di Balik Rak Buku",
-    desc: "Membaca bukan sekadar memindai kata; ia adalah sebuah perjalanan melintasi waktu. Di sini, setiap halaman yang terbuka adalah gerbang menuju dunia yang belum pernah Anda jamah sebelumnya...",
-    img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    meta: "5 menit membaca"
-  },
-  {
-    title: "Kearifan Lokal Bale Panyawangan",
-    desc: "Jelajahi sejarah panjang purwakarta lewat arsip digital dan diorama interaktif. Menjaga warisan budaya agar tetap hidup dan relevan untuk generasi mendatang.",
-    img: "https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&w=1000&q=80",
-    meta: "Diorama Budaya"
-  },
-  {
-    title: "Melestarikan Memori Bangsa",
-    desc: "Setiap lembar arsip menyimpan cerita masa lalu yang membentuk identitas kita hari ini. Temukan ragam koleksi sejarah yang mencerahkan pikiran.",
-    img: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&w=1000&q=80",
-    meta: "Arsip Nasional"
-  }
-];
 
 export default function Home() {
   const [currentBg, setCurrentBg] = useState(0);
   const [isSundanese, setIsSundanese] = useState(false);
   const [news, setNews] = useState<Article[]>([]);
+  const [stories, setStories] = useState<Article[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [activeNewsIdx, setActiveNewsIdx] = useState(0);
   const [activeCultureIdx, setActiveCultureIdx] = useState(0);
@@ -51,17 +32,25 @@ export default function Home() {
 
     const fetchData = () => {
       const articles = getArticles();
-      // Only show articles for highlight that have images, and sort by date (newest first)
-      const featuredCandidates = articles
-        .filter(a => a.img && a.img.trim() !== '')
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
-      setNews(featuredCandidates.length > 0 ? featuredCandidates : articles);
-      currentNewsCount = featuredCandidates.length > 0 ? featuredCandidates.length : articles.length;
+      // 1. BERITA TERKINI FILTER
+      const newsArticles = articles
+        .filter(a => a.category === 'Berita Terkini')
+        .sort((a, b) => b.createdAt - a.createdAt);
+      
+      setNews(newsArticles);
+      currentNewsCount = Math.min(newsArticles.length, 5);
+      
+      // 2. POJOK CARITA FILTER
+      const storyArticles = articles
+        .filter(a => a.category === 'Pojok Carita')
+        .sort((a, b) => b.createdAt - a.createdAt);
+      setStories(storyArticles.slice(0, 5));
+
       setSchedules(getSchedules().slice(0, 3));
     };
-
-    fetchData(); // Initial fetch
+    
+    fetchData(); 
 
     // Sync Data changes from other tabs or same tab Admin
     const handleStorageChange = () => fetchData();
@@ -84,7 +73,10 @@ export default function Home() {
     }, 6000);
 
     const cultureInterval = setInterval(() => {
-      setActiveCultureIdx((prev) => (prev + 1) % cultureSlides.length);
+      setActiveCultureIdx((prev) => {
+        const limit = stories.length > 0 ? stories.length : 0;
+        return limit > 0 ? (prev + 1) % limit : 0;
+      });
     }, 7000);
 
     return () => {
@@ -111,11 +103,11 @@ export default function Home() {
   };
 
   const nextCulture = () => {
-    setActiveCultureIdx((prev) => (prev + 1) % cultureSlides.length);
+    if (stories.length > 0) setActiveCultureIdx((prev) => (prev + 1) % stories.length);
   };
 
   const prevCulture = () => {
-    setActiveCultureIdx((prev) => (prev - 1 + cultureSlides.length) % cultureSlides.length);
+    if (stories.length > 0) setActiveCultureIdx((prev) => (prev - 1 + stories.length) % stories.length);
   };
   return (
     <div className="flex flex-col min-h-screen">
@@ -294,7 +286,6 @@ export default function Home() {
               )}
             </div>
           </div>
-
         </div>
       </section>
 
@@ -351,74 +342,86 @@ export default function Home() {
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Quote Block */}
-            <div className="lg:col-span-2 card-elevated rounded-2xl overflow-hidden relative min-h-[400px] flex group">
-              {/* Navigation arrows */}
-              <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <button onClick={prevCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
-                  <ArrowRight size={20} className="rotate-180" />
-                </button>
-                <button onClick={nextCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
-                  <ArrowRight size={20} />
-                </button>
-              </div>
+            <div className="lg:col-span-2 card-elevated rounded-2xl overflow-hidden relative min-h-[450px] flex group bg-[#0c2f3d]">
+              {/* Navigation arrows - Only show if more than 1 story */}
+              {stories.length > 1 && (
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button onClick={prevCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                    <ArrowRight size={20} className="rotate-180" />
+                  </button>
+                  <button onClick={nextCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                    <ArrowRight size={20} />
+                  </button>
+                </div>
+              )}
 
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeCultureIdx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                  className="absolute inset-0 w-full h-full"
-                >
-                  <motion.img 
-                    initial={{ scale: 1.05 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 8, ease: "easeOut" }}
-                    src={cultureSlides[activeCultureIdx].img} 
-                    alt="Budaya dan Literasi" 
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 sm:via-[#0c2f3d]/60 to-transparent"></div>
+                {stories.length > 0 ? (
+                  <motion.div
+                    key={stories[activeCultureIdx]?.id || 'empty'}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="absolute inset-0 w-full h-full"
+                  >
+                    <motion.img 
+                      initial={{ scale: 1.05 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 8, ease: "easeOut" }}
+                      src={stories[activeCultureIdx]?.img || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'} 
+                      alt="Pojok Carita" 
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]" 
+                      style={{ objectPosition: stories[activeCultureIdx]?.imgPosition || 'center' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 sm:via-[#0c2f3d]/40 to-transparent"></div>
 
-                  <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end text-white z-20">
-                    <motion.span 
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
-                      className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md"
-                    >
-                      KHAZANAH BUDAYA
-                    </motion.span>
-                    <motion.h3 
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
-                      className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-tight"
-                    >
-                      {cultureSlides[activeCultureIdx].title}
-                    </motion.h3>
-                    <motion.p 
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
-                      className="text-gray-200 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mb-6 sm:mb-8 line-clamp-4 sm:line-clamp-none"
-                    >
-                      {cultureSlides[activeCultureIdx].desc}
-                    </motion.p>
-                    <motion.div 
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/20 pt-5 sm:pt-6 gap-4 sm:gap-0"
-                    >
-                      <button className="bg-transparent border border-white text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm w-full sm:w-auto text-center">
-                        Eksplorasi Lebih Lanjut
-                      </button>
-                      <span className="text-[10px] sm:text-xs font-bold tracking-[0.1em] text-gray-400 sm:text-gray-300 uppercase">{cultureSlides[activeCultureIdx].meta}</span>
-                    </motion.div>
+                    <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end text-white z-20">
+                      <motion.span 
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+                        className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md"
+                      >
+                        POJOK CARITA
+                      </motion.span>
+                      <motion.h3 
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+                        className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-tight line-clamp-2"
+                      >
+                        {stories[activeCultureIdx]?.title}
+                      </motion.h3>
+                      <motion.p 
+                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
+                        className="text-gray-200 text-sm sm:text-base leading-relaxed max-w-2xl mb-6 sm:mb-8 line-clamp-3"
+                      >
+                        {stories[activeCultureIdx]?.excerpt}
+                      </motion.p>
+                      <motion.div 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/20 pt-5 sm:pt-6 gap-4 sm:gap-0"
+                      >
+                        <Link to={`/artikel/${stories[activeCultureIdx]?.slug}`} className="bg-transparent border border-white text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm w-full sm:w-auto text-center">
+                          Baca Cerita Selengkapnya
+                        </Link>
+                        <span className="text-[10px] sm:text-xs font-bold tracking-[0.1em] text-gray-400 sm:text-gray-300 uppercase italic">Terbit: {stories[activeCultureIdx]?.date}</span>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-white/50 bg-[#0c2f3d]">
+                    <BookOpen size={64} className="mb-4 opacity-20" />
+                    <p className="font-serif italic">Menyusun koleksi Pojok Carita...</p>
                   </div>
-                </motion.div>
+                )}
               </AnimatePresence>
 
               {/* Slider indicators */}
-              <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1.5 z-20 bg-black/20 px-2 py-1.5 rounded-full backdrop-blur-sm">
-                {cultureSlides.map((_, i) => (
-                  <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/60 hover:bg-white'}`} />
-                ))}
-              </div>
+              {stories.length > 1 && (
+                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1.5 z-20 bg-black/20 px-2 py-1.5 rounded-full backdrop-blur-sm">
+                  {stories.map((_, i) => (
+                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/60 hover:bg-white'}`} />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Events Map/List (Dynamic - Restored Dark Theme) */}

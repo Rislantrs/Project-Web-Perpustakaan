@@ -56,8 +56,8 @@ export default function StrukturOrganisasi() {
     if (allMembers.length === 0) return null;
 
     return (
-      <div className="pt-24 border-t border-gray-100">
-        <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#0c2f3d] mb-20 text-center tracking-tight">{title}</h2>
+      <div className="pt-16 border-t border-gray-100">
+        <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#0c2f3d] mb-12 text-center tracking-tight">{title}</h2>
         
         <div className={`grid gap-8 lg:gap-12 ${gridCols}`}>
           {allMembers.map((m, i) => (
@@ -83,13 +83,13 @@ export default function StrukturOrganisasi() {
           <span className="text-[#d6a54a]">Struktur Organisasi</span>
         </div>
 
-        <div className="text-center mb-32">
+        <div className="text-center mb-16">
           <h1 className="font-serif text-6xl lg:text-8xl font-bold text-[#0c2f3d] tracking-tighter mb-6">Kepengurusan</h1>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">"Melayani dengan Hati, Menjaga Warisan Literasi."</p>
           <div className="w-32 h-1 bg-[#d6a54a] mx-auto mt-12 rounded-full opacity-40"></div>
         </div>
 
-        <div className="space-y-48">
+        <div className="space-y-24">
           <div className="flex flex-col md:flex-row justify-center gap-12 lg:gap-24 max-w-6xl mx-auto">
             {getByCategory('pimpinan').map((m) => (
               <div key={m.id} className="w-full max-w-[340px]">

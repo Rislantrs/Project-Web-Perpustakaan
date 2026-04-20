@@ -53,10 +53,10 @@ export default function ManageStructure() {
     setNodes(nodes.map(n => n.id === id ? { ...n, [field]: value } : n));
   };
 
-  const handleSaveStructure = () => {
+  const handleSaveStructure = async () => {
     // Strip isNew flag before saving to DB
     const cleanedNodes = nodes.map(({ isNew, ...rest }: any) => rest);
-    const res = saveStructure(cleanedNodes);
+    const res = await saveStructure(cleanedNodes);
     setNodes(cleanedNodes); // Update state to reflect clean data
     showToast(res.message, res.success ? 'success' : 'error');
   };
@@ -81,10 +81,10 @@ export default function ManageStructure() {
     setAchievements(achievements.map(a => a.id === id ? { ...a, [field]: value } : a));
   };
 
-  const handleSaveAchievements = () => {
+  const handleSaveAchievements = async () => {
     // Strip isNew flag before saving
     const cleaned = achievements.map(({ isNew, ...rest }: any) => rest);
-    const res = saveAchievements(cleaned);
+    const res = await saveAchievements(cleaned);
     setAchievements(cleaned);
     showToast(res.message, res.success ? 'success' : 'error');
   };

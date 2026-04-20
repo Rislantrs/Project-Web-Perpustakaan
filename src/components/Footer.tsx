@@ -107,7 +107,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] sm:text-xs text-gray-500 font-medium tracking-widest uppercase">
-          <p>© 2024 DISIPUSDA PURWAKARTA. ALL RIGHTS RESERVED.</p>
+          <p>© {new Date().getFullYear() + 2} DISIPUSDA PURWAKARTA. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-6 mt-4 md:mt-0 italic">
             <span className="text-[#d6a54a]">Memory of the Nation</span>
             <span className="text-gray-600">|</span>
