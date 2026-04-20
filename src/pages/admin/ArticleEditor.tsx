@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { saveArticle, fileToBase64, Article, getArticles } from '../../services/dataService';
+import { motion, AnimatePresence } from 'motion/react';
+import { saveArticle, Article, getArticles } from '../../services/dataService';
+import { uploadImage } from '../../services/storageService';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
+import { supabase } from '../../services/supabase';
 import { 
   Bold, Italic, Strikethrough, Heading1, Heading2, 
   List, ListOrdered, Quote, Image as ImageIcon, Save, ArrowLeft, Maximize2,
-  AlignCenter, AlignLeft, AlignRight, Type
+  AlignCenter, AlignLeft, AlignRight, Type, Loader2
 } from 'lucide-react';
 
 export default function ArticleEditor() {
@@ -23,6 +26,7 @@ export default function ArticleEditor() {
   const [coverImg, setCoverImg] = useState('');
   const [imgPosition, setImgPosition] = useState('center');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const toIndoDate = (isoStr: string) => {
     const months = [
@@ -34,7 +38,7 @@ export default function ArticleEditor() {
   };
 
   const fromIndoDate = (indoStr: string) => {
-    if (!indoStr) return new Date().toISOString().split('T')[0];
+    if (!indoStr || typeof indoStr !== 'string') return new Date().toISOString().split('T')[0];
     const months: {[key: string]: string} = {
       'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
       'Juli': '07', 'Agustus': '08', 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
@@ -42,7 +46,7 @@ export default function ArticleEditor() {
     const parts = indoStr.split(' ');
     if (parts.length !== 3) return new Date().toISOString().split('T')[0];
     const day = parts[0].padStart(2, '0');
-    const month = months[parts[1]];
+    const month = months[parts[1]] || '01';
     const year = parts[2];
     return `${year}-${month}-${day}`;
   };
@@ -50,7 +54,12 @@ export default function ArticleEditor() {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image,
+      Image.configure({
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'rounded-xl shadow-md mx-auto max-w-full h-auto border border-gray-100 my-8 block',
+        },
+      }),
       Placeholder.configure({
         placeholder: 'Mulai menulis kisah Anda di sini...',
       }),
@@ -61,55 +70,132 @@ export default function ArticleEditor() {
     content: '',
     editorProps: {
       attributes: {
-        class: 'prose prose-lg prose-slate focus:outline-none max-w-none min-h-[400px]',
+        class: 'prose prose-lg prose-slate focus:outline-none max-w-none min-h-[400px] prose-img:mx-auto prose-img:rounded-2xl',
+      },
+      handlePaste: (view, event) => {
+        const items = Array.from(event.clipboardData?.items || []);
+        const images = items.filter(item => item.type.startsWith('image'));
+        
+        if (images.length > 0) {
+          event.preventDefault();
+          setIsUploading(true);
+          
+          Promise.all(images.map(async (item) => {
+            const file = item.getAsFile();
+            if (file) {
+              const imageUrl = await uploadImage(file);
+              const { schema } = view.state;
+              const node = schema.nodes.image.create({ src: imageUrl });
+              const transaction = view.state.tr.replaceSelectionWith(node);
+              view.dispatch(transaction);
+            }
+          })).finally(() => setIsUploading(false));
+          
+          return true;
+        }
+        return false;
       },
     },
   });
 
   useEffect(() => {
     if (id) {
-      const allArgs = getArticles();
-      const article = allArgs.find(a => a.id === id);
-      if (article) {
-        setTitle(article.title);
-        setCategory(article.category);
-        setExcerpt(article.excerpt);
-        setCoverImg(article.img);
-        setImgPosition(article.imgPosition || 'center');
-        setDate(fromIndoDate(article.date));
-        if (editor) {
-          editor.commands.setContent(article.content);
+      const fetchFullForEdit = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+          if (data && !error) {
+            setTitle(data.title || '');
+            setCategory(data.category || 'Umum');
+            setExcerpt(data.excerpt || '');
+            setCoverImg(data.img || null);
+            setImgPosition(data.imgPosition || 'center');
+            setDate(fromIndoDate(data.date));
+            
+            if (editor && data.content) {
+              editor.commands.setContent(data.content);
+            }
+          } else {
+             // Fallback
+             const allArgs = getArticles();
+             const article = allArgs.find(a => a.id === id);
+             if (article) {
+               setTitle(article.title);
+               setCategory(article.category);
+               setExcerpt(article.excerpt);
+               setCoverImg(article.img);
+               setImgPosition(article.imgPosition || 'center');
+               setDate(fromIndoDate(article.date));
+               if (editor && article.content) {
+                 editor.commands.setContent(article.content);
+               }
+             }
+          }
+        } catch (err) {
+          console.error("Gagal load artikel full:", err);
         }
-      }
+      };
+      fetchFullForEdit();
     }
   }, [id, editor]);
 
-  const handleSave = () => {
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleSave = async () => {
     if (!title.trim()) {
-      alert("Judul tidak boleh kosong");
+      showToast("Judul tidak boleh kosong", "error");
       return;
     }
-    
-    saveArticle({
-      id: id,
-      title,
-      category,
-      excerpt,
-      img: coverImg || undefined,
-      imgPosition,
-      date: toIndoDate(date),
-      content: editor?.getHTML(),
-    });
-    
-    navigate('/admin/articles');
+
+    setIsUploading(true);
+    try {
+      const content = editor?.getHTML() || '';
+      
+      if (content.includes('data:image/') && content.length > 500000) {
+        showToast("⚠️ Masih ada gambar Base64 raksasa. Mohon upload ulang gambar.", "error");
+        setIsUploading(false);
+        return;
+      }
+
+      await saveArticle({
+        id: id,
+        title,
+        category,
+        excerpt,
+        img: coverImg || undefined,
+        imgPosition,
+        date: toIndoDate(date),
+        content: content,
+      });
+      
+      showToast("✅ Berhasil disimpan ke Cloud!", "success");
+      setTimeout(() => navigate('/admin/articles'), 1500);
+    } catch (err: any) {
+      console.error(err);
+      showToast("❌ Gagal Simpan ke Cloud. Cek SQL & Internet Mas.", "error");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const addImageToEditor = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const base64 = await fileToBase64(file);
-      if (editor) {
-        editor.chain().focus().setImage({ src: base64 }).run();
+    if (file && editor) {
+      setIsUploading(true);
+      try {
+        const imageUrl = await uploadImage(file);
+        editor.chain().focus().setImage({ src: imageUrl }).run();
+      } finally {
+        setIsUploading(false);
       }
     }
     if (fileInputRef.current) {
@@ -120,7 +206,7 @@ export default function ArticleEditor() {
   const addCaptionPlaceholder = () => {
     if (editor) {
       editor.chain().focus()
-        .insertContent('<p style="text-align: center; font-size: 11px; color: #6b7280; font-style: italic; margin-top: -8px;">Keterangan gambar...</p>')
+        .insertContent('<p style="text-align: center; font-size: 13px; color: #9ca3af; font-style: italic; margin-top: -12px;">Keterangan gambar di sini...</p>')
         .run();
     }
   };
@@ -128,8 +214,13 @@ export default function ArticleEditor() {
   const changeCoverImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const base64 = await fileToBase64(file);
-      setCoverImg(base64);
+      setIsUploading(true);
+      try {
+        const imageUrl = await uploadImage(file);
+        setCoverImg(imageUrl);
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -138,21 +229,35 @@ export default function ArticleEditor() {
   return (
     <div className="max-w-4xl mx-auto pb-24">
       
-      {/* Top Action Bar */}
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
+      {/* Top Action Bar - Sekarang Lengket (Sticky) */}
+      <div className="sticky top-0 z-[60] -mx-4 px-4 py-4 bg-[#fcfdfd]/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between mb-8">
         <button 
+          disabled={isUploading}
           onClick={() => navigate('/admin/articles')}
-          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-50"
         >
           <ArrowLeft size={16} /> Kembali
         </button>
-        <button 
-          onClick={handleSave}
-          className="flex items-center gap-2 bg-[#0c2f3d] text-white px-6 py-2.5 rounded-full font-medium hover:bg-[#164153] shadow-sm transition-all hover:shadow"
-        >
-          <Save size={16} /> Simpan & Publikasi
-        </button>
+        <div className="flex items-center gap-3">
+            <button 
+              disabled={isUploading}
+              onClick={handleSave}
+              className="flex items-center gap-2 bg-[#0c2f3d] text-white px-6 py-2.5 rounded-full font-medium hover:bg-[#164153] shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
+              {isUploading ? 'Memproses...' : 'Simpan & Publikasi'}
+            </button>
+        </div>
       </div>
+
+      {isUploading && (
+        <div className="fixed inset-0 z-[100] bg-black/10 backdrop-blur-[2px] flex items-center justify-center">
+            <div className="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4">
+                <Loader2 size={32} className="text-[#d6a54a] animate-spin" />
+                <p className="text-sm font-bold text-gray-700">Mengunggah Gambar ke Cloud...</p>
+            </div>
+        </div>
+      )}
 
       <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100">
         
@@ -264,8 +369,8 @@ export default function ArticleEditor() {
           className="w-full text-4xl md:text-5xl font-serif font-bold text-gray-900 border-none focus:outline-none focus:ring-0 placeholder:text-gray-300 mb-8 p-0"
         />
 
-        {/* Tiptap Toolbar */}
-        <div className="sticky top-4 z-10 flex flex-wrap items-center gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 p-2 rounded-xl mb-6 shadow-sm">
+        {/* Tiptap Toolbar - Lengket di bawah Top Bar */}
+        <div className="sticky top-20 z-40 flex flex-wrap items-center gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 p-2 rounded-xl mb-6 shadow-sm">
           <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
             <Bold size={18} />
           </button>
@@ -327,6 +432,22 @@ export default function ArticleEditor() {
           <EditorContent editor={editor} />
         </div>
       </div>
+
+      {/* Elegant Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 10 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-4 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-white ${
+              toast.type === 'success' ? 'bg-[#0c2f3d]' : 'bg-red-500'
+            }`}
+          >
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

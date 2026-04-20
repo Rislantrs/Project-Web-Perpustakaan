@@ -1,13 +1,53 @@
 import { ChevronLeft, User, Calendar, Clock, Share2, Bookmark, Check } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { getArticleBySlug } from '../services/dataService';
+import { supabase } from '../services/supabase';
 import { useState, useEffect } from 'react';
+
 
 export default function ArticleDetail() {
   const { slug } = useParams();
-  const article = getArticleBySlug(slug || '');
+  const [article, setArticle] = useState<any>(getArticleBySlug(slug || ''));
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [shareStatus, setShareStatus] = useState(false);
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
+
+  // Ambil data utuh (beserta Content) langsung dari Cloud!
+  useEffect(() => {
+    const fetchFullArticle = async () => {
+      setIsLoadingContent(true);
+      try {
+        const { data, error } = await supabase
+          .from('articles')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+          
+        if (data && !error) {
+          setArticle(data);
+        } else if (!article) {
+          // Fallback lokal jika cloud gagal
+          setArticle(getArticleBySlug(slug || ''));
+        }
+      } catch (err) {
+        console.error("Gagal mendapatkan artikel full:", err);
+      } finally {
+        setIsLoadingContent(false);
+      }
+    };
+    
+    if (slug) fetchFullArticle();
+  }, [slug]);
+
+  // Subscribe to database changes
+  useEffect(() => {
+    const handleDbChange = () => {
+      // Hanya ganti kalau kita belum sukses narik dari cloud
+      setArticle((prev: any) => prev || getArticleBySlug(slug || ''));
+    };
+    window.addEventListener('dbChange', handleDbChange);
+    return () => window.removeEventListener('dbChange', handleDbChange);
+  }, [slug]);
 
   useEffect(() => {
     if (article) {

@@ -68,7 +68,6 @@ function App() {
           refreshSettings()
         ]);
         console.log('✅ Sinkronisasi Berhasil! Data Anda sudah aman di Cloud.');
-        // Trigger a custom event to let components know data has been refreshed
         window.dispatchEvent(new CustomEvent('dbChange'));
       } catch (err) {
         console.error('❌ Sinkronisasi Gagal:', err);

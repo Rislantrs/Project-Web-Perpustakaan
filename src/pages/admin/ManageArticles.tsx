@@ -11,6 +11,10 @@ export default function ManageArticles() {
 
   useEffect(() => {
     loadArticles();
+    
+    // Dengarkan event ketika Supabase selesai menarik data
+    window.addEventListener('dbChange', loadArticles);
+    return () => window.removeEventListener('dbChange', loadArticles);
   }, []);
 
   const parseIndoDate = (dateStr: string) => {

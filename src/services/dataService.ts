@@ -21,41 +21,37 @@ export interface Article {
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
 
-// 1. Dapatkan artikel (Selalu ambil dari LocalStorage untuk kecepatan, tapi nanti ada fungsi sinkronisasi)
+// 1. Dapatkan artikel (Hanya memori lokal sementara, murni sinkron dengan Cloud)
+let memoryCache: Article[] = [];
+
 export const getArticles = (): Article[] => {
-  return dbGet<Article[]>(STORAGE_KEY, []).sort((a, b) => b.createdAt - a.createdAt);
+  return memoryCache.sort((a, b) => b.createdAt - a.createdAt);
 };
 
-// 2. SINKRONISASI: Ambil data terbaru dari Supabase dan simpan ke Local
+// 2. SINKRONISASI murni dari Cloud (Tanpa simpan 30MB ke LocalStorage Browser)
 export const refreshArticles = async (): Promise<Article[]> => {
   try {
+    // 🧹 Bersihkan LocalStorage dari beban Base64 "monster" masa lalu (yang bikin ngelag/error)!
+    localStorage.removeItem(STORAGE_KEY);
+
+    // JANGAN ambil kolom "content" karena bisa puluhan Megabyte (bikin timeout)
     const { data, error } = await supabase
       .from('articles')
-      .select('*')
+      .select('id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt')
       .order('createdAt', { ascending: false });
 
     if (error) throw error;
     
-    if (data && data.length > 0) {
-      dbSave(STORAGE_KEY, data);
-      return data;
+    if (data) {
+      memoryCache = data as Article[];
+      // Beri tahu halaman agar me-render ulang dengan data Supabase 100% terbaru
+      window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
+      return memoryCache;
     }
-    
-    // Auto-Migration
-    const localArticles = getArticles();
-    if (localArticles.length > 0) {
-      const toInsert = localArticles.map(a => pick(a, [
-        'id', 'slug', 'title', 'excerpt', 'category', 'author', 
-        'date', 'year', 'readTime', 'img', 'imgPosition', 'createdAt'
-      ]));
-      await supabase.from('articles').upsert(toInsert);
-    }
-
-    return localArticles;
   } catch (err) {
     console.error('Failed to sync with Supabase:', err);
-    return getArticles();
   }
+  return memoryCache;
 };
 
 // Helper to filter object keys
@@ -68,7 +64,15 @@ function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K
 }
 
 export const getArticleBySlug = (slug: string): Article | undefined => {
-  return getArticles().find(article => article.slug === slug);
+  const matches = getArticles().filter(article => article.slug === slug);
+  if (matches.length === 0) return undefined;
+  if (matches.length > 1) {
+    // SMART RESOLUTION: Jika ada duplikat slug, prioritaskan yang isinya paling panjang
+    return matches.reduce((prev, current) => 
+      (prev.content || '').length > (current.content || '').length ? prev : current
+    );
+  }
+  return matches[0];
 };
 
 export const saveArticle = async (articleData: Partial<Article>) => {
@@ -91,10 +95,18 @@ export const saveArticle = async (articleData: Partial<Article>) => {
     
     const finalDate = cleanData.date || todayStr;
     const yearFromDate = finalDate.split(' ').pop() || now.getFullYear().toString();
+    const newId = uuidv4();
+    
+    // Batasi panjang slug asal (Max 150 karakter) agar tidak merusak index database (Error 500)
+    const baseSlug = (cleanData.title || '')
+      .toLowerCase()
+      .replace(/ /g, '-')
+      .replace(/[^\w-]+/g, '')
+      .substring(0, 150);
 
     updatedArticle = {
-      id: uuidv4(),
-      slug: (cleanData.title || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
+      id: newId,
+      slug: `${baseSlug}-${newId.substring(0, 6)}`,
       title: cleanData.title || 'Tanpa Judul',
       excerpt: cleanData.excerpt || '',
       category: cleanData.category || 'Umum',
@@ -110,24 +122,39 @@ export const saveArticle = async (articleData: Partial<Article>) => {
     articles.push(updatedArticle);
   }
 
-  // Simpan ke Local
-  dbSave(STORAGE_KEY, articles);
+  // Simpan array lokal ke memori saja tanpa menyentuh LocalStorage
+  memoryCache = articles;
+  window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
   
   // Simpan ke Supabase (Cloud) dengan data bersih
-  try {
-    const toSave = pick(updatedArticle, [
-      'id', 'slug', 'title', 'excerpt', 'category', 'author', 
-      'date', 'year', 'readTime', 'img', 'imgPosition', 'createdAt'
-    ]);
-    await supabase.from('articles').upsert(toSave);
-  } catch (err) {
-    console.error('Cloud save failed, data kept in local:', err);
+
+  // Kita petakan satu-satu biar bener-bener masuk ke kolom yang tepat
+  const toSave = {
+    id: updatedArticle.id,
+    slug: updatedArticle.slug,
+    title: updatedArticle.title,
+    excerpt: updatedArticle.excerpt,
+    category: updatedArticle.category,
+    author: updatedArticle.author,
+    date: updatedArticle.date,
+    year: updatedArticle.year,
+    readTime: updatedArticle.readTime,
+    img: updatedArticle.img,
+    imgPosition: updatedArticle.imgPosition,
+    createdAt: updatedArticle.createdAt,
+    content: updatedArticle.content
+  };
+  
+  const { error } = await supabase.from('articles').upsert(toSave);
+  if (error) {
+    console.error('Cloud save failed:', error);
+    throw new Error('Gagal menyimpan ke Cloud: ' + error.message);
   }
 };
 
 export const deleteArticle = async (id: string) => {
-  const articles = getArticles().filter(a => a.id !== id);
-  dbSave(STORAGE_KEY, articles);
+  memoryCache = getArticles().filter(a => a.id !== id);
+  window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
   
   try {
     await supabase.from('articles').delete().eq('id', id);

@@ -43,31 +43,41 @@ export const DB_KEYS = {
   SYSTEM_INFO: 'disipusda_system'
 };
 
+const memoryFallback: Record<string, any> = {};
+
 export const dbSave = (key: string, data: any) => {
+  memoryFallback[key] = data; // Simpan di memori sementara sebagai cadangan
   try {
     localStorage.setItem(key, JSON.stringify(data));
-    // Dispatch a custom event so same-tab components can react
-    window.dispatchEvent(new CustomEvent('dbChange', { detail: { key } }));
   } catch (err: any) {
     if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-      alert("⚠️ Memori browser (LocalStorage) sudah penuh!\n\nWebsite ini menyimpan data direktori di browser Anda. Untuk menyimpan data baru, Anda perlu menghapus beberapa Berita/Media atau Buku yang sudah ada.");
+      console.warn("⚠️ LocalStorage penuh! Beralih ke penyimpanan memori sementara.");
     } else {
       console.error("Gagal menyimpan ke database:", err);
-      alert("Terjadi kesalahan saat menyimpan data.");
     }
+  } finally {
+    // Pastikan UI tetap ter-update walau LocalStorage error
+    window.dispatchEvent(new CustomEvent('dbChange', { detail: { key } }));
   }
 };
 
 export const dbGet = <T,>(key: string, defaultValue: T): T => {
+  // Jika ada di memori sementara (terbaru), pakai yang itu
+  if (key in memoryFallback) {
+    return memoryFallback[key] as T;
+  }
   try {
     const data = localStorage.getItem(key);
     if (!data) return defaultValue;
-    return JSON.parse(data) as T;
+    const parsed = JSON.parse(data) as T;
+    memoryFallback[key] = parsed; // Cache ke memori
+    return parsed;
   } catch (err) {
     console.error(`Error reading DB key "${key}":`, err);
     return defaultValue;
   }
 };
+
 
 // Seed Data Manager
 export const initializeDB = () => {

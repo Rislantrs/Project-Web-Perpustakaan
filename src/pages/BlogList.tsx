@@ -27,7 +27,12 @@ export default function BlogList() {
   const [articles, setArticles] = useState<Article[]>([]);
   
   useEffect(() => {
-    setArticles(getArticles());
+    const fetchArticles = () => setArticles(getArticles());
+    fetchArticles();
+    
+    // Dengarkan event ketika Supabase selesai menarik data dari Cloud
+    window.addEventListener('dbChange', fetchArticles);
+    return () => window.removeEventListener('dbChange', fetchArticles);
   }, []);
 
   useEffect(() => {
@@ -49,17 +54,23 @@ export default function BlogList() {
     return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
   };
 
+  // Ambil daftar tahun unik dari semua artikel untuk filter
+  const availableYears = useMemo(() => {
+    const years = new Set<string>();
+    articles.forEach(a => {
+      if (a.year) years.add(a.year);
+    });
+    return Array.from(years).sort((a, b) => b.localeCompare(a));
+  }, [articles]);
+
   const filteredArticles = useMemo(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
     return articles.filter(article => {
-      const articleDate = parseIndoDate(article.date);
-      if (articleDate > now) return false;
-
       // Gunakan debouncedSearchQuery agar tidak berat saat mengetik
       const query = debouncedSearchQuery.toLowerCase();
-      const matchSearch = article.title.toLowerCase().includes(query) || article.excerpt.toLowerCase().includes(query);
+      const matchSearch = 
+        article.title.toLowerCase().includes(query) || 
+        (article.excerpt && article.excerpt.toLowerCase().includes(query)) ||
+        (article.category && article.category.toLowerCase().includes(query));
       
       const matchCategory = selectedCategory ? article.category === selectedCategory : (urlCategory ? article.category === urlCategory : true);
       const matchYear = selectedYear ? article.year === selectedYear : true;
@@ -147,8 +158,9 @@ export default function BlogList() {
               className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700"
             >
               <option value="">Semua Kategori</option>
-              <option value="Kedinasan">Kedinasan</option>
+              <option value="Berita Terkini">Berita Terkini</option>
               <option value="Pojok Carita">Pojok Carita</option>
+              <option value="Kedinasan">Kedinasan</option>
               <option value="Media Mewarnai">Media Mewarnai</option>
               <option value="Perpustakaan Keliling">Perpus Keliling</option>
             </select>
@@ -159,8 +171,9 @@ export default function BlogList() {
               className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700 w-32"
             >
               <option value="">Tahun</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
+              {availableYears.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
             </select>
           </div>
         </div>
