@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getArticles, Article } from '../services/dataService';
 
-const ITEMS_PER_PAGE = 6;
+
 
 export default function BlogList() {
   const [searchParams] = useSearchParams();
@@ -42,7 +42,8 @@ export default function BlogList() {
 
   const [lightboxImg, setLightboxImg] = useState<{src: string, title: string} | null>(null);
 
-  const isGridMode = ['Media Mewarnai', 'Galeri', 'Video Terkini'].includes(selectedCategory || urlCategory);
+  const isGridMode = ['Media Mewarnai', 'Galeri', 'Galeri Perpus Keliling', 'Video Terkini'].includes(selectedCategory || urlCategory);
+  const itemsPerPage = isGridMode ? 12 : 6;
 
   const parseIndoDate = (dateStr: string) => {
     const months: {[key: string]: number} = {
@@ -78,8 +79,8 @@ export default function BlogList() {
     });
   }, [articles, debouncedSearchQuery, selectedCategory, urlCategory, selectedYear]);
 
-  const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
-  const paginatedArticles = filteredArticles.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  const paginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -89,6 +90,10 @@ export default function BlogList() {
   };
 
   const currentCategoryDisplay = selectedCategory || urlCategory || 'Ruang Literasi & Berita';
+  
+  const openLightbox = (article: Article) => {
+    setLightboxImg({ src: article.img, title: article.title });
+  };
 
   const ArticleImage = ({ src, alt, className, position }: { src?: string, alt: string, className?: string, position?: string }) => {
     const [isError, setIsError] = useState(false);
@@ -157,12 +162,15 @@ export default function BlogList() {
               onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
               className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700"
             >
-              <option value="">Semua Kategori</option>
+              <option value="Semua Kategori">Semua Kategori</option>
               <option value="Berita Terkini">Berita Terkini</option>
               <option value="Pojok Carita">Pojok Carita</option>
               <option value="Kedinasan">Kedinasan</option>
               <option value="Media Mewarnai">Media Mewarnai</option>
-              <option value="Perpustakaan Keliling">Perpus Keliling</option>
+              <option value="Galeri">Galeri Foto</option>
+              <option value="Galeri Perpus Keliling">Galeri Perpus Keliling</option>
+              <option value="Serba-serbi Purwakarta">Serba-serbi Purwakarta</option>
+              <option value="Statistik">Statistik</option>
             </select>
 
             <select 
@@ -186,7 +194,7 @@ export default function BlogList() {
                   <div 
                     key={article.id || index} 
                     onClick={() => {
-                      if (article.category === 'Media Mewarnai' || article.category === 'Galeri') {
+                      if (article.category === 'Media Mewarnai') {
                         setLightboxImg({ src: article.img, title: article.title });
                       } else {
                         window.location.href = `/artikel/${article.slug}`;
@@ -291,11 +299,11 @@ export default function BlogList() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 md:p-10"
+            className="fixed inset-0 z-[100] flex flex-col items-center bg-black/90 backdrop-blur-sm p-4 md:p-10 overflow-y-auto pt-20"
             onClick={() => setLightboxImg(null)}
           >
             <button 
-              className="absolute top-6 right-6 text-white/70 hover:text-white bg-black/50 hover:bg-black p-2 rounded-full transition-all"
+              className="fixed top-6 right-6 text-white bg-black/50 hover:bg-black p-2.5 rounded-full transition-all z-[110]"
               onClick={() => setLightboxImg(null)}
             >
               <X size={28} />
@@ -305,7 +313,7 @@ export default function BlogList() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="relative max-w-4xl max-h-[85vh] flex flex-col items-center bg-white rounded-2xl overflow-hidden shadow-2xl"
+              className="relative max-w-4xl w-full flex flex-col items-center bg-white rounded-xl overflow-hidden shadow-2xl mb-10"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="w-full bg-gray-100 flex items-center justify-center overflow-auto max-h-[70vh]">
@@ -316,17 +324,17 @@ export default function BlogList() {
                 />
               </div>
               
-              <div className="w-full bg-white p-6 flex items-center justify-between border-t border-gray-100">
-                <h3 className="font-bold text-xl text-[#0c2f3d]">{lightboxImg.title}</h3>
-                <a 
-                  href={lightboxImg.src} 
-                  download={`${lightboxImg.title}.jpg`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 bg-[#d6a54a] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-[#c09440] transition-colors shadow-sm"
-                >
-                  <Download size={18} /> Unduh Gambar
-                </a>
+              <div className="w-full bg-white p-5 flex items-center justify-between border-t border-gray-100">
+                 <h3 className="font-bold text-lg text-[#0c2f3d]">{lightboxImg.title}</h3>
+                 <a 
+                   href={lightboxImg.src} 
+                   download={`${lightboxImg.title}.jpg`}
+                   target="_blank"
+                   rel="noreferrer"
+                   className="flex items-center gap-2 bg-[#d6a54a] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-[#c09440] transition-colors"
+                 >
+                   <Download size={18} /> Unduh
+                 </a>
               </div>
             </motion.div>
           </motion.div>

@@ -343,9 +343,12 @@ export default function ArticleEditor() {
                 className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#d6a54a] bg-white"
               >
                 <option value="Berita Terkini">Berita Terkini</option>
-                <option value="Kedinasan">Kedinasan</option>
                 <option value="Pojok Carita">Pojok Carita</option>
-                <option value="Perpustakaan Keliling">Perpus Keliling</option>
+                <option value="Kedinasan">Kedinasan</option>
+                <option value="Media Mewarnai">Media Mewarnai</option>
+                <option value="Perpus Keliling">Perpus Keliling</option>
+                <option value="Serba-serbi Purwakarta">Serba-serbi Purwakarta</option>
+                <option value="Statistik">Statistik</option>
               </select>
             </div>
             <div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { saveArticle, fileToBase64, Article, getArticles } from '../../services/dataService';
-import { Image as ImageIcon, Save, ArrowLeft, Video, PenTool } from 'lucide-react';
+import { Image as ImageIcon, Save, ArrowLeft, Video, PenTool, Trash2, Truck } from 'lucide-react';
 
 export default function MediaEditor() {
   const { id } = useParams();
@@ -11,7 +11,9 @@ export default function MediaEditor() {
   const [category, setCategory] = useState('Galeri');
   const [description, setDescription] = useState('');
   const [mediaFile, setMediaFile] = useState('');
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -23,8 +25,15 @@ export default function MediaEditor() {
         setDescription(article.excerpt);
         setMediaFile(article.img);
         
-        // If it's a video, we might have saved the link in 'content' previously or as part of excerpt.
-        // For simplicity, let's just extract from content if it starts with http
+        // Load gallery images if any
+        if (['Galeri', 'Galeri Perpus Keliling'].includes(article.category) && article.content) {
+            try {
+                const parsed = JSON.parse(article.content);
+                if (Array.isArray(parsed)) setGalleryImages(parsed);
+            } catch (e) { /* not a json array */ }
+        }
+
+        // If it's a video
         if (article.category === 'Video Terkini' && article.content) {
             // Very simple extraction
             const match = article.content.match(/href="([^"]+)"/);
@@ -34,7 +43,7 @@ export default function MediaEditor() {
     }
   }, [id]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) {
       alert("Judul tidak boleh kosong");
       return;
@@ -43,18 +52,42 @@ export default function MediaEditor() {
     let finalContent = '';
     if (category === 'Video Terkini' && videoUrl) {
         finalContent = `<p>Tautan Video: <a href="${videoUrl}" target="_blank">${videoUrl}</a></p>`;
+    } else if (['Galeri', 'Galeri Perpus Keliling'].includes(category) && galleryImages.length > 0) {
+        finalContent = JSON.stringify(galleryImages);
     }
     
-    saveArticle({
-      id: id,
-      title,
-      category,
-      excerpt: description,
-      img: mediaFile || 'https://via.placeholder.com/800x400?text=No+Media',
-      content: finalContent, // Skip Tiptap entirely
-    });
-    
-    navigate('/admin/media');
+    setIsUploading(true);
+    try {
+      await saveArticle({
+        id: id,
+        title,
+        category,
+        excerpt: description,
+        img: mediaFile || 'https://via.placeholder.com/800x400?text=No+Media',
+        content: finalContent,
+        date: new Date().toISOString().split('T')[0]
+      });
+      navigate('/admin/media');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const addGalleryFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setIsUploading(true);
+      try {
+        const base64s = await Promise.all(files.map(f => fileToBase64(f)));
+        setGalleryImages(prev => [...prev, ...base64s]);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const changeMediaFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,27 +123,34 @@ export default function MediaEditor() {
         {/* Categori Selector */}
         <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Jenis Media</label>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button 
                     onClick={() => setCategory('Galeri')}
                     className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Galeri' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
                 >
                     <ImageIcon size={28} className="mb-2" />
-                    <span className="font-semibold text-sm">Galeri Foto</span>
+                    <span className="font-semibold text-sm text-center">Galeri Foto</span>
+                </button>
+                <button 
+                    onClick={() => setCategory('Galeri Perpus Keliling')}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Galeri Perpus Keliling' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
+                >
+                    <Truck size={28} className="mb-2" />
+                    <span className="font-semibold text-sm text-center">Galeri Perpusling</span>
                 </button>
                 <button 
                     onClick={() => setCategory('Video Terkini')}
                     className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Video Terkini' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
                 >
                     <Video size={28} className="mb-2" />
-                    <span className="font-semibold text-sm">Video Terkini</span>
+                    <span className="font-semibold text-sm text-center">Video Terkini</span>
                 </button>
                 <button 
                     onClick={() => setCategory('Media Mewarnai')}
                     className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Media Mewarnai' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
                 >
                     <PenTool size={28} className="mb-2" />
-                    <span className="font-semibold text-sm">Media Mewarnai</span>
+                    <span className="font-semibold text-sm text-center">Mewarnai</span>
                 </button>
             </div>
         </div>
@@ -179,14 +219,58 @@ export default function MediaEditor() {
           ) : (
             <label className="cursor-pointer flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
               <ImageIcon className="text-gray-400 mb-3" size={36} />
-              <span className="text-sm font-medium text-gray-600">Klik untuk menjelajah file dari komputer Anda</span>
-              <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG, PDF (Silakan upload PDF untuk Print)</span>
+              <span className="text-sm font-medium text-gray-600">Klik untuk menjelajah file (Cover)</span>
+              <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG (Max 5MB)</span>
               <input type="file" accept={category === 'Media Mewarnai' ? ".jpg,.jpeg,.png,.pdf" : "image/*"} className="hidden" onChange={changeMediaFile} />
             </label>
           )}
         </div>
 
+        {/* Gallery Multi-Upload Section */}
+        {['Galeri', 'Galeri Perpus Keliling'].includes(category) && (
+          <div className="mt-10 pt-8 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h4 className="font-bold text-gray-900">Koleksi Foto Album</h4>
+                <p className="text-xs text-gray-500">Foto-foto tambahan yang akan muncul di galeri slider.</p>
+              </div>
+              <label className="cursor-pointer bg-[#0c2f3d]/5 text-[#0c2f3d] px-4 py-2 rounded-lg font-bold text-sm hover:bg-[#0c2f3d]/10 transition-colors">
+                + Tambah Foto
+                <input type="file" multiple accept="image/*" className="hidden" onChange={addGalleryFiles} />
+              </label>
+            </div>
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              {galleryImages.map((src, idx) => (
+                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group">
+                  <img src={src} className="w-full h-full object-cover" alt="Gallery item" />
+                  <button 
+                    onClick={() => removeGalleryImage(idx)}
+                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+              {galleryImages.length === 0 && (
+                <div className="col-span-full py-8 text-center border-2 border-dashed border-gray-100 rounded-xl text-gray-400 text-xs italic">
+                  Belum ada foto tambahan. Klik tombol di atas untuk menambah koleksi.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
+      
+      {isUploading && (
+        <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-[#0c2f3d]/20 border-t-[#0c2f3d] rounded-full animate-spin"></div>
+            <span className="font-bold text-gray-700">Memproses Media...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -17,6 +17,7 @@ export interface Article {
   imgPosition?: string;
   content: string;
   createdAt: number;
+  views?: number;
 }
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
@@ -160,6 +161,24 @@ export const deleteArticle = async (id: string) => {
     await supabase.from('articles').delete().eq('id', id);
   } catch (err) {
     console.error('Cloud delete failed:', err);
+  }
+};
+
+export const incrementArticleViews = async (id: string) => {
+  // Update lokal
+  const article = memoryCache.find(a => a.id === id);
+  if (article) {
+    article.views = (article.views || 0) + 1;
+    // Debounce/Throttling dispatch agar tidak terlalu boros render
+    window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
+    
+    // Update Cloud
+    try {
+      await supabase.rpc('increment_article_views', { article_id: id });
+    } catch (err) {
+      // Jika RPC belum terpasang, coba upsert biasa (kurang atomik tapi aman sebagai fallback)
+      await supabase.from('articles').update({ views: article.views }).eq('id', id);
+    }
   }
 };
 

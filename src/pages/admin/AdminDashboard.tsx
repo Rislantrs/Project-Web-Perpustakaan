@@ -25,7 +25,7 @@ export default function AdminDashboard() {
 
   const stats = [
     { title: 'Total Artikel', value: articles.length, icon: <FileText size={24} className="text-blue-500" />, bg: 'bg-blue-50' },
-    { title: 'Konfirmasi Ambil', value: pendingPickups, icon: <Clock size={24} className="text-red-500" />, bg: 'bg-red-50' },
+    { title: 'Total Pembaca', value: articles.reduce((acc, curr) => acc + (curr.views || 0), 0), icon: <TrendingUp size={24} className="text-orange-500" />, bg: 'bg-orange-50' },
     { title: 'Peminjaman Aktif', value: activeBorrows, icon: <LucideHistory size={24} className="text-emerald-500" />, bg: 'bg-emerald-50' },
     { title: 'Total Anggota', value: membersCount, icon: <Users size={24} className="text-purple-500" />, bg: 'bg-purple-50' },
   ];
@@ -77,36 +77,27 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Borrows */}
+        {/* Most Viewed Articles */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
-            <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><LucideHistory size={20} className="text-gray-400" /> Peminjaman Terbaru</h2>
-            <Link to="/admin/books" className="text-sm text-blue-600 font-medium hover:underline text-right">Kelola Buku</Link>
+            <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><TrendingUp size={20} className="text-orange-400" /> Artikel Terpopuler</h2>
+            <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">Berdasarkan Views</span>
           </div>
           <div className="divide-y divide-gray-100 flex-1">
-            {recentBorrows.map(borrow => (
-              <div key={borrow.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-0.5 line-clamp-1">{borrow.bookTitle}</h4>
-                  <div className="flex gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider items-center">
-                    <span className="text-[#0c2f3d]">{borrow.memberName}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                    <span>{borrow.tanggalPinjam}</span>
-                  </div>
+            {articles.sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0, 5).map(article => (
+              <div key={article.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div className="flex-1 min-w-0 pr-4">
+                  <h4 className="font-medium text-gray-900 mb-1 line-clamp-1">{article.title}</h4>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{article.category}</p>
                 </div>
-                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
-                  borrow.status === 'menunggu_diambil' ? 'bg-red-100 text-red-700' : 
-                  borrow.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 
-                  'bg-emerald-100 text-emerald-700'
-                }`}>
-                  {borrow.status === 'menunggu_diambil' ? 'Batas Ambil' : 
-                   borrow.status === 'dipinjam' ? 'Sedang Dipinjam' : 
-                   'Dikembalikan'}
-                </span>
+                <div className="flex items-center gap-2 bg-orange-50 px-3 py-1 rounded-full">
+                  <TrendingUp size={14} className="text-orange-500" />
+                  <span className="text-xs font-bold text-orange-700">{article.views || 0}</span>
+                </div>
               </div>
             ))}
-            {recentBorrows.length === 0 && (
-              <div className="px-6 py-8 text-center text-gray-500 text-sm italic">Belum ada aktivitas peminjaman.</div>
+            {articles.length === 0 && (
+              <div className="px-6 py-8 text-center text-gray-500 text-sm italic">Belum ada statistik tersedia.</div>
             )}
           </div>
         </div>

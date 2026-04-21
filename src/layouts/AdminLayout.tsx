@@ -20,9 +20,10 @@ export default function AdminLayout() {
     { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
     { name: 'Struktur & Prestasi', path: '/admin/structure', icon: <Network size={20} /> },
     { name: 'Jadwal Layanan', path: '/admin/schedules', icon: <Clock size={20} /> },
+    { name: 'Kelola PPID', path: '/admin/ppid', icon: <FileText size={20} /> },
     { name: 'Laporan Warga', path: '/admin/reports', icon: <MessageSquare size={20} /> },
-    { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
     { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
+    { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
 

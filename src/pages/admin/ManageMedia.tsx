@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getArticles, deleteArticle, Article } from '../../services/dataService';
 import { Link } from 'react-router';
-import { Plus, Image as ImageIcon, Video, PenTool, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Image as ImageIcon, Video, PenTool, Trash2, Edit2, Truck } from 'lucide-react';
 
 export default function ManageMedia() {
   const [media, setMedia] = useState<Article[]>([]);
+  const [filter, setFilter] = useState('Semua');
 
   useEffect(() => {
     loadMedia();
@@ -13,7 +14,7 @@ export default function ManageMedia() {
   const loadMedia = () => {
     const all = getArticles();
     // Filter out only the Media categories
-    const filtered = all.filter(a => ['Galeri', 'Video Terkini', 'Media Mewarnai'].includes(a.category));
+    const filtered = all.filter(a => ['Galeri', 'Galeri Perpus Keliling', 'Video Terkini', 'Media Mewarnai'].includes(a.category));
     setMedia(filtered);
   };
 
@@ -27,15 +28,18 @@ export default function ManageMedia() {
   const getIcon = (category: string) => {
       switch(category) {
           case 'Galeri': return <ImageIcon size={18} className="text-blue-500" />;
+          case 'Galeri Perpus Keliling': return <Truck size={18} className="text-green-500" />;
           case 'Video Terkini': return <Video size={18} className="text-red-500" />;
           case 'Media Mewarnai': return <PenTool size={18} className="text-purple-500" />;
           default: return <ImageIcon size={18} />;
       }
   };
 
+  const displayedMedia = filter === 'Semua' ? media : media.filter(item => item.category === filter);
+
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Kelola Media Visual</h1>
           <p className="text-gray-500 mt-1">Daftar Galeri, Video, dan Media Mewarnai.</p>
@@ -48,8 +52,22 @@ export default function ManageMedia() {
         </Link>
       </div>
 
+      <div className="flex justify-end mb-6">
+        <select 
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d]"
+        >
+          <option value="Semua">Tampilkan Semua</option>
+          <option value="Galeri">Galeri</option>
+          <option value="Galeri Perpus Keliling">Galeri Perpus Keliling</option>
+          <option value="Video Terkini">Video Terkini</option>
+          <option value="Media Mewarnai">Media Mewarnai</option>
+        </select>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {media.map(item => (
+          {displayedMedia.map(item => (
               <div key={item.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group">
                   <div className="aspect-video w-full bg-gray-100 relative overflow-hidden">
                       <img src={item.img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="cover" />

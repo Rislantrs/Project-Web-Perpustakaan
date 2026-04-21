@@ -27,6 +27,10 @@ import p7 from '../assets/layanan/dioramaPurwakarta/image-7.webp';
 import p8 from '../assets/layanan/dioramaPurwakarta/image-8.webp';
 import p9 from '../assets/layanan/dioramaPurwakarta/image-9.webp';
 
+// Import Hero Images
+import heroPurwakarta from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
+import heroNusantara from '../assets/layanan/dioramaNusantara/diorama-nusantara.webp';
+
 const purwakartaSegments = [
   {
     title: 'Bale Prabu Maharaja LinggaBhuwana',
@@ -200,9 +204,8 @@ export default function Diorama() {
                 </div>
                 <div className="lg:w-1/2 w-full">
                   <div className="aspect-[16/10] bg-gray-200 rounded-2xl overflow-hidden shadow-2xl relative group">
-                    {/* Using the architecture/building from user reference idea */}
-                    <img src="https://images.unsplash.com/photo-1566438480900-0609be27a4be?auto=format&fit=crop&q=80&w=1200" alt="Diorama Purwakarta Building" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+                    <img src={heroPurwakarta} alt="Bale Panyawangan Diorama Purwakarta" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
                   </div>
                 </div>
               </section>
@@ -278,8 +281,8 @@ export default function Diorama() {
                 </div>
                 <div className="lg:w-1/2 w-full">
                   <div className="aspect-[16/10] bg-gray-200 rounded-2xl overflow-hidden shadow-2xl relative group">
-                    <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=1200" alt="Diorama Nusantara" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+                    <img src={heroNusantara} alt="Bale Panyawangan Diorama Nusantara" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
                   </div>
                 </div>
               </section>
@@ -382,22 +385,22 @@ export default function Diorama() {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  <a href="tel:112" className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all hover:-translate-y-1 block">
                     <p className="text-gray-300 text-xs mb-1 uppercase tracking-wider">Telepon Darurat</p>
                     <p className="font-bold text-lg">Call Center 112</p>
-                  </div>
-                  <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  </a>
+                  <a href="https://wa.me/6285624657172" target="_blank" rel="noreferrer" className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all hover:-translate-y-1 block">
                     <p className="text-gray-300 text-xs mb-1 uppercase tracking-wider">Aplikasi Chat</p>
                     <p className="font-bold text-lg flex items-center gap-2"><Smartphone size={18} /> Whatsapp</p>
-                  </div>
-                  <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  </a>
+                  <a href="https://oganlopian.purwakartakab.go.id/" target="_blank" rel="noreferrer" className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all hover:-translate-y-1 block">
                     <p className="text-gray-300 text-xs mb-1 uppercase tracking-wider">Aplikasi Resmi</p>
                     <p className="font-bold text-lg">Ogan Lopian</p>
-                  </div>
-                  <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors">
+                  </a>
+                  <a href="https://span.lapor.go.id/" target="_blank" rel="noreferrer" className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all hover:-translate-y-1 block">
                     <p className="text-gray-300 text-xs mb-1 uppercase tracking-wider">Portal Nasional</p>
                     <p className="font-bold text-lg">Span LAPOR</p>
-                  </div>
+                  </a>
                 </div>
 
                 <div className="mt-4 bg-[#d6a54a] text-white p-4 rounded-xl font-bold text-center hover:bg-[#c09440] transition-colors cursor-pointer">

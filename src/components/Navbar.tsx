@@ -34,10 +34,10 @@ const navLinks = [
     path: '#',
     subLinks: [
       { name: 'Media Mewarnai', path: '/artikel?kategori=Media Mewarnai' },
-      { name: 'Perpustakaan Keliling', path: '/artikel?kategori=Perpustakaan Keliling' },
-      { name: 'Galeri', path: '/artikel?kategori=Galeri' },
+      { name: 'Perpustakaan Keliling', path: '/artikel?kategori=Perpus Keliling' },
+      { name: 'Galeri Foto', path: '/artikel?kategori=Galeri' },
       { name: 'Video Terkini', path: '/artikel?kategori=Video Terkini' },
-      { name: 'Serba-Serbi Purwakarta', path: '/artikel?kategori=Serba-Serbi' },
+      { name: 'Serba-Serbi Purwakarta', path: '/artikel?kategori=Serba-serbi Purwakarta' },
       { name: 'Edukasi', path: '/artikel?kategori=Edukasi' },
       { name: 'Kedinasan', path: '/artikel?kategori=Kedinasan' },
       { name: 'Statistik', path: '/artikel?kategori=Statistik' }
@@ -47,8 +47,8 @@ const navLinks = [
     name: 'Lain-Lain', 
     path: '#',
     subLinks: [
-      { name: 'Galeri Perpustakaan Keliling', path: '/artikel?kategori=Galeri' },
-      { name: 'Pabukon', path: '/artikel?kategori=Pabukon' },
+      { name: 'Galeri Perpus Keliling', path: '/artikel?kategori=Galeri Perpus Keliling' },
+      { name: 'Pabukon', path: '/pabukon' },
       { name: 'GALENDO', path: '/galendo' },
       { name: 'PPID', path: '/ppid' },
       { name: 'Zona Integritas', path: '/zona-integritas' }

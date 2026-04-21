@@ -23,6 +23,7 @@ import Referensi from './pages/Referensi';
 import LayananRentan from './pages/LayananRentan';
 import JasaKearsipan from './pages/JasaKearsipan';
 import LaporWarga from './pages/LaporWarga';
+import Pabukon from './pages/Pabukon';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -43,6 +44,7 @@ const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 const ManageReports = lazy(() => import('./pages/admin/ManageReports'));
 const ManageSchedules = lazy(() => import('./pages/admin/ManageSchedules'));
 const ManageStructure = lazy(() => import('./pages/admin/ManageStructure'));
+const ManagePpid = lazy(() => import('./pages/admin/ManagePpid'));
 import JadwalLayanan from './pages/JadwalLayanan';
 
 import { refreshArticles } from './services/dataService';
@@ -95,6 +97,7 @@ function App() {
           <Route path="ppid" element={<Ppid />} />
           <Route path="zona-integritas" element={<ZonaIntegritas />} />
           <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
+          <Route path="pabukon" element={<Pabukon />} />
           <Route path="lapor-warga" element={<LaporWarga />} />
           <Route path="jadwal" element={<JadwalLayanan />} />
           <Route path="referensi" element={<Referensi />} />
@@ -136,6 +139,7 @@ function App() {
           <Route path="settings" element={<AdminSettings />} />
           <Route path="schedules" element={<ManageSchedules />} />
           <Route path="structure" element={<ManageStructure />} />
+          <Route path="ppid" element={<ManagePpid />} />
         </Route>
 
         {/* 404 Generic Error Route */}
