@@ -32,15 +32,15 @@ export default function Home() {
 
     const fetchData = () => {
       const articles = getArticles();
-      
+
       // 1. BERITA TERKINI FILTER
       const newsArticles = articles
         .filter(a => a.category === 'Berita Terkini')
         .sort((a, b) => b.createdAt - a.createdAt);
-      
+
       setNews(newsArticles);
       currentNewsCount = Math.min(newsArticles.length, 5);
-      
+
       // 2. POJOK CARITA FILTER
       const storyArticles = articles
         .filter(a => a.category === 'Pojok Carita')
@@ -49,8 +49,8 @@ export default function Home() {
 
       setSchedules(getSchedules().slice(0, 3));
     };
-    
-    fetchData(); 
+
+    fetchData();
 
     // Sync Data changes from other tabs or same tab Admin
     const handleStorageChange = () => fetchData();
@@ -365,37 +365,37 @@ export default function Home() {
                     transition={{ duration: 0.6, ease: "easeInOut" }}
                     className="absolute inset-0 w-full h-full"
                   >
-                    <motion.img 
+                    <motion.img
                       initial={{ scale: 1.05 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: 8, ease: "easeOut" }}
-                      src={stories[activeCultureIdx]?.img || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'} 
-                      alt="Pojok Carita" 
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]" 
+                      src={stories[activeCultureIdx]?.img || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'}
+                      alt="Pojok Carita"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]"
                       style={{ objectPosition: stories[activeCultureIdx]?.imgPosition || 'center' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 sm:via-[#0c2f3d]/40 to-transparent"></div>
 
                     <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end text-white z-20">
-                      <motion.span 
+                      <motion.span
                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
                         className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md"
                       >
                         POJOK CARITA
                       </motion.span>
-                      <motion.h3 
+                      <motion.h3
                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
                         className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-tight line-clamp-2"
                       >
                         {stories[activeCultureIdx]?.title}
                       </motion.h3>
-                      <motion.p 
+                      <motion.p
                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
                         className="text-gray-200 text-sm sm:text-base leading-relaxed max-w-2xl mb-6 sm:mb-8 line-clamp-3"
                       >
                         {stories[activeCultureIdx]?.excerpt}
                       </motion.p>
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
                         className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/20 pt-5 sm:pt-6 gap-4 sm:gap-0"
                       >

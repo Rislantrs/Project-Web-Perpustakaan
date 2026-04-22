@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { saveArticle, fileToBase64, Article, getArticles } from '../../services/dataService';
+import { getCurrentAdmin } from '../../services/authService';
 import { Image as ImageIcon, Save, ArrowLeft, Video, PenTool, Trash2, Truck } from 'lucide-react';
 
 export default function MediaEditor() {
@@ -58,6 +59,13 @@ export default function MediaEditor() {
     
     setIsUploading(true);
     try {
+      const admin = getCurrentAdmin();
+      if (!admin) {
+        alert("Akses ditolak: Sesi admin tidak valid");
+        setIsUploading(false);
+        return;
+      }
+
       await saveArticle({
         id: id,
         title,
@@ -66,7 +74,7 @@ export default function MediaEditor() {
         img: mediaFile || 'https://via.placeholder.com/800x400?text=No+Media',
         content: finalContent,
         date: new Date().toISOString().split('T')[0]
-      });
+      }, admin.id);
       navigate('/admin/media');
     } finally {
       setIsUploading(false);

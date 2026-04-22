@@ -99,31 +99,7 @@ export const initializeDB = () => {
   }
 
   // Ensure our specific dummy user exists
-  const members: Member[] = dbGet<Member[]>(DB_KEYS.MEMBERS, []);
-  const dummyEmail = 'rislantristansyah@gmail.com';
-  const existingDummyIndex = members.findIndex(m => m.email === dummyEmail);
-
-  if (existingDummyIndex === -1) {
-    const defaultMember: Member = {
-      id: 'M-Dummy',
-      nomorAnggota: 'PWK-2024-001',
-      namaLengkap: 'Rislan Tristansyah',
-      nik: '****************7406',
-      email: dummyEmail,
-      password: 'user123',
-      alamat: 'Purwakarta, Jawa Barat',
-      telepon: '087735167406',
-      jenisKelamin: 'L',
-      tanggalLahir: '1995-01-01',
-      tanggalDaftar: '14 April 2024',
-      avatarColor: '#8b1c24'
-    };
-    members.push(defaultMember);
-    dbSave(DB_KEYS.MEMBERS, members);
-  } else {
-    // If found but using old dummy format, we could update it here
-    // For now, if it exists, we leave it to let user change their password
-  }
+  // (Disabled: Dummy user recreation has been disabled so deleted accounts don't resurrect)
   
   // Initialize system info if empty
   const systemInfo = dbGet(DB_KEYS.SYSTEM_INFO, null);

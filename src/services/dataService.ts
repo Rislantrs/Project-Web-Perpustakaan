@@ -22,8 +22,17 @@ export interface Article {
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
 
-// 1. Dapatkan artikel (Hanya memori lokal sementara, murni sinkron dengan Cloud)
+// 1. Dapatkan artikel (Cache lokal ringan untuk load instan)
 let memoryCache: Article[] = [];
+try {
+  const cached = localStorage.getItem(STORAGE_KEY);
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    if (parsed && Array.isArray(parsed)) memoryCache = parsed;
+  }
+} catch (e) {
+  console.warn('Failed to parse cached articles');
+}
 
 export const getArticles = (): Article[] => {
   return memoryCache.sort((a, b) => b.createdAt - a.createdAt);
@@ -32,8 +41,8 @@ export const getArticles = (): Article[] => {
 // 2. SINKRONISASI murni dari Cloud (Tanpa simpan 30MB ke LocalStorage Browser)
 export const refreshArticles = async (): Promise<Article[]> => {
   try {
-    // 🧹 Bersihkan LocalStorage dari beban Base64 "monster" masa lalu (yang bikin ngelag/error)!
-    localStorage.removeItem(STORAGE_KEY);
+    // Jangan hapus cache lama di sini agar UI tidak berkedip kosong saat memuat
+    // localStorage.removeItem(STORAGE_KEY);
 
     // JANGAN ambil kolom "content" karena bisa puluhan Megabyte (bikin timeout)
     const { data, error } = await supabase
@@ -45,6 +54,13 @@ export const refreshArticles = async (): Promise<Article[]> => {
     
     if (data) {
       memoryCache = data as Article[];
+      // Simpan versi ringan (tanpa content/base64) ke LocalStorage untuk load instan berikutnya
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache));
+      } catch (e) {
+        console.warn('Cache too large to save', e);
+      }
+      
       // Beri tahu halaman agar me-render ulang dengan data Supabase 100% terbaru
       window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
       return memoryCache;
@@ -76,7 +92,9 @@ export const getArticleBySlug = (slug: string): Article | undefined => {
   return matches[0];
 };
 
-export const saveArticle = async (articleData: Partial<Article>) => {
+export const saveArticle = async (articleData: Partial<Article>, requestedByAdminId?: string) => {
+  // === BACKEND VALIDATION: Admin-only operation ===
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat menyimpan artikel.');
   const articles = getArticles();
   const cleanData = sanitizeObject(articleData);
   let updatedArticle: Article;
@@ -123,8 +141,13 @@ export const saveArticle = async (articleData: Partial<Article>) => {
     articles.push(updatedArticle);
   }
 
-  // Simpan array lokal ke memori saja tanpa menyentuh LocalStorage
+  // Update local memoryCache dan persist ke LocalStorage agar tidak hilang saat refresh (Instant UI)
   memoryCache = articles;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache.map(a => ({ ...a, content: undefined }))));
+  } catch (e) {
+    console.warn('Failed to update local cache', e);
+  }
   window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
   
   // Simpan ke Supabase (Cloud) dengan data bersih
@@ -153,8 +176,16 @@ export const saveArticle = async (articleData: Partial<Article>) => {
   }
 };
 
-export const deleteArticle = async (id: string) => {
+export const deleteArticle = async (id: string, requestedByAdminId?: string) => {
+  // === BACKEND VALIDATION: Admin-only operation ===
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat menghapus artikel.');
+  // Update local memoryCache dan persist ke LocalStorage
   memoryCache = getArticles().filter(a => a.id !== id);
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache.map(a => ({ ...a, content: undefined }))));
+  } catch (e) {
+    console.warn('Failed to update local cache after delete', e);
+  }
   window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
   
   try {

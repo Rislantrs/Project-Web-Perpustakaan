@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { BookOpen, History, ArrowLeft, CheckCircle, AlertCircle, X, Calendar, Clock, RotateCcw, BookMarked, Users, XCircle, Timer } from 'lucide-react';
+import { BookOpen, History, ArrowLeft, CheckCircle, AlertCircle, X, Calendar, Clock, RotateCcw, BookMarked, Users, XCircle, Timer, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
-import { getMemberBorrows, returnBook, getBookById, getMemberQueues, cancelQueue, type BorrowRecord, type QueueRecord } from '../services/bookService';
+import { getMemberBorrows, returnBook, getBookById, getMemberQueues, cancelQueue, rateBook, type BorrowRecord, type QueueRecord } from '../services/bookService';
 
 export default function RiwayatPinjaman() {
   const navigate = useNavigate();
@@ -11,6 +11,8 @@ export default function RiwayatPinjaman() {
   const [queues, setQueues] = useState<QueueRecord[]>([]);
   const [filterStatus, setFilterStatus] = useState<'semua' | 'dipinjam' | 'dikembalikan'>('semua');
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
+  const [ratingModal, setRatingModal] = useState<{ show: boolean, bookId: string, bookTitle: string } | null>(null);
+  const [hoveredRating, setHoveredRating] = useState(0);
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -33,10 +35,25 @@ export default function RiwayatPinjaman() {
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
   };
 
-  const handleReturn = (borrowId: string) => {
-    const result = returnBook(borrowId);
-    showToast(result.message, result.success ? 'success' : 'error');
-    if (result.success) loadBorrows();
+  const handleReturn = (borrowId: string, bookId: string, bookTitle: string) => {
+    const u = getCurrentUser();
+    if (!u) { showToast('Silakan login terlebih dahulu.', 'error'); return; }
+    const result = returnBook(borrowId, u.id); // pass memberId for backend ownership check
+    if (result.success) {
+      loadBorrows();
+      setRatingModal({ show: true, bookId, bookTitle });
+    } else {
+      showToast(result.message, 'error');
+    }
+  };
+
+  const handleRateSubmit = (rating: number) => {
+    const u = getCurrentUser();
+    if (ratingModal && u) {
+      const res = rateBook(ratingModal.bookId, u.id, rating);
+      showToast(res.message, res.success ? 'success' : 'error');
+      setRatingModal(null);
+    }
   };
 
   const user = getCurrentUser();
@@ -63,6 +80,67 @@ export default function RiwayatPinjaman() {
             {toast.type === 'success' ? <CheckCircle size={20} className="text-emerald-600 shrink-0" /> : <AlertCircle size={20} className="text-red-600 shrink-0" />}
             <span className={`text-sm font-medium ${toast.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>{toast.message}</span>
             <button onClick={() => setToast(prev => ({ ...prev, show: false }))} className="ml-2 text-gray-400 hover:text-gray-600"><X size={16} /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Rating Modal */}
+      <AnimatePresence>
+        {ratingModal && ratingModal.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-center"
+            >
+              <button
+                onClick={() => setRatingModal(null)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors"
+              >
+                <X size={16} />
+              </button>
+              
+              <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-amber-500">
+                <Star size={32} className="fill-amber-500" />
+              </div>
+              
+              <h3 className="font-bold text-[#1a1a1a] text-xl mb-2">Beri Penilaian</h3>
+              <p className="text-sm text-gray-500 mb-6">Bagaimana pendapat Anda tentang buku <strong className="text-[#0c2f3d]">"{ratingModal.bookTitle}"</strong>?</p>
+              
+              <div className="flex justify-center gap-2 mb-8">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => handleRateSubmit(star)}
+                    onMouseEnter={() => setHoveredRating(star)}
+                    onMouseLeave={() => setHoveredRating(0)}
+                    className="p-1 transition-transform hover:scale-110 active:scale-95"
+                  >
+                    <Star 
+                      size={36} 
+                      className={`${
+                        star <= hoveredRating 
+                          ? 'text-amber-400 fill-amber-400' 
+                          : 'text-gray-200'
+                      } transition-colors`} 
+                    />
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => setRatingModal(null)}
+                className="text-xs font-bold text-gray-400 hover:text-gray-600 uppercase tracking-widest"
+              >
+                Lewati
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -207,7 +285,7 @@ export default function RiwayatPinjaman() {
                     {/* Return Button */}
                     {record.status === 'dipinjam' && (
                       <button
-                        onClick={() => handleReturn(record.id)}
+                        onClick={() => handleReturn(record.id, record.bookId, record.bookTitle)}
                         className="mt-4 inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#8b1c24] text-white text-sm font-bold hover:bg-[#721720] transition-colors shadow-sm"
                       >
                         <RotateCcw size={14} /> Kembalikan Buku
@@ -267,7 +345,8 @@ export default function RiwayatPinjaman() {
                   </div>
                   <button
                     onClick={() => {
-                      const result = cancelQueue(q.id);
+                      const u = getCurrentUser();
+                      const result = cancelQueue(q.id, u?.id); // pass memberId for ownership check
                       showToast(result.message, result.success ? 'success' : 'error');
                       if (result.success) loadBorrows();
                     }}

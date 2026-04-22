@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { Search, Star, BookOpen, Filter, X, ChevronLeft, ChevronRight, UserPlus, History, Heart, SlidersHorizontal, BookMarked, CheckCircle, AlertCircle, ArrowRight, Sparkles, Users, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, CATEGORIES, type Book } from '../services/bookService';
+import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, toggleWishlist, isInWishlist, rateBook, CATEGORIES, type Book } from '../services/bookService';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
 
 import heroImg from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
@@ -25,11 +25,24 @@ export default function Perpustakaan() {
   const catalogRef = useRef<HTMLDivElement>(null);
   const recScrollRef = useRef<HTMLDivElement>(null);
   const catScrollRef = useRef<HTMLDivElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     setRecommendedBooks(getRecommendedBooks());
     loadBooks();
   }, []);
+
+  useEffect(() => {
+    const bookId = searchParams.get('bookId');
+    if (bookId) {
+      const book = getBooks().find(b => b.id === bookId);
+      if (book) {
+        setSelectedBook(book);
+        // Clear param to avoid re-opening if user closes it
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams]);
 
   const loadBooks = () => {
     const filtered = filterBooks({
@@ -70,6 +83,21 @@ export default function Perpustakaan() {
       if (refreshed) setSelectedBook(refreshed);
     }
   };
+
+  const handleWishlist = (bookId: string) => {
+    if (!isLoggedIn()) {
+      showToast('Silakan login untuk menyimpan ke Wishlist.', 'error');
+      return;
+    }
+    const user = getCurrentUser()!;
+    const result = toggleWishlist(bookId, user.id);
+    showToast(result.message, result.success ? 'success' : 'error');
+    if (selectedBook) {
+      setSelectedBook({ ...selectedBook }); // Force re-render
+    }
+  };
+
+
 
   const scrollRec = (dir: 'left' | 'right') => {
     if (recScrollRef.current) {
@@ -573,11 +601,21 @@ export default function Perpustakaan() {
                 <h2 className="font-serif text-2xl font-bold text-[#1a1a1a] mb-1">{selectedBook.judul}</h2>
                 <p className="text-gray-500 mb-4">{selectedBook.penulis}</p>
 
-                {/* Rating */}
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="flex">{renderStars(selectedBook.rating)}</div>
-                  <span className="text-sm font-bold text-gray-700">{selectedBook.rating}</span>
-                  <span className="text-xs text-gray-400">({selectedBook.totalRating} ulasan)</span>
+                {/* Rating & Wishlist */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="flex">{renderStars(selectedBook.rating)}</div>
+                    <span className="text-sm font-bold text-gray-700">{selectedBook.rating}</span>
+                    <span className="text-xs text-gray-400">({selectedBook.totalRating} ulasan)</span>
+                  </div>
+                  
+                  <button 
+                    onClick={() => handleWishlist(selectedBook.id)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isLoggedIn() && isInWishlist(selectedBook.id, getCurrentUser()!.id) ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+                    title="Tambah ke Wishlist"
+                  >
+                    <Heart size={20} className={isLoggedIn() && isInWishlist(selectedBook.id, getCurrentUser()!.id) ? 'fill-red-500' : ''} />
+                  </button>
                 </div>
 
                 {/* Stats */}

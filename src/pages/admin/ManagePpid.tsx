@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getArticles, saveArticle, deleteArticle, Article } from '../../services/dataService';
+import { getCurrentAdmin } from '../../services/authService';
 import { Plus, Edit2, Trash2, Search, X, Loader2, Link as LinkIcon, FileText } from 'lucide-react';
 
 export default function ManagePpid() {
@@ -46,6 +47,8 @@ export default function ManagePpid() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const admin = getCurrentAdmin();
+    if (!admin) { alert('Akses ditolak: Sesi admin tidak valid.'); return; }
     setIsSaving(true);
     
     try {
@@ -54,9 +57,9 @@ export default function ManagePpid() {
         title,
         category: 'Ppid',
         excerpt: subCategory,
-        img: url, // Simpan URL GDrive/PDF di field img (biar tidak hilang pas refresh)
+        img: url,
         date: new Date().toISOString().split('T')[0]
-      });
+      }, admin.id);
       setIsModalOpen(false);
       loadDocs();
     } catch (err) {
@@ -68,8 +71,10 @@ export default function ManagePpid() {
   };
 
   const handleDelete = async (id: string, titleStr: string) => {
+    const admin = getCurrentAdmin();
+    if (!admin) { alert('Akses ditolak: Sesi admin tidak valid.'); return; }
     if (window.confirm(`Yakin ingin menghapus dokumen "${titleStr}"?`)) {
-      await deleteArticle(id);
+      await deleteArticle(id, admin.id);
       loadDocs();
     }
   };

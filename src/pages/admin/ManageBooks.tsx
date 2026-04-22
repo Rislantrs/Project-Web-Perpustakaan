@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Plus, Search, Edit2, Trash2, BookOpen, AlertCircle, CheckCircle, X, Package } from 'lucide-react';
 import { getBooks, deleteBook, CATEGORIES, type Book } from '../../services/bookService';
+import { getCurrentAdmin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ManageBooks() {
@@ -18,7 +19,9 @@ export default function ManageBooks() {
   };
 
   const handleDelete = (book: Book) => {
-    const result = deleteBook(book.id);
+    const admin = getCurrentAdmin();
+    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
+    const result = deleteBook(book.id, admin.id); // pass adminId for backend auth check
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) { setBooks(getBooks()); setConfirmDelete(null); }
   };

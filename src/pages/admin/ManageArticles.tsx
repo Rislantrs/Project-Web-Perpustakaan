@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getArticles, deleteArticle, Article } from '../../services/dataService';
+import { getCurrentAdmin } from '../../services/authService';
 import { Link } from 'react-router';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
 
@@ -33,9 +34,11 @@ export default function ManageArticles() {
     setArticles(blogArticles);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    const admin = getCurrentAdmin();
+    if (!admin) { alert('Akses ditolak: Sesi admin tidak valid.'); return; }
     if (window.confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {
-      deleteArticle(id);
+      await deleteArticle(id, admin.id);
       loadArticles();
     }
   };

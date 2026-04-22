@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Mail, Phone, Calendar, Trash2, User, CheckCircle, AlertCircle, X, Shield, MapPin } from 'lucide-react';
-import { getMembers, deleteMember, getInitials, type Member } from '../../services/authService';
+import { getMembers, deleteMember, getCurrentAdmin, getInitials, type Member } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ManageMembers() {
@@ -19,7 +19,9 @@ export default function ManageMembers() {
   };
 
   const handleDelete = (member: Member) => {
-    const result = deleteMember(member.id);
+    const admin = getCurrentAdmin();
+    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
+    const result = deleteMember(member.id, admin.id); // backend ownership check
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) { loadMembers(); setConfirmDelete(null); }
   };

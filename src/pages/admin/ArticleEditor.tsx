@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { saveArticle, Article, getArticles } from '../../services/dataService';
+import { getCurrentAdmin } from '../../services/authService';
 import { uploadImage } from '../../services/storageService';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -158,6 +159,13 @@ export default function ArticleEditor() {
 
     setIsUploading(true);
     try {
+      const admin = getCurrentAdmin();
+      if (!admin) {
+        showToast("Akses ditolak: Sesi admin tidak valid", "error");
+        setIsUploading(false);
+        return;
+      }
+
       const content = editor?.getHTML() || '';
       
       if (content.includes('data:image/') && content.length > 500000) {
@@ -175,7 +183,7 @@ export default function ArticleEditor() {
         imgPosition,
         date: toIndoDate(date),
         content: content,
-      });
+      }, admin.id);
       
       showToast("✅ Berhasil disimpan ke Cloud!", "success");
       setTimeout(() => navigate('/admin/articles'), 1500);

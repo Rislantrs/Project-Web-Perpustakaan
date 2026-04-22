@@ -62,21 +62,12 @@ function ScrollToTop() {
 function App() {
   // Global Data Sync on Startup
   useEffect(() => {
-    const syncData = async () => {
-      console.log('🔄 Memulai Sinkronisasi Data dengan Supabase...');
-      try {
-        await Promise.all([
-          refreshArticles(),
-          refreshSettings()
-        ]);
-        console.log('✅ Sinkronisasi Berhasil! Data Anda sudah aman di Cloud.');
-        window.dispatchEvent(new CustomEvent('dbChange'));
-      } catch (err) {
-        console.error('❌ Sinkronisasi Gagal:', err);
-      }
-    };
+    // Run sync in background without blocking
+    refreshArticles();
+    refreshSettings();
     
-    syncData();
+    // We don't need to manually dispatch dbChange here 
+    // because refresh functions already dispatch it internally per-resource
   }, []);
 
   return (

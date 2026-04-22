@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getArticles, deleteArticle, Article } from '../../services/dataService';
+import { getCurrentAdmin } from '../../services/authService';
 import { Link } from 'react-router';
 import { Plus, Image as ImageIcon, Video, PenTool, Trash2, Edit2, Truck } from 'lucide-react';
 
@@ -18,9 +19,11 @@ export default function ManageMedia() {
     setMedia(filtered);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    const admin = getCurrentAdmin();
+    if (!admin) { alert('Akses ditolak: Sesi admin tidak valid.'); return; }
     if (window.confirm('Hapus media ini?')) {
-      deleteArticle(id);
+      await deleteArticle(id, admin.id);
       loadMedia();
     }
   };

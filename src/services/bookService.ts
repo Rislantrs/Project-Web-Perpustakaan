@@ -415,7 +415,12 @@ export const filterBooks = (options: {
 const generateBookId = (): string =>
   'bk' + Date.now().toString(36) + Math.random().toString(36).substr(2, 3);
 
-export const addBook = (data: Omit<Book, 'id'>): { success: boolean; message: string; book?: Book } => {
+export const addBook = (data: Omit<Book, 'id'>, requestedByAdminId?: string): { success: boolean; message: string; book?: Book } => {
+  // === BACKEND VALIDATION: Must be admin ===
+  if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menambah buku.' };
+  if (!data.judul?.trim()) return { success: false, message: 'Judul buku tidak boleh kosong.' };
+  if (!data.penulis?.trim()) return { success: false, message: 'Nama penulis tidak boleh kosong.' };
+  if (data.stok < 0) return { success: false, message: 'Stok tidak boleh negatif.' };
   const books = getBooks();
   const newBook: Book = { id: generateBookId(), ...data };
   books.push(newBook);
@@ -423,16 +428,24 @@ export const addBook = (data: Omit<Book, 'id'>): { success: boolean; message: st
   return { success: true, message: `Buku "${newBook.judul}" berhasil ditambahkan.`, book: newBook };
 };
 
-export const updateBook = (id: string, updates: Partial<Book>): { success: boolean; message: string } => {
+export const updateBook = (id: string, updates: Partial<Book>, requestedByAdminId?: string): { success: boolean; message: string } => {
+  // === BACKEND VALIDATION: Must be admin ===
+  if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat mengubah data buku.' };
+  if (updates.stok !== undefined && updates.stok < 0) return { success: false, message: 'Stok tidak boleh negatif.' };
   const books = getBooks();
   const idx = books.findIndex(b => b.id === id);
   if (idx === -1) return { success: false, message: 'Buku tidak ditemukan.' };
-  books[idx] = { ...books[idx], ...updates };
+  // Block tampering the book ID itself
+  const safeUpdates = { ...updates };
+  delete safeUpdates.id;
+  books[idx] = { ...books[idx], ...safeUpdates };
   localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
   return { success: true, message: 'Buku berhasil diperbarui.' };
 };
 
-export const deleteBook = (id: string): { success: boolean; message: string } => {
+export const deleteBook = (id: string, requestedByAdminId?: string): { success: boolean; message: string } => {
+  // === BACKEND VALIDATION: Must be admin ===
+  if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menghapus buku.' };
   const books = getBooks().filter(b => b.id !== id);
   localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
   return { success: true, message: 'Buku berhasil dihapus.' };
@@ -456,7 +469,14 @@ const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 
 const formatDate = (d: Date) => `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 const formatDateTime = (d: Date) => `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
-export const borrowBook = (bookId: string, memberId: string, memberName: string): { success: boolean; message: string } => {
+export const borrowBook = (bookId: string, memberId: string, _memberNameFromFrontend: string): { success: boolean; message: string } => {
+  // === SECURITY: Re-fetch member name from DB — never trust Frontend-supplied data ===
+  const membersRaw = localStorage.getItem('disipusda_members');
+  const members: Array<{ id: string; namaLengkap: string }> = membersRaw ? JSON.parse(membersRaw) : [];
+  const verifiedMember = members.find(m => m.id === memberId);
+  if (!verifiedMember) return { success: false, message: 'Anggota tidak ditemukan atau sesi tidak valid.' };
+  const memberName = verifiedMember.namaLengkap; // Use DB name, not the frontend-supplied one
+
   const book = getBookById(bookId);
   if (!book) return { success: false, message: 'Buku tidak ditemukan.' };
   if (book.stok <= 0) return { success: false, message: 'Stok buku habis. Anda bisa mendaftar antrian untuk buku ini.' };
@@ -533,13 +553,22 @@ export const confirmPickup = (borrowId: string): { success: boolean; message: st
   return { success: true, message: 'Pengambilan buku berhasil dikonfirmasi!' };
 };
 
-export const returnBook = (borrowId: string): { success: boolean; message: string } => {
+export const returnBook = (borrowId: string, requestedByMemberId?: string): { success: boolean; message: string } => {
   const borrows = getBorrows();
   const idx = borrows.findIndex(b => b.id === borrowId);
   if (idx === -1) return { success: false, message: 'Data peminjaman tidak ditemukan.' };
 
-  const now = new Date();
+  // === BACKEND VALIDATION: Verify ownership — the member can only return their own book ===
+  if (requestedByMemberId && borrows[idx].memberId !== requestedByMemberId) {
+    return { success: false, message: 'Akses ditolak: Anda tidak memiliki izin untuk mengembalikan buku orang lain.' };
+  }
 
+  // Verify status is actually borrowed (not already returned or cancelled)
+  if (borrows[idx].status !== 'dipinjam') {
+    return { success: false, message: 'Buku ini tidak sedang dalam status dipinjam.' };
+  }
+
+  const now = new Date();
   borrows[idx].status = 'dikembalikan';
   borrows[idx].tanggalDikembalikan = formatDate(now);
 
@@ -590,7 +619,14 @@ export const getQueuePosition = (bookId: string, memberId: string): number | nul
   return idx !== -1 ? idx + 1 : null;
 };
 
-export const joinQueue = (bookId: string, memberId: string, memberName: string): { success: boolean; message: string; nomorAntrian?: number } => {
+export const joinQueue = (bookId: string, memberId: string, _memberNameFromFrontend: string): { success: boolean; message: string; nomorAntrian?: number } => {
+  // === SECURITY: Re-fetch member name from DB — never trust Frontend-supplied data ===
+  const membersRaw = localStorage.getItem('disipusda_members');
+  const members: Array<{ id: string; namaLengkap: string }> = membersRaw ? JSON.parse(membersRaw) : [];
+  const verifiedMember = members.find(m => m.id === memberId);
+  if (!verifiedMember) return { success: false, message: 'Anggota tidak ditemukan atau sesi tidak valid.' };
+  const memberName = verifiedMember.namaLengkap;
+
   const book = getBookById(bookId);
   if (!book) return { success: false, message: 'Buku tidak ditemukan.' };
 
@@ -632,10 +668,15 @@ export const joinQueue = (bookId: string, memberId: string, memberName: string):
   };
 };
 
-export const cancelQueue = (queueId: string): { success: boolean; message: string } => {
+export const cancelQueue = (queueId: string, requestedByMemberId?: string): { success: boolean; message: string } => {
   const queues = getQueues();
   const idx = queues.findIndex(q => q.id === queueId);
   if (idx === -1) return { success: false, message: 'Data antrian tidak ditemukan.' };
+
+  // === BACKEND VALIDATION: Only the queue owner can cancel their spot ===
+  if (requestedByMemberId && queues[idx].memberId !== requestedByMemberId) {
+    return { success: false, message: 'Akses ditolak: Anda hanya dapat membatalkan antrian milik Anda sendiri.' };
+  }
 
   queues[idx].status = 'dibatalkan';
   localStorage.setItem(QUEUE_KEY, JSON.stringify(queues));
@@ -690,4 +731,76 @@ export const getBorrows = (): BorrowRecord[] => {
   return data ? JSON.parse(data) : [];
 };
 
+// === WISHLIST FUNCTIONS ===
 
+const WISHLIST_KEY = 'disipusda_wishlist';
+
+export interface WishlistRecord {
+  memberId: string;
+  bookId: string;
+}
+
+export const getWishlists = (): WishlistRecord[] => {
+  const data = localStorage.getItem(WISHLIST_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+export const toggleWishlist = (bookId: string, memberId: string): { success: boolean; isAdded: boolean; message: string } => {
+  const wishlists = getWishlists();
+  const existingIdx = wishlists.findIndex(w => w.bookId === bookId && w.memberId === memberId);
+  
+  if (existingIdx !== -1) {
+    // Remove
+    wishlists.splice(existingIdx, 1);
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlists));
+    return { success: true, isAdded: false, message: 'Dihapus dari Wishlist.' };
+  } else {
+    // Add
+    wishlists.push({ bookId, memberId });
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlists));
+    return { success: true, isAdded: true, message: 'Ditambahkan ke Wishlist!' };
+  }
+};
+
+export const getMemberWishlist = (memberId: string): Book[] => {
+  const wishlists = getWishlists().filter(w => w.memberId === memberId);
+  const books = getBooks();
+  return wishlists.map(w => books.find(b => b.id === w.bookId)).filter(b => b !== undefined) as Book[];
+};
+
+export const isInWishlist = (bookId: string, memberId: string): boolean => {
+  const wishlists = getWishlists();
+  return wishlists.some(w => w.bookId === bookId && w.memberId === memberId);
+};
+
+// === RATING FUNCTION ===
+
+export const rateBook = (bookId: string, memberId: string, newRating: number): { success: boolean; message: string } => {
+  // === VALIDASI BACKEND (Security Best Practice) ===
+  // Kita tidak boleh percaya frontend begitu saja. Cek database apakah user ini benar-benar sudah mengembalikan buku ini.
+  const borrows = getMemberBorrows(memberId);
+  const hasReturned = borrows.some(b => b.bookId === bookId && b.status === 'dikembalikan');
+  
+  if (!hasReturned) {
+    return { success: false, message: 'Keamanan: Anda hanya boleh memberi rating untuk buku yang sudah Anda kembalikan.' };
+  }
+
+  const books = getBooks();
+  const idx = books.findIndex(b => b.id === bookId);
+  if (idx === -1) return { success: false, message: 'Buku tidak ditemukan.' };
+
+  const book = books[idx];
+  // Calculate new average rating
+  const currentTotal = book.totalRating || 0;
+  const currentAvg = book.rating || 5; // Default to 5 if undefined
+  
+  const newTotal = currentTotal + 1;
+  // Formula: ((oldAvg * oldTotal) + newRating) / newTotal
+  const newAvg = ((currentAvg * currentTotal) + newRating) / newTotal;
+  
+  books[idx].rating = Number(newAvg.toFixed(1));
+  books[idx].totalRating = newTotal;
+  
+  localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+  return { success: true, message: 'Terima kasih atas penilaian Anda!' };
+};

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Network, Trophy, Plus, Trash2, Save, CheckCircle, AlertCircle, User, Briefcase, Image as ImageIcon, Edit2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getStructure, saveStructure, getAchievements, saveAchievements, type StructureNode, type Achievement } from '../../services/settingsService';
+import { getCurrentAdmin } from '../../services/authService';
 import { compressImage } from '../../services/imageUtils';
 
 const CATEGORIES = [
@@ -54,9 +55,11 @@ export default function ManageStructure() {
   };
 
   const handleSaveStructure = async () => {
+    const admin = getCurrentAdmin();
+    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
     // Strip isNew flag before saving to DB
     const cleanedNodes = nodes.map(({ isNew, ...rest }: any) => rest);
-    const res = await saveStructure(cleanedNodes);
+    const res = await saveStructure(cleanedNodes, admin.id);
     setNodes(cleanedNodes); // Update state to reflect clean data
     showToast(res.message, res.success ? 'success' : 'error');
   };
@@ -82,9 +85,11 @@ export default function ManageStructure() {
   };
 
   const handleSaveAchievements = async () => {
+    const admin = getCurrentAdmin();
+    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
     // Strip isNew flag before saving
     const cleaned = achievements.map(({ isNew, ...rest }: any) => rest);
-    const res = await saveAchievements(cleaned);
+    const res = await saveAchievements(cleaned, admin.id);
     setAchievements(cleaned);
     showToast(res.message, res.success ? 'success' : 'error');
   };

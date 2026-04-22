@@ -161,10 +161,14 @@ export default function Navbar() {
                   className="flex items-center gap-2 cursor-pointer group"
                 >
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-white ring-2 ring-gray-200 group-hover:ring-[#d6a54a] transition-all"
-                    style={{ backgroundColor: user.avatarColor }}
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-white ring-2 ring-gray-200 group-hover:ring-[#d6a54a] transition-all overflow-hidden"
+                    style={{ backgroundColor: !user.avatarUrl ? user.avatarColor : 'transparent' }}
                   >
-                    {getInitials(user.namaLengkap)}
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="PP" className="w-full h-full object-cover" />
+                    ) : (
+                      getInitials(user.namaLengkap)
+                    )}
                   </div>
                   <ChevronDown size={14} className={`text-gray-500 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
                 </button>

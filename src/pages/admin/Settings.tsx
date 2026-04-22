@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Save, Globe, Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Youtube, CheckCircle, AlertCircle, Plus, Trash2, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings, updateSiteSettings, type SiteSettings } from '../../services/settingsService';
+import { getCurrentAdmin } from '../../services/authService';
 
 export default function AdminSettings() {
   const [form, setForm] = useState<SiteSettings | null>(null);
@@ -17,10 +18,12 @@ export default function AdminSettings() {
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form) return;
-    const res = updateSiteSettings(form);
+    const admin = getCurrentAdmin();
+    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
+    const res = await updateSiteSettings(form, admin.id);
     showToast(res.message, res.success ? 'success' : 'error');
   };
 

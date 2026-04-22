@@ -66,46 +66,35 @@ export interface StructureNode {
 
 // --- SYNC ENGINE ---
 export const refreshSettings = async () => {
-  try {
+  // Jalankan semua sync secara paralel agar tidak saling menunggu (waterfall)
+  await Promise.allSettled([
     // 1. Sync Settings
-    const { data: setts } = await supabase.from('settings').select('*');
-    if (setts && setts.length > 0) {
-      const siteSetts = setts.find(s => s.key === 'site_settings')?.value;
-      if (siteSetts) dbSave(DB_KEYS.SETTINGS, siteSetts);
-    } else {
-      const local = getSiteSettings();
-      await supabase.from('settings').upsert({ key: 'site_settings', value: local });
-    }
+    (async () => {
+      const { data } = await supabase.from('settings').select('*');
+      if (data && data.length > 0) {
+        const siteSetts = data.find(s => s.key === 'site_settings')?.value;
+        if (siteSetts) dbSave(DB_KEYS.SETTINGS, siteSetts);
+      }
+    })(),
 
     // 2. Sync Schedules
-    const { data: scheds } = await supabase.from('schedules').select('*');
-    if (scheds && scheds.length > 0) dbSave(DB_KEYS.SCHEDULES, scheds);
-    else {
-      const locals = getSchedules();
-      if (locals.length > 0) await supabase.from('schedules').insert(locals.map(s => pick(s, ['id', 'day', 'hours', 'note'])));
-    }
+    (async () => {
+      const { data } = await supabase.from('schedules').select('*');
+      if (data && data.length > 0) dbSave(DB_KEYS.SCHEDULES, data);
+    })(),
 
     // 3. Sync Achievements
-    const { data: achs } = await supabase.from('achievements').select('*');
-    if (achs && achs.length > 0) dbSave(DB_KEYS.ACHIEVEMENTS, achs);
-    else {
-      const locals = getAchievements();
-      if (locals.length > 0) await supabase.from('achievements').insert(locals.map(a => pick(a, ['id', 'title', 'year', 'description', 'img'])));
-    }
+    (async () => {
+      const { data } = await supabase.from('achievements').select('*');
+      if (data && data.length > 0) dbSave(DB_KEYS.ACHIEVEMENTS, data);
+    })(),
 
     // 4. Sync Structure
-    const { data: struct } = await supabase.from('structure').select('*');
-    if (struct && struct.length > 0) dbSave(DB_KEYS.STRUCTURE, struct);
-    else {
-      const locals = getStructure();
-      if (locals.length > 0) await supabase.from('structure').insert(locals.map(n => pick(n, ['id', 'name', 'position', 'level', 'parentId', 'category', 'img'])));
-    }
-
-    return true;
-  } catch (err) {
-    console.error('Settings sync failed:', err);
-    return false;
-  }
+    (async () => {
+      const { data } = await supabase.from('structure').select('*');
+      if (data && data.length > 0) dbSave(DB_KEYS.STRUCTURE, data);
+    })()
+  ]);
 };
 
 // Helper to filter object keys
@@ -139,7 +128,8 @@ export const getSystemInfo = (): SystemInfo => {
   });
 };
 
-export const saveSystemInfo = async (info: SystemInfo) => {
+export const saveSystemInfo = async (info: SystemInfo, requestedByAdminId?: string) => {
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah pengaturan.');
   const cleanInfo = sanitizeObject(info);
   dbSave(DB_KEYS.SYSTEM_INFO, cleanInfo);
   await supabase.from('settings').upsert({ key: 'system_info', value: cleanInfo });
@@ -169,7 +159,8 @@ export const getSiteSettings = (): SiteSettings => {
   });
 };
 
-export const updateSiteSettings = async (settings: SiteSettings) => {
+export const updateSiteSettings = async (settings: SiteSettings, requestedByAdminId?: string) => {
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah pengaturan situs.');
   const cleanSettings = sanitizeObject(settings);
   dbSave(DB_KEYS.SETTINGS, cleanSettings);
   await supabase.from('settings').upsert({ key: 'site_settings', value: cleanSettings });
@@ -181,7 +172,8 @@ export const getSchedules = (): Schedule[] => {
   return dbGet<Schedule[]>(DB_KEYS.SCHEDULES, []);
 };
 
-export const saveSchedules = async (schedules: Schedule[]) => {
+export const saveSchedules = async (schedules: Schedule[], requestedByAdminId?: string) => {
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah jadwal.');
   const cleanSchedules = schedules.map(s => sanitizeObject(s));
   dbSave(DB_KEYS.SCHEDULES, cleanSchedules);
   await supabase.from('schedules').delete().neq('id', '00000000-0000-0000-0000-000000000000');
@@ -197,7 +189,8 @@ export const getAchievements = (): Achievement[] => {
   return dbGet<Achievement[]>(DB_KEYS.ACHIEVEMENTS, []);
 };
 
-export const saveAchievements = async (achievements: Achievement[]) => {
+export const saveAchievements = async (achievements: Achievement[], requestedByAdminId?: string) => {
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah prestasi.');
   const cleanAchievements = achievements.map(a => sanitizeObject(a));
   dbSave(DB_KEYS.ACHIEVEMENTS, cleanAchievements);
   await supabase.from('achievements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
@@ -213,7 +206,8 @@ export const getStructure = (): StructureNode[] => {
   return dbGet<StructureNode[]>(DB_KEYS.STRUCTURE, []);
 };
 
-export const addStructureNode = async (node: Omit<StructureNode, 'id'>): Promise<StructureNode> => {
+export const addStructureNode = async (node: Omit<StructureNode, 'id'>, requestedByAdminId?: string): Promise<StructureNode> => {
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah struktur.');
   const nodes = getStructure();
   const cleanNode = sanitizeObject(node as any);
   const newNode = { ...cleanNode, id: uuidv4() } as StructureNode;
@@ -227,7 +221,8 @@ export const getStructureByCategory = (category: string): StructureNode[] => {
   return getStructure().filter(node => node.category === category);
 };
 
-export const saveStructure = async (nodes: StructureNode[]) => {
+export const saveStructure = async (nodes: StructureNode[], requestedByAdminId?: string) => {
+  if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah struktur.');
   const cleanNodes = nodes.map(n => sanitizeObject(n));
   dbSave(DB_KEYS.STRUCTURE, cleanNodes);
   await supabase.from('structure').delete().neq('id', '00000000-0000-0000-0000-000000000000');

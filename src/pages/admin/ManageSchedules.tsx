@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Clock, Plus, Trash2, Save, CheckCircle, AlertCircle, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSchedules, saveSchedules, type Schedule } from '../../services/settingsService';
+import { getCurrentAdmin } from '../../services/authService';
 
 export default function ManageSchedules() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -34,8 +35,10 @@ export default function ManageSchedules() {
     setSchedules(schedules.map(s => s.id === id ? { ...s, [field]: value } : s));
   };
 
-  const handleSave = () => {
-    const res = saveSchedules(schedules);
+  const handleSave = async () => {
+    const admin = getCurrentAdmin();
+    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
+    const res = await saveSchedules(schedules, admin.id);
     showToast(res.message, res.success ? 'success' : 'error');
   };
 
