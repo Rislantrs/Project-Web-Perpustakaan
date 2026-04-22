@@ -187,7 +187,7 @@ export default function Home() {
               <p className="text-[#d6a54a] font-bold text-xs tracking-widest uppercase mb-2">Edisi Digital</p>
               <h2 className="font-serif text-4xl font-bold text-[#0c2f3d]">Berita Terkini</h2>
             </div>
-            <a href="#" className="hidden sm:flex items-center text-sm font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors gap-1 border-b border-transparent hover:border-[#d6a54a]">
+            <a href="/artikel?kategori=Berita Terkini" className="hidden sm:flex items-center text-sm font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors gap-1 border-b border-transparent hover:border-[#d6a54a]">
               Lihat Semua Berita <ArrowRight size={16} />
             </a>
           </div>
@@ -323,7 +323,7 @@ export default function Home() {
             </Link>
 
             {/* Layanan 3: Diorama */}
-            <Link to="/diorama" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
+            <Link to="/bale-panyawangan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Bale Panyawangan Diorama</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
                 Bale Panyawangan Diorama Purwakarta merupakan ungkapan sejarah Purwakarta dan perkembangan dari masa ke masa yang ditampilkan melalui perpaduan arsip, seni, dan teknologi.
