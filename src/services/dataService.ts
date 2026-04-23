@@ -2,6 +2,7 @@ import { dbGet, dbSave, DB_KEYS } from './db';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeObject } from '../utils/security';
 import { supabase } from './supabase';
+import { uploadDataUrlImage } from './storageService';
 
 export interface Article {
   id: string;
@@ -19,6 +20,9 @@ export interface Article {
   createdAt: number;
   views?: number;
 }
+
+const ARTICLE_LIST_COLUMNS = 'id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt, views';
+const failedArticleImageMigrationIds = new Set<string>();
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
 
@@ -38,6 +42,81 @@ export const getArticles = (): Article[] => {
   return memoryCache.sort((a, b) => b.createdAt - a.createdAt);
 };
 
+export interface ArticleListQueryOptions {
+  from?: number;
+  to?: number;
+  category?: string;
+  year?: string;
+  search?: string;
+}
+
+const isBase64Image = (value?: string) => !!value && value.startsWith('data:image/');
+
+const migrateArticleImageIfNeeded = async (article: Article): Promise<Article> => {
+  if (!isBase64Image(article.img) || failedArticleImageMigrationIds.has(article.id)) {
+    return article;
+  }
+
+  try {
+    const url = await uploadDataUrlImage(article.img, { bucket: 'articles', folder: 'article-covers' });
+    const { error } = await supabase.from('articles').update({ img: url }).eq('id', article.id);
+    if (error) throw error;
+    return { ...article, img: url };
+  } catch (err) {
+    console.error(`Migrasi gambar article gagal untuk id ${article.id}:`, err);
+    failedArticleImageMigrationIds.add(article.id);
+    return article;
+  }
+};
+
+const migrateArticleImageBatch = async (rows: Article[]): Promise<Article[]> => {
+  const migrated: Article[] = [];
+  for (const row of rows) {
+    migrated.push(await migrateArticleImageIfNeeded(row));
+  }
+  return migrated;
+};
+
+const applyArticleListFilters = (
+  query: any,
+  options: ArticleListQueryOptions = {}
+) => {
+  const { category, year, search } = options;
+
+  if (category && category !== 'Semua Kategori') {
+    query = query.eq('category', category);
+  }
+
+  if (year) {
+    query = query.eq('year', year);
+  }
+
+  const q = search?.trim();
+  if (q) {
+    const escaped = q.replace(/,/g, ' ');
+    query = query.or(`title.ilike.%${escaped}%,excerpt.ilike.%${escaped}%,category.ilike.%${escaped}%`);
+  }
+
+  return query;
+};
+
+export const fetchArticlesPage = async (options: ArticleListQueryOptions = {}): Promise<Article[]> => {
+  const from = options.from ?? 0;
+  const to = options.to ?? 9;
+
+  let query = supabase
+    .from('articles')
+    .select(ARTICLE_LIST_COLUMNS)
+    .order('createdAt', { ascending: false })
+    .range(from, to);
+
+  query = applyArticleListFilters(query, options);
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return migrateArticleImageBatch((data || []) as Article[]);
+};
+
 // 2. SINKRONISASI murni dari Cloud (Tanpa simpan 30MB ke LocalStorage Browser)
 export const refreshArticles = async (): Promise<Article[]> => {
   try {
@@ -47,20 +126,20 @@ export const refreshArticles = async (): Promise<Article[]> => {
     // JANGAN ambil kolom "content" karena bisa puluhan Megabyte (bikin timeout)
     const { data, error } = await supabase
       .from('articles')
-      .select('id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt')
+      .select(ARTICLE_LIST_COLUMNS)
       .order('createdAt', { ascending: false });
 
     if (error) throw error;
-    
+
     if (data) {
-      memoryCache = data as Article[];
+      memoryCache = await migrateArticleImageBatch(data as Article[]);
       // Simpan versi ringan (tanpa content/base64) ke LocalStorage untuk load instan berikutnya
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache));
       } catch (e) {
         console.warn('Cache too large to save', e);
       }
-      
+
       // Beri tahu halaman agar me-render ulang dengan data Supabase 100% terbaru
       window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
       return memoryCache;
@@ -69,6 +148,68 @@ export const refreshArticles = async (): Promise<Article[]> => {
     console.error('Failed to sync with Supabase:', err);
   }
   return memoryCache;
+};
+
+export const refreshLatestArticles = async (limit: number = 10): Promise<Article[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select(ARTICLE_LIST_COLUMNS)
+      .order('createdAt', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    if (data) {
+      memoryCache = await migrateArticleImageBatch(data as Article[]);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache));
+      } catch (e) {
+        console.warn('Cache too large to save', e);
+      }
+
+      window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
+      return memoryCache;
+    }
+  } catch (err) {
+    console.error('Failed to sync latest articles:', err);
+  }
+
+  return memoryCache;
+};
+
+export const migrateLegacyArticleImages = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('id, img')
+      .like('img', 'data:image/%');
+
+    if (error || !data || data.length === 0) return;
+
+    for (const row of data) {
+      const local = memoryCache.find(a => a.id === row.id);
+      const article = {
+        id: row.id,
+        slug: local?.slug || '',
+        title: local?.title || '',
+        excerpt: local?.excerpt || '',
+        category: local?.category || '',
+        author: local?.author || '',
+        date: local?.date || '',
+        year: local?.year || '',
+        readTime: local?.readTime || '',
+        img: row.img || '',
+        imgPosition: local?.imgPosition,
+        content: local?.content || '',
+        createdAt: local?.createdAt || Date.now(),
+        views: local?.views,
+      } as Article;
+      await migrateArticleImageIfNeeded(article);
+    }
+  } catch (err) {
+    console.error('Migrasi gambar artikel legacy gagal:', err);
+  }
 };
 
 // Helper to filter object keys
@@ -85,7 +226,7 @@ export const getArticleBySlug = (slug: string): Article | undefined => {
   if (matches.length === 0) return undefined;
   if (matches.length > 1) {
     // SMART RESOLUTION: Jika ada duplikat slug, prioritaskan yang isinya paling panjang
-    return matches.reduce((prev, current) => 
+    return matches.reduce((prev, current) =>
       (prev.content || '').length > (current.content || '').length ? prev : current
     );
   }
@@ -98,7 +239,7 @@ export const saveArticle = async (articleData: Partial<Article>, requestedByAdmi
   const articles = getArticles();
   const cleanData = sanitizeObject(articleData);
   let updatedArticle: Article;
-  
+
   if (cleanData.id) {
     const index = articles.findIndex(a => a.id === cleanData.id);
     if (index !== -1) {
@@ -108,14 +249,14 @@ export const saveArticle = async (articleData: Partial<Article>, requestedByAdmi
       updatedArticle = cleanData as Article;
     }
   } else {
-    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const now = new Date();
     const todayStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-    
+
     const finalDate = cleanData.date || todayStr;
     const yearFromDate = finalDate.split(' ').pop() || now.getFullYear().toString();
     const newId = uuidv4();
-    
+
     // Batasi panjang slug asal (Max 150 karakter) agar tidak merusak index database (Error 500)
     const baseSlug = (cleanData.title || '')
       .toLowerCase()
@@ -149,7 +290,7 @@ export const saveArticle = async (articleData: Partial<Article>, requestedByAdmi
     console.warn('Failed to update local cache', e);
   }
   window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
-  
+
   // Simpan ke Supabase (Cloud) dengan data bersih
 
   // Kita petakan satu-satu biar bener-bener masuk ke kolom yang tepat
@@ -168,7 +309,7 @@ export const saveArticle = async (articleData: Partial<Article>, requestedByAdmi
     createdAt: updatedArticle.createdAt,
     content: updatedArticle.content
   };
-  
+
   const { error } = await supabase.from('articles').upsert(toSave);
   if (error) {
     console.error('Cloud save failed:', error);
@@ -187,7 +328,7 @@ export const deleteArticle = async (id: string, requestedByAdminId?: string) => 
     console.warn('Failed to update local cache after delete', e);
   }
   window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
-  
+
   try {
     await supabase.from('articles').delete().eq('id', id);
   } catch (err) {
@@ -202,7 +343,7 @@ export const incrementArticleViews = async (id: string) => {
     article.views = (article.views || 0) + 1;
     // Debounce/Throttling dispatch agar tidak terlalu boros render
     window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
-    
+
     // Update Cloud
     try {
       await supabase.rpc('increment_article_views', { article_id: id });
@@ -236,7 +377,7 @@ export const fileToBase64 = (file: File): Promise<string> => {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        
+
         // Simpan dengan kualitas 0.7 (Format WebP agar super ringan)
         const compressedBase64 = canvas.toDataURL('image/webp', 0.7);
         resolve(compressedBase64);

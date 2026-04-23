@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Save, ArrowLeft, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { getBookById, addBook, updateBook, CATEGORIES, type Book } from '../../services/bookService';
+import { getCurrentAdmin } from '../../services/authService';
 import { motion } from 'motion/react';
+import SafeImage from '../../components/SafeImage';
 
 type BookForm = Omit<Book, 'id'>;
 
@@ -34,18 +36,29 @@ export default function BookEditor() {
   const update = (field: keyof BookForm, value: unknown) =>
     setForm(prev => ({ ...prev, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!form.judul.trim()) return setError('Judul buku wajib diisi.');
     if (!form.penulis.trim()) return setError('Penulis wajib diisi.');
     if (!form.cover.trim()) return setError('URL cover wajib diisi.');
 
+    const admin = getCurrentAdmin();
+    if (!admin) return setError('Akses ditolak: sesi admin tidak valid.');
+
     setLoading(true);
-    setTimeout(() => {
-      const result = isEdit && id ? updateBook(id, form) : addBook(form);
-      if (result.success) { navigate('/admin/books'); } else { setError(result.message); setLoading(false); }
-    }, 500);
+    try {
+      const result = await (isEdit && id ? updateBook(id, form, admin.id) : addBook(form, admin.id));
+      if (result.success) { 
+        navigate('/admin/books'); 
+      } else { 
+        setError(result.message); 
+        setLoading(false); 
+      }
+    } catch (err) {
+      setError('Terjadi kesalahan saat menyimpan data.');
+      setLoading(false);
+    }
   };
 
   const inputCls = "w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all bg-white";
@@ -71,7 +84,7 @@ export default function BookEditor() {
           <div className="flex gap-6 items-start">
             <div className="w-24 h-32 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-200 flex items-center justify-center">
               {form.cover ? (
-                <img src={form.cover} alt="preview" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                <SafeImage src={form.cover} alt="preview" className="w-full h-full object-cover" />
               ) : (
                 <BookOpen size={24} className="text-gray-300" />
               )}

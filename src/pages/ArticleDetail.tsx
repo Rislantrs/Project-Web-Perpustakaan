@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router';
 import { getArticleBySlug, incrementArticleViews } from '../services/dataService';
 import { supabase } from '../services/supabase';
 import { useState, useEffect, useMemo } from 'react';
+import SafeImage from '../components/SafeImage';
 
 
 export default function ArticleDetail() {
@@ -181,7 +182,7 @@ export default function ArticleDetail() {
         <figure className="mb-12">
           <div className="w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden shadow-lg border border-gray-100 bg-gray-50 flex items-center justify-center">
             {article.img ? (
-              <img 
+              <SafeImage 
                 src={article.img} 
                 alt={article.title} 
                 className="w-full h-full object-cover"
@@ -204,7 +205,7 @@ export default function ArticleDetail() {
                    onClick={() => setLightboxData({ title: article.title, images: galleryImages, currentIndex: i })}
                    className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-md transition-shadow"
                  >
-                   <img src={src} alt={`${article.title} - ${i+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                   <SafeImage src={src} alt={`${article.title} - ${i+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="bg-white/90 backdrop-blur-sm text-[#0c2f3d] px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">Lihat Penuh</span>
                    </div>
@@ -286,7 +287,7 @@ export default function ArticleDetail() {
                 animate={{ opacity: 1, x: 0 }}
                 className="relative max-w-5xl w-full h-[75vh] flex flex-col items-center justify-center p-4"
               >
-                <img 
+                <SafeImage 
                   src={lightboxData.images[lightboxData.currentIndex]} 
                   alt={lightboxData.title} 
                   className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 

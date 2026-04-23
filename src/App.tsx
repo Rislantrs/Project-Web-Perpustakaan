@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router';
-import { useEffect, Suspense, lazy } from 'react';
+import { useEffect, useRef, Suspense, lazy } from 'react';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Kearsipan from './pages/Kearsipan';
@@ -47,8 +47,9 @@ const ManageStructure = lazy(() => import('./pages/admin/ManageStructure'));
 const ManagePpid = lazy(() => import('./pages/admin/ManagePpid'));
 import JadwalLayanan from './pages/JadwalLayanan';
 
-import { refreshArticles } from './services/dataService';
+import { refreshLatestArticles, migrateLegacyArticleImages } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
+import { refreshBooks, migrateLegacyBookCovers } from './services/bookService';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -59,15 +60,49 @@ function ScrollToTop() {
   return null;
 }
 
+import { supabase } from './services/supabase';
+
 function App() {
+  const hasInitialized = useRef(false);
+
   // Global Data Sync on Startup
   useEffect(() => {
-    // Run sync in background without blocking
-    refreshArticles();
+    if (hasInitialized.current) {
+      return;
+    }
+    hasInitialized.current = true;
+
+    // 1. Initial background sync
+    refreshLatestArticles(10);
     refreshSettings();
+    refreshBooks();
+    migrateLegacyArticleImages();
+    migrateLegacyBookCovers();
     
-    // We don't need to manually dispatch dbChange here 
-    // because refresh functions already dispatch it internally per-resource
+    // 2. ACTIVATE REAL-TIME: Listen for any changes in Supabase
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public' },
+        (payload) => {
+          // React intelligently to what changed
+          const table = payload.table;
+          console.log(`Real-time change detected in ${table}:`, payload.eventType);
+          
+          if (table === 'articles') refreshLatestArticles(10);
+          else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
+          else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
+          
+          // Trigger global UI update
+          window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: table } }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (

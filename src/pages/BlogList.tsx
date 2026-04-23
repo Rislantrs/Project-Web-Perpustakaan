@@ -1,12 +1,13 @@
 import { Link, useSearchParams } from 'react-router';
-import { ChevronRight, Calendar, User, Search, Filter, ChevronLeft, X, Download, Image as ImageIcon } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { ChevronRight, Calendar, User, Search, Filter, X, Download, Image as ImageIcon } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getArticles, Article } from '../services/dataService';
+import { fetchArticlesPage, Article } from '../services/dataService';
 
 
 
 export default function BlogList() {
+  const PAGE_SIZE = 10;
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get('kategori') || '';
 
@@ -23,37 +24,67 @@ export default function BlogList() {
   }, [searchQuery]);
 
   const [selectedYear, setSelectedYear] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState<Article[]>([]);
-  
-  useEffect(() => {
-    const fetchArticles = () => setArticles(getArticles());
-    fetchArticles();
-    
-    // Dengarkan event ketika Supabase selesai menarik data dari Cloud
-    window.addEventListener('dbChange', fetchArticles);
-    return () => window.removeEventListener('dbChange', fetchArticles);
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     setSelectedCategory(searchParams.get('kategori') || '');
-    setCurrentPage(1);
   }, [searchParams]);
 
   const [lightboxImg, setLightboxImg] = useState<{src: string, title: string} | null>(null);
 
   const isGridMode = ['Media Mewarnai', 'Galeri', 'Galeri Perpus Keliling', 'Video Terkini'].includes(selectedCategory || urlCategory);
-  const itemsPerPage = isGridMode ? 12 : 6;
 
-  const parseIndoDate = (dateStr: string) => {
-    const months: {[key: string]: number} = {
-      'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
-      'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
+  const activeCategory = useMemo(() => {
+    const category = selectedCategory || urlCategory;
+    return category === 'Semua Kategori' ? '' : category;
+  }, [selectedCategory, urlCategory]);
+
+  const loadArticlesPage = useCallback(async (reset: boolean, startFrom: number = 0) => {
+    setIsLoading(true);
+    try {
+      const from = reset ? 0 : startFrom;
+      const to = from + PAGE_SIZE - 1;
+      const nextBatch = await fetchArticlesPage({
+        from,
+        to,
+        category: activeCategory || undefined,
+        year: selectedYear || undefined,
+        search: debouncedSearchQuery || undefined,
+      });
+
+      setArticles(prev => {
+        if (reset) return nextBatch;
+        const existingIds = new Set(prev.map(a => a.id));
+        const merged = [...prev];
+        nextBatch.forEach(item => {
+          if (!existingIds.has(item.id)) merged.push(item);
+        });
+        return merged;
+      });
+
+      setHasMore(nextBatch.length === PAGE_SIZE);
+    } catch (error) {
+      console.error('Failed to fetch paginated articles:', error);
+      if (reset) setArticles([]);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeCategory, selectedYear, debouncedSearchQuery]);
+
+  useEffect(() => {
+    loadArticlesPage(true);
+  }, [loadArticlesPage]);
+
+  useEffect(() => {
+    const onDbChange = () => {
+      loadArticlesPage(true);
     };
-    const parts = dateStr.split(' ');
-    if (parts.length !== 3) return new Date();
-    return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
-  };
+    window.addEventListener('dbChange', onDbChange);
+    return () => window.removeEventListener('dbChange', onDbChange);
+  }, [loadArticlesPage]);
 
   // Ambil daftar tahun unik dari semua artikel untuk filter
   const availableYears = useMemo(() => {
@@ -64,37 +95,10 @@ export default function BlogList() {
     return Array.from(years).sort((a, b) => b.localeCompare(a));
   }, [articles]);
 
-  const filteredArticles = useMemo(() => {
-    return articles.filter(article => {
-      // Gunakan debouncedSearchQuery agar tidak berat saat mengetik
-      const query = debouncedSearchQuery.toLowerCase();
-      const matchSearch = 
-        article.title.toLowerCase().includes(query) || 
-        (article.excerpt && article.excerpt.toLowerCase().includes(query)) ||
-        (article.category && article.category.toLowerCase().includes(query));
-      
-      const matchCategory = selectedCategory ? article.category === selectedCategory : (urlCategory ? article.category === urlCategory : true);
-      const matchYear = selectedYear ? article.year === selectedYear : true;
-      return matchSearch && matchCategory && matchYear;
-    });
-  }, [articles, debouncedSearchQuery, selectedCategory, urlCategory, selectedYear]);
-
-  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
-  const paginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  const filteredArticles = articles;
 
   const currentCategoryDisplay = selectedCategory || urlCategory || 'Ruang Literasi & Berita';
   
-  const openLightbox = (article: Article) => {
-    setLightboxImg({ src: article.img, title: article.title });
-  };
-
   const ArticleImage = ({ src, alt, className, position }: { src?: string, alt: string, className?: string, position?: string }) => {
     const [isError, setIsError] = useState(false);
     
@@ -151,7 +155,7 @@ export default function BlogList() {
               type="text" 
               placeholder="Cari judul..." 
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => { setSearchQuery(e.target.value); }}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a]"
             />
           </div>
@@ -159,7 +163,7 @@ export default function BlogList() {
           <div className="flex gap-4">
             <select 
               value={selectedCategory || urlCategory} 
-              onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => { setSelectedCategory(e.target.value); }}
               className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700"
             >
               <option value="Semua Kategori">Semua Kategori</option>
@@ -175,7 +179,7 @@ export default function BlogList() {
 
             <select 
               value={selectedYear} 
-              onChange={(e) => { setSelectedYear(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => { setSelectedYear(e.target.value); }}
               className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700 w-32"
             >
               <option value="">Tahun</option>
@@ -186,9 +190,22 @@ export default function BlogList() {
           </div>
         </div>
 
-        {paginatedArticles.length > 0 ? (
+        {isLoading && filteredArticles.length === 0 ? (
           <div className={isGridMode ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" : "space-y-16 max-w-5xl mx-auto"}>
-            {paginatedArticles.map((article, index) => {
+            {Array.from({ length: isGridMode ? 8 : 4 }).map((_, idx) => (
+              <div key={idx} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+                <div className={isGridMode ? 'aspect-square bg-gray-100' : 'h-64 md:h-80 bg-gray-100'} />
+                <div className="p-4 space-y-2">
+                  <div className="h-3 w-20 bg-gray-100 rounded" />
+                  <div className="h-4 w-full bg-gray-100 rounded" />
+                  <div className="h-4 w-4/5 bg-gray-100 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredArticles.length > 0 ? (
+          <div className={isGridMode ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" : "space-y-16 max-w-5xl mx-auto"}>
+            {filteredArticles.map((article, index) => {
               if (isGridMode) {
                 return (
                   <div 
@@ -273,23 +290,19 @@ export default function BlogList() {
           </div>
         )}
 
-        {totalPages > 1 && (
-          <div className="mt-20 flex justify-center items-center gap-2">
-             <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className={`p-2 rounded-lg border ${currentPage === 1 ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-[#0c2f3d] text-[#0c2f3d] hover:bg-[#0c2f3d] hover:text-white'} transition-colors`}>
-               <ChevronLeft size={20} />
-             </button>
-
-             {Array.from({ length: totalPages }).map((_, i) => (
-               <button key={i} onClick={() => handlePageChange(i + 1)} className={`w-10 h-10 rounded-lg font-bold transition-colors ${currentPage === i + 1 ? 'bg-[#0c2f3d] text-white' : 'text-[#0c2f3d] hover:bg-gray-100'}`}>
-                 {i + 1}
-               </button>
-             ))}
-
-             <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className={`p-2 rounded-lg border ${currentPage === totalPages ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-[#0c2f3d] text-[#0c2f3d] hover:bg-[#0c2f3d] hover:text-white'} transition-colors`}>
-               <ChevronRight size={20} />
-             </button>
-          </div>
-        )}
+        <div className="mt-16 flex justify-center">
+          {hasMore ? (
+            <button
+              onClick={() => loadArticlesPage(false, articles.length)}
+              disabled={isLoading}
+              className="px-6 py-3 rounded-lg border border-[#0c2f3d] text-[#0c2f3d] font-semibold hover:bg-[#0c2f3d] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Memuat...' : 'Muat Lebih Banyak'}
+            </button>
+          ) : (
+            filteredArticles.length > 0 && <p className="text-sm text-gray-500">Semua artikel pada filter ini sudah dimuat.</p>
+          )}
+        </div>
 
       </div>
 

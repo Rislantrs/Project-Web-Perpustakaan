@@ -56,7 +56,7 @@ export default function ArticleEditor() {
     extensions: [
       StarterKit,
       Image.configure({
-        allowBase64: true,
+        allowBase64: false,
         HTMLAttributes: {
           class: 'rounded-xl shadow-md mx-auto max-w-full h-auto border border-gray-100 my-8 block',
         },
@@ -168,8 +168,8 @@ export default function ArticleEditor() {
 
       const content = editor?.getHTML() || '';
       
-      if (content.includes('data:image/') && content.length > 500000) {
-        showToast("⚠️ Masih ada gambar Base64 raksasa. Mohon upload ulang gambar.", "error");
+      if (content.includes('data:image/')) {
+        showToast("⚠️ Konten masih berisi gambar Base64. Mohon upload ulang ke Storage.", "error");
         setIsUploading(false);
         return;
       }

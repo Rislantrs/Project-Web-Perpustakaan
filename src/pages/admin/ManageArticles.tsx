@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getArticles, deleteArticle, Article } from '../../services/dataService';
+import { getArticles, deleteArticle, refreshArticles, Article } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { Link } from 'react-router';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
@@ -28,7 +28,8 @@ export default function ManageArticles() {
     return new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
   };
 
-  const loadArticles = () => {
+  const loadArticles = async () => {
+    await refreshArticles();
     const all = getArticles();
     const blogArticles = all.filter(a => !['Galeri', 'Video Terkini', 'Media Mewarnai', 'Ppid', 'Zona Integritas'].includes(a.category));
     setArticles(blogArticles);

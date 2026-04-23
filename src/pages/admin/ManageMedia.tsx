@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getArticles, deleteArticle, Article } from '../../services/dataService';
+import { getArticles, deleteArticle, refreshArticles, Article } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { Link } from 'react-router';
 import { Plus, Image as ImageIcon, Video, PenTool, Trash2, Edit2, Truck } from 'lucide-react';
@@ -12,7 +12,8 @@ export default function ManageMedia() {
     loadMedia();
   }, []);
 
-  const loadMedia = () => {
+  const loadMedia = async () => {
+    await refreshArticles();
     const all = getArticles();
     // Filter out only the Media categories
     const filtered = all.filter(a => ['Galeri', 'Galeri Perpus Keliling', 'Video Terkini', 'Media Mewarnai'].includes(a.category));

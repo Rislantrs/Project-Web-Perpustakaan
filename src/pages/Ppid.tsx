@@ -2,15 +2,24 @@ import { ChevronRight, FileDown, Search, FileText } from 'lucide-react';
 import { Link } from 'react-router';
 
 import { useState, useEffect } from 'react';
-import { getArticles, Article } from '../services/dataService';
+import { fetchArticlesPage, Article } from '../services/dataService';
 
 export default function Ppid() {
   const [docs, setDocs] = useState<Article[]>([]);
   const [search, setSearch] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDocs = () => {
-      setDocs(getArticles().filter(a => a.category === 'Ppid'));
+    const fetchDocs = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchArticlesPage({ from: 0, to: 99, category: 'Ppid' });
+        setDocs(data);
+      } catch (error) {
+        console.error('Gagal memuat dokumen PPID:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchDocs();
     window.addEventListener('dbChange', fetchDocs);
@@ -53,7 +62,12 @@ export default function Ppid() {
         {/* Documents List */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="divide-y divide-gray-100">
-            {filteredDocs.map((doc, idx) => (
+            {isLoading ? Array.from({ length: 6 }).map((_, idx) => (
+              <div key={`skeleton-${idx}`} className="p-4 md:p-6 animate-pulse">
+                <div className="h-3 w-24 bg-gray-100 rounded mb-3" />
+                <div className="h-5 w-4/5 bg-gray-100 rounded" />
+              </div>
+            )) : filteredDocs.map((doc, idx) => (
               <div key={doc.id || idx} className="flex items-center justify-between p-4 md:p-6 hover:bg-[#f8f9fa] transition-colors group">
                 <div className="flex items-start md:items-center gap-4">
                   <div className="hidden md:flex flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg items-center justify-center text-gray-400 group-hover:bg-[#0c2f3d] group-hover:text-[#d6a54a] transition-colors">
@@ -74,7 +88,7 @@ export default function Ppid() {
                 </a>
               </div>
             ))}
-            {filteredDocs.length === 0 && (
+            {!isLoading && filteredDocs.length === 0 && (
               <div className="p-8 text-center text-gray-500">
                 <FileText size={32} className="mx-auto text-gray-300 mb-3" />
                 Masih mencari file arsip yang tepat? Tidak ada dokumen ditemukan.

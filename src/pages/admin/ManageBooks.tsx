@@ -4,24 +4,35 @@ import { Plus, Search, Edit2, Trash2, BookOpen, AlertCircle, CheckCircle, X, Pac
 import { getBooks, deleteBook, CATEGORIES, type Book } from '../../services/bookService';
 import { getCurrentAdmin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
+import SafeImage from '../../components/SafeImage';
 
 export default function ManageBooks() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [confirmDelete, setConfirmDelete] = useState<Book | null>(null);
 
-  useEffect(() => { setBooks(getBooks()); }, []);
+  useEffect(() => {
+    const loadCloudBooks = () => {
+      setIsLoading(true);
+      setBooks(getBooks());
+      setIsLoading(false);
+    };
+    loadCloudBooks();
+    window.addEventListener('dbChange', loadCloudBooks);
+    return () => window.removeEventListener('dbChange', loadCloudBooks);
+  }, []);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
   };
 
-  const handleDelete = (book: Book) => {
+  const handleDelete = async (book: Book) => {
     const admin = getCurrentAdmin();
     if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
-    const result = deleteBook(book.id, admin.id); // pass adminId for backend auth check
+    const result = await deleteBook(book.id, admin.id); // pass adminId for backend auth check
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) { setBooks(getBooks()); setConfirmDelete(null); }
   };
@@ -132,7 +143,23 @@ export default function ManageBooks() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               <AnimatePresence>
-                {filtered.map(book => (
+                {isLoading ? Array.from({ length: 6 }).map((_, idx) => (
+                  <tr key={`skeleton-${idx}`} className="animate-pulse">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-12 rounded-md bg-gray-100" />
+                        <div className="space-y-2 w-56">
+                          <div className="h-3 bg-gray-100 rounded w-full" />
+                          <div className="h-3 bg-gray-100 rounded w-2/3" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-6 bg-gray-100 rounded w-24" /></td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-100 rounded w-28" /></td>
+                    <td className="px-4 py-3.5"><div className="mx-auto h-6 bg-gray-100 rounded w-14" /></td>
+                    <td className="px-4 py-3.5"><div className="mx-auto h-6 bg-gray-100 rounded w-14" /></td>
+                  </tr>
+                )) : filtered.map(book => (
                   <motion.tr
                     key={book.id}
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -141,7 +168,7 @@ export default function ManageBooks() {
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-12 rounded-md overflow-hidden bg-gray-100 shrink-0">
-                          <img src={book.cover} alt={book.judul} className="w-full h-full object-cover" />
+                          <SafeImage src={book.cover} alt={book.judul} className="w-full h-full object-cover" />
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 leading-tight">{book.judul}</p>
@@ -182,7 +209,7 @@ export default function ManageBooks() {
             </tbody>
           </table>
         </div>
-        {filtered.length === 0 && (
+        {!isLoading && filtered.length === 0 && (
           <div className="text-center py-16">
             <BookOpen size={36} className="mx-auto text-gray-300 mb-3" />
             <p className="text-gray-500 font-medium">Tidak ada buku ditemukan</p>

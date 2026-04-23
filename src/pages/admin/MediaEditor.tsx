@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { saveArticle, fileToBase64, Article, getArticles } from '../../services/dataService';
+import { saveArticle, Article, getArticles } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { Image as ImageIcon, Save, ArrowLeft, Video, PenTool, Trash2, Truck } from 'lucide-react';
+import { uploadImage } from '../../services/storageService';
 
 export default function MediaEditor() {
   const { id } = useParams();
@@ -86,8 +87,11 @@ export default function MediaEditor() {
     if (files.length > 0) {
       setIsUploading(true);
       try {
-        const base64s = await Promise.all(files.map(f => fileToBase64(f)));
-        setGalleryImages(prev => [...prev, ...base64s]);
+        const uploadedUrls = await Promise.all(files.map(f => uploadImage(f)));
+        setGalleryImages(prev => [...prev, ...uploadedUrls]);
+      } catch (err) {
+        console.error('Gagal upload galeri:', err);
+        alert('Upload gambar gagal. Pastikan bucket Supabase Storage sudah aktif.');
       } finally {
         setIsUploading(false);
       }
@@ -101,8 +105,16 @@ export default function MediaEditor() {
   const changeMediaFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const base64 = await fileToBase64(file);
-      setMediaFile(base64);
+      setIsUploading(true);
+      try {
+        const imageUrl = await uploadImage(file);
+        setMediaFile(imageUrl);
+      } catch (err) {
+        console.error('Gagal upload cover media:', err);
+        alert('Upload gambar gagal. Pastikan bucket Supabase Storage sudah aktif.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 

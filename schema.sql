@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS public.structure CASCADE;
 DROP TABLE IF EXISTS public.achievements CASCADE;
 DROP TABLE IF EXISTS public.schedules CASCADE;
 DROP TABLE IF EXISTS public.media_assets CASCADE;
+DROP TABLE IF EXISTS public.books CASCADE;
+DROP TABLE IF EXISTS public.borrows CASCADE;
+DROP TABLE IF EXISTS public.queue CASCADE;
 
 -- Tabel Artikel (Matching with Article Interface)
 CREATE TABLE public.articles (
@@ -64,15 +67,156 @@ CREATE TABLE public.schedules (
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
+-- Tabel Buku
+CREATE TABLE public.books (
+    id TEXT PRIMARY KEY,
+    judul TEXT,
+    penulis TEXT,
+    penerbit TEXT,
+    tahun INTEGER,
+    kategori TEXT,
+    isbn TEXT,
+    cover TEXT,
+    sinopsis TEXT,
+    halaman INTEGER,
+    bahasa TEXT,
+    stok INTEGER,
+    rating NUMERIC,
+    "totalRating" INTEGER,
+    "isRecommended" BOOLEAN
+);
+
+-- Tabel Peminjaman
+CREATE TABLE public.borrows (
+    id TEXT PRIMARY KEY,
+    "bookId" TEXT,
+    "memberId" TEXT,
+    "memberName" TEXT,
+    "bookTitle" TEXT,
+    "tanggalPinjam" TEXT,
+    "tanggalKembali" TEXT,
+    "batasAmbil" TEXT,
+    "tanggalDikembalikan" TEXT,
+    status TEXT
+);
+
+-- Tabel Antrian
+CREATE TABLE public.queue (
+    id TEXT PRIMARY KEY,
+    "bookId" TEXT,
+    "memberId" TEXT,
+    "memberName" TEXT,
+    "bookTitle" TEXT,
+    "nomorAntrian" INTEGER,
+    "tanggalAntri" TEXT,
+    status TEXT
+);
+
 -- RLS POLICIES (Buka Proteksi untuk Public Setup)
 ALTER TABLE public.articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.structure ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.schedules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.books ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.borrows ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.queue ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow All for Anon" ON public.articles FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All for Anon" ON public.settings FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All for Anon" ON public.structure FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All for Anon" ON public.achievements FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All for Anon" ON public.schedules FOR ALL USING (true) WITH CHECK (true);
+-- Hapus policy lama jika ada
+DROP POLICY IF EXISTS "Allow All for Anon" ON public.books;
+DROP POLICY IF EXISTS "Allow All for Anon" ON public.borrows;
+DROP POLICY IF EXISTS "Allow All for Anon" ON public.queue;
+
+DROP POLICY IF EXISTS "Public can read books" ON public.books;
+DROP POLICY IF EXISTS "Admin can write books" ON public.books;
+DROP POLICY IF EXISTS "Borrow owner/admin can read" ON public.borrows;
+DROP POLICY IF EXISTS "Borrow owner/admin can insert" ON public.borrows;
+DROP POLICY IF EXISTS "Borrow owner/admin can update" ON public.borrows;
+DROP POLICY IF EXISTS "Queue owner/admin can read" ON public.queue;
+DROP POLICY IF EXISTS "Queue owner/admin can insert" ON public.queue;
+DROP POLICY IF EXISTS "Queue owner/admin can update" ON public.queue;
+
+-- Helper admin claim (app_metadata.role: admin/super_admin)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin'), false);
+$$;
+
+-- Buku: publik boleh baca, hanya admin boleh tulis
+CREATE POLICY "Public can read books"
+ON public.books
+FOR SELECT
+USING (true);
+
+CREATE POLICY "Admin can write books"
+ON public.books
+FOR ALL
+TO authenticated
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+-- Borrows: user hanya lihat data miliknya sendiri, admin boleh semua
+CREATE POLICY "Borrow owner/admin can read"
+ON public.borrows
+FOR SELECT
+TO authenticated
+USING (public.is_admin() OR "memberId" = auth.uid()::text);
+
+CREATE POLICY "Borrow owner/admin can insert"
+ON public.borrows
+FOR INSERT
+TO authenticated
+WITH CHECK (public.is_admin() OR "memberId" = auth.uid()::text);
+
+CREATE POLICY "Borrow owner/admin can update"
+ON public.borrows
+FOR UPDATE
+TO authenticated
+USING (public.is_admin() OR "memberId" = auth.uid()::text)
+WITH CHECK (public.is_admin() OR "memberId" = auth.uid()::text);
+
+-- Queue: user hanya akses antriannya sendiri, admin boleh semua
+CREATE POLICY "Queue owner/admin can read"
+ON public.queue
+FOR SELECT
+TO authenticated
+USING (public.is_admin() OR "memberId" = auth.uid()::text);
+
+CREATE POLICY "Queue owner/admin can insert"
+ON public.queue
+FOR INSERT
+TO authenticated
+WITH CHECK (public.is_admin() OR "memberId" = auth.uid()::text);
+
+CREATE POLICY "Queue owner/admin can update"
+ON public.queue
+FOR UPDATE
+TO authenticated
+USING (public.is_admin() OR "memberId" = auth.uid()::text)
+WITH CHECK (public.is_admin() OR "memberId" = auth.uid()::text);
+
+-- ENABLE REALTIME (Jalankan ini agar Fitur Auto-Update tanpa refresh aktif!)
+-- Pastikan tabel ini sudah masuk ke publication 'supabase_realtime' di Dashboard Supabase
+ALTER PUBLICATION supabase_realtime ADD TABLE articles;
+ALTER PUBLICATION supabase_realtime ADD TABLE books;
+ALTER PUBLICATION supabase_realtime ADD TABLE borrows;
+ALTER PUBLICATION supabase_realtime ADD TABLE queue;
+ALTER PUBLICATION supabase_realtime ADD TABLE schedules;
+ALTER PUBLICATION supabase_realtime ADD TABLE achievements;
+-- 3. Seed Data (Initial Catalog)
+INSERT INTO public.books (id, judul, penulis, penerbit, tahun, kategori, isbn, halaman, bahasa, stok, rating, "totalRating", cover, sinopsis, "isRecommended") VALUES
+('bk001', 'Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 'Fiksi', '978-979-3062-79-4', 529, 'Indonesia', 5, 4.8, 324, 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop', 'Kisah inspiratif tentang perjuangan 10 anak dari keluarga miskin di Belitung yang berjuang untuk mendapatkan pendidikan layak. Novel ini mengajarkan tentang semangat pantang menyerah dan kekuatan mimpi.', true),
+('bk002', 'Bumi Manusia', 'Pramoedya Ananta Toer', 'Hasta Mitra', 1980, 'Fiksi', '978-979-9731-08-0', 535, 'Indonesia', 3, 4.9, 512, 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=400&auto=format&fit=crop', 'Tetralogi Buru pertama yang mengisahkan Minke, seorang pemuda pribumi yang berusaha memperjuangkan kesetaraan di era kolonial Belanda. Sebuah mahakarya sastra Indonesia.', true),
+('bk003', 'Cantik Itu Luka', 'Eka Kurniawan', 'Gramedia', 2002, 'Fiksi', '978-602-03-2850-0', 520, 'Indonesia', 4, 4.6, 189, 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=400&auto=format&fit=crop', 'Sebuah novel epik yang menceritakan kehidupan Dewi Ayu, seorang perempuan cantik yang hidup melewati era kolonial, pendudukan Jepang, dan kemerdekaan Indonesia.', false),
+('bk004', 'Ronggeng Dukuh Paruk', 'Ahmad Tohari', 'Gramedia', 1982, 'Fiksi', '978-979-22-4052-8', 408, 'Indonesia', 0, 4.7, 256, 'https://images.unsplash.com/photo-1589998059171-988d887df646?q=80&w=400&auto=format&fit=crop', 'Trilogi epik tentang Srintil, seorang ronggeng dari desa terpencil, yang mengisahkan dinamika tradisi, cinta, dan perubahan sosial di pedesaan Jawa.', true),
+('bk005', 'Perahu Kertas', 'Dee Lestari', 'Bentang Pustaka', 2009, 'Fiksi', '978-602-8811-14-6', 444, 'Indonesia', 6, 4.4, 203, 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=400&auto=format&fit=crop', 'Kisah dua anak muda yang memiliki impian besar dalam seni - Kugy yang mencintai dunia menulis dan Keenan yang memiliki bakat melukis luar biasa.', false),
+('bk006', 'Ayat-Ayat Cinta', 'Habiburrahman El Shirazy', 'Republika', 2004, 'Fiksi', '978-979-106-800-7', 419, 'Indonesia', 4, 4.5, 387, 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?q=80&w=400&auto=format&fit=crop', 'Novel religius tentang Fahri, mahasiswa Indonesia di Universitas Al-Azhar, Kairo, yang menghadapi dilema cinta dan iman di negeri orang.', false),
+('bk007', 'Filosofi Teras', 'Henry Manampiring', 'Kompas', 2018, 'Non-Fiksi', '978-602-412-498-5', 346, 'Indonesia', 7, 4.7, 445, 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=400&auto=format&fit=crop', 'Buku filsafat Stoisisme yang dikemas dengan bahasa ringan dan kontekstual untuk kehidupan modern Indonesia. Mengajarkan cara mengelola emosi dan menemukan ketenangan batin.', true),
+('bk008', 'Atomic Habits', 'James Clear', 'Gramedia', 2019, 'Non-Fiksi', '978-602-06-2603-7', 352, 'Indonesia', 3, 4.8, 621, 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=400&auto=format&fit=crop', 'Panduan praktis untuk membangun kebiasaan baik dan menghilangkan kebiasaan buruk. Perubahan kecil yang konsisten akan menghasilkan hasil luar biasa.', true),
+('bk011', 'Sejarah Purwakarta: Dari Masa ke Masa', 'Tim Disipusda', 'Disipusda Purwakarta', 2020, 'Sejarah', '978-602-0000-01-1', 420, 'Indonesia', 10, 4.6, 89, 'https://images.unsplash.com/photo-1461360370896-922624d12a74?q=80&w=400&auto=format&fit=crop', 'Kompilasi lengkap sejarah Kabupaten Purwakarta dari era kerajaan hingga modern. Dilengkapi foto arsip dan dokumentasi peninggalan bersejarah.', true),
+('bk029', 'Habibie & Ainun', 'B.J. Habibie', 'THC Mandiri', 2010, 'Biografi', '978-602-98381-0-1', 321, 'Indonesia', 4, 4.8, 567, 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=400&auto=format&fit=crop', 'Kisah cinta sejati antara B.J. Habibie dan Hasri Ainun Besari yang melampaui ruang dan waktu. Sebuah memoir yang menyentuh hati tentang dedikasi dan cinta abadi.', true);
+ON CONFLICT (id) DO NOTHING;
+

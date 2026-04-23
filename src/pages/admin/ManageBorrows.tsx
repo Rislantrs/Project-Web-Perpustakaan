@@ -22,14 +22,14 @@ export default function ManageBorrows() {
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
   };
 
-  const handleConfirm = (id: string) => {
-    const res = confirmPickup(id);
+  const handleConfirm = async (id: string) => {
+    const res = await confirmPickup(id);
     showToast(res.message, res.success ? 'success' : 'error');
     if (res.success) loadData();
   };
 
-  const handleReturn = (id: string) => {
-    const res = returnBook(id);
+  const handleReturn = async (id: string) => {
+    const res = await returnBook(id);
     showToast(res.message, res.success ? 'success' : 'error');
     if (res.success) loadData();
   };

@@ -35,24 +35,32 @@ export default function RiwayatPinjaman() {
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
   };
 
-  const handleReturn = (borrowId: string, bookId: string, bookTitle: string) => {
+  const handleReturn = async (borrowId: string, bookId: string, bookTitle: string) => {
     const u = getCurrentUser();
     if (!u) { showToast('Silakan login terlebih dahulu.', 'error'); return; }
-    const result = returnBook(borrowId, u.id); // pass memberId for backend ownership check
-    if (result.success) {
-      loadBorrows();
-      setRatingModal({ show: true, bookId, bookTitle });
-    } else {
-      showToast(result.message, 'error');
+    try {
+      const result = await returnBook(borrowId, u.id); // pass memberId for backend ownership check
+      if (result.success) {
+        loadBorrows();
+        setRatingModal({ show: true, bookId, bookTitle });
+      } else {
+        showToast(result.message, 'error');
+      }
+    } catch (err) {
+      showToast('Gagal memproses pengembalian.', 'error');
     }
   };
 
-  const handleRateSubmit = (rating: number) => {
+  const handleRateSubmit = async (rating: number) => {
     const u = getCurrentUser();
     if (ratingModal && u) {
-      const res = rateBook(ratingModal.bookId, u.id, rating);
-      showToast(res.message, res.success ? 'success' : 'error');
-      setRatingModal(null);
+      try {
+        const res = await rateBook(ratingModal.bookId, u.id, rating);
+        showToast(res.message, res.success ? 'success' : 'error');
+        setRatingModal(null);
+      } catch (err) {
+        showToast('Gagal mengirim penilaian.', 'error');
+      }
     }
   };
 
@@ -344,9 +352,9 @@ export default function RiwayatPinjaman() {
                     </div>
                   </div>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       const u = getCurrentUser();
-                      const result = cancelQueue(q.id, u?.id); // pass memberId for ownership check
+                      const result = await cancelQueue(q.id, u?.id); // pass memberId for ownership check
                       showToast(result.message, result.success ? 'success' : 'error');
                       if (result.success) loadBorrows();
                     }}

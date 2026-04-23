@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Search, Star, BookOpen, Filter, X, ChevronLeft, ChevronRight, UserPlus, History, Heart, SlidersHorizontal, BookMarked, CheckCircle, AlertCircle, ArrowRight, Sparkles, Users, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, toggleWishlist, isInWishlist, rateBook, CATEGORIES, type Book } from '../services/bookService';
+import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, toggleWishlist, isInWishlist, rateBook, getBookDetailById, CATEGORIES, type Book } from '../services/bookService';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
+import SafeImage from '../components/SafeImage';
 
 import heroImg from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
 import perpusImg from '../assets/layanan/perpustakaan/Perpustakaan-Purwakarta-02.webp';
@@ -15,6 +16,8 @@ export default function Perpustakaan() {
   const [books, setBooks] = useState<Book[]>([]);
   const [recommendedBooks, setRecommendedBooks] = useState<Book[]>([]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
+  const [isLoadingBookDetail, setIsLoadingBookDetail] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,16 +31,40 @@ export default function Perpustakaan() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    setRecommendedBooks(getRecommendedBooks());
-    loadBooks();
+    const bootstrapCatalog = () => {
+      setIsLoadingCatalog(true);
+      setRecommendedBooks(getRecommendedBooks());
+      loadBooks();
+      setIsLoadingCatalog(false);
+    };
+
+    bootstrapCatalog();
+
+    const onDbChange = () => {
+      setRecommendedBooks(getRecommendedBooks());
+      loadBooks();
+    };
+    window.addEventListener('dbChange', onDbChange);
+    return () => window.removeEventListener('dbChange', onDbChange);
   }, []);
+
+  const openBookDetail = async (book: Book) => {
+    setSelectedBook(book);
+    setIsLoadingBookDetail(true);
+    try {
+      const fullBook = await getBookDetailById(book.id);
+      if (fullBook) setSelectedBook(fullBook);
+    } finally {
+      setIsLoadingBookDetail(false);
+    }
+  };
 
   useEffect(() => {
     const bookId = searchParams.get('bookId');
     if (bookId) {
       const book = getBooks().find(b => b.id === bookId);
       if (book) {
-        setSelectedBook(book);
+        openBookDetail(book);
         // Clear param to avoid re-opening if user closes it
         setSearchParams({}, { replace: true });
       }
@@ -67,20 +94,24 @@ export default function Perpustakaan() {
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
   };
 
-  const handleBorrow = (book: Book) => {
+  const handleBorrow = async (book: Book) => {
     if (!isLoggedIn()) {
       showToast('Silakan login terlebih dahulu untuk meminjam buku.', 'error');
       return;
     }
     const user = getCurrentUser()!;
-    const result = borrowBook(book.id, user.id, user.namaLengkap);
-    showToast(result.message, result.success ? 'success' : 'error');
-    if (result.success) {
-      // Refresh data & panel
-      setBooks(getBooks());
-      setRecommendedBooks(getRecommendedBooks());
-      const refreshed = getBooks().find(b => b.id === book.id);
-      if (refreshed) setSelectedBook(refreshed);
+    try {
+      const result = await borrowBook(book.id, user.id, user.namaLengkap);
+      showToast(result.message, result.success ? 'success' : 'error');
+      if (result.success) {
+        // Refresh data & panel
+        setBooks(getBooks());
+        setRecommendedBooks(getRecommendedBooks());
+        const refreshed = getBooks().find(b => b.id === book.id);
+        if (refreshed) setSelectedBook(refreshed);
+      }
+    } catch (err) {
+      showToast('Gagal memproses peminjaman.', 'error');
     }
   };
 
@@ -263,7 +294,7 @@ export default function Perpustakaan() {
                 className="min-w-[240px] max-w-[240px] bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer group snap-start hover:shadow-xl transition-shadow"
               >
                 <div className="h-64 relative overflow-hidden bg-gray-100">
-                  <img
+                  <SafeImage
                     src={book.cover}
                     alt={book.judul}
                     loading="lazy"
@@ -379,7 +410,20 @@ export default function Perpustakaan() {
         </div>
 
         {/* Books Grid */}
-        {paginatedBooks.length > 0 ? (
+        {isLoadingCatalog ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+            {Array.from({ length: 12 }).map((_, idx) => (
+              <div key={idx} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
+                <div className="aspect-[2/3] bg-gray-100" />
+                <div className="p-3 space-y-2">
+                  <div className="h-2 w-16 bg-gray-100 rounded" />
+                  <div className="h-3 w-full bg-gray-100 rounded" />
+                  <div className="h-3 w-3/4 bg-gray-100 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : paginatedBooks.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
             {paginatedBooks.map((book) => (
               <motion.div
@@ -389,11 +433,11 @@ export default function Perpustakaan() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 whileHover={{ y: -6 }}
-                onClick={() => setSelectedBook(book)}
+                onClick={() => openBookDetail(book)}
                 className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer group hover:shadow-xl transition-all ${book.stok <= 0 ? 'opacity-60 grayscale-[30%]' : ''}`}
               >
                 <div className="aspect-[2/3] relative overflow-hidden bg-gray-100">
-                  <img
+                  <SafeImage
                     src={book.cover}
                     alt={book.judul}
                     loading="lazy"
@@ -588,7 +632,7 @@ export default function Perpustakaan() {
 
               {/* Cover */}
               <div className="relative h-80 bg-gradient-to-b from-[#f0ebe5] to-white flex items-center justify-center p-8">
-                <img
+                <SafeImage
                   src={selectedBook.cover}
                   alt={selectedBook.judul}
                   className="h-full max-w-[200px] object-contain rounded-lg shadow-2xl"
@@ -653,7 +697,15 @@ export default function Perpustakaan() {
                 {/* Synopsis */}
                 <div className="mb-6">
                   <h4 className="font-bold text-sm text-[#1a1a1a] mb-2">Sinopsis</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">{selectedBook.sinopsis}</p>
+                  {isLoadingBookDetail ? (
+                    <div className="space-y-2 animate-pulse">
+                      <div className="h-3 bg-gray-100 rounded w-full" />
+                      <div className="h-3 bg-gray-100 rounded w-5/6" />
+                      <div className="h-3 bg-gray-100 rounded w-4/6" />
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-600 leading-relaxed">{selectedBook.sinopsis || 'Sinopsis belum tersedia.'}</p>
+                  )}
                 </div>
 
                 {/* Borrowing Info */}
@@ -702,9 +754,9 @@ export default function Perpustakaan() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         const user = getCurrentUser()!;
-                        const result = joinQueue(selectedBook.id, user.id, user.namaLengkap);
+                        const result = await joinQueue(selectedBook.id, user.id, user.namaLengkap);
                         showToast(result.message, result.success ? 'success' : 'error');
                         if (result.success) {
                           const refreshed = getBooks().find(b => b.id === selectedBook.id);
