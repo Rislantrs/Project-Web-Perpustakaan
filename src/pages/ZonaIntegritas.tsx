@@ -1,5 +1,6 @@
 import { ChevronRight, ShieldCheck, ThumbsUp, HeartHandshake, AlertOctagon } from 'lucide-react';
 import { Link } from 'react-router';
+import zonaImg from '../assets/lainLain/zonaIntegritas/zonaintegritas.webp';
 
 export default function ZonaIntegritas() {
   return (
@@ -8,8 +9,8 @@ export default function ZonaIntegritas() {
       {/* Hero Section */}
       <section className="relative bg-[#0c2f3d] py-24 pb-32 border-b-8 border-[#d6a54a] overflow-hidden">
         {/* Background Pattern/Image */}
-        <div className="absolute inset-0 opacity-20">
-           <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80" className="w-full h-full object-cover" alt="Background" />
+        <div className="absolute inset-0">
+           <img src={zonaImg} className="w-full h-full object-cover opacity-20" alt="Background" />
         </div>
         
         <div className="max-w-5xl mx-auto px-4 relative z-10 text-center md:text-left">

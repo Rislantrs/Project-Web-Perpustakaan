@@ -89,8 +89,9 @@ export default function BlogList() {
   // Ambil daftar tahun unik dari semua artikel untuk filter
   const availableYears = useMemo(() => {
     const years = new Set<string>();
+    if (!articles) return [];
     articles.forEach(a => {
-      if (a.year) years.add(a.year);
+      if (a && a.year) years.add(a.year);
     });
     return Array.from(years).sort((a, b) => b.localeCompare(a));
   }, [articles]);
@@ -210,32 +211,33 @@ export default function BlogList() {
                 return (
                   <div 
                     key={article.id || index} 
-                    onClick={() => {
+                    onClick={(e) => {
                       if (article.category === 'Media Mewarnai') {
+                        e.preventDefault();
                         setLightboxImg({ src: article.img, title: article.title });
-                      } else {
-                        window.location.href = `/artikel/${article.slug}`;
                       }
                     }}
                     className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col h-full"
                   >
-                    <div className="w-full aspect-square overflow-hidden relative">
-                      <ArticleImage 
-                         src={article.img} 
-                         alt={article.title} 
-                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                         position={article.imgPosition}
-                      />
-                      {(article.category === 'Media Mewarnai' || article.category === 'Galeri') && !!article.img && (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold text-xs">
-                          Lihat Penuh
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4 flex-grow flex flex-col">
-                      <h3 className="font-bold text-[#1a1a1a] text-sm md:text-base leading-tight mb-2 line-clamp-2">{article.title}</h3>
-                      <p className="text-xs text-gray-500 mt-auto">{article.date}</p>
-                    </div>
+                    <Link to={`/artikel/${article.slug}`} className="flex flex-col h-full">
+                      <div className="w-full aspect-square overflow-hidden relative">
+                        <ArticleImage 
+                           src={article.img} 
+                           alt={article.title} 
+                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                           position={article.imgPosition}
+                        />
+                        {(article.category === 'Media Mewarnai' || article.category === 'Galeri') && !!article.img && (
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold text-xs">
+                            Lihat Penuh
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 flex-grow flex flex-col">
+                        <h3 className="font-bold text-[#1a1a1a] text-sm md:text-base leading-tight mb-2 line-clamp-2">{article.title}</h3>
+                        <p className="text-xs text-gray-500 mt-auto">{article.date}</p>
+                      </div>
+                    </Link>
                   </div>
                 );
               }

@@ -9,6 +9,8 @@ import { getSchedules, Schedule } from '../services/settingsService';
 import gedungArsip from '../assets/layanan/kearsipan/Gedung_Arsip.webp';
 import perpustakaanImg from '../assets/layanan/perpustakaan/mohHatta.webp';
 import dioramaImg from '../assets/layanan/dioramaPurwakarta/image-1.webp';
+import siknImg from '../assets/home/sikn_jikn_network.png';
+import virtualImg from '../assets/home/pameran_virtual.png';
 
 
 const bgImages = [
@@ -477,7 +479,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Pameran Virtual Card */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-              <img src="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&q=80&w=1200" alt="Pameran Virtual" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={virtualImg} alt="Pameran Virtual" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent opacity-90 transition-opacity duration-300"></div>
 
               <div className="absolute inset-0 p-10 flex flex-col justify-end">
@@ -496,7 +498,7 @@ export default function Home() {
 
             {/* SIKN/JIKN Card */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-              <img src="https://images.unsplash.com/photo-1455853659719-4b521eebc76d?auto=format&fit=crop&q=80&w=1200" alt="Arsip Nasional SIKN JIKN" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={siknImg} alt="Arsip Nasional SIKN JIKN" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#5a3b21] via-[#5a3b21]/70 to-transparent opacity-90 transition-opacity duration-300"></div>
 
               <div className="absolute inset-0 p-10 flex flex-col justify-end">

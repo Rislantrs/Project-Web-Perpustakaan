@@ -21,7 +21,7 @@ export interface Article {
   views?: number;
 }
 
-const ARTICLE_LIST_COLUMNS = 'id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt, views';
+const ARTICLE_LIST_COLUMNS = 'id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt';
 const failedArticleImageMigrationIds = new Set<string>();
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
@@ -175,6 +175,38 @@ export const refreshLatestArticles = async (limit: number = 10): Promise<Article
     console.error('Failed to sync latest articles:', err);
   }
 
+  return memoryCache;
+};
+
+export const refreshHomeArticles = async (): Promise<Article[]> => {
+  try {
+    // Ambil 5 Berita dan 5 Cerita secara paralel (Lebih cepat & hemat)
+    const [newsRes, storiesRes] = await Promise.all([
+      supabase.from('articles').select(ARTICLE_LIST_COLUMNS).eq('category', 'Berita Terkini').order('createdAt', { ascending: false }).limit(5),
+      supabase.from('articles').select(ARTICLE_LIST_COLUMNS).eq('category', 'Pojok Carita').order('createdAt', { ascending: false }).limit(5)
+    ]);
+
+    const allData = [...(newsRes.data || []), ...(storiesRes.data || [])];
+    
+    if (allData.length > 0) {
+      // Merge dengan data lama di memory (agar tidak hilang kategori lain)
+      const existingIds = new Set(allData.map(a => a.id));
+      const otherArticles = memoryCache.filter(a => !existingIds.has(a.id));
+      
+      memoryCache = await migrateArticleImageBatch([...allData, ...otherArticles] as Article[]);
+      
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache));
+      } catch (e) {
+        console.warn('Cache too large to save', e);
+      }
+
+      window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
+      return memoryCache;
+    }
+  } catch (err) {
+    console.error('Failed to sync home articles:', err);
+  }
   return memoryCache;
 };
 

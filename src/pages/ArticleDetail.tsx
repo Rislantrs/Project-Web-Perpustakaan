@@ -124,8 +124,11 @@ export default function ArticleDetail() {
         
         {/* Back navigation */}
         <div className="mb-10">
-          <Link to="/artikel" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-[#0c2f3d]">
-            <ChevronLeft size={16} className="mr-1" /> Kembali ke Artikel
+          <Link 
+            to={article.category ? `/artikel?kategori=${encodeURIComponent(article.category)}` : '/artikel'} 
+            className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-[#0c2f3d]"
+          >
+            <ChevronLeft size={16} className="mr-1" /> Kembali ke {article.category || 'Artikel'}
           </Link>
         </div>
 

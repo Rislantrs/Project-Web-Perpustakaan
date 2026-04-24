@@ -22,12 +22,12 @@ const navLinks = [
     name: 'Layanan', 
     path: '#',
     subLinks: [
-      { name: 'Katalog Buku', path: '/perpustakaan' },
       { name: 'Kearsipan', path: '/kearsipan' },
+      { name: 'Perpustakaan', path: '/perpustakaan' },
       { name: 'Bale Panyawangan', path: '/bale-panyawangan' }
     ]
   },
-  { name: 'Pojok Carita', path: '/artikel?kategori=Pojok Carita' },
+  { name: 'Katalog Buku', path: '/katalog' },
   { name: 'Berita Terkini', path: '/artikel?kategori=Berita Terkini' },
   { 
     name: 'Artikel', 

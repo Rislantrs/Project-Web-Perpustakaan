@@ -20,8 +20,8 @@ import Galendo from './pages/Galendo';
 import Ppid from './pages/Ppid';
 import ZonaIntegritas from './pages/ZonaIntegritas';
 import Referensi from './pages/Referensi';
-import LayananRentan from './pages/LayananRentan';
 import JasaKearsipan from './pages/JasaKearsipan';
+import KatalogBuku from './pages/KatalogBuku';
 import LaporWarga from './pages/LaporWarga';
 import Pabukon from './pages/Pabukon';
 
@@ -47,7 +47,7 @@ const ManageStructure = lazy(() => import('./pages/admin/ManageStructure'));
 const ManagePpid = lazy(() => import('./pages/admin/ManagePpid'));
 import JadwalLayanan from './pages/JadwalLayanan';
 
-import { refreshLatestArticles, migrateLegacyArticleImages } from './services/dataService';
+import { refreshHomeArticles, migrateLegacyArticleImages } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
 import { refreshBooks, migrateLegacyBookCovers } from './services/bookService';
 
@@ -73,7 +73,7 @@ function App() {
     hasInitialized.current = true;
 
     // 1. Initial background sync
-    refreshLatestArticles(10);
+    refreshHomeArticles();
     refreshSettings();
     refreshBooks();
     migrateLegacyArticleImages();
@@ -90,7 +90,7 @@ function App() {
           const table = payload.table;
           console.log(`Real-time change detected in ${table}:`, payload.eventType);
           
-          if (table === 'articles') refreshLatestArticles(10);
+          if (table === 'articles') refreshHomeArticles();
           else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
           else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
           
@@ -127,7 +127,7 @@ function App() {
           <Route path="lapor-warga" element={<LaporWarga />} />
           <Route path="jadwal" element={<JadwalLayanan />} />
           <Route path="referensi" element={<Referensi />} />
-          <Route path="layanan-rentan" element={<LayananRentan />} />
+          <Route path="katalog" element={<KatalogBuku />} />
           <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
         </Route>
 
