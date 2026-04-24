@@ -2,6 +2,7 @@
 import { supabase } from './supabase';
 import { dbGet, dbSave } from './db';
 import { uploadDataUrlImage } from './storageService';
+import { getCategories } from './dataService';
 export interface Book {
   id: string;
   judul: string;
@@ -49,19 +50,8 @@ const BORROWS_KEY = 'disipusda_borrows';
 const QUEUE_KEY = 'disipusda_queue';
 const BOOK_LIST_COLUMNS = 'id, judul, penulis, penerbit, tahun, kategori, isbn, cover, halaman, bahasa, stok, rating, "totalRating", "isRecommended"';
 
-export const CATEGORIES = [
-  'Semua',
-  'Fiksi',
-  'Non-Fiksi',
-  'Sejarah',
-  'Sains & Teknologi',
-  'Agama & Spiritualitas',
-  'Anak-Anak',
-  'Sastra Sunda',
-  'Referensi',
-  'Biografi',
-  'Pendidikan',
-];
+export const getBookCategoryNames = (): string[] => getCategories('books').map(category => category.name);
+export const getBookCategoryOptions = (): string[] => ['Semua', ...getBookCategoryNames()];
 
 const defaultBooks: Book[] = [];
 const failedCoverMigrationIds = new Set<string>();

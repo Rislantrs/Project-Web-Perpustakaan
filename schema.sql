@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS public.structure CASCADE;
 DROP TABLE IF EXISTS public.achievements CASCADE;
 DROP TABLE IF EXISTS public.schedules CASCADE;
 DROP TABLE IF EXISTS public.media_assets CASCADE;
+DROP TABLE IF EXISTS public.categories CASCADE;
 DROP TABLE IF EXISTS public.books CASCADE;
 DROP TABLE IF EXISTS public.borrows CASCADE;
 DROP TABLE IF EXISTS public.queue CASCADE;
@@ -86,6 +87,16 @@ CREATE TABLE public.books (
     "isRecommended" BOOLEAN
 );
 
+-- Tabel Kategori Terpadu
+CREATE TABLE public.categories (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('articles', 'books')),
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    CONSTRAINT categories_type_slug_key UNIQUE (type, slug)
+);
+
 -- Tabel Peminjaman
 CREATE TABLE public.borrows (
     id TEXT PRIMARY KEY,
@@ -118,6 +129,7 @@ ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.structure ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.schedules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.books ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.borrows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.queue ENABLE ROW LEVEL SECURITY;
@@ -129,6 +141,8 @@ DROP POLICY IF EXISTS "Allow All for Anon" ON public.queue;
 
 DROP POLICY IF EXISTS "Public can read books" ON public.books;
 DROP POLICY IF EXISTS "Admin can write books" ON public.books;
+DROP POLICY IF EXISTS "Public can read categories" ON public.categories;
+DROP POLICY IF EXISTS "Admin can write categories" ON public.categories;
 DROP POLICY IF EXISTS "Borrow owner/admin can read" ON public.borrows;
 DROP POLICY IF EXISTS "Borrow owner/admin can insert" ON public.borrows;
 DROP POLICY IF EXISTS "Borrow owner/admin can update" ON public.borrows;
@@ -153,6 +167,19 @@ USING (true);
 
 CREATE POLICY "Admin can write books"
 ON public.books
+FOR ALL
+TO authenticated
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+-- Categories: publik boleh baca, hanya admin boleh tulis
+CREATE POLICY "Public can read categories"
+ON public.categories
+FOR SELECT
+USING (true);
+
+CREATE POLICY "Admin can write categories"
+ON public.categories
 FOR ALL
 TO authenticated
 USING (public.is_admin())
@@ -202,10 +229,30 @@ WITH CHECK (public.is_admin() OR "memberId" = auth.uid()::text);
 -- Pastikan tabel ini sudah masuk ke publication 'supabase_realtime' di Dashboard Supabase
 ALTER PUBLICATION supabase_realtime ADD TABLE articles;
 ALTER PUBLICATION supabase_realtime ADD TABLE books;
+ALTER PUBLICATION supabase_realtime ADD TABLE categories;
 ALTER PUBLICATION supabase_realtime ADD TABLE borrows;
 ALTER PUBLICATION supabase_realtime ADD TABLE queue;
 ALTER PUBLICATION supabase_realtime ADD TABLE schedules;
 ALTER PUBLICATION supabase_realtime ADD TABLE achievements;
+INSERT INTO public.categories (id, name, slug, type) VALUES
+('cat-art-1', 'Berita Terkini', 'berita-terkini', 'articles'),
+('cat-art-2', 'Pojok Carita', 'pojok-carita', 'articles'),
+('cat-art-3', 'Kedinasan', 'kedinasan', 'articles'),
+('cat-art-4', 'Media Mewarnai', 'media-mewarnai', 'articles'),
+('cat-art-5', 'Perpus Keliling', 'perpus-keliling', 'articles'),
+('cat-art-6', 'Serba-serbi Purwakarta', 'serba-serbi-purwakarta', 'articles'),
+('cat-art-7', 'Statistik', 'statistik', 'articles'),
+('cat-book-1', 'Fiksi', 'fiksi', 'books'),
+('cat-book-2', 'Non-Fiksi', 'non-fiksi', 'books'),
+('cat-book-3', 'Sejarah', 'sejarah', 'books'),
+('cat-book-4', 'Sains & Teknologi', 'sains-teknologi', 'books'),
+('cat-book-5', 'Agama & Spiritualitas', 'agama-spiritualitas', 'books'),
+('cat-book-6', 'Anak-Anak', 'anak-anak', 'books'),
+('cat-book-7', 'Sastra Sunda', 'sastra-sunda', 'books'),
+('cat-book-8', 'Referensi', 'referensi', 'books'),
+('cat-book-9', 'Biografi', 'biografi', 'books'),
+('cat-book-10', 'Pendidikan', 'pendidikan', 'books')
+ON CONFLICT (type, slug) DO NOTHING;
 -- 3. Seed Data (Initial Catalog)
 INSERT INTO public.books (id, judul, penulis, penerbit, tahun, kategori, isbn, halaman, bahasa, stok, rating, "totalRating", cover, sinopsis, "isRecommended") VALUES
 ('bk001', 'Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 'Fiksi', '978-979-3062-79-4', 529, 'Indonesia', 5, 4.8, 324, 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop', 'Kisah inspiratif tentang perjuangan 10 anak dari keluarga miskin di Belitung yang berjuang untuk mendapatkan pendidikan layak. Novel ini mengajarkan tentang semangat pantang menyerah dan kekuatan mimpi.', true),

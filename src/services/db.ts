@@ -33,6 +33,7 @@ export const DB_KEYS = {
   ADMINS: 'disipusda_admins',
   ARTICLES: 'disipusda_articles',
   BOOKS: 'disipusda_books',
+  CATEGORIES: 'disipusda_categories',
   BORROWS: 'disipusda_borrows',
   REPORTS: 'disipusda_reports',
   SETTINGS: 'disipusda_settings',

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Save, ArrowLeft, Image as ImageIcon, BookOpen } from 'lucide-react';
-import { getBookById, addBook, updateBook, CATEGORIES, type Book } from '../../services/bookService';
+import { getBookById, addBook, updateBook, type Book } from '../../services/bookService';
 import { getCurrentAdmin } from '../../services/authService';
 import { motion } from 'motion/react';
 import SafeImage from '../../components/SafeImage';
+import { getCategories, refreshCategories, type Category } from '../../services/dataService';
 
 type BookForm = Omit<Book, 'id'>;
 
@@ -22,8 +23,25 @@ export default function BookEditor() {
   const [form, setForm] = useState<BookForm>(emptyForm);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
+    const loadCategories = async () => {
+      await refreshCategories();
+      setCategories(getCategories('books'));
+    };
+
+    loadCategories();
+
+    const onDbChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ key?: string }>).detail;
+      if (!detail?.key || detail.key === 'disipusda_categories') {
+        setCategories(getCategories('books'));
+      }
+    };
+
+    window.addEventListener('dbChange', onDbChange);
+
     if (isEdit && id) {
       const book = getBookById(id);
       if (book) {
@@ -31,6 +49,8 @@ export default function BookEditor() {
         setForm(rest);
       }
     }
+
+    return () => window.removeEventListener('dbChange', onDbChange);
   }, [id]);
 
   const update = (field: keyof BookForm, value: unknown) =>
@@ -116,7 +136,9 @@ export default function BookEditor() {
             <div>
               <label className={labelCls}>Kategori</label>
               <select className={inputCls} value={form.kategori} onChange={e => update('kategori', e.target.value)}>
-                {CATEGORIES.filter(c => c !== 'Semua').map(c => <option key={c} value={c}>{c}</option>)}
+                {categories.length === 0 ? (
+                  <option value="Fiksi">Fiksi</option>
+                ) : categories.map(category => <option key={category.id} value={category.name}>{category.name}</option>)}
               </select>
             </div>
             <div>

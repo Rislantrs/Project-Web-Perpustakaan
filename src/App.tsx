@@ -37,6 +37,7 @@ const ManageMedia = lazy(() => import('./pages/admin/ManageMedia'));
 const MediaEditor = lazy(() => import('./pages/admin/MediaEditor'));
 const ManageBooks = lazy(() => import('./pages/admin/ManageBooks'));
 const BookEditor = lazy(() => import('./pages/admin/BookEditor'));
+const ManageCategories = lazy(() => import('./pages/admin/ManageCategories'));
 const ManageAdmins = lazy(() => import('./pages/admin/ManageAdmins'));
 const ManageMembers = lazy(() => import('./pages/admin/ManageMembers'));
 const ManageBorrows = lazy(() => import('./pages/admin/ManageBorrows'));
@@ -47,7 +48,7 @@ const ManageStructure = lazy(() => import('./pages/admin/ManageStructure'));
 const ManagePpid = lazy(() => import('./pages/admin/ManagePpid'));
 import JadwalLayanan from './pages/JadwalLayanan';
 
-import { refreshHomeArticles, migrateLegacyArticleImages } from './services/dataService';
+import { refreshHomeArticles, migrateLegacyArticleImages, refreshCategories } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
 import { refreshBooks, migrateLegacyBookCovers } from './services/bookService';
 
@@ -74,6 +75,7 @@ function App() {
 
     // 1. Initial background sync
     refreshHomeArticles();
+    refreshCategories();
     refreshSettings();
     refreshBooks();
     migrateLegacyArticleImages();
@@ -92,6 +94,7 @@ function App() {
           
           if (table === 'articles') refreshHomeArticles();
           else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
+          else if (table === 'categories') refreshCategories();
           else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
           
           // Trigger global UI update
@@ -158,6 +161,7 @@ function App() {
           <Route path="books" element={<ManageBooks />} />
           <Route path="books/new" element={<BookEditor />} />
           <Route path="books/edit/:id" element={<BookEditor />} />
+          <Route path="categories" element={<ManageCategories />} />
           <Route path="admins" element={<ManageAdmins />} />
           <Route path="members" element={<ManageMembers />} />
           <Route path="borrows" element={<ManageBorrows />} />

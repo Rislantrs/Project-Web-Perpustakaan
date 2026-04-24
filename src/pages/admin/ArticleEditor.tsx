@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { saveArticle, Article, getArticles } from '../../services/dataService';
+import { saveArticle, Article, getArticles, getCategories, refreshCategories, type Category } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { uploadImage } from '../../services/storageService';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -28,6 +28,7 @@ export default function ArticleEditor() {
   const [imgPosition, setImgPosition] = useState('center');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isUploading, setIsUploading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const toIndoDate = (isoStr: string) => {
     const months = [
@@ -100,6 +101,22 @@ export default function ArticleEditor() {
   });
 
   useEffect(() => {
+    const loadCategories = async () => {
+      await refreshCategories();
+      setCategories(getCategories('articles'));
+    };
+
+    loadCategories();
+
+    const onDbChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ key?: string }>).detail;
+      if (!detail?.key || detail.key === 'disipusda_categories') {
+        setCategories(getCategories('articles'));
+      }
+    };
+
+    window.addEventListener('dbChange', onDbChange);
+
     if (id) {
       const fetchFullForEdit = async () => {
         try {
@@ -116,32 +133,32 @@ export default function ArticleEditor() {
             setCoverImg(data.img || null);
             setImgPosition(data.imgPosition || 'center');
             setDate(fromIndoDate(data.date));
-            
+
             if (editor && data.content) {
               editor.commands.setContent(data.content);
             }
           } else {
-             // Fallback
-             const allArgs = getArticles();
-             const article = allArgs.find(a => a.id === id);
-             if (article) {
-               setTitle(article.title);
-               setCategory(article.category);
-               setExcerpt(article.excerpt);
-               setCoverImg(article.img);
-               setImgPosition(article.imgPosition || 'center');
-               setDate(fromIndoDate(article.date));
-               if (editor && article.content) {
-                 editor.commands.setContent(article.content);
-               }
-             }
+            const article = getArticles().find(item => item.id === id);
+            if (article) {
+              setTitle(article.title);
+              setCategory(article.category);
+              setExcerpt(article.excerpt);
+              setCoverImg(article.img);
+              setImgPosition(article.imgPosition || 'center');
+              setDate(fromIndoDate(article.date));
+              if (editor && article.content) {
+                editor.commands.setContent(article.content);
+              }
+            }
           }
         } catch (err) {
-          console.error("Gagal load artikel full:", err);
+          console.error('Gagal load artikel full:', err);
         }
       };
       fetchFullForEdit();
     }
+
+    return () => window.removeEventListener('dbChange', onDbChange);
   }, [id, editor]);
 
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -350,13 +367,11 @@ export default function ArticleEditor() {
                 onChange={e => setCategory(e.target.value)}
                 className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#d6a54a] bg-white"
               >
-                <option value="Berita Terkini">Berita Terkini</option>
-                <option value="Pojok Carita">Pojok Carita</option>
-                <option value="Kedinasan">Kedinasan</option>
-                <option value="Media Mewarnai">Media Mewarnai</option>
-                <option value="Perpus Keliling">Perpus Keliling</option>
-                <option value="Serba-serbi Purwakarta">Serba-serbi Purwakarta</option>
-                <option value="Statistik">Statistik</option>
+                {categories.length === 0 ? (
+                  <option value="Berita Terkini">Berita Terkini</option>
+                ) : categories.map(item => (
+                  <option key={item.id} value={item.name}>{item.name}</option>
+                ))}
               </select>
             </div>
             <div>

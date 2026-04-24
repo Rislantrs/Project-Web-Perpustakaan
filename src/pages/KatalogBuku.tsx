@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Search, Star, BookOpen, Filter, X, ChevronLeft, ChevronRight, UserPlus, History, Heart, SlidersHorizontal, BookMarked, CheckCircle, AlertCircle, ArrowRight, Sparkles, Users, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, toggleWishlist, isInWishlist, rateBook, getBookDetailById, CATEGORIES, type Book } from '../services/bookService';
+import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, toggleWishlist, isInWishlist, rateBook, getBookDetailById, type Book } from '../services/bookService';
+import { getCategories, refreshCategories } from '../services/dataService';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
 import SafeImage from '../components/SafeImage';
 
@@ -38,6 +39,7 @@ export default function KatalogBuku() {
     };
 
     bootstrapCatalog();
+    refreshCategories();
 
     const onDbChange = () => {
       setRecommendedBooks(getRecommendedBooks());
@@ -387,7 +389,7 @@ export default function KatalogBuku() {
             <ChevronLeft size={16} />
           </button>
           <div ref={catScrollRef} className="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1">
-            {CATEGORIES.map((cat) => (
+            {['Semua', ...getCategories('books').map(category => category.name)].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}

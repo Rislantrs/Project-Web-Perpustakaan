@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Plus, Search, Edit2, Trash2, BookOpen, AlertCircle, CheckCircle, X, Package } from 'lucide-react';
-import { getBooks, deleteBook, CATEGORIES, type Book } from '../../services/bookService';
+import { getBooks, deleteBook, type Book } from '../../services/bookService';
+import { getCategories, refreshCategories } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 import SafeImage from '../../components/SafeImage';
@@ -20,6 +21,7 @@ export default function ManageBooks() {
       setIsLoading(false);
     };
     loadCloudBooks();
+    refreshCategories();
     window.addEventListener('dbChange', loadCloudBooks);
     return () => window.removeEventListener('dbChange', loadCloudBooks);
   }, []);
@@ -107,7 +109,7 @@ export default function ManageBooks() {
           { label: 'Total Buku', value: books.length, color: 'text-[#0c2f3d]', bg: 'bg-[#0c2f3d]/5' },
           { label: 'Tersedia', value: books.filter(b => b.stok > 0).length, color: 'text-emerald-700', bg: 'bg-emerald-50' },
           { label: 'Stok Habis', value: books.filter(b => b.stok === 0).length, color: 'text-red-600', bg: 'bg-red-50' },
-          { label: 'Kategori', value: CATEGORIES.length - 1, color: 'text-[#d6a54a]', bg: 'bg-[#d6a54a]/10' },
+          { label: 'Kategori', value: getCategories('books').length, color: 'text-[#d6a54a]', bg: 'bg-[#d6a54a]/10' },
         ].map(s => (
           <div key={s.label} className={`${s.bg} rounded-xl p-4`}>
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
