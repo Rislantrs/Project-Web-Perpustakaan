@@ -37,6 +37,7 @@ const navLinks = [
       { name: 'Perpustakaan Keliling', path: '/artikel?kategori=Perpus Keliling' },
       { name: 'Galeri Foto', path: '/artikel?kategori=Galeri' },
       { name: 'Video Terkini', path: '/artikel?kategori=Video Terkini' },
+      { name: 'Pojok Carita', path: '/artikel?kategori=Pojok Carita' },
       { name: 'Serba-Serbi Purwakarta', path: '/artikel?kategori=Serba-serbi Purwakarta' },
       { name: 'Edukasi', path: '/artikel?kategori=Edukasi' },
       { name: 'Kedinasan', path: '/artikel?kategori=Kedinasan' },

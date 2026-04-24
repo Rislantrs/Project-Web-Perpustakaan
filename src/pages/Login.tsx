@@ -4,6 +4,8 @@ import { LogIn, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-r
 import { motion, AnimatePresence } from 'motion/react';
 import { login } from '../services/authService';
 import { dbGet, DB_KEYS } from '../services/db';
+import { AUTH_PROVIDER } from '../services/backendConfig';
+import { loginWithSupabase } from '../services/supabaseAuthService';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ export default function Login() {
     }
   }, [location]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!emailOrId || !password) {
@@ -65,7 +67,9 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const result = login(emailOrId, password);
+      const result = AUTH_PROVIDER === 'supabase'
+        ? await loginWithSupabase(emailOrId, password)
+        : login(emailOrId, password);
       
       if (result.success) {
         if (rememberMe) localStorage.setItem('remembered_user_id', emailOrId);
@@ -149,6 +153,11 @@ export default function Login() {
             <Link to="/" className="font-serif text-3xl font-bold text-[#0c2f3d] hover:text-[#8b1c24] transition-colors">Disipusda</Link>
             <h1 className="text-2xl font-bold text-[#1a1a1a] mt-4">Masuk ke Akun Anda</h1>
             <p className="text-gray-500 mt-1">Akses layanan Perpustakaan & Kearsipan Online</p>
+            {AUTH_PROVIDER === 'supabase' && (
+              <p className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                Mode demo Supabase aktif
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { UserPlus, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { register } from '../services/authService';
+import { AUTH_PROVIDER } from '../services/backendConfig';
+import { registerWithSupabase } from '../services/supabaseAuthService';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export default function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Simple validation
@@ -42,9 +44,11 @@ export default function Register() {
 
     setIsSubmitting(true);
 
-    // Simulate network delay
-    setTimeout(() => {
-      const result = register(formData);
+    try {
+      const result = AUTH_PROVIDER === 'supabase'
+        ? await registerWithSupabase(formData)
+        : register(formData);
+
       setToast({ show: true, message: result.message, type: result.success ? 'success' : 'error' });
 
       if (result.success) {
@@ -55,7 +59,11 @@ export default function Register() {
         setIsSubmitting(false);
         setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
       }
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      setToast({ show: true, message: 'Gagal membuat akun.', type: 'error' });
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -122,6 +130,11 @@ export default function Register() {
             <Link to="/" className="font-serif text-3xl font-bold text-[#0c2f3d] hover:text-[#8b1c24] transition-colors">Disipusda</Link>
             <h1 className="text-2xl font-bold text-[#1a1a1a] mt-4">Daftar Anggota Baru</h1>
             <p className="text-gray-500 mt-1">Buat kartu keanggotaan perpustakaan secara online</p>
+            {AUTH_PROVIDER === 'supabase' && (
+              <p className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                Data disimpan ke Supabase untuk demo
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

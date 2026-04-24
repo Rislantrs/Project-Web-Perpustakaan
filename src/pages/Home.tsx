@@ -115,7 +115,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
 
       {/* Hero Section */}
-      <section className="relative h-[85vh] flex items-center bg-white overflow-hidden">
+      <section className="relative py-20 lg:py-32 flex items-center bg-white overflow-hidden">
         {/* Background Image - Right half */}
         <div className="absolute right-0 top-0 w-full lg:w-3/5 h-full z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent lg:via-white/50 z-10"></div>

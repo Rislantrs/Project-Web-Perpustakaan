@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router';
 import { Shield, Mail, Lock, CheckCircle, AlertCircle, ArrowLeft, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { resetPassword } from '../services/authService';
+import { AUTH_PROVIDER } from '../services/backendConfig';
+import { resetPasswordWithSupabase } from '../services/supabaseAuthService';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -13,19 +15,26 @@ export default function ForgotPassword() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [msg, setMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !nik || !newPassword || !confirmPassword) return;
+    if (AUTH_PROVIDER === 'supabase') {
+      if (!email) return;
+    } else if (!email || !nik || !newPassword || !confirmPassword) {
+      return;
+    }
 
-    if (newPassword !== confirmPassword) {
+    if (AUTH_PROVIDER !== 'supabase' && newPassword !== confirmPassword) {
       setMsg('Sandi konfirmasi tidak cocok.');
       setStatus('error');
       return;
     }
 
     setStatus('loading');
-    setTimeout(() => {
-      const res = resetPassword(email, nik, newPassword);
+    try {
+      const res = AUTH_PROVIDER === 'supabase'
+        ? await resetPasswordWithSupabase(email)
+        : resetPassword(email, nik, newPassword);
+
       setMsg(res.message);
       if (res.success) {
         setStatus('success');
@@ -33,7 +42,11 @@ export default function ForgotPassword() {
       } else {
         setStatus('error');
       }
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      setMsg('Gagal memproses reset password.');
+      setStatus('error');
+    }
   };
 
   return (
@@ -45,6 +58,11 @@ export default function ForgotPassword() {
           </div>
           <h1 className="text-2xl font-black text-gray-900">Lupa Kata Sandi</h1>
           <p className="text-sm text-gray-500 mt-1">Masukkan data terdaftar untuk mengatur ulang sandi.</p>
+          {AUTH_PROVIDER === 'supabase' && (
+            <p className="mt-3 text-xs text-emerald-700 font-semibold">
+              Mode Supabase aktif, reset password dikirim via email.
+            </p>
+          )}
         </div>
 
         <motion.div 
@@ -82,12 +100,15 @@ export default function ForgotPassword() {
               <div className="relative group">
                 <Shield size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
                 <input 
-                  required value={nik} onChange={e => setNik(e.target.value)}
+                  required={AUTH_PROVIDER !== 'supabase'} value={nik} onChange={e => setNik(e.target.value)}
                   type="text" placeholder="****************7406" 
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all font-mono" 
                 />
               </div>
               <p className="text-[10px] text-gray-400 mt-1 px-1">Gunakan format NIK yang muncul di Profil (dengan bintang).</p>
+              {AUTH_PROVIDER === 'supabase' && (
+                <p className="text-[10px] text-emerald-700 mt-1 px-1">Field NIK tidak dipakai untuk mode Supabase.</p>
+              )}
             </div>
 
             <div>
@@ -95,7 +116,7 @@ export default function ForgotPassword() {
               <div className="relative group">
                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
                 <input 
-                  required value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                  required={AUTH_PROVIDER !== 'supabase'} value={newPassword} onChange={e => setNewPassword(e.target.value)}
                   type="password" placeholder="Minimal 6 karakter" minLength={6}
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all" 
                 />
@@ -107,7 +128,7 @@ export default function ForgotPassword() {
               <div className="relative group">
                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
                 <input 
-                  required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+                  required={AUTH_PROVIDER !== 'supabase'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
                   type="password" placeholder="Ulangi sandi baru" 
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all" 
                 />

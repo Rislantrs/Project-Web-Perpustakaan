@@ -1,5 +1,8 @@
 import { dbGet, dbSave, DB_KEYS, initializeDB, Member as MemberType, Admin as AdminType } from './db';
 import bcrypt from 'bcryptjs';
+import { clearCurrentMember, getSavedCurrentMember, saveCurrentMember } from './memberSession';
+import { USE_SUPABASE_AUTH } from './backendConfig';
+import { supabase } from './supabase';
 
 export type Member = MemberType;
 export type Admin = AdminType;
@@ -130,15 +133,23 @@ export const login = (emailOrIdOrNik: string, password: string): { success: bool
     member,
     expiresAt: Date.now() + USER_SESSION_TTL
   };
+  saveCurrentMember(sessionData.member, sessionData.expiresAt);
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sessionData));
   return { success: true, message: `Selamat datang, ${member.namaLengkap}!`, member };
 };
 
 export const logout = (): void => {
+  if (USE_SUPABASE_AUTH) {
+    supabase.auth.signOut().catch((err) => console.warn('Supabase signOut gagal:', err));
+  }
+  clearCurrentMember();
   localStorage.removeItem(CURRENT_USER_KEY);
 };
 
 export const getCurrentUser = (): Member | null => {
+  const cachedMember = getSavedCurrentMember();
+  if (cachedMember) return cachedMember;
+
   // === SECURITY: Cross-verify session against the actual database ===
   const sessionStr = localStorage.getItem(CURRENT_USER_KEY);
   if (!sessionStr) return null;
@@ -210,7 +221,17 @@ export const updateMember = (id: string, updates: Partial<Member>): { success: b
   // Update session if it's the current user
   const current = getCurrentUser();
   if (current?.id === id) {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(members[idx]));
+    const existingSession = localStorage.getItem(CURRENT_USER_KEY);
+    const expiresAt = existingSession ? (() => {
+      try {
+        const parsed = JSON.parse(existingSession);
+        return parsed?.expiresAt;
+      } catch {
+        return undefined;
+      }
+    })() : undefined;
+    saveCurrentMember(members[idx], expiresAt);
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(expiresAt ? { member: members[idx], expiresAt } : { member: members[idx] }));
   }
   return { success: true, message: 'Profil berhasil diperbarui.', member: members[idx] };
 };
