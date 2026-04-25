@@ -268,6 +268,29 @@ export const fetchArticlesPage = async (options: ArticleListQueryOptions = {}): 
   return migrateArticleImageBatch((data || []) as Article[]);
 };
 
+export const fetchArticlesPageWithCount = async (
+  options: ArticleListQueryOptions = {}
+): Promise<{ items: Article[]; total: number }> => {
+  const from = options.from ?? 0;
+  const to = options.to ?? 9;
+
+  let query = supabase
+    .from('articles')
+    .select(ARTICLE_LIST_COLUMNS, { count: 'exact' })
+    .order('createdAt', { ascending: false })
+    .range(from, to);
+
+  query = applyArticleListFilters(query, options);
+
+  const { data, error, count } = await query;
+  if (error) throw error;
+
+  return {
+    items: await migrateArticleImageBatch((data || []) as Article[]),
+    total: count || 0,
+  };
+};
+
 // 2. SINKRONISASI murni dari Cloud (Tanpa simpan 30MB ke LocalStorage Browser)
 export const refreshArticles = async (): Promise<Article[]> => {
   try {

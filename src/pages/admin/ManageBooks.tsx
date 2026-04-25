@@ -7,10 +7,13 @@ import { getCurrentAdmin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 import SafeImage from '../../components/SafeImage';
 
+const BOOKS_PER_PAGE = 10;
+
 export default function ManageBooks() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [confirmDelete, setConfirmDelete] = useState<Book | null>(null);
 
@@ -26,6 +29,10 @@ export default function ManageBooks() {
     return () => window.removeEventListener('dbChange', loadCloudBooks);
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
+
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
@@ -34,7 +41,7 @@ export default function ManageBooks() {
   const handleDelete = async (book: Book) => {
     const admin = getCurrentAdmin();
     if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
-    const result = await deleteBook(book.id, admin.id); // pass adminId for backend auth check
+    const result = await deleteBook(book.id, admin.id);
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) { setBooks(getBooks()); setConfirmDelete(null); }
   };
@@ -44,6 +51,21 @@ export default function ManageBooks() {
     b.penulis.toLowerCase().includes(query.toLowerCase()) ||
     b.kategori.toLowerCase().includes(query.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filtered.length / BOOKS_PER_PAGE);
+  const paginated = filtered.slice((currentPage - 1) * BOOKS_PER_PAGE, currentPage * BOOKS_PER_PAGE);
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: Array<number | '...'> = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    if (start > 2) pages.push('...');
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (end < totalPages - 1) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  }, [currentPage, totalPages]);
 
   return (
     <div>
@@ -93,7 +115,7 @@ export default function ManageBooks() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Kelola Buku</h1>
-          <p className="text-sm text-gray-500 mt-1">{books.length} buku dalam katalog</p>
+          <p className="text-sm text-gray-500 mt-1">{filtered.length} buku {query && 'hasil pencarian'}</p>
         </div>
         <Link
           to="/admin/books/new"
@@ -131,7 +153,7 @@ export default function ManageBooks() {
       </div>
 
       {/* Book Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm mb-6">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -144,7 +166,7 @@ export default function ManageBooks() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout">
                 {isLoading ? Array.from({ length: 6 }).map((_, idx) => (
                   <tr key={`skeleton-${idx}`} className="animate-pulse">
                     <td className="px-5 py-4">
@@ -161,7 +183,7 @@ export default function ManageBooks() {
                     <td className="px-4 py-3.5"><div className="mx-auto h-6 bg-gray-100 rounded w-14" /></td>
                     <td className="px-4 py-3.5"><div className="mx-auto h-6 bg-gray-100 rounded w-14" /></td>
                   </tr>
-                )) : filtered.map(book => (
+                )) : paginated.map(book => (
                   <motion.tr
                     key={book.id}
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -219,6 +241,44 @@ export default function ManageBooks() {
           </div>
         )}
       </div>
+
+      {/* Pagination UI */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+          <p className="text-xs text-gray-500">
+            Menampilkan <span className="font-bold text-gray-900">{paginated.length}</span> dari <span className="font-bold text-gray-900">{filtered.length}</span> buku
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            {visiblePages.map((p, i) => (
+              p === '...' ? (
+                <span key={`dots-${i}`} className="px-2 text-gray-400">...</span>
+              ) : (
+                <button
+                  key={`page-${p}`}
+                  onClick={() => setCurrentPage(p as number)}
+                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-[#0c2f3d] text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
+                >
+                  {p}
+                </button>
+              )
+            ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

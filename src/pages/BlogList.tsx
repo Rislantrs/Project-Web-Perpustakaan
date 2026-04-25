@@ -1,8 +1,8 @@
 import { Link, useSearchParams } from 'react-router';
-import { ChevronRight, Calendar, User, Search, Filter, X, Download, Image as ImageIcon } from 'lucide-react';
+import { ChevronRight, Calendar, User, Search, Filter, X, Download, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { fetchArticlesPage, Article, ARTICLE_CATEGORIES } from '../services/dataService';
+import { fetchArticlesPageWithCount, Article, ARTICLE_CATEGORIES } from '../services/dataService';
 
 
 
@@ -26,7 +26,8 @@ export default function BlogList() {
   const [selectedYear, setSelectedYear] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
 
   useEffect(() => {
     setSelectedCategory(searchParams.get('kategori') || '');
@@ -41,12 +42,12 @@ export default function BlogList() {
     return category === 'Semua Kategori' ? '' : category;
   }, [selectedCategory, urlCategory]);
 
-  const loadArticlesPage = useCallback(async (reset: boolean, startFrom: number = 0) => {
+  const loadArticlesPage = useCallback(async (page: number) => {
     setIsLoading(true);
     try {
-      const from = reset ? 0 : startFrom;
+      const from = (page - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
-      const nextBatch = await fetchArticlesPage({
+      const result = await fetchArticlesPageWithCount({
         from,
         to,
         category: activeCategory || undefined,
@@ -54,37 +55,32 @@ export default function BlogList() {
         search: debouncedSearchQuery || undefined,
       });
 
-      setArticles(prev => {
-        if (reset) return nextBatch;
-        const existingIds = new Set(prev.map(a => a.id));
-        const merged = [...prev];
-        nextBatch.forEach(item => {
-          if (!existingIds.has(item.id)) merged.push(item);
-        });
-        return merged;
-      });
-
-      setHasMore(nextBatch.length === PAGE_SIZE);
+      setArticles(result.items);
+      setTotalArticles(result.total);
     } catch (error) {
       console.error('Failed to fetch paginated articles:', error);
-      if (reset) setArticles([]);
-      setHasMore(false);
+      setArticles([]);
+      setTotalArticles(0);
     } finally {
       setIsLoading(false);
     }
   }, [activeCategory, selectedYear, debouncedSearchQuery]);
 
   useEffect(() => {
-    loadArticlesPage(true);
-  }, [loadArticlesPage]);
+    setCurrentPage(1);
+  }, [activeCategory, selectedYear, debouncedSearchQuery]);
+
+  useEffect(() => {
+    loadArticlesPage(currentPage);
+  }, [loadArticlesPage, currentPage]);
 
   useEffect(() => {
     const onDbChange = () => {
-      loadArticlesPage(true);
+      loadArticlesPage(currentPage);
     };
     window.addEventListener('dbChange', onDbChange);
     return () => window.removeEventListener('dbChange', onDbChange);
-  }, [loadArticlesPage]);
+  }, [loadArticlesPage, currentPage]);
 
   // Ambil daftar tahun unik dari semua artikel untuk filter
   const availableYears = useMemo(() => {
@@ -97,6 +93,22 @@ export default function BlogList() {
   }, [articles]);
 
   const filteredArticles = articles;
+  const totalPages = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE));
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    const pages: Array<number | '...'> = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (start > 2) pages.push('...');
+    for (let page = start; page <= end; page += 1) pages.push(page);
+    if (end < totalPages - 1) pages.push('...');
+
+    pages.push(totalPages);
+    return pages;
+  }, [currentPage, totalPages]);
 
   const currentCategoryDisplay = selectedCategory || urlCategory || 'Ruang Literasi & Berita';
   
@@ -287,19 +299,52 @@ export default function BlogList() {
           </div>
         )}
 
-        <div className="mt-16 flex justify-center">
-          {hasMore ? (
-            <button
-              onClick={() => loadArticlesPage(false, articles.length)}
-              disabled={isLoading}
-              className="px-6 py-3 rounded-lg border border-[#0c2f3d] text-[#0c2f3d] font-semibold hover:bg-[#0c2f3d] hover:text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Memuat...' : 'Muat Lebih Banyak'}
-            </button>
-          ) : (
-            filteredArticles.length > 0 && <p className="text-sm text-gray-500">Semua artikel pada filter ini sudah dimuat.</p>
-          )}
-        </div>
+        {filteredArticles.length > 0 && totalPages > 1 && (
+          <div className="mt-14 rounded-2xl border border-gray-200 bg-white px-4 py-4 sm:px-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-xs sm:text-sm text-gray-600">
+                Halaman <span className="font-bold text-[#0c2f3d]">{currentPage}</span> dari <span className="font-bold text-[#0c2f3d]">{totalPages}</span>
+                <span className="text-gray-400"> • </span>
+                <span>{totalArticles} artikel</span>
+              </p>
+
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                {visiblePages.map((page, index) => (
+                  page === '...'
+                    ? <span key={`ellipsis-${index}`} className="w-10 text-center text-gray-400">...</span>
+                    : (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`h-10 min-w-10 px-3 rounded-xl text-sm font-bold transition-colors ${currentPage === page
+                          ? 'bg-[#0c2f3d] text-white shadow-md'
+                          : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
 

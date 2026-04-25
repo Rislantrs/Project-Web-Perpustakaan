@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Search, Star, BookOpen, Filter, X, ChevronLeft, ChevronRight, UserPlus, History, Heart, SlidersHorizontal, BookMarked, CheckCircle, AlertCircle, ArrowRight, Sparkles, Users, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -89,6 +89,26 @@ export default function KatalogBuku() {
 
   const totalPages = Math.ceil(books.length / BOOKS_PER_PAGE);
   const paginatedBooks = books.slice((currentPage - 1) * BOOKS_PER_PAGE, currentPage * BOOKS_PER_PAGE);
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    const pages: Array<number | '...'> = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (start > 2) pages.push('...');
+    for (let page = start; page <= end; page += 1) pages.push(page);
+    if (end < totalPages - 1) pages.push('...');
+
+    pages.push(totalPages);
+    return pages;
+  }, [currentPage, totalPages]);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type });
@@ -486,33 +506,49 @@ export default function KatalogBuku() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-12">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-xl text-sm font-bold transition-colors ${currentPage === page
-                  ? 'bg-[#0c2f3d] text-white shadow-md'
-                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
-            >
-              <ChevronRight size={16} />
-            </button>
+          <div className="mt-12 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur px-4 py-4 sm:px-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-xs sm:text-sm text-gray-600">
+                Halaman <span className="font-bold text-[#0c2f3d]">{currentPage}</span> dari <span className="font-bold text-[#0c2f3d]">{totalPages}</span>
+                <span className="text-gray-400"> • </span>
+                <span>{books.length} buku total</span>
+              </p>
+
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                {visiblePages.map((page, index) => (
+                  page === '...'
+                    ? <span key={`ellipsis-${index}`} className="w-10 text-center text-gray-400">...</span>
+                    : (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        className={`h-10 min-w-10 px-3 rounded-xl text-sm font-bold transition-colors ${currentPage === page
+                          ? 'bg-[#0c2f3d] text-white shadow-md'
+                          : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                ))}
+
+                <button
+                  onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </section>

@@ -3,6 +3,12 @@ import { dbGet, dbSave, DB_KEYS, type Member } from './db';
 import { saveCurrentMember } from './memberSession';
 import type { EmailOtpType, User } from '@supabase/supabase-js';
 
+/**
+ * SUPABASE AUTH SERVICE
+ * ---------------------
+ * Layanan pusat untuk menangani autentikasi pengguna dan sinkronisasi data 
+ * antara Supabase Auth (Identity) dan tabel 'members' (Profile).
+ */
 const MEMBERS_TABLE = 'members';
 
 type SupabaseMemberRow = {
@@ -23,14 +29,23 @@ type SupabaseMemberRow = {
   is_active?: boolean;
 };
 
+/** 
+ * Daftar warna avatar default untuk anggota baru 
+ */
 const avatarColors = [
   '#8b1c24', '#0c2f3d', '#d6a54a', '#0f6063', '#6b5840',
   '#2d5a27', '#5b3a8c', '#c05621', '#1a6b8a', '#8b4513'
 ];
 
+/** 
+ * Membuat ID unik untuk fallback jika Supabase Auth ID belum tersedia 
+ */
 const generateId = (): string =>
   `supabase_${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
 
+/** 
+ * Generate nomor anggota resmi perpustakaan format: PWK-YYYY-RANDOM 
+ */
 const generateMemberNumber = (): string => {
   const year = new Date().getFullYear();
   const random = Math.floor(1000 + Math.random() * 9000);
@@ -38,11 +53,18 @@ const generateMemberNumber = (): string => {
 };
 
 const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+/** 
+ * Format tanggal hari ini ke bahasa Indonesia: "25 April 2026" 
+ */
 const formatDateNow = (): string => {
   const now = new Date();
   return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 };
 
+/** 
+ * Logika Sensor NIK (Masking): 
+ * Menyembunyikan seluruh digit NIK kecuali 4 digit terakhir demi privasi.
+ */
 const maskNik = (value?: string): string => {
   const raw = (value || '').trim();
   if (!raw) return '************';
@@ -53,6 +75,9 @@ const maskNik = (value?: string): string => {
   return '*'.repeat(digits.length - 4) + digits.slice(-4);
 };
 
+/** 
+ * Sanitasi data NIK sebelum dikirim ke frontend 
+ */
 const sanitizeMemberNik = (member: Member): Member => ({
   ...member,
   nik: maskNik(member.nik),
@@ -60,6 +85,10 @@ const sanitizeMemberNik = (member: Member): Member => ({
 
 const sanitizeMemberDirectory = (members: Member[]): Member[] => members.map(sanitizeMemberNik);
 
+/** 
+ * MAPPING DATA: 
+ * Mengubah format baris database (Supabase) ke format Object Member (Aplikasi)
+ */
 const mapRowToMember = (row: SupabaseMemberRow): Member => ({
   id: row.id,
   nomorAnggota: row.nomor_anggota,
@@ -77,6 +106,10 @@ const mapRowToMember = (row: SupabaseMemberRow): Member => ({
   bio: row.bio || '',
 });
 
+/** 
+ * MAPPING DATA: 
+ * Mengubah format Object Member (Aplikasi) ke format baris database (Supabase)
+ */
 const mapMemberToRow = (member: Member): SupabaseMemberRow => ({
   id: member.id,
   nomor_anggota: member.nomorAnggota,
@@ -143,11 +176,15 @@ export const refreshMembersFromSupabase = async (): Promise<Member[]> => {
   return members;
 };
 
+/** 
+ * DELETE MEMBER: 
+ * Menghapus permanen anggota dari database Cloud (Supabase) dan cache Lokal.
+ */
 export const deleteMemberFromSupabase = async (memberId: string): Promise<{ success: boolean; message: string }> => {
   try {
     console.log('Mencoba menghapus member dengan ID:', memberId);
     
-    // 1. Hapus dari tabel Members
+    // 1. Hapus dari tabel Members (Membutuhkan SQL Bypass RLS)
     const { error, count } = await supabase
       .from(MEMBERS_TABLE)
       .delete({ count: 'exact' })
@@ -163,11 +200,11 @@ export const deleteMemberFromSupabase = async (memberId: string): Promise<{ succ
       console.warn('Hapus berhasil dijalankan tapi 0 baris terpengaruh. Cek RLS atau ID.');
       return { 
         success: false, 
-        message: 'Gagal: Data tidak ditemukan di Cloud atau akses ditolak oleh sistem keamanan (RLS). Pastikan Mas sudah jalankan SQL "Master delete" yang saya berikan.' 
+        message: 'Gagal: Data tidak ditemukan di Cloud atau akses ditolak oleh sistem keamanan (RLS).' 
       };
     }
 
-    // 2. Bersihkan total dari Local Storage
+    // 2. Bersihkan dari Local Storage (Cache)
     const localMembers = dbGet<Member[]>(DB_KEYS.MEMBERS, []).filter((member) => member.id !== memberId);
     dbSave(DB_KEYS.MEMBERS, localMembers);
     
@@ -179,6 +216,10 @@ export const deleteMemberFromSupabase = async (memberId: string): Promise<{ succ
 
 
 
+/** 
+ * REGISTER: 
+ * Alur pendaftaran anggota baru (Supabase Auth + Database Profile).
+ */
 export const registerWithSupabase = async (data: {
   namaLengkap: string;
   nik: string;
@@ -191,9 +232,7 @@ export const registerWithSupabase = async (data: {
 }): Promise<{ success: boolean; message: string; member?: Member; requiresEmailVerification?: boolean; email?: string }> => {
   const normalizedEmail = data.email.toLowerCase().trim();
   
-  // Jangan cuma cek lokal, karena kalau sudah dihapus di cloud tapi lokal nyangkut jadi error
-  // Kita biarkan Supabase Auth yang menangani pengecekan email terdaftar secara native
-  
+  // 1. Registrasi ke Supabase Auth (Identity)
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: normalizedEmail,
     password: data.password,
@@ -212,7 +251,7 @@ export const registerWithSupabase = async (data: {
 
   if (authError) {
     if (authError.message.includes('already registered')) {
-      return { success: false, message: 'Email sudah terdaftar di sistem keamanan. Silakan gunakan email lain atau reset password.' };
+      return { success: false, message: 'Email sudah terdaftar. Silakan gunakan email lain atau reset password.' };
     }
     return { success: false, message: `Gagal mendaftar: ${authError.message}` };
   }
@@ -338,6 +377,10 @@ const buildMember = (payload: {
 
 
 
+/** 
+ * LOGIN: 
+ * Melakukan autentikasi email & password ke Supabase Auth.
+ */
 export const loginWithSupabase = async (email: string, password: string): Promise<{ success: boolean; message: string; member?: Member; needsVerification?: boolean; email?: string }> => {
   const normalizedEmail = email.toLowerCase().trim();
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -347,10 +390,12 @@ export const loginWithSupabase = async (email: string, password: string): Promis
 
   if (error || !data.user) {
     const msg = error?.message || 'Login Supabase gagal.';
+    // Cek apakah error disebabkan karena email belum dikonfirmasi
     const needsVerification = /email.*confirm|confirmed|verify/i.test(msg);
     return { success: false, message: msg, needsVerification, email: normalizedEmail };
   }
 
+  // Ambil data profil dari Metadata/Database dan sinkronkan ke lokal
   const member = syncMemberFromAuthUser(data.user);
 
   return {
@@ -385,6 +430,10 @@ export const resendSignupVerification = async (email: string): Promise<{ success
   return { success: true, message: 'Email verifikasi berhasil dikirim ulang.' };
 };
 
+/** 
+ * MANUAL OTP VERIFICATION: 
+ * Digunakan jika user memasukkan kode angka 8-digit dari email secara manual.
+ */
 export const verifySignupOtp = async (email: string, token: string): Promise<{ success: boolean; message: string }> => {
   const { data, error } = await supabase.auth.verifyOtp({
     email,

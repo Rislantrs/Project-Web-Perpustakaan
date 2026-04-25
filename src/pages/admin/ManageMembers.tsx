@@ -1,16 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Search, Mail, Phone, Calendar, Trash2, User, CheckCircle, AlertCircle, X, Shield, MapPin } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Mail, Phone, Calendar, Trash2, User, CheckCircle, AlertCircle, X, Shield, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCurrentAdmin, getInitials, type Member } from '../../services/authService';
 import { deleteMemberFromSupabase, refreshMembersFromSupabase } from '../../services/supabaseAuthService';
 import { motion, AnimatePresence } from 'motion/react';
 
+const MEMBERS_PER_PAGE = 10;
+
 export default function ManageMembers() {
   const [members, setMembers] = useState<Member[]>([]);
   const [query, setQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [confirmDelete, setConfirmDelete] = useState<Member | null>(null);
 
   useEffect(() => { void loadMembers(); }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
 
   const loadMembers = async () => {
     const next = await refreshMembersFromSupabase();
@@ -43,6 +50,21 @@ export default function ManageMembers() {
     m.nomorAnggota.toLowerCase().includes(query.toLowerCase()) ||
     m.nik.includes(query)
   );
+
+  const totalPages = Math.ceil(filtered.length / MEMBERS_PER_PAGE);
+  const paginated = filtered.slice((currentPage - 1) * MEMBERS_PER_PAGE, currentPage * MEMBERS_PER_PAGE);
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: Array<number | '...'> = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    if (start > 2) pages.push('...');
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (end < totalPages - 1) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  }, [currentPage, totalPages]);
 
   return (
     <div>
@@ -81,7 +103,7 @@ export default function ManageMembers() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Manajemen Anggota</h1>
-        <p className="text-sm text-gray-500 mt-1">{members.length} anggota terdaftar dalam sistem</p>
+        <p className="text-sm text-gray-500 mt-1">{filtered.length} anggota {query && 'hasil pencarian'}</p>
       </div>
 
       {/* Search & Filter */}
@@ -97,7 +119,7 @@ export default function ManageMembers() {
       </div>
 
       {/* Member List Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm mb-6">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
@@ -110,51 +132,57 @@ export default function ManageMembers() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.map(member => (
-                <tr key={member.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0"
-                        style={{ background: member.avatarColor }}
+              <AnimatePresence mode="popLayout">
+                {paginated.map(member => (
+                  <motion.tr 
+                    key={member.id} 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="hover:bg-gray-50/50 transition-colors group"
+                  >
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0"
+                          style={{ background: member.avatarColor }}
+                        >
+                          {getInitials(member.namaLengkap)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-gray-900 truncate">{member.namaLengkap}</p>
+                          <p className="text-xs text-[#d6a54a] font-bold">{member.nomorAnggota}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 hidden md:table-cell">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                          <Mail size={12} className="text-gray-400" /> {member.email}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                          <Phone size={12} className="text-gray-400" /> {member.telepon}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 hidden lg:table-cell">
+                      <span className="text-xs text-gray-500 font-mono tracking-wider">{member.nik}</span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Calendar size={12} className="text-gray-400" /> {member.tanggalDaftar}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <button 
+                        onClick={() => setConfirmDelete(member)}
+                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Hapus Anggota"
                       >
-                        {getInitials(member.namaLengkap)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-gray-900 truncate">{member.namaLengkap}</p>
-                        <p className="text-xs text-[#d6a54a] font-bold">{member.nomorAnggota}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 hidden md:table-cell">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                        <Mail size={12} className="text-gray-400" /> {member.email}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                        <Phone size={12} className="text-gray-400" /> {member.telepon}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 hidden lg:table-cell">
-                    <span className="text-xs text-gray-500 font-mono tracking-wider">{member.nik}</span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <Calendar size={12} className="text-gray-400" /> {member.tanggalDaftar}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <button 
-                      onClick={() => setConfirmDelete(member)}
-                      className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Hapus Anggota"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
@@ -166,6 +194,43 @@ export default function ManageMembers() {
         )}
       </div>
 
+      {/* Pagination UI */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+          <p className="text-xs text-gray-500">
+            Menampilkan <span className="font-bold text-gray-900">{paginated.length}</span> dari <span className="font-bold text-gray-900">{filtered.length}</span> anggota
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            {visiblePages.map((p, i) => (
+              p === '...' ? (
+                <span key={`dots-${i}`} className="px-2 text-gray-400">...</span>
+              ) : (
+                <button
+                  key={`page-${p}`}
+                  onClick={() => setCurrentPage(p as number)}
+                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-[#0c2f3d] text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
+                >
+                  {p}
+                </button>
+              )
+            ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
