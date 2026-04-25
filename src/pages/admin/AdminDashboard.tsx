@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getArticles, Article } from '../../services/dataService';
 import { getBooks, getAllBorrows, BorrowRecord } from '../../services/bookService';
 import { getMembers } from '../../services/authService';
+import { refreshMembersFromSupabase } from '../../services/supabaseAuthService';
 import { FileText, TrendingUp, Users, BookOpen, Clock, History as LucideHistory } from 'lucide-react';
 import { Link } from 'react-router';
 
@@ -14,13 +15,17 @@ export default function AdminDashboard() {
   const [recentBorrows, setRecentBorrows] = useState<BorrowRecord[]>([]);
 
   useEffect(() => {
-    setArticles(getArticles());
-    setBooksCount(getBooks().length);
-    const borrows = getAllBorrows();
-    setActiveBorrows(borrows.filter(b => b.status === 'dipinjam').length);
-    setPendingPickups(borrows.filter(b => b.status === 'menunggu_diambil').length);
-    setMembersCount(getMembers().length);
-    setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
+    const run = async () => {
+      setArticles(getArticles());
+      setBooksCount(getBooks().length);
+      const borrows = getAllBorrows();
+      setActiveBorrows(borrows.filter(b => b.status === 'dipinjam').length);
+      setPendingPickups(borrows.filter(b => b.status === 'menunggu_diambil').length);
+      const members = await refreshMembersFromSupabase();
+      setMembersCount((members || getMembers()).length);
+      setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
+    };
+    void run();
   }, []);
 
   const stats = [

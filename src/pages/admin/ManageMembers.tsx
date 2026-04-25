@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Mail, Phone, Calendar, Trash2, User, CheckCircle, AlertCircle, X, Shield, MapPin } from 'lucide-react';
-import { getMembers, deleteMember, getCurrentAdmin, getInitials, type Member } from '../../services/authService';
+import { getCurrentAdmin, getInitials, type Member } from '../../services/authService';
+import { deleteMemberFromSupabase, refreshMembersFromSupabase } from '../../services/supabaseAuthService';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ManageMembers() {
@@ -9,21 +10,32 @@ export default function ManageMembers() {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [confirmDelete, setConfirmDelete] = useState<Member | null>(null);
 
-  useEffect(() => { loadMembers(); }, []);
+  useEffect(() => { void loadMembers(); }, []);
 
-  const loadMembers = () => { setMembers(getMembers()); };
+  const loadMembers = async () => {
+    const next = await refreshMembersFromSupabase();
+    setMembers(next);
+  };
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
+    setTimeout(() => setToast(p => ({ ...p, show: false })), 4500);
   };
 
-  const handleDelete = (member: Member) => {
+  const handleDelete = async (member: Member) => {
     const admin = getCurrentAdmin();
-    if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
-    const result = deleteMember(member.id, admin.id); // backend ownership check
+    if (!admin) { 
+      showToast('Akses ditolak: Sesi admin tidak valid atau Anda bukan admin.', 'error'); 
+      return; 
+    }
+    
+    const result = await deleteMemberFromSupabase(member.id);
     showToast(result.message, result.success ? 'success' : 'error');
-    if (result.success) { loadMembers(); setConfirmDelete(null); }
+    
+    if (result.success) { 
+      await loadMembers(); 
+      setConfirmDelete(null); 
+    }
   };
 
   const filtered = members.filter(m =>

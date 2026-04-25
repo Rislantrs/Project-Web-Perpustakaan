@@ -1,6 +1,7 @@
 import { dbGet, dbSave, DB_KEYS, initializeDB, Member as MemberType, Admin as AdminType } from './db';
 import bcrypt from 'bcryptjs';
 import { clearCurrentMember, getSavedCurrentMember, saveCurrentMember } from './memberSession';
+import { supabase } from './supabase';
 
 export type Member = MemberType;
 export type Admin = AdminType;
@@ -9,6 +10,8 @@ const MEMBERS_KEY = DB_KEYS.MEMBERS;
 const ADMINS_KEY = DB_KEYS.ADMINS;
 const CURRENT_ADMIN_KEY = 'disipusda_current_admin';
 const LOGIN_ATTEMPTS_KEY = 'disipusda_login_attempts';
+const ADMINS_TABLE = 'admins';
+const MEMBERS_TABLE = 'members';
 const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes lockout
 const ADMIN_SESSION_TTL = 12 * 60 * 60 * 1000; // 12 hours
 
@@ -29,6 +32,60 @@ const formatDateNow = (): string => {
   return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 };
 
+type SupabaseAdminRow = {
+  id: string;
+  nama_lengkap: string;
+  email: string;
+  password_hash: string;
+  role: 'super_admin' | 'admin';
+  tanggal_dibuat: string;
+  avatar_color: string;
+};
+
+type SupabaseMemberRow = {
+  id: string;
+  nomor_anggota: string;
+  nama_lengkap: string;
+  nik_masked: string;
+  email: string;
+  password: string;
+  alamat: string;
+  telepon: string;
+  jenis_kelamin: 'L' | 'P';
+  tanggal_lahir: string;
+  tanggal_daftar: string;
+  avatar_color: string;
+  avatar_url?: string;
+  bio?: string;
+};
+
+const mapAdminRowToModel = (row: SupabaseAdminRow): Admin => ({
+  id: row.id,
+  namaLengkap: row.nama_lengkap,
+  email: row.email,
+  password: row.password_hash,
+  role: row.role,
+  tanggalDibuat: row.tanggal_dibuat || formatDateNow(),
+  avatarColor: row.avatar_color || '#0c2f3d',
+});
+
+const mapMemberRowToModel = (row: SupabaseMemberRow): Member => ({
+  id: row.id,
+  nomorAnggota: row.nomor_anggota,
+  namaLengkap: row.nama_lengkap,
+  nik: row.nik_masked || '************',
+  email: (row.email || '').toLowerCase().trim(),
+  password: row.password || 'managed-by-supabase-auth',
+  alamat: row.alamat || '',
+  telepon: row.telepon || '',
+  jenisKelamin: row.jenis_kelamin || 'L',
+  tanggalLahir: row.tanggal_lahir || '',
+  tanggalDaftar: row.tanggal_daftar || formatDateNow(),
+  avatarColor: row.avatar_color || '#0c2f3d',
+  avatarUrl: row.avatar_url || '',
+  bio: row.bio || '',
+});
+
 // === MEMBER FUNCTIONS ===
 
 export const getMembers = (): Member[] => {
@@ -45,7 +102,7 @@ export const getCurrentUser = (): Member | null => {
 
 export const isLoggedIn = (): boolean => !!getCurrentUser();
 
-export const updateMember = (id: string, updates: Partial<Member>): { success: boolean; message: string; member?: Member } => {
+export const updateMember = async (id: string, updates: Partial<Member>): Promise<{ success: boolean; message: string; member?: Member }> => {
   const members = getMembers();
   const idx = members.findIndex(m => m.id === id);
   if (idx === -1) return { success: false, message: 'Member tidak ditemukan.' };
@@ -76,21 +133,51 @@ export const updateMember = (id: string, updates: Partial<Member>): { success: b
     safeUpdates.password = bcrypt.hashSync(safeUpdates.password, 10);
   }
 
-  members[idx] = { ...members[idx], ...safeUpdates };
+  const payload: Record<string, any> = {};
+  if (safeUpdates.namaLengkap !== undefined) payload.nama_lengkap = safeUpdates.namaLengkap;
+  if (safeUpdates.email !== undefined) payload.email = safeUpdates.email.toLowerCase().trim();
+  if (safeUpdates.password !== undefined) payload.password = safeUpdates.password;
+  if (safeUpdates.alamat !== undefined) payload.alamat = safeUpdates.alamat;
+  if (safeUpdates.telepon !== undefined) payload.telepon = safeUpdates.telepon;
+  if (safeUpdates.jenisKelamin !== undefined) payload.jenis_kelamin = safeUpdates.jenisKelamin;
+  if (safeUpdates.tanggalLahir !== undefined) payload.tanggal_lahir = safeUpdates.tanggalLahir;
+  if (safeUpdates.avatarColor !== undefined) payload.avatar_color = safeUpdates.avatarColor;
+  if (safeUpdates.avatarUrl !== undefined) payload.avatar_url = safeUpdates.avatarUrl;
+  if (safeUpdates.bio !== undefined) payload.bio = safeUpdates.bio;
+
+  const { data: updatedRow, error } = await supabase
+    .from(MEMBERS_TABLE)
+    .update(payload)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error || !updatedRow) {
+    return { success: false, message: `Gagal update profil di Supabase: ${error?.message || 'Data tidak ditemukan'}` };
+  }
+
+  const updatedMember = mapMemberRowToModel(updatedRow as SupabaseMemberRow);
+
+  members[idx] = updatedMember;
   dbSave(DB_KEYS.MEMBERS, members);
 
   // Update session if it's the current user
   const current = getCurrentUser();
   if (current?.id === id) {
-    saveCurrentMember(members[idx]);
+    saveCurrentMember(updatedMember);
   }
-  return { success: true, message: 'Profil berhasil diperbarui.', member: members[idx] };
+  return { success: true, message: 'Profil berhasil diperbarui.', member: updatedMember };
 };
 
-export const deleteMember = (id: string, requestedById?: string, isSelfDelete: boolean = false): { success: boolean; message: string } => {
+export const deleteMember = async (id: string, requestedById?: string, isSelfDelete: boolean = false): Promise<{ success: boolean; message: string }> => {
   // === BACKEND VALIDATION: Admins or the user themselves can delete the account ===
   if (!requestedById) return { success: false, message: 'Akses ditolak.' };
   if (isSelfDelete && id !== requestedById) return { success: false, message: 'Akses ditolak: Anda hanya dapat menghapus akun Anda sendiri.' };
+
+  const { error } = await supabase.from(MEMBERS_TABLE).delete().eq('id', id);
+  if (error) {
+    return { success: false, message: `Gagal menghapus akun di Supabase: ${error.message}` };
+  }
 
   const members = getMembers().filter(m => m.id !== id);
   dbSave(DB_KEYS.MEMBERS, members);
@@ -114,54 +201,118 @@ const getDefaultAdmins = (): Admin[] => [
   },
 ];
 
-export const getAdmins = (): Admin[] => {
-  const data = localStorage.getItem(ADMINS_KEY);
-  if (!data) {
-    const defaultAdmins = getDefaultAdmins();
-    localStorage.setItem(ADMINS_KEY, JSON.stringify(defaultAdmins));
-    return defaultAdmins;
-  }
-  return JSON.parse(data);
+const cacheAdmins = (admins: Admin[]) => {
+  localStorage.setItem(ADMINS_KEY, JSON.stringify(admins));
 };
 
-export const addAdmin = (data: { namaLengkap: string; email: string; password: string; role: 'super_admin' | 'admin' }): { success: boolean; message: string } => {
-  const admins = getAdmins();
+const getCachedAdmins = (): Admin[] => {
+  const data = localStorage.getItem(ADMINS_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+const ensureDefaultAdmin = async () => {
+  const { data, error } = await supabase.from(ADMINS_TABLE).select('id').limit(1);
+  if (error) return;
+  if (data && data.length > 0) return;
+
+  const fallback = getDefaultAdmins()[0];
+  await supabase.from(ADMINS_TABLE).insert({
+    id: fallback.id,
+    nama_lengkap: fallback.namaLengkap,
+    email: fallback.email,
+    password_hash: fallback.password,
+    role: fallback.role,
+    tanggal_dibuat: fallback.tanggalDibuat,
+    avatar_color: fallback.avatarColor,
+  });
+};
+
+export const getAdmins = async (): Promise<Admin[]> => {
+  await ensureDefaultAdmin();
+  const { data, error } = await supabase
+    .from(ADMINS_TABLE)
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    const fallback = getCachedAdmins();
+    if (fallback.length) return fallback;
+    const defaultAdmins = getDefaultAdmins();
+    cacheAdmins(defaultAdmins);
+    return defaultAdmins;
+  }
+
+  const admins = (data || []).map((row) => mapAdminRowToModel(row as SupabaseAdminRow));
+  cacheAdmins(admins);
+  return admins;
+};
+
+export const addAdmin = async (data: { namaLengkap: string; email: string; password: string; role: 'super_admin' | 'admin' }): Promise<{ success: boolean; message: string }> => {
+  const admins = await getAdmins();
   if (admins.find(a => a.email === data.email))
     return { success: false, message: 'Email admin sudah terdaftar.' };
 
-  admins.push({
+  const payload = {
     id: generateId(),
-    ...data,
-    password: bcrypt.hashSync(data.password, 10),
-    tanggalDibuat: formatDateNow(),
-    avatarColor: avatarColors[Math.floor(Math.random() * avatarColors.length)],
-  });
-  localStorage.setItem(ADMINS_KEY, JSON.stringify(admins));
+    nama_lengkap: data.namaLengkap,
+    email: data.email.toLowerCase().trim(),
+    password_hash: bcrypt.hashSync(data.password, 10),
+    role: data.role,
+    tanggal_dibuat: formatDateNow(),
+    avatar_color: avatarColors[Math.floor(Math.random() * avatarColors.length)],
+  };
+
+  const { error } = await supabase.from(ADMINS_TABLE).insert(payload);
+  if (error) {
+    return { success: false, message: `Gagal menambah admin: ${error.message}` };
+  }
+
+  const refreshed = await getAdmins();
+  cacheAdmins(refreshed);
   return { success: true, message: `Admin "${data.namaLengkap}" berhasil ditambahkan.` };
 };
 
-export const deleteAdmin = (id: string): { success: boolean; message: string } => {
-  const admins = getAdmins();
+export const deleteAdmin = async (id: string): Promise<{ success: boolean; message: string }> => {
+  const admins = await getAdmins();
   const target = admins.find(a => a.id === id);
   if (target?.role === 'super_admin')
     return { success: false, message: 'Super Admin tidak dapat dihapus.' };
-  const filtered = admins.filter(a => a.id !== id);
-  localStorage.setItem(ADMINS_KEY, JSON.stringify(filtered));
+
+  const { error } = await supabase.from(ADMINS_TABLE).delete().eq('id', id);
+  if (error) {
+    return { success: false, message: `Gagal menghapus admin: ${error.message}` };
+  }
+
+  const filtered = (await getAdmins()).filter(a => a.id !== id);
+  cacheAdmins(filtered);
   return { success: true, message: 'Admin berhasil dihapus.' };
 };
 
-export const updateAdmin = (id: string, updates: Partial<Admin>): { success: boolean; message: string } => {
-  const admins = getAdmins();
+export const updateAdmin = async (id: string, updates: Partial<Admin>): Promise<{ success: boolean; message: string }> => {
+  const admins = await getAdmins();
   const idx = admins.findIndex(a => a.id === id);
   if (idx === -1) return { success: false, message: 'Admin tidak ditemukan.' };
-  admins[idx] = { ...admins[idx], ...updates };
-  localStorage.setItem(ADMINS_KEY, JSON.stringify(admins));
+
+  const payload: Record<string, any> = {};
+  if (updates.namaLengkap !== undefined) payload.nama_lengkap = updates.namaLengkap;
+  if (updates.email !== undefined) payload.email = updates.email.toLowerCase().trim();
+  if (updates.password !== undefined) payload.password_hash = bcrypt.hashSync(updates.password, 10);
+  if (updates.role !== undefined) payload.role = updates.role;
+  if (updates.avatarColor !== undefined) payload.avatar_color = updates.avatarColor;
+
+  const { error } = await supabase.from(ADMINS_TABLE).update(payload).eq('id', id);
+  if (error) {
+    return { success: false, message: `Gagal memperbarui admin: ${error.message}` };
+  }
+
+  cacheAdmins(await getAdmins());
   return { success: true, message: 'Admin berhasil diperbarui.' };
 };
 
-export const loginAdmin = (email: string, password: string): { success: boolean; message: string; admin?: Admin } => {
+export const loginAdmin = async (email: string, password: string): Promise<{ success: boolean; message: string; admin?: Admin }> => {
   const attempts = JSON.parse(localStorage.getItem(LOGIN_ATTEMPTS_KEY) || '{}');
-  const adminKey = `admin_${email.toLowerCase()}`;
+  const normalizedEmail = email.toLowerCase().trim();
+  const adminKey = `admin_${normalizedEmail}`;
 
   // Check lockout
   if (attempts[adminKey] && attempts[adminKey].count >= 5) {
@@ -175,8 +326,8 @@ export const loginAdmin = (email: string, password: string): { success: boolean;
     }
   }
 
-  const admins = getAdmins();
-  const admin = admins.find(a => a.email === email && bcrypt.compareSync(password, a.password));
+  const admins = await getAdmins();
+  const admin = admins.find(a => a.email === normalizedEmail && bcrypt.compareSync(password, a.password));
   
   if (!admin) {
     const count = (attempts[adminKey]?.count || 0) + 1;
@@ -204,7 +355,6 @@ export const loginAdmin = (email: string, password: string): { success: boolean;
 };
 
 export const getCurrentAdmin = (): Admin | null => {
-  // === SECURITY: Cross-verify session against the actual admin database ===
   const sessionStr = localStorage.getItem(CURRENT_ADMIN_KEY);
   if (!sessionStr) return null;
   
@@ -217,9 +367,7 @@ export const getCurrentAdmin = (): Admin | null => {
     return null;
   }
 
-  const adminId = sessionData.admin.id;
-  const verified = getAdmins().find(a => a.id === adminId);
-  return verified || null;
+  return sessionData.admin;
 };
 
 export const logoutAdmin = (): void => {

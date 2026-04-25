@@ -27,25 +27,23 @@ export default function AdminLogin() {
     }
   }, [navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
 
-    setTimeout(() => {
-      const result = loginAdmin(email, password);
-      if (result.success) {
-        setStatus('success');
-        if (rememberMe) {
-          localStorage.setItem('remembered_admin_email', email);
-        } else {
-          localStorage.removeItem('remembered_admin_email');
-        }
-        setTimeout(() => navigate('/admin'), 1000);
+    const result = await loginAdmin(email, password);
+    if (result.success) {
+      setStatus('success');
+      if (rememberMe) {
+        localStorage.setItem('remembered_admin_email', email);
       } else {
-        setStatus('error');
-        setErrorMsg(result.message);
+        localStorage.removeItem('remembered_admin_email');
       }
-    }, 800);
+      setTimeout(() => navigate('/admin'), 1000);
+    } else {
+      setStatus('error');
+      setErrorMsg(result.message);
+    }
   };
 
   return (

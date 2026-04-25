@@ -49,8 +49,17 @@ export default function Register() {
 
       if (result.success) {
         setTimeout(() => {
+          if (result.requiresEmailVerification && result.email) {
+            navigate('/login', {
+              state: {
+                registeredMessage:
+                  'Akun berhasil dibuat. Cek email Anda lalu klik link verifikasi. Jika link gagal, login lagi untuk membuka verifikasi manual.',
+              },
+            });
+            return;
+          }
           navigate('/login', { state: { registeredMessage: result.message } });
-        }, 2000);
+        }, 1200);
       } else {
         setIsSubmitting(false);
         setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);

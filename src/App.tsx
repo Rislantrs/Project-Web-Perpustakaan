@@ -13,6 +13,9 @@ import Register from './pages/Register';
 import RiwayatPinjaman from './pages/RiwayatPinjaman';
 import Profil from './pages/Profil';
 import ForgotPassword from './pages/ForgotPassword';
+import AuthCallback from './pages/AuthCallback';
+import AuthVerifyCode from './pages/AuthVerifyCode';
+import AuthUpdatePassword from './pages/AuthUpdatePassword';
 import NotFound from './pages/NotFound';
 import BlogList from './pages/BlogList';
 import ArticleDetail from './pages/ArticleDetail';
@@ -51,6 +54,7 @@ import JadwalLayanan from './pages/JadwalLayanan';
 import { refreshHomeArticles, migrateLegacyArticleImages, refreshCategories } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
 import { refreshBooks, migrateLegacyBookCovers } from './services/bookService';
+import { refreshMembersFromSupabase } from './services/supabaseAuthService';
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -78,6 +82,7 @@ function App() {
     refreshCategories();
     refreshSettings();
     refreshBooks();
+    void refreshMembersFromSupabase();
     migrateLegacyArticleImages();
     migrateLegacyBookCovers();
     
@@ -95,6 +100,7 @@ function App() {
           if (table === 'articles') refreshHomeArticles();
           else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
           else if (table === 'categories') refreshCategories();
+          else if (table === 'members') void refreshMembersFromSupabase();
           else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
           
           // Trigger global UI update
@@ -138,6 +144,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/auth/verify" element={<AuthVerifyCode />} />
+        <Route path="/auth/update-password" element={<AuthUpdatePassword />} />
         <Route path="/login-admin" element={<LoginAdmin />} />
         <Route path="/profil" element={<Profil />} />
 

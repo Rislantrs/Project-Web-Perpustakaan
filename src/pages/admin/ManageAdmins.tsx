@@ -10,28 +10,33 @@ export default function ManageAdmins() {
   const [form, setForm] = useState({ namaLengkap: '', email: '', password: '', role: 'admin' as 'admin' | 'super_admin' });
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
 
-  useEffect(() => { setAdmins(getAdmins()); }, []);
+  useEffect(() => {
+    const load = async () => {
+      setAdmins(await getAdmins());
+    };
+    void load();
+  }, []);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = addAdmin(form);
+    const result = await addAdmin(form);
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) {
-      setAdmins(getAdmins());
+      setAdmins(await getAdmins());
       setForm({ namaLengkap: '', email: '', password: '', role: 'admin' });
       setShowForm(false);
     }
   };
 
-  const handleDelete = (admin: Admin) => {
-    const result = deleteAdmin(admin.id);
+  const handleDelete = async (admin: Admin) => {
+    const result = await deleteAdmin(admin.id);
     showToast(result.message, result.success ? 'success' : 'error');
-    if (result.success) { setAdmins(getAdmins()); setConfirmDelete(null); }
+    if (result.success) { setAdmins(await getAdmins()); setConfirmDelete(null); }
   };
 
   return (

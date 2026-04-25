@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router';
 import { useState, useEffect, useMemo } from 'react';
 import { LogIn, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -8,6 +8,7 @@ import { loginWithSupabase } from '../services/supabaseAuthService';
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [emailOrId, setEmailOrId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -46,13 +47,23 @@ export default function Login() {
       window.history.replaceState({}, document.title);
     }
 
+    if (searchParams.get('verified') === '1') {
+      setToast({ show: true, message: 'Email berhasil diverifikasi. Silakan login.', type: 'success' });
+      setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000);
+    }
+
+    if (searchParams.get('reset') === '1') {
+      setToast({ show: true, message: 'Password berhasil diperbarui. Silakan login.', type: 'success' });
+      setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000);
+    }
+
     // Check remembered email
     const saved = localStorage.getItem('remembered_user_id');
     if (saved) {
       setEmailOrId(saved);
       setRememberMe(true);
     }
-  }, [location]);
+  }, [location, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +85,12 @@ export default function Login() {
         // Immediate redirection
         window.location.href = '/perpustakaan';
       } else {
+        if (result.needsVerification && result.email) {
+          sessionStorage.setItem('allow_auth_verify', '1');
+          sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
+          navigate(`/auth/verify?email=${encodeURIComponent(result.email)}`);
+          return;
+        }
         setToast({ show: true, message: result.message, type: 'error' });
         setIsSubmitting(false);
       }
@@ -156,13 +173,13 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Anggota / Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
-                type="text"
+                type="email"
                 value={emailOrId}
                 onChange={(e) => setEmailOrId(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
-                placeholder="Masukkan ID atau Email"
+                placeholder="Masukkan email terdaftar"
               />
             </div>
             <div>
@@ -213,6 +230,7 @@ export default function Login() {
                 </>
               )}
             </button>
+
           </form>
 
           <p className="text-center mt-8 text-sm text-gray-600">

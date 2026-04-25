@@ -1,4 +1,4 @@
-import { ChevronLeft, User, Calendar, Clock, Share2, Bookmark, Check, X, ChevronRight, Download } from 'lucide-react';
+import { ChevronLeft, User, Calendar, Clock, Share2, Bookmark, Check, X, ChevronRight, Download, PenTool } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useParams } from 'react-router';
 import { getArticleBySlug, incrementArticleViews } from '../services/dataService';
@@ -16,6 +16,8 @@ export default function ArticleDetail() {
   const [lightboxData, setLightboxData] = useState<{title: string, images: string[], currentIndex: number} | null>(null);
 
   const isGalleryType = article && ['Galeri', 'Galeri Perpus Keliling'].includes(article.category);
+  const isColoringMedia = article?.category === 'Media Mewarnai';
+  const isPdfAsset = typeof article?.img === 'string' && (article.img.startsWith('data:application/pdf') || /\.pdf([?#].*)?$/i.test(article.img));
   const galleryImages = useMemo(() => {
     if (!isGalleryType || !article?.content) return [];
     try {
@@ -108,6 +110,46 @@ export default function ArticleDetail() {
     }
   };
 
+  const handleDownload = async (customUrl?: string) => {
+    const targetUrl = customUrl || article?.img;
+    if (!targetUrl) return;
+    
+    try {
+        // Jika URL adalah base64/data url, fetch langsung bisa
+        // Jika URL eksternal, kita coba fetch dulu
+        const response = await fetch(targetUrl, { mode: 'cors' });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        const extension = isPdfAsset ? 'pdf' : 'jpg';
+        // Bersihkan nama file dari karakter ilegal
+        const safeTitle = (article.title || 'download').replace(/[/\\?%*:|"<>]/g, '-');
+        link.setAttribute('download', `${safeTitle}.${extension}`);
+        
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error('Gagal download via fetch, mencoba fallback...', err);
+        // FALLBACK: Gunakan cara paling aman (buka di tab baru / direct link)
+        // Atribut 'download' di sini mungkin tidak jalan di cross-origin, 
+        // tapi ini cara terakhir agar file tidak korup.
+        const link = document.createElement('a');
+        link.href = targetUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        // Jika bukan base64, kita paksa buka di tab baru agar user bisa 'Save Image As'
+        // Ini lebih baik daripada download file kosong/error.
+        link.click();
+    }
+  };
+
   if (!article) {
     return (
       <div className="bg-white min-h-screen pt-32 pb-24 text-center">
@@ -117,8 +159,103 @@ export default function ArticleDetail() {
     );
   }
 
+  if (isColoringMedia) {
+    return (
+      <div className="bg-[#050505] min-h-screen text-white font-sans">
+        {/* Cinematic Header */}
+        <div className="sticky top-0 z-40 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <Link
+              to={article.category ? `/artikel?kategori=${encodeURIComponent(article.category)}` : '/artikel'}
+              className="group flex items-center gap-3 text-sm font-bold text-white/50 hover:text-white transition-all"
+            >
+              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                <ChevronLeft size={18} />
+              </div>
+              <span className="hidden sm:inline">Kembali ke Media Mewarnai</span>
+            </Link>
+
+            <div className="flex items-center gap-4">
+                <button 
+                  onClick={handleShare}
+                  className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all border border-white/10"
+                >
+                    <Share2 size={20} />
+                </button>
+                <button
+                  onClick={() => handleDownload()}
+                  className="inline-flex items-center gap-2 bg-[#d6a54a] text-[#0c2f3d] px-6 py-2.5 rounded-full font-black text-sm uppercase tracking-wider hover:bg-white hover:text-[#0c2f3d] transition-all shadow-[0_10px_30px_rgba(214,165,74,0.3)] hover:shadow-[0_10px_40px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <Download size={18} /> Download
+                </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-12 text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d6a54a]/10 border border-[#d6a54a]/20 text-[#d6a54a] text-[10px] font-black uppercase tracking-[0.2em] mb-6">
+                <PenTool size={12} /> Kreativitas Anak
+            </div>
+            <h1 className="font-serif text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">{article.title}</h1>
+            {article.excerpt && (
+                <p className="text-white/40 text-lg max-w-2xl mx-auto font-medium leading-relaxed italic">
+                    "{article.excerpt}"
+                </p>
+            )}
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="relative"
+          >
+            {/* Glow Effect */}
+            <div className="absolute inset-0 bg-[#d6a54a]/5 blur-[120px] rounded-full"></div>
+            
+            <div className="relative rounded-[2.5rem] border border-white/10 bg-[#0f0f10] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
+                <div className="h-[70vh] md:h-[85vh] flex items-center justify-center bg-[#151516] p-4 md:p-12">
+                {isPdfAsset ? (
+                    <iframe src={article.img} title={article.title} className="w-full h-full rounded-2xl" />
+                ) : (
+                    <div className="relative w-full h-full flex items-center justify-center">
+                        <SafeImage
+                            src={article.img}
+                            alt={article.title}
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                        />
+                        <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-lg pointer-events-none"></div>
+                    </div>
+                )}
+                </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-8 flex flex-col items-center gap-6"
+          >
+              <div className="flex items-center gap-3 text-white/20">
+                <div className="h-px w-12 bg-white/10"></div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em]">Siap untuk diunduh dan diwarnai</p>
+                <div className="h-px w-12 bg-white/10"></div>
+              </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen pt-12 pb-24">
+
       {/* Container for Article */}
       <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -158,6 +295,7 @@ export default function ArticleDetail() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+
                <button 
                  onClick={handleShare}
                  className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
@@ -184,11 +322,17 @@ export default function ArticleDetail() {
         {/* Hero Image */}
         <figure className="mb-12">
           <div className="w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden shadow-lg border border-gray-100 bg-gray-50 flex items-center justify-center">
-            {article.img ? (
+            {article.img ? isPdfAsset ? (
+              <iframe
+                src={article.img}
+                title={article.title}
+                className="w-full h-full"
+              />
+            ) : (
               <SafeImage 
                 src={article.img} 
                 alt={article.title} 
-                className="w-full h-full object-cover"
+                className={`w-full h-full ${isColoringMedia ? 'object-contain' : 'object-cover'}`}
                 style={{ objectPosition: article.imgPosition || 'center' }}
               />
             ) : (
@@ -214,6 +358,30 @@ export default function ArticleDetail() {
                    </div>
                  </div>
                ))}
+            </div>
+          </div>
+        ) : isColoringMedia ? (
+          <div className="mt-8 rounded-2xl border border-gray-100 bg-gray-50/50 p-6">
+            <h3 className="font-serif text-2xl font-bold text-[#1a1a1a] mb-3">Media Mewarnai</h3>
+            <p className="text-gray-700 leading-relaxed">{article.excerpt || 'Gunakan tombol unduh untuk menyimpan lembar mewarnai, lalu cetak sesuai kebutuhan.'}</p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {!isPdfAsset && (
+                <button
+                  onClick={() => setLightboxData({ title: article.title, images: [article.img], currentIndex: 0 })}
+                  className="inline-flex items-center gap-2 bg-[#0c2f3d] text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-[#17485a] transition-colors"
+                >
+                  <Share2 size={16} /> Lihat Gambar Penuh
+                </button>
+              )}
+              <a
+                href={article.img}
+                download={`${article.title}${isPdfAsset ? '.pdf' : '.jpg'}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 bg-[#d6a54a] text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-[#c09440] transition-colors"
+              >
+                <Download size={16} /> Unduh Media
+              </a>
             </div>
           </div>
         ) : (
@@ -308,15 +476,12 @@ export default function ArticleDetail() {
                    </div>
                  )}
 
-                 <a 
-                   href={lightboxData.images[lightboxData.currentIndex]} 
-                   download={`${lightboxData.title}-${lightboxData.currentIndex + 1}.jpg`}
-                   target="_blank"
-                   rel="noreferrer"
+                 <button 
+                   onClick={() => handleDownload(lightboxData.images[lightboxData.currentIndex])}
                    className="mt-2 flex items-center gap-2 bg-[#d6a54a] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#c09440] transition-transform hover:scale-105 shadow-lg"
                  >
                    <Download size={20} /> Unduh Gambar
-                 </a>
+                 </button>
               </div>
             </div>
           </motion.div>

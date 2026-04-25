@@ -1,10 +1,28 @@
-import { dbGet, dbSave, DB_KEYS } from './db';
+import { dbSave, DB_KEYS } from './db';
 import { v4 as uuidv4 } from 'uuid';
 import { sanitizeObject } from '../utils/security';
 import { supabase } from './supabase';
 import { uploadDataUrlImage } from './storageService';
 
-export type CategoryType = 'articles' | 'books';
+export type CategoryType = 'books';
+
+export const ARTICLE_EDITOR_CATEGORIES = [
+  'Berita Terkini',
+  'Pojok Carita',
+  'Kedinasan',
+  'Media Mewarnai',
+  'Perpus Keliling',
+  'Serba-serbi Purwakarta',
+  'Edukasi',
+  'Statistik',
+] as const;
+
+export const ARTICLE_CATEGORIES = [
+  ...ARTICLE_EDITOR_CATEGORIES,
+  'Galeri',
+  'Galeri Perpus Keliling',
+  'Video Terkini',
+] as const;
 
 export interface Category {
   id: string;
@@ -36,15 +54,6 @@ const failedArticleImageMigrationIds = new Set<string>();
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
 const CATEGORY_STORAGE_KEY = DB_KEYS.CATEGORIES;
-const DEFAULT_ARTICLE_CATEGORIES: Category[] = [
-  { id: 'cat-art-1', name: 'Berita Terkini', slug: 'berita-terkini', type: 'articles' },
-  { id: 'cat-art-2', name: 'Pojok Carita', slug: 'pojok-carita', type: 'articles' },
-  { id: 'cat-art-3', name: 'Kedinasan', slug: 'kedinasan', type: 'articles' },
-  { id: 'cat-art-4', name: 'Media Mewarnai', slug: 'media-mewarnai', type: 'articles' },
-  { id: 'cat-art-5', name: 'Perpus Keliling', slug: 'perpus-keliling', type: 'articles' },
-  { id: 'cat-art-6', name: 'Serba-serbi Purwakarta', slug: 'serba-serbi-purwakarta', type: 'articles' },
-  { id: 'cat-art-7', name: 'Statistik', slug: 'statistik', type: 'articles' },
-];
 const DEFAULT_BOOK_CATEGORIES: Category[] = [
   { id: 'cat-book-1', name: 'Fiksi', slug: 'fiksi', type: 'books' },
   { id: 'cat-book-2', name: 'Non-Fiksi', slug: 'non-fiksi', type: 'books' },
@@ -91,20 +100,19 @@ const slugify = (value: string) =>
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-const seedCategories = (): Category[] => [...DEFAULT_ARTICLE_CATEGORIES, ...DEFAULT_BOOK_CATEGORIES];
+const seedCategories = (): Category[] => [...DEFAULT_BOOK_CATEGORIES];
 
 const normalizeCategory = (row: Partial<Category>): Category => ({
   id: row.id || '',
   name: row.name || '',
   slug: row.slug || '',
-  type: row.type === 'books' ? 'books' : 'articles',
+  type: 'books',
   createdAt: row.createdAt,
 });
 
-export const getCategories = (type?: CategoryType): Category[] => {
+export const getCategories = (_type: CategoryType = 'books'): Category[] => {
   const source = categoryCache.length > 0 ? categoryCache : seedCategories();
-  const filtered = type ? source.filter(category => category.type === type) : source;
-  return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'id'));
+  return [...source].sort((a, b) => a.name.localeCompare(b.name, 'id'));
 };
 
 export const refreshCategories = async (): Promise<Category[]> => {
@@ -112,7 +120,7 @@ export const refreshCategories = async (): Promise<Category[]> => {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .order('type', { ascending: true })
+      .eq('type', 'books')
       .order('name', { ascending: true });
 
     if (error) throw error;
@@ -135,23 +143,24 @@ export const refreshCategories = async (): Promise<Category[]> => {
 
 export const addCategory = async (data: { name: string; type: CategoryType; slug?: string }, requestedByAdminId?: string): Promise<{ success: boolean; message: string; category?: Category }> => {
   if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menambah kategori.' };
+  if (data.type !== 'books') return { success: false, message: 'Kategori dinamis hanya tersedia untuk katalog buku.' };
 
   const name = data.name.trim();
   if (!name) return { success: false, message: 'Nama kategori tidak boleh kosong.' };
 
   const slug = slugify(data.slug || name);
-  const existing = getCategories(data.type).find(category => category.slug === slug || category.name.toLowerCase() === name.toLowerCase());
+  const existing = getCategories('books').find(category => category.slug === slug || category.name.toLowerCase() === name.toLowerCase());
   if (existing) return { success: false, message: 'Kategori dengan nama yang sama sudah ada.' };
 
   const category: Category = {
     id: `cat-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     name,
     slug,
-    type: data.type,
+    type: 'books',
     createdAt: new Date().toISOString(),
   };
 
-  const nextCategories = [...getCategories(), category];
+  const nextCategories = [...getCategories('books'), category];
   categoryCache = nextCategories;
   dbSave(CATEGORY_STORAGE_KEY, nextCategories);
 

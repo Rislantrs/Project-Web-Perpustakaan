@@ -1,30 +1,61 @@
+import { useState } from 'react';
 import { Link, Outlet, useLocation, Navigate, useNavigate } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags, ChevronDown } from 'lucide-react';
 import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    utama: true,
+    konten: true,
+    layanan: true,
+    sistem: true,
+  });
 
   if (!isAdminLoggedIn()) {
     return <Navigate to="/login-admin" replace />;
   }
 
-  const navItems = [
-    { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
-    { name: 'Konfirmasi Ambil', path: '/admin/borrows', icon: <LucideHistory size={20} /> },
-    { name: 'Kelola Buku', path: '/admin/books', icon: <BookOpen size={20} /> },
-    { name: 'Kelola Kategori', path: '/admin/categories', icon: <Tags size={20} /> },
-    { name: 'Kelola Member', path: '/admin/members', icon: <Users size={20} /> },
-    { name: 'Semua Artikel', path: '/admin/articles', icon: <FileText size={20} /> },
-    { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
-    { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
-    { name: 'Struktur & Prestasi', path: '/admin/structure', icon: <Network size={20} /> },
-    { name: 'Jadwal Layanan', path: '/admin/schedules', icon: <Clock size={20} /> },
-    { name: 'Kelola PPID', path: '/admin/ppid', icon: <FileText size={20} /> },
-    { name: 'Laporan Warga', path: '/admin/reports', icon: <MessageSquare size={20} /> },
-    { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
-    { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
+  const navGroups = [
+    {
+      id: 'utama',
+      title: 'Utama',
+      items: [
+        { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
+      ],
+    },
+    {
+      id: 'konten',
+      title: 'Konten & Koleksi',
+      items: [
+        { name: 'Kelola Buku', path: '/admin/books', icon: <BookOpen size={20} /> },
+        { name: 'Kelola Kategori', path: '/admin/categories', icon: <Tags size={20} /> },
+        { name: 'Semua Artikel', path: '/admin/articles', icon: <FileText size={20} /> },
+        { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
+        { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
+      ],
+    },
+    {
+      id: 'layanan',
+      title: 'Layanan & Publik',
+      items: [
+        { name: 'Konfirmasi Ambil', path: '/admin/borrows', icon: <LucideHistory size={20} /> },
+        { name: 'Kelola Member', path: '/admin/members', icon: <Users size={20} /> },
+        { name: 'Jadwal Layanan', path: '/admin/schedules', icon: <Clock size={20} /> },
+        { name: 'Kelola PPID', path: '/admin/ppid', icon: <FileText size={20} /> },
+        { name: 'Laporan Warga', path: '/admin/reports', icon: <MessageSquare size={20} /> },
+      ],
+    },
+    {
+      id: 'sistem',
+      title: 'Organisasi & Sistem',
+      items: [
+        { name: 'Struktur & Prestasi', path: '/admin/structure', icon: <Network size={20} /> },
+        { name: 'Manajemen Admin', path: '/admin/admins', icon: <Shield size={20} /> },
+        { name: 'Pengaturan', path: '/admin/settings', icon: <Settings size={20} /> },
+      ],
+    },
   ];
 
 
@@ -40,24 +71,48 @@ export default function AdminLayout() {
         </div>
         
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path || 
-                             (location.pathname.startsWith('/admin/articles') && item.path === '/admin/articles' && location.pathname !== '/admin/articles/new');
-            
+          {navGroups.map((group) => {
+            const isGroupActive = group.items.some((item) => {
+              return location.pathname === item.path ||
+                (location.pathname.startsWith('/admin/articles') && item.path === '/admin/articles' && location.pathname !== '/admin/articles/new');
+            });
+
             return (
-              <Link 
-                key={item.path} 
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive 
-                    ? 'bg-[#0c2f3d]/5 text-[#0c2f3d]' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                {item.icon}
-                {item.name}
-              </Link>
-            )
+              <div key={group.id} className="mb-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenGroups((prev) => ({ ...prev, [group.id]: !prev[group.id] }))}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${isGroupActive ? 'text-[#0c2f3d] bg-[#0c2f3d]/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                >
+                  <span>{group.title}</span>
+                  <ChevronDown size={14} className={`transition-transform ${openGroups[group.id] ? 'rotate-180' : ''}`} />
+                </button>
+
+                {openGroups[group.id] && (
+                  <div className="mt-1 space-y-1">
+                    {group.items.map((item) => {
+                      const isActive = location.pathname === item.path ||
+                        (location.pathname.startsWith('/admin/articles') && item.path === '/admin/articles' && location.pathname !== '/admin/articles/new');
+
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            isActive
+                              ? 'bg-[#0c2f3d]/5 text-[#0c2f3d]'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          }`}
+                        >
+                          {item.icon}
+                          {item.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
           })}
         </nav>
 

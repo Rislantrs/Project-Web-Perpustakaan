@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Shield, Mail, Lock, CheckCircle, AlertCircle, ArrowLeft, Key } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, ArrowLeft, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { resetPasswordWithSupabase } from '../services/supabaseAuthService';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [nik, setNik] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [msg, setMsg] = useState('');
 
@@ -64,7 +61,7 @@ export default function ForgotPassword() {
               )}
               {status === 'success' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="bg-emerald-50 text-emerald-600 p-4 rounded-2xl text-xs font-bold flex items-center gap-3 border border-emerald-100">
-                  <CheckCircle size={16} /> {msg} Mengalihkan...
+                  <CheckCircle size={16} /> {msg}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -81,49 +78,16 @@ export default function ForgotPassword() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">NIK (Masked)</label>
-              <div className="relative group">
-                <Shield size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
-                <input 
-                  value={nik} onChange={e => setNik(e.target.value)}
-                  type="text" placeholder="****************7406" 
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all font-mono" 
-                />
-              </div>
-              <p className="text-[10px] text-gray-400 mt-1 px-1">Field NIK dipertahankan untuk kompatibilitas data lama.</p>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Sandi Baru</label>
-              <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
-                <input 
-                  value={newPassword} onChange={e => setNewPassword(e.target.value)}
-                  type="password" placeholder="Minimal 6 karakter" minLength={6}
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all" 
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Konfirmasi Sandi Baru</label>
-              <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
-                <input 
-                  value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-                  type="password" placeholder="Ulangi sandi baru" 
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all" 
-                />
-              </div>
-            </div>
-
             <button 
               disabled={status === 'loading' || status === 'success'}
               className="w-full bg-[#0c2f3d] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#0c2f3d]/20 hover:bg-[#1a4254] transition-all disabled:opacity-50"
             >
-              {status === 'loading' ? 'Memproses...' : 'Ubah Kata Sandi'}
+              {status === 'loading' ? 'Memproses...' : 'Kirim Link Reset Password'}
             </button>
+
+            <p className="text-[11px] text-gray-500 leading-relaxed">
+              Setelah klik link di email, Anda akan diarahkan ke halaman aman di website ini untuk membuat password baru.
+            </p>
           </form>
         </motion.div>
 

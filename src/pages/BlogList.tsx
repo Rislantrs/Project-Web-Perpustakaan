@@ -2,7 +2,7 @@ import { Link, useSearchParams } from 'react-router';
 import { ChevronRight, Calendar, User, Search, Filter, X, Download, Image as ImageIcon } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { fetchArticlesPage, Article } from '../services/dataService';
+import { fetchArticlesPage, Article, ARTICLE_CATEGORIES } from '../services/dataService';
 
 
 
@@ -168,14 +168,9 @@ export default function BlogList() {
               className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700"
             >
               <option value="Semua Kategori">Semua Kategori</option>
-              <option value="Berita Terkini">Berita Terkini</option>
-              <option value="Pojok Carita">Pojok Carita</option>
-              <option value="Kedinasan">Kedinasan</option>
-              <option value="Media Mewarnai">Media Mewarnai</option>
-              <option value="Galeri">Galeri Foto</option>
-              <option value="Galeri Perpus Keliling">Galeri Perpus Keliling</option>
-              <option value="Serba-serbi Purwakarta">Serba-serbi Purwakarta</option>
-              <option value="Statistik">Statistik</option>
+              {ARTICLE_CATEGORIES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
             </select>
 
             <select 
