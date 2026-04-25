@@ -1,7 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { consumeAuthCallbackUrl } from '../services/supabaseAuthService';
+import { consumeAuthCallbackUrl, verifyAuthCallbackTokenHash } from '../services/supabaseAuthService';
+
+const getCallbackParams = () => {
+  const url = new URL(window.location.href);
+  const query = url.searchParams;
+  const hash = new URLSearchParams((url.hash || '').replace(/^#/, ''));
+
+  const tokenHash = query.get('token_hash') || hash.get('token_hash') || '';
+  const typeRaw = (query.get('type') || hash.get('type') || '').toLowerCase();
+  const type = typeRaw === 'signup' || typeRaw === 'magiclink' ? typeRaw : '';
+
+  return {
+    tokenHash,
+    type,
+  };
+};
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -12,7 +27,13 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const process = async () => {
-      const result = await consumeAuthCallbackUrl();
+      const { tokenHash, type } = getCallbackParams();
+
+      // Explicit OTP callback flow for email verification links (signup/magiclink).
+      const result = tokenHash && type
+        ? await verifyAuthCallbackTokenHash(tokenHash, type)
+        : await consumeAuthCallbackUrl();
+
       if (!result.success) {
         sessionStorage.setItem('allow_auth_verify', '1');
         sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
@@ -23,6 +44,12 @@ export default function AuthCallback() {
       if (result.type === 'recovery') {
         setState({ status: 'success', message: 'Verifikasi reset berhasil. Silakan buat password baru.' });
         setTimeout(() => navigate('/auth/update-password'), 1000);
+        return;
+      }
+
+      if (result.type === 'magiclink') {
+        setState({ status: 'success', message: 'Autentikasi berhasil. Anda akan diarahkan ke dashboard.' });
+        setTimeout(() => navigate('/perpustakaan'), 1000);
         return;
       }
 

@@ -288,6 +288,8 @@ export type AuthCallbackResult = {
   type?: string;
 };
 
+type CallbackOtpType = 'signup' | 'magiclink';
+
 const parseAuthUrl = (inputUrl: string) => {
   const url = new URL(inputUrl);
   const queryParams = url.searchParams;
@@ -436,6 +438,26 @@ export const consumeAuthCallbackUrl = async (): Promise<AuthCallbackResult> => {
   } catch (err: any) {
     return { success: false, message: err?.message || 'Gagal memproses link autentikasi.' };
   }
+};
+
+export const verifyAuthCallbackTokenHash = async (
+  tokenHash: string,
+  type: CallbackOtpType,
+): Promise<AuthCallbackResult> => {
+  const { data, error } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type,
+  });
+
+  if (error) {
+    return { success: false, message: error.message, type };
+  }
+
+  if (data.user) {
+    syncMemberFromAuthUser(data.user);
+  }
+
+  return { success: true, message: 'Link verifikasi berhasil diproses.', type };
 };
 
 export const consumeAuthCallbackFromLink = async (link: string): Promise<AuthCallbackResult> => {

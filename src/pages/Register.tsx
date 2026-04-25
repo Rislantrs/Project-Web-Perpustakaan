@@ -50,12 +50,9 @@ export default function Register() {
       if (result.success) {
         setTimeout(() => {
           if (result.requiresEmailVerification && result.email) {
-            navigate('/login', {
-              state: {
-                registeredMessage:
-                  'Akun berhasil dibuat. Cek email Anda lalu klik link verifikasi. Jika link gagal, login lagi untuk membuka verifikasi manual.',
-              },
-            });
+            sessionStorage.setItem('allow_auth_verify', '1');
+            sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
+            navigate(`/auth/verify?email=${encodeURIComponent(result.email)}`);
             return;
           }
           navigate('/login', { state: { registeredMessage: result.message } });
