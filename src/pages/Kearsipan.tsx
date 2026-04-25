@@ -224,7 +224,7 @@ export default function Kearsipan() {
           </div>
 
           <div className="mt-16 text-center max-w-2xl mx-auto bg-[#f8f9fa] p-6 rounded-2xl border border-gray-200">
-            <p className="text-gray-700 font-medium">Bisa juga menelusuri katalog online melalui SIKN terlebih dahulu di website <a href="#" className="text-[#d6a54a] font-bold hover:underline">JIKN (Jaringan Informasi Kearsipan Nasional)</a> sebelum berkunjung secara fisik.</p>
+            <p className="text-gray-700 font-medium">Bisa juga menelusuri katalog online melalui SIKN terlebih dahulu di website <a href="https://jikn.anri.go.id/" target="_blank" rel="noopener noreferrer" className="text-[#d6a54a] font-bold hover:underline">JIKN (Jaringan Informasi Kearsipan Nasional)</a> sebelum berkunjung secara fisik.</p>
           </div>
         </div>
       </section>
