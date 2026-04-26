@@ -92,7 +92,7 @@ export const initializeDB = () => {
   if (admins.length === 0) {
     const defaultAdmins = [
       {
-        id: 'A-1',
+        id: '00000000-0000-0000-0000-000000000001',
         namaLengkap: 'Super Admin',
         email: 'admin@disipusda.go.id',
         password: 'admin123',

@@ -200,7 +200,7 @@ export const getInitials = (name: string): string =>
 
 const getDefaultAdmins = (): Admin[] => [
   {
-    id: 'A-1',
+    id: '00000000-0000-0000-0000-000000000001',
     namaLengkap: 'Super Admin',
     email: 'admin@disipusda.go.id',
     password: '$2a$10$wR.lXz.vXWzJvXw.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X',
