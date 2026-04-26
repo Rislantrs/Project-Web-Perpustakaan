@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Shield, Plus, Trash2, Mail, Calendar, X, CheckCircle, AlertCircle, Crown, User } from 'lucide-react';
-import { getAdmins, addAdmin, deleteAdmin, getInitials, type Admin } from '../../services/authService';
+import { Shield, Plus, Trash2, Mail, Calendar, X, CheckCircle, AlertCircle, Crown, User, Pencil, Key } from 'lucide-react';
+import { getAdmins, addAdmin, deleteAdmin, updateAdmin, getInitials, getCurrentAdmin, type Admin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function ManageAdmins() {
   const [admins, setAdmins] = useState<Admin[]>([]);
+  const [currentAdmin] = useState(() => getCurrentAdmin());
   const [showForm, setShowForm] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Admin | null>(null);
   const [form, setForm] = useState({ namaLengkap: '', email: '', password: '', role: 'admin' as 'admin' | 'super_admin' });
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
-    // Initial load daftar admin dari service auth.
     const load = async () => {
       setAdmins(await getAdmins());
     };
@@ -23,23 +24,58 @@ export default function ManageAdmins() {
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setForm({ namaLengkap: '', email: '', password: '', role: 'admin' });
+    setEditingAdmin(null);
+    setShowForm(false);
+  };
+
+  const handleEditClick = (admin: Admin) => {
+    setEditingAdmin(admin);
+    setForm({
+      namaLengkap: admin.namaLengkap,
+      email: admin.email,
+      password: '', // Password dikosongkan kecuali mau ganti
+      role: admin.role
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validasi detail dilakukan di service (email unik, role, dsb).
-    const result = await addAdmin(form);
-    showToast(result.message, result.success ? 'success' : 'error');
-    if (result.success) {
-      setAdmins(await getAdmins());
-      setForm({ namaLengkap: '', email: '', password: '', role: 'admin' });
-      setShowForm(false);
+    
+    if (editingAdmin) {
+      const updates: any = {
+        namaLengkap: form.namaLengkap,
+        email: form.email,
+        role: form.role
+      };
+      if (form.password) updates.password = form.password;
+      
+      const result = await updateAdmin(editingAdmin.id, updates);
+      showToast(result.message, result.success ? 'success' : 'error');
+      if (result.success) {
+        setAdmins(await getAdmins());
+        resetForm();
+      }
+    } else {
+      const result = await addAdmin(form);
+      showToast(result.message, result.success ? 'success' : 'error');
+      if (result.success) {
+        setAdmins(await getAdmins());
+        resetForm();
+      }
     }
   };
 
   const handleDelete = async (admin: Admin) => {
-    // Guard role super_admin diterapkan pada UI (tombol hapus tidak ditampilkan).
     const result = await deleteAdmin(admin.id);
     showToast(result.message, result.success ? 'success' : 'error');
-    if (result.success) { setAdmins(await getAdmins()); setConfirmDelete(null); }
+    if (result.success) { 
+      setAdmins(await getAdmins()); 
+      setConfirmDelete(null); 
+    }
   };
 
   return (
@@ -83,24 +119,28 @@ export default function ManageAdmins() {
           <p className="text-sm text-gray-500 mt-1">{admins.length} admin terdaftar</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => { if (showForm && editingAdmin) resetForm(); else setShowForm(!showForm); }}
           className="flex items-center gap-2 px-4 py-2.5 bg-[#0c2f3d] text-white text-sm font-medium rounded-xl hover:bg-[#1a4254] transition-colors shadow-sm"
         >
-          <Plus size={18} /> Tambah Admin
+          {showForm && editingAdmin ? <X size={18} /> : <Plus size={18} />}
+          {showForm && editingAdmin ? 'Batal Edit' : 'Tambah Admin'}
         </button>
       </div>
 
-      {/* Add Admin Form */}
+      {/* Admin Form (Add/Edit) */}
       <AnimatePresence>
         {showForm && (
           <motion.div
             initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden mb-6"
           >
-            <form onSubmit={handleAdd} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-semibold text-gray-800 flex items-center gap-2"><Shield size={18} className="text-[#0c2f3d]" /> Tambah Admin Baru</h2>
-                <button type="button" onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+                <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+                  {editingAdmin ? <Pencil size={18} className="text-[#d6a54a]" /> : <Shield size={18} className="text-[#0c2f3d]" />}
+                  {editingAdmin ? 'Edit Detail Admin' : 'Tambah Admin Baru'}
+                </h2>
+                <button type="button" onClick={resetForm} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -112,8 +152,13 @@ export default function ManageAdmins() {
                   <input type="email" required value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="admin@disipusda.go.id" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Password *</label>
-                  <input type="password" required value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                    {editingAdmin ? 'Password Baru (Opsional)' : 'Password *'}
+                  </label>
+                  <div className="relative">
+                    <input type="password" required={!editingAdmin} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder={editingAdmin ? "Kosongkan jika tidak ingin ganti" : "••••••••"} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
+                    {editingAdmin && <Key size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Role</label>
@@ -124,8 +169,10 @@ export default function ManageAdmins() {
                 </div>
               </div>
               <div className="flex justify-end gap-3">
-                <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Batal</button>
-                <button type="submit" className="px-5 py-2.5 bg-[#0c2f3d] text-white rounded-xl text-sm font-medium hover:bg-[#1a4254] transition-colors">Simpan Admin</button>
+                <button type="button" onClick={resetForm} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Batal</button>
+                <button type="submit" className="px-5 py-2.5 bg-[#0c2f3d] text-white rounded-xl text-sm font-medium hover:bg-[#1a4254] transition-colors">
+                  {editingAdmin ? 'Update Data' : 'Simpan Admin'}
+                </button>
               </div>
             </form>
           </motion.div>
@@ -138,7 +185,7 @@ export default function ManageAdmins() {
           <motion.div
             key={admin.id}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow"
+            className={`bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all ${editingAdmin?.id === admin.id ? 'border-[#d6a54a] ring-1 ring-[#d6a54a]/20' : 'border-gray-100'}`}
           >
             <div className="flex items-start gap-4">
               {/* Avatar */}
@@ -165,14 +212,26 @@ export default function ManageAdmins() {
                 </div>
               </div>
 
-              {admin.role !== 'super_admin' && (
+              <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => setConfirmDelete(admin)}
-                  className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                  onClick={() => handleEditClick(admin)}
+                  className="p-1.5 text-gray-300 hover:text-[#d6a54a] hover:bg-[#d6a54a]/5 rounded-lg transition-colors shrink-0"
+                  title="Edit Admin"
                 >
-                  <Trash2 size={15} />
+                  <Pencil size={15} />
                 </button>
-              )}
+                
+                {/* Hanya tampilkan hapus jika bukan diri sendiri */}
+                {admin.id !== currentAdmin?.id && (
+                  <button
+                    onClick={() => setConfirmDelete(admin)}
+                    className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                    title="Hapus Admin"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
         ))}
