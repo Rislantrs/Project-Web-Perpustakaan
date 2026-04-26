@@ -1,6 +1,6 @@
 import { ChevronRight, ShieldCheck, ThumbsUp, HeartHandshake, AlertOctagon } from 'lucide-react';
 import { Link } from 'react-router';
-import zonaImg from '../assets/lainLain/zonaIntegritas/zonaintegritas.webp';
+import zonaImg from '../assets/lainLain/zonaIntegritas/zonaIntegritas.webp';
 
 // Catatan maintenance:
 // halaman ini dominan kampanye visual + teks statis komitmen integritas.
