@@ -340,22 +340,16 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
   }
 
   const admins = await getAdmins();
-  console.log('DEBUG: Jumlah admin di DB:', admins.length);
   
   const admin = admins.find(a => {
     if (a.email !== normalizedEmail) return false;
     
-    // PRIORITAS: Cek tulisan biasa dulu (biar Mas gampang kalau edit manual di DB)
-    if (password === a.password) {
-      console.log('DEBUG: Cocok dengan Plain Text!');
-      return true;
-    }
+    // PRIORITAS: Cek tulisan biasa dulu
+    if (password === a.password) return true;
 
     try {
       // Cadangan: Cek pakai Bcrypt (Hash)
-      const isHashMatch = bcrypt.compareSync(password, a.password);
-      if (isHashMatch) console.log('DEBUG: Cocok dengan Bcrypt Hash!');
-      return isHashMatch;
+      return bcrypt.compareSync(password, a.password);
     } catch (e) {
       return false;
     }
