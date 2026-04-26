@@ -200,13 +200,13 @@ export const getInitials = (name: string): string =>
 
 const getDefaultAdmins = (): Admin[] => [
   {
-    id: 'admin_001',
+    id: 'A-1',
     namaLengkap: 'Super Admin',
     email: 'admin@disipusda.go.id',
-    password: bcrypt.hashSync('admin123', 10),
+    password: '$2a$10$wR.lXz.vXWzJvXw.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X',
     role: 'super_admin',
-    tanggalDibuat: '1 Januari 2024',
-    avatarColor: '#0c2f3d',
+    tanggalDibuat: '14 April 2024',
+    avatarColor: '#0c2f3d'
   },
 ];
 
@@ -339,8 +339,16 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
     }
   }
 
-  const admins = await getAdmins();
-  const admin = admins.find(a => a.email === normalizedEmail && bcrypt.compareSync(password, a.password));
+  const admin = admins.find(a => {
+    if (a.email !== normalizedEmail) return false;
+    try {
+      // Coba cek pakai Bcrypt (Hash)
+      return bcrypt.compareSync(password, a.password);
+    } catch (e) {
+      // Fallback: Jika di DB masih tulisan biasa (Plain Text)
+      return password === a.password;
+    }
+  });
   
   if (!admin) {
     const count = (attempts[adminKey]?.count || 0) + 1;
