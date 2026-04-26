@@ -339,6 +339,7 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
     }
   }
 
+  const admins = await getAdmins();
   const admin = admins.find(a => {
     if (a.email !== normalizedEmail) return false;
     try {
