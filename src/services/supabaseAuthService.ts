@@ -40,8 +40,7 @@ const avatarColors = [
 /** 
  * Membuat ID unik untuk fallback jika Supabase Auth ID belum tersedia 
  */
-const generateId = (): string =>
-  `supabase_${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+const generateId = (): string => crypto.randomUUID();
 
 /** 
  * Generate nomor anggota resmi perpustakaan format: PWK-YYYY-RANDOM 

@@ -27,8 +27,7 @@ const avatarColors = [
   '#2d5a27', '#5b3a8c', '#c05621', '#1a6b8a', '#8b4513'
 ];
 
-const generateId = (): string =>
-  Date.now().toString(36) + Math.random().toString(36).substr(2);
+const generateId = (): string => crypto.randomUUID();
 
 const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const formatDateNow = (): string => {
