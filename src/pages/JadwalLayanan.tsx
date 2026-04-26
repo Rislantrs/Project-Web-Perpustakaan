@@ -77,13 +77,12 @@ export default function JadwalLayanan() {
                 <MapPin size={24} />
               </div>
               <p className="text-gray-600 font-bold leading-relaxed text-sm">
-                Jl. Veteran No. 46, Nagri Kaler, Kec. Purwakarta, Kabupaten Purwakarta, Jawa Barat 41115
+                Jl. Veteran, Komplek Jl. Raya Perum Griya No. 01, Asri, Ciseureuh, Kec. Purwakarta, Kabupaten Purwakarta, Jawa Barat 41118
               </p>
             </div>
             <a 
-              // HARDCODE EXTERNAL URL: tautan Google Maps lokasi kantor.
-              // Ubah jika titik lokasi resmi berubah.
-              href="https://www.google.com/maps/place/Dinas+Arsip+Dan+Perpustakaan+Kabupaten+Purwakarta/@-6.5517454,107.4431872,17z" 
+              // HARDCODE EXTERNAL URL: tautan Google Maps lokasi kantor terbaru.
+              href="https://maps.app.goo.gl/ppLWBfSYNtSpingM9" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-[#0c2f3d] text-white px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#d6a54a] transition-all shadow-lg shadow-[#0c2f3d]/20"

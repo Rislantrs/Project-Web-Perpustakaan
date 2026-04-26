@@ -27,6 +27,7 @@ import JasaKearsipan from './pages/JasaKearsipan';
 import KatalogBuku from './pages/KatalogBuku';
 import LaporWarga from './pages/LaporWarga';
 import Pabukon from './pages/Pabukon';
+import LayananRentan from './pages/LayananRentan';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -138,6 +139,7 @@ function App() {
           <Route path="referensi" element={<Referensi />} />
           <Route path="katalog" element={<KatalogBuku />} />
           <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
+          <Route path="layanan-rentan" element={<LayananRentan />} />
         </Route>
 
         {/* Auth Routes */}
@@ -153,7 +155,7 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={
           <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="h-screen w-full flex items-center justify-center p-6 bg-white overflow-hidden overflow-y-auto">
               <div className="w-10 h-10 border-4 border-[#0c2f3d]/10 border-t-[#d6a54a] rounded-full animate-spin"></div>
             </div>
           }>

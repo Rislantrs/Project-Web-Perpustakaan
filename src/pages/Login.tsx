@@ -4,6 +4,7 @@ import { LogIn, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-r
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../services/supabase';
 import { loginWithSupabase } from '../services/supabaseAuthService';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function Login() {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   // Real-time stats from Supabase
   const [liveStats, setLiveStats] = useState({ totalBooks: 0, totalCategories: 0 });
@@ -70,6 +72,11 @@ export default function Login() {
 
     if (!emailOrId || !password) {
       setToast({ show: true, message: 'Harap isi semua field.', type: 'error' });
+      return;
+    }
+
+    if (!turnstileToken) {
+      setToast({ show: true, message: 'Harap selesaikan verifikasi keamanan.', type: 'error' });
       return;
     }
 
@@ -216,9 +223,23 @@ export default function Login() {
               </label>
             </div>
 
+            {/* Cloudflare Turnstile Verification */}
+            <div className="flex justify-center py-2">
+              <Turnstile 
+                siteKey="0x4AAAAAADDtG5PHsGg6YoP2" 
+                onSuccess={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+                options={{
+                  theme: 'light',
+                  size: 'normal',
+                }}
+              />
+            </div>
+
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !turnstileToken}
               className="w-full bg-[#0c2f3d] text-white py-3.5 rounded-xl font-bold hover:bg-[#1a4254] transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (

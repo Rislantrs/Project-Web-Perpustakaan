@@ -40,7 +40,7 @@ export default function ErrorPage({ code = 404, title, message }: ErrorPageProps
   const currentVariant = errorData[code] || errorData[404];
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center p-6 bg-white">
+    <div className="h-screen w-full flex items-center justify-center p-6 bg-white overflow-hidden">
       <div className="relative max-w-2xl w-full text-center">
         {/* Background Decorative Elements */}
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#d6a54a]/5 rounded-full blur-3xl -z-10 animate-pulse"></div>

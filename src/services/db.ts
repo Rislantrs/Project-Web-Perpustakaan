@@ -112,7 +112,7 @@ export const initializeDB = () => {
     dbSave(DB_KEYS.SYSTEM_INFO, {
       siteName: 'Disipusda Purwakarta',
       tagline: 'Dinas Arsip & Perpustakaan Daerah Kabupaten Purwakarta',
-      address: 'Jl. Veteran No. 46, Purwakarta, Jawa Barat',
+      address: 'Jl. Veteran, Komplek Jl. Raya Perum Griya No. 01, Asri, Ciseureuh, Purwakarta, Jawa Barat',
       email: 'disipusda@purwakartakab.go.id',
       phone: '(0264) 200234',
       whatsapp: '081234567890',

@@ -307,7 +307,7 @@ export default function Home() {
             <Link to="/kearsipan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Kearsipan</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
-                Berdasarkan peraturan Daerah kabupaten Purwakarta Nomor 11 tahun 2008 tentang Pembentukan Lembaga Teknis Daerah maka ditetapkannya Kantor Arsip Daerah...
+                Penyusunan kebijakan, pembinaan, dan pengelolaan arsip daerah untuk mewujudkan tata kelola dokumen yang tertib, aman, dan sistematis.
               </p>
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
@@ -319,7 +319,7 @@ export default function Home() {
             <Link to="/perpustakaan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Perpustakaan</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
-                Keberadaan perpustakaan daerah di Kabupaten Purwakarta telah dimulai sejak tahun 1953 dengan keputusan Kepala JAPERNAS Kementrian Pendidikan...
+                Pengembangan budaya baca dan pengelolaan perpustakaan daerah yang modern sebagai pusat literasi dan edukasi masyarakat Purwakarta.
               </p>
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
@@ -331,7 +331,7 @@ export default function Home() {
             <Link to="/bale-panyawangan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-8 flex flex-col group h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Bale Panyawangan Diorama</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
-                Bale Panyawangan Diorama Purwakarta merupakan ungkapan sejarah Purwakarta dan perkembangan dari masa ke masa yang ditampilkan melalui perpaduan arsip, seni, dan teknologi.
+                Pusat edukasi sejarah digital Purwakarta yang menyajikan rekaman masa lalu melalui perpaduan teknologi multimedia, seni, dan arsip.
               </p>
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
