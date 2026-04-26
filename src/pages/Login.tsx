@@ -17,6 +17,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileStatus, setTurnstileStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
   // Real-time stats from Supabase
   const [liveStats, setLiveStats] = useState({ totalBooks: 0, totalCategories: 0 });
@@ -227,9 +228,19 @@ export default function Login() {
             <div className="flex justify-center py-2">
               <Turnstile 
                 siteKey="0x4AAAAAADDtG5PHsGg6YoP2" 
-                onSuccess={(token) => setTurnstileToken(token)}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => setTurnstileToken(null)}
+                onSuccess={(token) => {
+                  setTurnstileToken(token);
+                  setTurnstileStatus('success');
+                }}
+                onExpire={() => {
+                  setTurnstileToken(null);
+                  setTurnstileStatus('loading');
+                }}
+                onError={() => {
+                  setTurnstileToken(null);
+                  setTurnstileStatus('error');
+                  console.error("Turnstile failed to load");
+                }}
                 options={{
                   theme: 'light',
                   size: 'normal',
@@ -239,7 +250,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isSubmitting || !turnstileToken}
+              disabled={isSubmitting || (turnstileStatus === 'loading' && !turnstileToken)}
               className="w-full bg-[#0c2f3d] text-white py-3.5 rounded-xl font-bold hover:bg-[#1a4254] transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
