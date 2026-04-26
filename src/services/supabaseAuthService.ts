@@ -300,6 +300,8 @@ export const registerWithSupabase = async (data: {
   };
 };
 
+// Menyamakan data user Auth ke profil aplikasi (public.members + local cache/session).
+// Ini penting agar user yang berhasil login/verifikasi selalu punya profil yang konsisten.
 const syncMemberFromAuthUser = (user: User): Member => {
   const members = dbGet<Member[]>(DB_KEYS.MEMBERS, []);
   const existing = members.find((member) => member.id === user.id || member.email === (user.email || '').toLowerCase().trim());
@@ -329,6 +331,8 @@ export type AuthCallbackResult = {
 
 type CallbackOtpType = 'signup' | 'magiclink';
 
+// Parser callback URL dari Supabase.
+// Menangani dua pola: query string (?token_hash=...) dan hash fragment (#access_token=...).
 const parseAuthUrl = (inputUrl: string) => {
   const url = new URL(inputUrl);
   const queryParams = url.searchParams;

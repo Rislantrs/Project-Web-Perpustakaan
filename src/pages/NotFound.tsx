@@ -11,6 +11,9 @@ interface ErrorPageProps {
 export default function ErrorPage({ code = 404, title, message }: ErrorPageProps) {
   const location = useLocation();
   
+  // HARDCODE VARIANT MAP:
+  // label/icon/pesan default untuk kode error umum.
+  // tambah kode baru di object ini jika dibutuhkan.
   // Dynamic content based on error code
   const errorData = {
     404: {
@@ -33,6 +36,7 @@ export default function ErrorPage({ code = 404, title, message }: ErrorPageProps
     }
   };
 
+  // Fallback defensive jika ada kode di luar whitelist.
   const currentVariant = errorData[code] || errorData[404];
 
   return (
@@ -95,6 +99,7 @@ export default function ErrorPage({ code = 404, title, message }: ErrorPageProps
              <p className="text-xs text-gray-400 uppercase tracking-widest font-black mb-4">Mungkin Anda mencari ini?</p>
              <div className="flex flex-wrap justify-center gap-3">
                 {['Katalog Buku', 'Berita Resmi', 'Profil Dinas', 'Pojok Carita'].map(tag => (
+                  // HARDCODE ROUTE MAP: semua tag non-katalog diarahkan ke listing artikel.
                   <Link 
                     key={tag} 
                     to={tag === 'Katalog Buku' ? '/perpustakaan' : '/artikel'}

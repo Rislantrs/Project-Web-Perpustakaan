@@ -2,6 +2,9 @@ import { ChevronRight, Calendar } from 'lucide-react';
 import { Link } from 'react-router';
 
 export default function Sejarah() {
+  // HARDCODE CONTENT:
+  // Timeline sejarah disusun statis di frontend.
+  // Jika ada revisi narasi resmi, update array ini.
   const timelineData = [
     {
       period: "1992 – 1996",

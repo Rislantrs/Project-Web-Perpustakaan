@@ -18,11 +18,13 @@ export default function ForgotPassword() {
 
     setStatus('loading');
     try {
+      // Mengirim email reset password via Supabase.
       const res = await resetPasswordWithSupabase(email);
 
       setMsg(res.message);
       if (res.success) {
         setStatus('success');
+        // HARDCODE UX: pindah otomatis ke login setelah 2 detik.
         setTimeout(() => navigate('/login'), 2000);
       } else {
         setStatus('error');

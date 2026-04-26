@@ -19,6 +19,7 @@ export default function MediaEditor() {
 
   useEffect(() => {
     if (id) {
+      // Mode edit: hydrate form dari article/media yang sudah ada.
       const allArgs = getArticles();
       const article = allArgs.find(a => a.id === id);
       if (article) {
@@ -51,6 +52,9 @@ export default function MediaEditor() {
       return;
     }
     
+    // Format content bergantung tipe media:
+    // - video: simpan link html sederhana
+    // - galeri: simpan array URL dalam JSON string
     let finalContent = '';
     if (category === 'Video Terkini' && videoUrl) {
         finalContent = `<p>Tautan Video: <a href="${videoUrl}" target="_blank">${videoUrl}</a></p>`;
@@ -72,6 +76,7 @@ export default function MediaEditor() {
         title,
         category,
         excerpt: description,
+        // HARDCODE FALLBACK: dipakai jika cover kosong.
         img: mediaFile || 'https://via.placeholder.com/800x400?text=No+Media',
         content: finalContent,
         date: new Date().toISOString().split('T')[0]
@@ -87,6 +92,7 @@ export default function MediaEditor() {
     if (files.length > 0) {
       setIsUploading(true);
       try {
+        // Upload paralel agar batch gallery cepat selesai.
         const uploadedUrls = await Promise.all(files.map(f => uploadImage(f)));
         setGalleryImages(prev => [...prev, ...uploadedUrls]);
       } catch (err) {

@@ -12,6 +12,10 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
+// HARDCODE SOP CONTENT:
+// langkah prosedur kelompok rentan disimpan statis untuk konsistensi tampilan.
+// update list ini jika SOP pelayanan resmi berubah.
+
 const prosedurRentan = [
   {
     step: 1,

@@ -4,6 +4,8 @@ import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { consumeAuthCallbackUrl, verifyAuthCallbackTokenHash } from '../services/supabaseAuthService';
 
 const getCallbackParams = () => {
+  // Parser callback URL untuk 2 mode Supabase:
+  // query params dan hash fragment.
   const url = new URL(window.location.href);
   const query = url.searchParams;
   const hash = new URLSearchParams((url.hash || '').replace(/^#/, ''));
@@ -35,6 +37,7 @@ export default function AuthCallback() {
         : await consumeAuthCallbackUrl();
 
       if (!result.success) {
+        // Jika callback gagal, aktifkan fallback verifikasi manual (OTP input).
         sessionStorage.setItem('allow_auth_verify', '1');
         sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
         setState({ status: 'error', message: result.message });

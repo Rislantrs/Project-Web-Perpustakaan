@@ -1,6 +1,9 @@
 import { motion } from 'motion/react';
 import { Book, CheckCircle2, Info, ChevronRight } from 'lucide-react';
 
+// HARDCODE REFERENCE DATA:
+// glosarium regulasi disimpan statis agar halaman cepat diakses.
+// saat ada perubahan regulasi resmi, perbarui object ini.
 const referensiData = {
   pengertian: [
     {

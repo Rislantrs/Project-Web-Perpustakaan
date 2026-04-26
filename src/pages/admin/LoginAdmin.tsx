@@ -19,7 +19,8 @@ export default function AdminLogin() {
       navigate('/admin');
     }
 
-    // Check localStorage for remembered credentials
+    // HARDCODE STORAGE KEY: email admin tersimpan lokal untuk fitur "Ingat Saya".
+    // hanya email, tidak menyimpan password.
     const savedEmail = localStorage.getItem('remembered_admin_email');
     if (savedEmail) {
       setEmail(savedEmail);
@@ -31,6 +32,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setStatus('loading');
 
+    // Auth tetap divalidasi penuh di service; halaman hanya menangani UX state.
     const result = await loginAdmin(email, password);
     if (result.success) {
       setStatus('success');

@@ -13,7 +13,9 @@ export default function ManageCategories() {
 
   const loadCategories = async () => {
     setLoading(true);
+    // Sinkronisasi kategori dari cloud ke cache lokal sebelum render daftar.
     await refreshCategories();
+    // Halaman ini khusus domain kategori buku.
     setCategories(getCategories('books'));
     setLoading(false);
   };
@@ -30,6 +32,7 @@ export default function ManageCategories() {
   const handleAdd = async (event: FormEvent) => {
     event.preventDefault();
     const admin = getCurrentAdmin();
+    // Guard sesi admin untuk mencegah mutasi data tanpa otorisasi.
     if (!admin) {
       showToast('Akses ditolak: sesi admin tidak valid.', 'error');
       return;

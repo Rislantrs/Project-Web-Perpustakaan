@@ -12,6 +12,10 @@ import {
   ChevronRight
 } from 'lucide-react';
 
+// HARDCODE CONTENT:
+// daftar layanan, prosedur, dan materi pemeliharaan disusun statis.
+// update array di file ini ketika ada perubahan SOP resmi kearsipan.
+
 const jasaKearsipan = [
   {
     title: "Konsultasi Kearsipan",

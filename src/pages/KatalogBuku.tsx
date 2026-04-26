@@ -10,6 +10,7 @@ import SafeImage from '../components/SafeImage';
 
 
 
+// HARDCODE: ukuran halaman katalog pada mode list/grid utama.
 const BOOKS_PER_PAGE = 12;
 
 export default function KatalogBuku() {
@@ -31,6 +32,7 @@ export default function KatalogBuku() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    // Bootstrap awal: ambil rekomendasi + muat katalog dari cache/service.
     const bootstrapCatalog = () => {
       setIsLoadingCatalog(true);
       setRecommendedBooks(getRecommendedBooks());
@@ -50,6 +52,7 @@ export default function KatalogBuku() {
   }, []);
 
   const openBookDetail = async (book: Book) => {
+    // Buka detail cepat dari data card, lalu hydrate versi lengkap dari service.
     setSelectedBook(book);
     setIsLoadingBookDetail(true);
     try {
@@ -61,6 +64,7 @@ export default function KatalogBuku() {
   };
 
   useEffect(() => {
+    // Deep-link: dukung buka modal detail via query param ?bookId=...
     const bookId = searchParams.get('bookId');
     if (bookId) {
       const book = getBooks().find(b => b.id === bookId);
@@ -73,6 +77,7 @@ export default function KatalogBuku() {
   }, [searchParams]);
 
   const loadBooks = () => {
+    // Filter utama dijalankan di service agar aturan konsisten lintas halaman.
     const filtered = filterBooks({
       query: searchQuery,
       kategori: selectedCategory,
@@ -107,6 +112,7 @@ export default function KatalogBuku() {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
+    // UX: pindah halaman sekaligus scroll ke area katalog.
     catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -116,6 +122,7 @@ export default function KatalogBuku() {
   };
 
   const handleBorrow = async (book: Book) => {
+    // Guard auth: peminjaman hanya untuk member login.
     if (!isLoggedIn()) {
       showToast('Silakan login terlebih dahulu untuk meminjam buku.', 'error');
       return;
@@ -125,7 +132,7 @@ export default function KatalogBuku() {
       const result = await borrowBook(book.id, user.id, user.namaLengkap);
       showToast(result.message, result.success ? 'success' : 'error');
       if (result.success) {
-        // Refresh data & panel
+        // Refresh data cache + panel detail agar stok/status terbaru langsung tampil.
         setBooks(getBooks());
         setRecommendedBooks(getRecommendedBooks());
         const refreshed = getBooks().find(b => b.id === book.id);
@@ -137,6 +144,7 @@ export default function KatalogBuku() {
   };
 
   const handleWishlist = (bookId: string) => {
+    // Guard auth: wishlist bersifat personal per member.
     if (!isLoggedIn()) {
       showToast('Silakan login untuk menyimpan ke Wishlist.', 'error');
       return;
@@ -152,18 +160,21 @@ export default function KatalogBuku() {
 
 
   const scrollRec = (dir: 'left' | 'right') => {
+    // Horizontal scroll helper untuk rail rekomendasi.
     if (recScrollRef.current) {
       recScrollRef.current.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
     }
   };
 
   const scrollCat = (dir: 'left' | 'right') => {
+    // Horizontal scroll helper untuk rail kategori.
     if (catScrollRef.current) {
       catScrollRef.current.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
     }
   };
 
   const renderStars = (rating: number) => {
+    // Render bintang statis 1..5 berdasarkan pembulatan rating.
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(

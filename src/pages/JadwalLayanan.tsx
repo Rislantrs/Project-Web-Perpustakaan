@@ -81,6 +81,8 @@ export default function JadwalLayanan() {
               </p>
             </div>
             <a 
+              // HARDCODE EXTERNAL URL: tautan Google Maps lokasi kantor.
+              // Ubah jika titik lokasi resmi berubah.
               href="https://www.google.com/maps/place/Dinas+Arsip+Dan+Perpustakaan+Kabupaten+Purwakarta/@-6.5517454,107.4431872,17z" 
               target="_blank" 
               rel="noopener noreferrer"

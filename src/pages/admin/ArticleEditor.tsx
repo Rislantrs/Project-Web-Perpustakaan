@@ -30,6 +30,7 @@ export default function ArticleEditor() {
   const [isUploading, setIsUploading] = useState(false);
 
   const toIndoDate = (isoStr: string) => {
+    // Konversi tanggal input HTML (YYYY-MM-DD) ke format display lokal.
     const months = [
       'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -39,6 +40,7 @@ export default function ArticleEditor() {
   };
 
   const fromIndoDate = (indoStr: string) => {
+    // Kebalikan dari toIndoDate, dipakai saat mode edit artikel lama.
     if (!indoStr || typeof indoStr !== 'string') return new Date().toISOString().split('T')[0];
     const months: {[key: string]: string} = {
       'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
@@ -74,6 +76,7 @@ export default function ArticleEditor() {
         class: 'prose prose-lg prose-slate focus:outline-none max-w-none min-h-[400px] prose-img:mx-auto prose-img:rounded-2xl',
       },
       handlePaste: (view, event) => {
+        // UX helper: paste gambar langsung upload ke storage lalu disisipkan sebagai URL.
         const items = Array.from(event.clipboardData?.items || []);
         const images = items.filter(item => item.type.startsWith('image'));
         
@@ -103,6 +106,7 @@ export default function ArticleEditor() {
     if (id) {
       const fetchFullForEdit = async () => {
         try {
+          // Prioritas data cloud agar konten rich text paling update.
           const { data, error } = await supabase
             .from('articles')
             .select('*')
@@ -121,6 +125,7 @@ export default function ArticleEditor() {
               editor.commands.setContent(data.content);
             }
           } else {
+            // Fallback ke cache lokal jika cloud gagal dijangkau.
             const article = getArticles().find(item => item.id === id);
             if (article) {
               setTitle(article.title);
@@ -166,6 +171,7 @@ export default function ArticleEditor() {
 
       const content = editor?.getHTML() || '';
       
+      // Guard: cegah konten base64 agar ukuran artikel tidak meledak di DB.
       if (content.includes('data:image/')) {
         showToast("⚠️ Konten masih berisi gambar Base64. Mohon upload ulang ke Storage.", "error");
         setIsUploading(false);
@@ -211,6 +217,7 @@ export default function ArticleEditor() {
 
   const addCaptionPlaceholder = () => {
     if (editor) {
+      // HARDCODE SNIPPET: template caption default setelah sisip gambar.
       editor.chain().focus()
         .insertContent('<p style="text-align: center; font-size: 13px; color: #9ca3af; font-style: italic; margin-top: -12px;">Keterangan gambar di sini...</p>')
         .run();

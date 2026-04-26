@@ -19,6 +19,8 @@ export default function ManageArticles() {
   }, []);
 
   const parseIndoDate = (dateStr: string) => {
+    // Konversi tanggal format Indonesia (contoh: 25 April 2026) ke objek Date.
+    // Dipakai untuk menentukan status Published vs Scheduled.
     const months: { [key: string]: number } = {
       'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3, 'Mei': 4, 'Juni': 5,
       'Juli': 6, 'Agustus': 7, 'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
@@ -31,11 +33,13 @@ export default function ManageArticles() {
   const loadArticles = async () => {
     await refreshArticles();
     const all = getArticles();
+    // Halaman ini hanya untuk artikel tulisan; konten media/ppid difilter keluar.
     const blogArticles = all.filter(a => !['Galeri', 'Video Terkini', 'Media Mewarnai', 'Ppid', 'Zona Integritas'].includes(a.category));
     setArticles(blogArticles);
   };
 
   const handleDelete = async (id: string) => {
+    // Guard: delete artikel wajib lewat sesi admin yang valid.
     const admin = getCurrentAdmin();
     if (!admin) { alert('Akses ditolak: Sesi admin tidak valid.'); return; }
     if (window.confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {

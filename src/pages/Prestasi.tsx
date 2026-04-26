@@ -5,7 +5,9 @@ import { useState, useEffect } from 'react';
 import { getAchievements, type Achievement } from '../services/settingsService';
 
 
-// Dummy data for achievements
+// HARDCODE FALLBACK DATA:
+// dipakai jika data prestasi dari settings belum tersedia.
+// Beberapa item memakai gambar eksternal.
 const prestasiList = [
   {
     year: '2023',

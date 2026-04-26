@@ -15,6 +15,7 @@ export default function RiwayatPinjaman() {
   const [hoveredRating, setHoveredRating] = useState(0);
 
   useEffect(() => {
+    // Guard route: halaman riwayat hanya untuk member login.
     if (!isLoggedIn()) {
       navigate('/login');
       return;
@@ -23,6 +24,7 @@ export default function RiwayatPinjaman() {
   }, []);
 
   const loadBorrows = () => {
+    // Tarik dua domain sekaligus: histori pinjam + status antrian buku.
     const user = getCurrentUser();
     if (user) {
       setBorrows(getMemberBorrows(user.id));
@@ -36,12 +38,14 @@ export default function RiwayatPinjaman() {
   };
 
   const handleReturn = async (borrowId: string, bookId: string, bookTitle: string) => {
+    // Guard ownership: backend/service memverifikasi bahwa record milik member aktif.
     const u = getCurrentUser();
     if (!u) { showToast('Silakan login terlebih dahulu.', 'error'); return; }
     try {
       const result = await returnBook(borrowId, u.id); // pass memberId for backend ownership check
       if (result.success) {
         loadBorrows();
+        // Setelah pengembalian sukses, user langsung diminta memberi rating.
         setRatingModal({ show: true, bookId, bookTitle });
       } else {
         showToast(result.message, 'error');
@@ -52,6 +56,7 @@ export default function RiwayatPinjaman() {
   };
 
   const handleRateSubmit = async (rating: number) => {
+    // Submit rating per buku + member untuk agregasi skor katalog.
     const u = getCurrentUser();
     if (ratingModal && u) {
       try {
@@ -65,6 +70,7 @@ export default function RiwayatPinjaman() {
   };
 
   const user = getCurrentUser();
+  // Filter tab status berjalan client-side untuk respons UI yang cepat.
   const filteredBorrows = filterStatus === 'semua' ? borrows : borrows.filter(b => b.status === filterStatus);
   const activeBorrows = borrows.filter(b => b.status === 'dipinjam').length;
   const returnedBorrows = borrows.filter(b => b.status === 'dikembalikan').length;

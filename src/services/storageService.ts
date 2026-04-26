@@ -2,6 +2,9 @@ import { supabase } from './supabase';
 import { v4 as uuidv4 } from 'uuid';
 
 const DEFAULT_BUCKET = 'articles';
+// HARDCODE DEFAULT:
+// bucket default untuk upload konten visual.
+// jika arsitektur storage diubah, update konstanta ini.
 
 const dataUrlToFile = (dataUrl: string, filename: string): File => {
   const parts = dataUrl.split(',');
@@ -52,6 +55,7 @@ const resizeImageFile = async (
   });
 
   if (image.width <= maxWidth) {
+    // Skip recompress jika ukuran sudah aman.
     return file;
   }
 
@@ -85,6 +89,10 @@ const resizeImageFile = async (
  * Mengembalikan URL publik file tersebut
  */
 export const uploadImage = async (file: File, options: UploadOptions = {}): Promise<string> => {
+  // Pipeline upload:
+  // 1) optional resize/compress
+  // 2) upload ke Supabase Storage
+  // 3) return public URL
   const bucket = options.bucket || DEFAULT_BUCKET;
   const folder = options.folder ? `${options.folder.replace(/^\/|\/$/g, '')}/` : '';
   const maxWidth = options.maxWidth || 1200;

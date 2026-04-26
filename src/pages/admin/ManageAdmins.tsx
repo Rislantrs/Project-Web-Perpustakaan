@@ -11,6 +11,7 @@ export default function ManageAdmins() {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
+    // Initial load daftar admin dari service auth.
     const load = async () => {
       setAdmins(await getAdmins());
     };
@@ -24,6 +25,7 @@ export default function ManageAdmins() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validasi detail dilakukan di service (email unik, role, dsb).
     const result = await addAdmin(form);
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) {
@@ -34,6 +36,7 @@ export default function ManageAdmins() {
   };
 
   const handleDelete = async (admin: Admin) => {
+    // Guard role super_admin diterapkan pada UI (tombol hapus tidak ditampilkan).
     const result = await deleteAdmin(admin.id);
     showToast(result.message, result.success ? 'success' : 'error');
     if (result.success) { setAdmins(await getAdmins()); setConfirmDelete(null); }

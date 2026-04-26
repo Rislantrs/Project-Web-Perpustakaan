@@ -7,6 +7,8 @@ import { fetchArticlesPageWithCount, Article, ARTICLE_CATEGORIES } from '../serv
 
 
 export default function BlogList() {
+  // HARDCODE: jumlah artikel per halaman.
+  // Ubah ini kalau ingin menampilkan lebih banyak/sedikit artikel per page.
   const PAGE_SIZE = 10;
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get('kategori') || '';
@@ -42,6 +44,10 @@ export default function BlogList() {
     return category === 'Semua Kategori' ? '' : category;
   }, [selectedCategory, urlCategory]);
 
+  // Fungsi inti pagination:
+  // - hitung range data berdasarkan nomor halaman
+  // - ambil data + total count dari Supabase
+  // - simpan result untuk render UI halaman aktif
   const loadArticlesPage = useCallback(async (page: number) => {
     setIsLoading(true);
     try {
@@ -95,6 +101,8 @@ export default function BlogList() {
   const filteredArticles = articles;
   const totalPages = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE));
 
+  // Menentukan nomor halaman yang ditampilkan (dengan ellipsis)
+  // agar pagination tetap rapi saat total halaman besar.
   const visiblePages = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
 

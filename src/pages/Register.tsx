@@ -50,6 +50,8 @@ export default function Register() {
       if (result.success) {
         setTimeout(() => {
           if (result.requiresEmailVerification && result.email) {
+            // Register sukses tapi email belum aktif:
+            // kirim user ke halaman verify manual dengan email pada query param.
             sessionStorage.setItem('allow_auth_verify', '1');
             sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
             navigate(`/auth/verify?email=${encodeURIComponent(result.email)}`);
@@ -92,6 +94,7 @@ export default function Register() {
 
       {/* Left Visual Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* HARDCODE ASSET: gambar hero eksternal dari Unsplash. */}
         <img
           src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop"
           alt="Perpustakaan"

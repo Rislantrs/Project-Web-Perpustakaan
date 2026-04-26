@@ -23,6 +23,7 @@ export default function ManagePpid() {
 
   const loadDocs = () => {
     const all = getArticles();
+    // PPID disimpan sebagai kategori artikel khusus.
     const filtered = all.filter(a => a.category === 'Ppid');
     setPpidDocs(filtered);
   };
@@ -41,6 +42,7 @@ export default function ManagePpid() {
     setEditingId(doc.id);
     setTitle(doc.title);
     setSubCategory(doc.excerpt || 'Umum');
+    // HARDCODE MAPPING: URL dokumen PPID disimpan di field img.
     setUrl(doc.img || ''); // Baca URL dari field img
     setIsModalOpen(true);
   };
@@ -56,6 +58,8 @@ export default function ManagePpid() {
         id: editingId || undefined,
         title,
         category: 'Ppid',
+        // HARDCODE MAPPING:
+        // excerpt = subKategori, img = URL dokumen.
         excerpt: subCategory,
         img: url,
         date: new Date().toISOString().split('T')[0]

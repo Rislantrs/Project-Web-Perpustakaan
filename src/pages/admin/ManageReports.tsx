@@ -18,11 +18,14 @@ export default function ManageReports() {
   const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
+    // HARDCODE DATA SOURCE: laporan warga masih disimpan di localStorage.
+    // jika nanti pindah backend, ganti load/save di halaman ini ke service API.
     const data = JSON.parse(localStorage.getItem('disipusda_reports') || '[]');
     setReports(data.sort((a: any, b: any) => b.id - a.id));
   }, []);
 
   const handleDelete = (id: number) => {
+    // Mutasi dilakukan lokal lalu dipersist ulang agar UI langsung sinkron.
     const filtered = reports.filter(r => r.id !== id);
     setReports(filtered);
     localStorage.setItem('disipusda_reports', JSON.stringify(filtered));

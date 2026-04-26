@@ -2,6 +2,10 @@ import { ChevronRight, ShieldCheck, ThumbsUp, HeartHandshake, AlertOctagon } fro
 import { Link } from 'react-router';
 import zonaImg from '../assets/lainLain/zonaIntegritas/zonaintegritas.webp';
 
+// Catatan maintenance:
+// halaman ini dominan kampanye visual + teks statis komitmen integritas.
+// pastikan wording slogan/banner selaras dengan kebijakan resmi instansi.
+
 export default function ZonaIntegritas() {
   return (
     <div className="bg-white min-h-screen pb-24">

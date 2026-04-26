@@ -16,13 +16,16 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const run = async () => {
+      // Snapshot metrik dashboard dari beberapa domain data.
       setArticles(getArticles());
       setBooksCount(getBooks().length);
       const borrows = getAllBorrows();
       setActiveBorrows(borrows.filter(b => b.status === 'dipinjam').length);
       setPendingPickups(borrows.filter(b => b.status === 'menunggu_diambil').length);
+      // Prioritaskan data cloud; fallback ke cache lokal jika gagal.
       const members = await refreshMembersFromSupabase();
       setMembersCount((members || getMembers()).length);
+      // Catatan: sorting by id diasumsikan mengikuti urutan waktu pembuatan record.
       setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
     };
     void run();

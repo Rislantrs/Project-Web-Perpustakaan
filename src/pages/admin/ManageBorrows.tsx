@@ -12,6 +12,7 @@ export default function ManageBorrows() {
   useEffect(() => { loadData(); }, [filter]);
 
   const loadData = () => {
+    // Data source utama dari service, lalu difilter sesuai tab status.
     let data = getAllBorrows();
     if (filter !== 'semua') data = data.filter(d => d.status === filter);
     setBorrows(data.sort((a,b) => b.id.localeCompare(a.id)));
@@ -23,17 +24,20 @@ export default function ManageBorrows() {
   };
 
   const handleConfirm = async (id: string) => {
+    // Konfirmasi pengambilan akan mengubah status ke "dipinjam" di service.
     const res = await confirmPickup(id);
     showToast(res.message, res.success ? 'success' : 'error');
     if (res.success) loadData();
   };
 
   const handleReturn = async (id: string) => {
+    // Konfirmasi pengembalian akan restore stok buku di service.
     const res = await returnBook(id);
     showToast(res.message, res.success ? 'success' : 'error');
     if (res.success) loadData();
   };
 
+  // Search client-side untuk mempercepat screening admin saat data sedang ditampilkan.
   const filtered = borrows.filter(b => 
     b.bookTitle.toLowerCase().includes(query.toLowerCase()) ||
     b.memberName.toLowerCase().includes(query.toLowerCase()) ||

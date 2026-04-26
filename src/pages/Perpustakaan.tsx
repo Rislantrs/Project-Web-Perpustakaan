@@ -6,6 +6,10 @@ import { motion } from 'motion/react';
 import heroImg from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
 import perpusImg from '../assets/layanan/perpustakaan/Perpustakaan-Purwakarta-02.webp';
 
+// Catatan maintenance:
+// konten sejarah/pernyataan media di halaman ini bersifat editorial statis.
+// cek validitas kutipan/tahun jika ada pembaruan profil instansi.
+
 export default function Perpustakaan() {
   return (
     <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24 overflow-x-hidden">

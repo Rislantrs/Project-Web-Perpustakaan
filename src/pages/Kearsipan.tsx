@@ -4,6 +4,9 @@ import heroImg from '../assets/layanan/kearsipan/Gedung_Arsip.webp';
 import aaiImg from '../assets/layanan/kearsipan/AAI-Cabang-Purwakarta-1024x575.webp';
 import depoImg from '../assets/layanan/kearsipan/Ruang-Depo-Arsip-Disipusda-Purwakarta-1024x575.webp';
 
+// Catatan maintenance:
+// konten halaman ini dominan statis; cek tautan eksternal (mis. JIKN) saat update kebijakan layanan.
+
 export default function Kearsipan() {
   return (
     <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24">

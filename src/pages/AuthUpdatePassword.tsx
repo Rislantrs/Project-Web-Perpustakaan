@@ -10,6 +10,7 @@ export default function AuthUpdatePassword() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // Helper toast lokal agar feedback validasi/hasil update konsisten.
   const show = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
     window.setTimeout(() => setToast(null), 3500);
@@ -18,6 +19,7 @@ export default function AuthUpdatePassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // HARDCODE SECURITY RULE: minimum 6 karakter mengikuti kebijakan auth saat ini.
     if (password.length < 6) {
       show('error', 'Password minimal 6 karakter.');
       return;
@@ -28,10 +30,12 @@ export default function AuthUpdatePassword() {
     }
 
     setLoading(true);
+    // Proses reset dieksekusi lewat recovery session dari Supabase callback.
     const result = await updatePasswordAfterRecovery(password);
     setLoading(false);
 
     show(result.success ? 'success' : 'error', result.message);
+    // HARDCODE UX: redirect delay singkat agar toast sukses sempat terbaca.
     if (result.success) setTimeout(() => navigate('/login?reset=1'), 1200);
   };
 

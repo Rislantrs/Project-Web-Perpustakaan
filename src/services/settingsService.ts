@@ -66,6 +66,8 @@ export interface StructureNode {
 
 // --- SYNC ENGINE ---
 export const refreshSettings = async () => {
+  // Sinkronisasi semua domain settings secara paralel.
+  // Pakai allSettled agar satu domain gagal tidak memblok domain lain.
   // Jalankan semua sync secara paralel agar tidak saling menunggu (waterfall)
   await Promise.allSettled([
     // 1. Sync Settings
@@ -176,6 +178,10 @@ export const saveSchedules = async (schedules: Schedule[], requestedByAdminId?: 
   if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah jadwal.');
   const cleanSchedules = schedules.map(s => sanitizeObject(s));
   dbSave(DB_KEYS.SCHEDULES, cleanSchedules);
+  // Strategi replace-total:
+  // 1) hapus seluruh row lama (kecuali sentinel)
+  // 2) insert ulang payload terbaru dari UI
+  // Cocok untuk data list kecil yang di-edit sebagai satu paket.
   await supabase.from('schedules').delete().neq('id', '00000000-0000-0000-0000-000000000000');
   if (cleanSchedules.length > 0) {
     const toInsert = cleanSchedules.map(s => pick(s, ['id', 'day', 'hours', 'note']));
@@ -193,6 +199,7 @@ export const saveAchievements = async (achievements: Achievement[], requestedByA
   if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah prestasi.');
   const cleanAchievements = achievements.map(a => sanitizeObject(a));
   dbSave(DB_KEYS.ACHIEVEMENTS, cleanAchievements);
+  // Strategi replace-total, sama seperti schedules.
   await supabase.from('achievements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
   if (cleanAchievements.length > 0) {
     const toInsert = cleanAchievements.map(a => pick(a, ['id', 'title', 'year', 'description', 'img']));
@@ -225,6 +232,7 @@ export const saveStructure = async (nodes: StructureNode[], requestedByAdminId?:
   if (!requestedByAdminId) throw new Error('Akses ditolak: Hanya admin yang dapat mengubah struktur.');
   const cleanNodes = nodes.map(n => sanitizeObject(n));
   dbSave(DB_KEYS.STRUCTURE, cleanNodes);
+  // Strategi replace-total, sama seperti domain settings lain.
   await supabase.from('structure').delete().neq('id', '00000000-0000-0000-0000-000000000000');
   if (cleanNodes.length > 0) {
     const toInsert = cleanNodes.map(n => pick(n, ['id', 'name', 'position', 'level', 'parentId', 'category', 'img']));

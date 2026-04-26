@@ -6,6 +6,8 @@ import { getCurrentAdmin } from '../../services/authService';
 import { compressImage } from '../../services/imageUtils';
 
 const CATEGORIES = [
+  // HARDCODE MASTER CATEGORY:
+  // dipakai untuk grouping struktur organisasi pada UI publik.
   { id: 'pimpinan', label: 'Pimpinan' },
   { id: 'sekretariat', label: 'Sekretariat' },
   { id: 'bidang_pembinaan', label: 'Bidang Pembinaan' },
@@ -100,14 +102,14 @@ export default function ManageStructure() {
       return;
     }
     
-    // Check file size (limit to 5MB before compression)
+    // HARDCODE LIMIT: 5MB sebelum kompresi agar proses tetap ringan.
     if (file.size > 5 * 1024 * 1024) {
       showToast('Ukuran file terlalu besar (Maks 5MB)', 'error');
       return;
     }
 
     try {
-      // Compress to WebP and resize
+      // Kompres + resize untuk menjaga performa halaman publik.
       const compressedWebp = await compressImage(file, 5, 800);
       updateNode(id, 'img', compressedWebp);
     } catch (error: any) {
@@ -198,6 +200,10 @@ export default function ManageStructure() {
             <div className="grid grid-cols-1 gap-4">
               {nodes
                 .sort((a: any, b: any) => {
+                  // Prioritas urutan:
+                  // 1) node baru selalu di atas (belum disimpan)
+                  // 2) category order
+                  // 3) level hierarchy
                   // PRIORITY: "Sticky" new nodes always at the absolute top until saved
                   if (a.isNew && !b.isNew) return -1;
                   if (!a.isNew && b.isNew) return 1;

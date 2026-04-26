@@ -4,6 +4,7 @@ import { getCurrentAdmin, getInitials, type Member } from '../../services/authSe
 import { deleteMemberFromSupabase, refreshMembersFromSupabase } from '../../services/supabaseAuthService';
 import { motion, AnimatePresence } from 'motion/react';
 
+// HARDCODE: jumlah data member per halaman di tabel admin.
 const MEMBERS_PER_PAGE = 10;
 
 export default function ManageMembers() {
@@ -20,6 +21,7 @@ export default function ManageMembers() {
   }, [query]);
 
   const loadMembers = async () => {
+    // Sumber data utama dari Supabase, local cache diperbarui oleh service.
     const next = await refreshMembersFromSupabase();
     setMembers(next);
   };
@@ -30,6 +32,7 @@ export default function ManageMembers() {
   };
 
   const handleDelete = async (member: Member) => {
+    // Guard: hanya admin dengan sesi valid yang boleh hapus member.
     const admin = getCurrentAdmin();
     if (!admin) { 
       showToast('Akses ditolak: Sesi admin tidak valid atau Anda bukan admin.', 'error'); 
@@ -45,6 +48,7 @@ export default function ManageMembers() {
     }
   };
 
+  // Search client-side untuk memudahkan screening cepat di panel admin.
   const filtered = members.filter(m =>
     m.namaLengkap.toLowerCase().includes(query.toLowerCase()) ||
     m.nomorAnggota.toLowerCase().includes(query.toLowerCase()) ||

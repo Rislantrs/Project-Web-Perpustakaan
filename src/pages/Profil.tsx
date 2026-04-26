@@ -71,6 +71,7 @@ export default function Profil() {
   const handleLogout = () => { logout(); navigate('/login'); };
 
   const handleDeleteAccount = () => {
+    // Safety phrase sederhana sebelum self-delete akun.
     if (deleteInput !== 'Konfirmasi') {
       showToast('Ketik "Konfirmasi" dengan benar.', 'error');
       return;
@@ -259,11 +260,11 @@ export default function Profil() {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide flex items-center gap-1"><Phone size={11} /> Telepon</label>
+                      <label className="text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide flex items-center gap-1"><Phone size={11} /> Telepon</label>
                       <input value={form.telepon} onChange={e => setForm(p => ({ ...p, telepon: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide flex items-center gap-1"><MapPin size={11} /> Alamat</label>
+                      <label className="text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide flex items-center gap-1"><MapPin size={11} /> Alamat</label>
                       <input value={form.alamat} onChange={e => setForm(p => ({ ...p, alamat: e.target.value }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
                     </div>
                   </div>

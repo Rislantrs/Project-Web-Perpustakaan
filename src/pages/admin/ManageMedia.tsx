@@ -21,6 +21,7 @@ export default function ManageMedia() {
   };
 
   const handleDelete = async (id: string) => {
+    // Guard: hanya admin dengan sesi valid yang dapat menghapus media.
     const admin = getCurrentAdmin();
     if (!admin) { alert('Akses ditolak: Sesi admin tidak valid.'); return; }
     if (window.confirm('Hapus media ini?')) {
@@ -30,6 +31,7 @@ export default function ManageMedia() {
   };
 
   const getIcon = (category: string) => {
+      // Mapping visual ikon per kategori media.
       switch(category) {
           case 'Galeri': return <ImageIcon size={18} className="text-blue-500" />;
           case 'Galeri Perpus Keliling': return <Truck size={18} className="text-green-500" />;

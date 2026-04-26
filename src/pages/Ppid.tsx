@@ -13,6 +13,7 @@ export default function Ppid() {
     const fetchDocs = async () => {
       setIsLoading(true);
       try {
+        // HARDCODE RANGE: ambil 100 data awal karena halaman ini belum pakai pagination.
         const data = await fetchArticlesPage({ from: 0, to: 99, category: 'Ppid' });
         setDocs(data);
       } catch (error) {
@@ -22,10 +23,12 @@ export default function Ppid() {
       }
     };
     fetchDocs();
+    // Re-sync saat cache artikel berubah (misal setelah admin update PPID).
     window.addEventListener('dbChange', fetchDocs);
     return () => window.removeEventListener('dbChange', fetchDocs);
   }, []);
 
+  // Search ringan client-side berdasarkan judul dokumen.
   const filteredDocs = docs.filter(doc => doc.title.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -79,6 +82,7 @@ export default function Ppid() {
                   </div>
                 </div>
                 <a 
+                  // HARDCODE MAPPING: field img dipakai sebagai URL unduhan dokumen PPID.
                   href={doc.img || '#'} 
                   target="_blank" 
                   rel="noreferrer"

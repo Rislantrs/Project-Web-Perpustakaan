@@ -44,6 +44,7 @@ export const DB_KEYS = {
   SYSTEM_INFO: 'disipusda_system'
 };
 
+// Fallback in-memory cache saat localStorage gagal (misal quota penuh).
 const memoryFallback: Record<string, any> = {};
 
 export const dbSave = (key: string, data: any) => {
@@ -58,6 +59,7 @@ export const dbSave = (key: string, data: any) => {
     }
   } finally {
     // Pastikan UI tetap ter-update walau LocalStorage error
+    // Komponen/listener lain bisa subscribe event ini untuk re-render data lokal.
     window.dispatchEvent(new CustomEvent('dbChange', { detail: { key } }));
   }
 };
@@ -82,6 +84,8 @@ export const dbGet = <T,>(key: string, defaultValue: T): T => {
 
 // Seed Data Manager
 export const initializeDB = () => {
+  // Seeder ini hanya untuk bootstrap local mode/fallback mode.
+  // Jika backend penuh dipakai, data master idealnya dari database server.
   // Always ensure default admins exist
   const admins = dbGet(DB_KEYS.ADMINS, []);
   if (admins.length === 0) {
@@ -213,12 +217,17 @@ export const initializeDB = () => {
   ];
 
   if (structure.length === 0) {
+    // HARDCODE ORG DATA:
+    // default struktur organisasi disimpan statis di kode.
+    // untuk produksi jangka panjang, pertimbangkan pindah ke CMS/tabel backend.
     dbSave(DB_KEYS.STRUCTURE, defaultStructure);
   }
 
   // Initialize achievements
   const achievements = dbGet<any[]>(DB_KEYS.ACHIEVEMENTS, []);
   if (achievements.length <= 1) {
+    // HARDCODE ACHIEVEMENTS:
+    // data prestasi default untuk first run/demo.
     const defaultAchievements = [
       { id: 'AC-1', year: '2025', title: 'Penghargaan Pengawasan Kearsipan Eksternal Tahun 2025', description: 'Piagam Penghargaan Pengawasan Kearsipan - Pengawasan Kearsipan Eksternal Tahun 2025' },
       { id: 'AC-2', year: '2025', title: 'Penghargaan Dinas Arsip dan Perpustakaan 2025', description: 'Berperan Aktif dalam Kegiatan Perbaikan Arsip Korporasi PhUsaka - Piagam Penghargaan Provinsi Jawa Barat' },

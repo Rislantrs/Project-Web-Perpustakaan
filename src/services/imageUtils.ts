@@ -1,5 +1,6 @@
 export const compressImage = (file: File, maxSizeMB: number = 10, maxWidthOrHeight: number = 1024): Promise<string> => {
   return new Promise((resolve, reject) => {
+    // Guard awal ukuran file sebelum proses canvas.
     if (file.size > maxSizeMB * 1024 * 1024) {
       reject(new Error(`Ukuran file terlalu besar (Maks ${maxSizeMB}MB)`));
       return;
@@ -36,7 +37,8 @@ export const compressImage = (file: File, maxSizeMB: number = 10, maxWidthOrHeig
         }
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Compress to webp at 80% quality
+        // HARDCODE OUTPUT:
+        // format webp kualitas 80% untuk keseimbangan kualitas dan ukuran file.
         const dataUrl = canvas.toDataURL('image/webp', 0.8);
         resolve(dataUrl);
       };

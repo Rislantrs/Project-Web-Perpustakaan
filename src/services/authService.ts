@@ -12,7 +12,11 @@ const CURRENT_ADMIN_KEY = 'disipusda_current_admin';
 const LOGIN_ATTEMPTS_KEY = 'disipusda_login_attempts';
 const ADMINS_TABLE = 'admins';
 const MEMBERS_TABLE = 'members';
+// HARDCODE SECURITY POLICY:
+// Admin account dikunci 15 menit setelah 5 kali percobaan login gagal.
 const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes lockout
+// HARDCODE SECURITY POLICY:
+// Durasi sesi admin di browser sebelum wajib login ulang.
 const ADMIN_SESSION_TTL = 12 * 60 * 60 * 1000; // 12 hours
 
 // Initialize DB on first import
@@ -103,6 +107,11 @@ export const getCurrentUser = (): Member | null => {
 export const isLoggedIn = (): boolean => !!getCurrentUser();
 
 export const updateMember = async (id: string, updates: Partial<Member>): Promise<{ success: boolean; message: string; member?: Member }> => {
+  // Alur aman update profil:
+  // 1) sanitasi field sensitif
+  // 2) validasi isi update
+  // 3) update Supabase
+  // 4) sinkronkan local cache + session user aktif
   const members = getMembers();
   const idx = members.findIndex(m => m.id === id);
   if (idx === -1) return { success: false, message: 'Member tidak ditemukan.' };
@@ -211,6 +220,8 @@ const getCachedAdmins = (): Admin[] => {
 };
 
 const ensureDefaultAdmin = async () => {
+  // Bootstrap admin default untuk deployment baru,
+  // supaya panel admin tidak terkunci saat tabel masih kosong.
   const { data, error } = await supabase.from(ADMINS_TABLE).select('id').limit(1);
   if (error) return;
   if (data && data.length > 0) return;
@@ -310,6 +321,8 @@ export const updateAdmin = async (id: string, updates: Partial<Admin>): Promise<
 };
 
 export const loginAdmin = async (email: string, password: string): Promise<{ success: boolean; message: string; admin?: Admin }> => {
+  // Rate-limit login admin berbasis localStorage.
+  // Catatan: ini proteksi sisi client, proteksi server-side tetap disarankan.
   const attempts = JSON.parse(localStorage.getItem(LOGIN_ATTEMPTS_KEY) || '{}');
   const normalizedEmail = email.toLowerCase().trim();
   const adminKey = `admin_${normalizedEmail}`;
@@ -348,6 +361,7 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
 
   const sessionData = {
     admin,
+    // Expired session ditangani di getCurrentAdmin().
     expiresAt: Date.now() + ADMIN_SESSION_TTL
   };
   localStorage.setItem(CURRENT_ADMIN_KEY, JSON.stringify(sessionData));

@@ -1,6 +1,7 @@
 import type { Member } from './db';
 
 const CURRENT_USER_KEY = 'disipusda_current_user';
+// Kunci tunggal sesi member agar konsisten dipakai lintas service/auth flow.
 
 type CurrentMemberSession = {
   member: Member;
@@ -8,6 +9,7 @@ type CurrentMemberSession = {
 };
 
 export const saveCurrentMember = (member: Member, expiresAt?: number): void => {
+  // expiresAt opsional untuk support sesi bertenggat (remember me vs session pendek).
   const payload: CurrentMemberSession = expiresAt ? { member, expiresAt } : { member };
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(payload));
 };
@@ -19,6 +21,7 @@ export const getSavedCurrentMember = (): Member | null => {
     const parsed = JSON.parse(raw) as Member | CurrentMemberSession;
 
     if (parsed && 'member' in parsed) {
+      // Auto purge sesi kadaluarsa supaya user tidak dianggap login permanen.
       if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
         clearCurrentMember();
         return null;

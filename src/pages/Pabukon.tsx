@@ -3,6 +3,9 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router';
 
 export default function Pabukon() {
+  // HARDCODE FEATURE MAP:
+  // setiap kartu punya route CTA sendiri.
+  // jika struktur menu berubah, update link di sini.
   const pabukonFeatures = [
     {
       id: 'opac',

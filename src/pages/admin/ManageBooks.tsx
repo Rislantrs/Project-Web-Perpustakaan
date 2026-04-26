@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
 import { Plus, Search, Edit2, Trash2, BookOpen, AlertCircle, CheckCircle, X, Package } from 'lucide-react';
 import { getBooks, deleteBook, type Book } from '../../services/bookService';
@@ -7,6 +7,7 @@ import { getCurrentAdmin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 import SafeImage from '../../components/SafeImage';
 
+// HARDCODE: jumlah buku per halaman di tabel admin.
 const BOOKS_PER_PAGE = 10;
 
 export default function ManageBooks() {
@@ -19,6 +20,7 @@ export default function ManageBooks() {
 
   useEffect(() => {
     const loadCloudBooks = () => {
+      // Data ditarik dari local cache yang sudah disinkron oleh bookService.
       setIsLoading(true);
       setBooks(getBooks());
       setIsLoading(false);
@@ -39,6 +41,7 @@ export default function ManageBooks() {
   };
 
   const handleDelete = async (book: Book) => {
+    // Guard: aksi delete hanya boleh saat session admin valid.
     const admin = getCurrentAdmin();
     if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
     const result = await deleteBook(book.id, admin.id);
@@ -46,6 +49,7 @@ export default function ManageBooks() {
     if (result.success) { setBooks(getBooks()); setConfirmDelete(null); }
   };
 
+  // Search/filter dilakukan client-side setelah data tabel tersedia.
   const filtered = books.filter(b =>
     b.judul.toLowerCase().includes(query.toLowerCase()) ||
     b.penulis.toLowerCase().includes(query.toLowerCase()) ||

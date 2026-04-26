@@ -10,15 +10,18 @@ export default function LaporWarga() {
     e.preventDefault();
     setStatus('loading');
 
-    // Simpan ke LocalStorage untuk Admin
+    // Simpan ke LocalStorage untuk Admin (mode frontend-only).
+    // Untuk produksi skala besar, disarankan pindah ke backend DB.
     const reports = JSON.parse(localStorage.getItem('disipusda_reports') || '[]');
     const newReport = { id: Date.now(), ...form, tanggal: new Date().toLocaleString('id-ID'), status: 'Baru' };
     reports.push(newReport);
     localStorage.setItem('disipusda_reports', JSON.stringify(reports));
 
-    /* 
+     /* 
        KODE CADANGAN UNTUK TELEGRAM BOT:
        ---------------------------------
+       PENTING: jangan hardcode TOKEN bot di frontend production.
+       Lebih aman kirim lewat backend endpoint/serverless function.
        const TOKEN = "YOUR_BOT_TOKEN";
        const CHAT_ID = "YOUR_CHAT_ID";
        const message = `📢 *LAPOR WARGA BARU*\n\n👤 Pengirim: ${form.nama}\n📧 Email: ${form.email}\n📱 WA: ${form.telepon}\n📁 Kategori: ${form.kategori}\n📍 Lokasi: ${form.alamat}\n\n📝 Pesan: ${form.pesan}`;
@@ -112,13 +115,13 @@ export default function LaporWarga() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                        <User size={14} className="text-[#0c2f3d]" /> Nama Lengkap
                     </label>
                     <input required value={form.nama} onChange={e => setForm({...form, nama: e.target.value})} type="text" placeholder="Masukkan nama" className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                        <Mail size={14} className="text-[#0c2f3d]" /> Email Aktif
                     </label>
                     <input required value={form.email} onChange={e => setForm({...form, email: e.target.value})} type="email" placeholder="example@mail.com" className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
@@ -127,13 +130,13 @@ export default function LaporWarga() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                        <Phone size={14} className="text-[#0c2f3d]" /> Nomor Telepon / WA
                     </label>
                     <input required value={form.telepon} onChange={e => setForm({...form, telepon: e.target.value})} type="tel" placeholder="08xxx" className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                        <AlertCircle size={14} className="text-[#0c2f3d]" /> Kategori Pengaduan
                     </label>
                     <select value={form.kategori} onChange={e => setForm({...form, kategori: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none">
@@ -148,14 +151,14 @@ export default function LaporWarga() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                      <MapPin size={14} className="text-[#0c2f3d]" /> Alamat / Lokasi Terkait
                   </label>
                   <input required value={form.alamat} onChange={e => setForm({...form, alamat: e.target.value})} type="text" placeholder="Masukkan lokasi detail" className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                      <MessageSquare size={14} className="text-[#0c2f3d]" /> Isi Laporan / Pengaduan
                   </label>
                   <textarea required value={form.pesan} onChange={e => setForm({...form, pesan: e.target.value})} rows={5} placeholder="Jelaskan secara detail keluhan Anda..." className="w-full px-4 py-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none resize-none" />

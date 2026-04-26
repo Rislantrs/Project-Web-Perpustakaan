@@ -31,6 +31,10 @@ import p9 from '../assets/layanan/dioramaPurwakarta/image-9.webp';
 import heroPurwakarta from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
 import heroNusantara from '../assets/layanan/dioramaNusantara/diorama-nusantara.webp';
 
+// Catatan maintenance:
+// file ini berisi banyak konten statis + beberapa tautan eksternal layanan.
+// Saat mengganti kontak/CTA, cari href dengan domain eksternal.
+
 const purwakartaSegments = [
   {
     title: 'Bale Prabu Maharaja LinggaBhuwana',

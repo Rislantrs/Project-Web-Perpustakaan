@@ -55,6 +55,8 @@ export const getBookCategoryOptions = (): string[] => ['Semua', ...getBookCatego
 
 const defaultBooks: Book[] = [];
 const failedCoverMigrationIds = new Set<string>();
+// HARDCODE PERF GUARD:
+// Minimal jeda refresh cloud agar UI tidak spam query saat event beruntun.
 const MIN_REFRESH_INTERVAL_MS = 10000;
 let lastRefreshBooksAt = 0;
 let refreshBooksInFlight: Promise<void> | null = null;
@@ -120,6 +122,9 @@ export const getBookById = (id: string): Book | undefined => {
 };
 
 export const getBookDetailById = async (id: string): Promise<Book | undefined> => {
+  // Strategi hemat query:
+  // - pakai local dulu
+  // - fetch cloud hanya saat sinopsis belum ada
   const localBook = getBookById(id);
   if (!localBook) return undefined;
   if (localBook.sinopsis) return localBook;
@@ -333,13 +338,15 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
     return { success: false, message: 'Anda sudah meminjam buku ini. Kembalikan terlebih dahulu.' };
   }
 
-  // Max 3 borrow at a time
+  // HARDCODE BUSINESS RULE: maksimal 3 buku aktif per member.
   if (activeBorrows.length >= 3) {
     return { success: false, message: 'Maksimal peminjaman 3 buku. Silakan kembalikan buku terlebih dahulu.' };
   }
 
   const now = new Date();
+  // HARDCODE BUSINESS RULE: masa pinjam standar 7 hari.
   const returnDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 hari masa pinjam
+  // HARDCODE BUSINESS RULE: batas ambil buku 1x24 jam setelah request pinjam.
   const pickupDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 1x24 jam batas ambil
 
   const record: BorrowRecord = {
@@ -355,6 +362,7 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
   };
 
   try {
+    // Semua langkah diproses berurutan agar state lokal dan cloud tetap sinkron.
     // 1. Decrease stock locally & Cloud
     const books = getBooks();
     const bookIdx = books.findIndex(b => b.id === bookId);
@@ -445,7 +453,7 @@ export const returnBook = async (borrowId: string, requestedByMemberId?: string)
     dbSave(BORROWS_KEY, borrows);
     await supabase.from('borrows').upsert(borrows[idx]);
 
-    // Check if someone is waiting in queue
+    // Cek antrian berikutnya untuk informasi admin/user setelah pengembalian berhasil.
     const queues = getQueues();
     const nextInQueue = queues
       .filter(q => q.bookId === borrows[idx].bookId && q.status === 'menunggu')
@@ -510,6 +518,7 @@ export const joinQueue = async (bookId: string, memberId: string, _memberNameFro
   }
 
   const now = new Date();
+  // Nomor antrian berbasis urutan saat ini (1..N).
   const nomorAntrian = existingQueue.length + 1;
 
   const queueRecord: QueueRecord = {
@@ -581,11 +590,11 @@ export const checkAndCancelOverdueBorrows = () => {
     if (record.status === 'menunggu_diambil') {
       const deadline = new Date(record.batasAmbil);
       if (now > deadline) {
-        // Mark as cancelled (failed to pickup)
+        // Otomatis batal jika lewat batas ambil.
         record.status = 'batal';
         changed = true;
         
-        // Return stock to book
+        // Stok dikembalikan supaya dapat dipinjam/antri lagi.
         const bookIdx = books.findIndex(b => b.id === record.bookId);
         if (bookIdx !== -1) {
           books[bookIdx].stok += 1;
@@ -666,7 +675,7 @@ export const rateBook = async (bookId: string, memberId: string, newRating: numb
   if (idx === -1) return { success: false, message: 'Buku tidak ditemukan.' };
 
   const book = books[idx];
-  // Calculate new average rating
+  // Rata-rata dihitung incremental tanpa re-scan seluruh histori rating.
   const currentTotal = book.totalRating || 0;
   const currentAvg = book.rating || 5; 
   
@@ -695,6 +704,8 @@ export const rateBook = async (bookId: string, memberId: string, newRating: numb
 
 // --- CLOUD SYNC ENGINE ---
 export const refreshBooks = async (force: boolean = false) => {
+  // Engine sinkronisasi utama katalog/pinjam/antrian dari cloud ke local cache.
+  // Dipanggil saat startup, realtime event, dan operasi admin tertentu.
   const now = Date.now();
   if (!force && now - lastRefreshBooksAt < MIN_REFRESH_INTERVAL_MS) {
     return;

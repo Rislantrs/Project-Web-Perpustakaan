@@ -21,6 +21,7 @@ export default function AdminSettings() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form) return;
+    // Guard: perubahan konfigurasi global wajib lewat session admin aktif.
     const admin = getCurrentAdmin();
     if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
     const res = await updateSiteSettings(form, admin.id);
@@ -28,6 +29,7 @@ export default function AdminSettings() {
   };
 
   const addMisi = () => {
+    // Tambah item misi secara immutable agar state React stabil.
     if (!newMisi.trim() || !form) return;
     setForm({ ...form, misi: [...form.misi, newMisi.trim()] });
     setNewMisi('');
@@ -100,6 +102,7 @@ export default function AdminSettings() {
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Link Iframe Google Maps</label>
+              {/* HARDCODE FIELD: expected berupa URL iframe maps dari pihak ketiga. */}
               <input value={form.linkGmaps} onChange={e => setForm({...form, linkGmaps: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none" />
             </div>
           </div>

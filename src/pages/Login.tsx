@@ -16,7 +16,8 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Dynamic Stats Logic
+  // Dynamic stats hanya untuk elemen visual di panel kiri.
+  // Tidak mempengaruhi proses autentikasi.
   const stats = useMemo(() => {
     const books = dbGet<any[]>(DB_KEYS.BOOKS, []);
     const categories = new Set(books.map(b => b.category).filter(Boolean));
@@ -76,6 +77,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
+      // Login utama via Supabase Auth service.
       const result = await loginWithSupabase(emailOrId, password);
       
       if (result.success) {
@@ -86,6 +88,7 @@ export default function Login() {
         window.location.href = '/perpustakaan';
       } else {
         if (result.needsVerification && result.email) {
+          // Set session gate agar halaman verify tidak bisa diakses sembarang user.
           sessionStorage.setItem('allow_auth_verify', '1');
           sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
           navigate(`/auth/verify?email=${encodeURIComponent(result.email)}`);
@@ -125,6 +128,7 @@ export default function Login() {
 
       {/* Left Visual Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* HARDCODE ASSET: gambar hero eksternal dari Unsplash. */}
         <img
           src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200&auto=format&fit=crop"
           alt="Perpustakaan"

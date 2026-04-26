@@ -18,6 +18,7 @@ export default function ManageSchedules() {
   };
 
   const handleAdd = () => {
+    // ID sementara berbasis timestamp, cukup untuk draft di sisi admin panel.
     const newSchedule: Schedule = {
       id: Date.now().toString(),
       day: '',
@@ -36,6 +37,7 @@ export default function ManageSchedules() {
   };
 
   const handleSave = async () => {
+    // Semua jadwal disimpan sekaligus sebagai satu paket konfigurasi.
     const admin = getCurrentAdmin();
     if (!admin) { showToast('Akses ditolak: Sesi admin tidak valid.', 'error'); return; }
     const res = await saveSchedules(schedules, admin.id);

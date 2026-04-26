@@ -27,6 +27,7 @@ export default function BookEditor() {
 
   useEffect(() => {
     const loadCategories = async () => {
+      // Refresh kategori supaya form selalu pakai daftar terbaru.
       await refreshCategories();
       setCategories(getCategories('books'));
     };
@@ -34,6 +35,7 @@ export default function BookEditor() {
     loadCategories();
 
     const onDbChange = (event: Event) => {
+      // Reaksi selektif saat key kategori berubah.
       const detail = (event as CustomEvent<{ key?: string }>).detail;
       if (!detail?.key || detail.key === 'disipusda_categories') {
         setCategories(getCategories('books'));
@@ -43,6 +45,7 @@ export default function BookEditor() {
     window.addEventListener('dbChange', onDbChange);
 
     if (isEdit && id) {
+      // Mode edit: hydrate form dari buku existing.
       const book = getBookById(id);
       if (book) {
         const { id: _, ...rest } = book;
@@ -59,6 +62,7 @@ export default function BookEditor() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    // Validasi ringan di client sebelum submit ke service.
     if (!form.judul.trim()) return setError('Judul buku wajib diisi.');
     if (!form.penulis.trim()) return setError('Penulis wajib diisi.');
     if (!form.cover.trim()) return setError('URL cover wajib diisi.');
@@ -144,6 +148,7 @@ export default function BookEditor() {
             <div>
               <label className={labelCls}>Bahasa</label>
               <select className={inputCls} value={form.bahasa} onChange={e => update('bahasa', e.target.value)}>
+                {/* HARDCODE OPTION LIST: daftar bahasa default untuk form buku. */}
                 {['Indonesia', 'Inggris', 'Arab', 'Jepang', 'Sunda'].map(b => <option key={b} value={b}>{b}</option>)}
               </select>
             </div>

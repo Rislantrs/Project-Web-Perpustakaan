@@ -21,8 +21,10 @@ export default function AuthVerifyCode() {
   );
 
   useEffect(() => {
+    // Guard page: hanya bisa diakses dari alur register/login yang sah.
     const allow = sessionStorage.getItem('allow_auth_verify');
     const allowAt = Number(sessionStorage.getItem('allow_auth_verify_at') || '0');
+    // HARDCODE: 30 menit masa berlaku akses halaman verifikasi manual.
     const withinWindow = Date.now() - allowAt < 30 * 60 * 1000;
     if (allow !== '1' || !withinWindow) {
       setAccessDenied(true);
@@ -85,6 +87,7 @@ export default function AuthVerifyCode() {
     show(result.success ? 'success' : 'error', result.message);
 
     if (result.success) {
+      // HARDCODE: cooldown kirim ulang email 60 detik.
       const until = Date.now() + 60_000;
       localStorage.setItem(cooldownKey, String(until));
       setResendCooldown(60);

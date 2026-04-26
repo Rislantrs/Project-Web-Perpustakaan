@@ -228,6 +228,8 @@ const migrateArticleImageBatch = async (rows: Article[]): Promise<Article[]> => 
   return migrated;
 };
 
+// Helper filter query untuk daftar artikel (dipakai banyak halaman).
+// Kalau mau menambah filter baru, tambahkan kondisi di sini agar konsisten.
 const applyArticleListFilters = (
   query: any,
   options: ArticleListQueryOptions = {}
@@ -271,6 +273,8 @@ export const fetchArticlesPage = async (options: ArticleListQueryOptions = {}): 
 export const fetchArticlesPageWithCount = async (
   options: ArticleListQueryOptions = {}
 ): Promise<{ items: Article[]; total: number }> => {
+  // Versi ini dipakai UI pagination bernomor.
+  // Kenapa perlu total? supaya frontend tahu "halaman X dari Y".
   const from = options.from ?? 0;
   const to = options.to ?? 9;
 

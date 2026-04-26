@@ -6,6 +6,8 @@ import galendo3 from '../assets/lainLain/galendo/galendo3.webp';
 import naskahKuno from '../assets/lainLain/galendo/naskahKuno.webp';
 
 export default function Galendo() {
+  // HARDCODE EXTERNAL URL: form publik GALENDO.
+  // Jika form diganti, update URL ini.
   const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLScmEHkT9TF292LBObgTAS_RMZJbSlVxLsxzu4IG7Z0Hf9Yn2g/viewform?pli=1";
 
   return (

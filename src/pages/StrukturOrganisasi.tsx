@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { getStructure, type StructureNode } from '../services/settingsService';
 import { getInitials } from '../services/authService';
 
+// Catatan maintenance:
+// halaman ini full data-driven dari struktur organisasi (settingsService).
+// urutan tampilan mengikuti field level lalu kategori.
+
 function ProfileCard({ data, size = "md", isLeader = false }: { data: any, size?: "lg" | "md" | "sm", isLeader?: boolean }) {
   const isLg = size === "lg";
   const isMd = size === "md";
@@ -41,17 +45,20 @@ export default function StrukturOrganisasi() {
   const [nodes, setNodes] = useState<StructureNode[]>([]);
   
   useEffect(() => {
+    // Bootstrap data struktur dari cache/service.
     const data = getStructure();
     setNodes(data);
   }, []);
 
   const getByCategory = (cat: string) => {
+    // Normalisasi urutan anggota per kategori untuk layout publik yang konsisten.
     return nodes
       .filter(n => n.category === cat)
       .sort((a, b) => (a.level || 3) - (b.level || 3));
   };
 
   const Section = ({ title, cat, gridCols = "grid-cols-2 md:grid-cols-3 lg:grid-cols-5" }: { title: string, cat: string, gridCols?: string }) => {
+    // Reusable block untuk semua seksi organisasi selain pimpinan utama.
     const allMembers = getByCategory(cat);
     if (allMembers.length === 0) return null;
 
