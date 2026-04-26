@@ -243,7 +243,7 @@ export const getAdmins = async (): Promise<Admin[]> => {
   const { data, error } = await supabase
     .from(ADMINS_TABLE)
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('tanggal_dibuat', { ascending: false });
 
   if (error) {
     const fallback = getCachedAdmins();
