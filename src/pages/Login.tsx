@@ -20,6 +20,17 @@ export default function Login() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileStatus, setTurnstileStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
+  // Fail-safe: If turnstile doesn't load in 3 seconds, unblock the button
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (turnstileStatus === 'loading') {
+        console.warn("Turnstile loading timed out, unblocking button.");
+        setTurnstileStatus('error');
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [turnstileStatus]);
+
   // Real-time stats from Supabase
   const [liveStats, setLiveStats] = useState({ totalBooks: 0, totalCategories: 0 });
 
