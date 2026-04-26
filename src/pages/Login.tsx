@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../services/supabase';
 import { loginWithSupabase } from '../services/supabaseAuthService';
 import { Turnstile } from '@marsidev/react-turnstile';
+import libIndoor from '../assets/image/lib-indoor.webp';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -136,7 +137,7 @@ export default function Login() {
       {/* Left Visual Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=70&w=1200&auto=format&fit=crop"
+          src={libIndoor}
           alt="Perpustakaan"
           className="absolute inset-0 w-full h-full object-cover"
         />

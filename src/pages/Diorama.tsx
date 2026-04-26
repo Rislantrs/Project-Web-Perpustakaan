@@ -30,6 +30,8 @@ import p9 from '../assets/layanan/dioramaPurwakarta/image-9.webp';
 // Import Hero Images
 import heroPurwakarta from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
 import heroNusantara from '../assets/layanan/dioramaNusantara/diorama-nusantara.webp';
+import libHero from '../assets/image/lib-hero.webp';
+import libRoom from '../assets/image/lib-room.webp';
 
 // Catatan maintenance:
 // file ini berisi banyak konten statis + beberapa tautan eksternal layanan.
@@ -228,7 +230,7 @@ export default function Diorama() {
                   </p>
                   
                   <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group max-w-4xl mx-auto border-4 border-white/10">
-                    <img src="https://images.unsplash.com/photo-1544321852-7e9b0682ba7b?auto=format&fit=crop&q=80&w=1200" alt="Video Thumbnail" className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+                    <img src={libHero} alt="Video Thumbnail" className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
                     <button className="absolute inset-0 flex items-center justify-center">
                       <div className="w-20 h-20 bg-red-600 text-white rounded-full flex items-center justify-center pl-2 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                         <PlayCircle size={40} className="stroke-[1.5]" />
@@ -330,7 +332,7 @@ export default function Diorama() {
                   </p>
                   
                   <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group max-w-4xl mx-auto border-4 border-white/10">
-                    <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=1200" alt="Video Thumbnail" className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+                    <img src={libRoom} alt="Video Thumbnail" className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
                     <button className="absolute inset-0 flex items-center justify-center">
                       <div className="w-20 h-20 bg-red-600 text-white rounded-full flex items-center justify-center pl-2 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                         <PlayCircle size={40} className="stroke-[1.5]" />

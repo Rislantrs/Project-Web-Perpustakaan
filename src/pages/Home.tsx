@@ -13,12 +13,16 @@ import siknImg from '../assets/home/sikn_jikn_network.png';
 import virtualImg from '../assets/home/pameran_virtual.png';
 
 
+import libHero from '../assets/image/lib-hero.webp';
+import libIndoor from '../assets/image/lib-indoor.webp';
+import libRoom from '../assets/image/lib-room.webp';
+
 // HARDCODE ASSET FALLBACK:
 // dipakai untuk hero rotator jika konten dinamis tidak tersedia.
 const bgImages = [
-  "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=70",
-  "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=70",
-  "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=70"
+  libHero,
+  libIndoor,
+  libRoom
 ];
 
 
@@ -374,7 +378,7 @@ export default function Home() {
                       initial={{ scale: 1.05 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: 8, ease: "easeOut" }}
-                      src={stories[activeCultureIdx]?.img || 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'}
+                      src={stories[activeCultureIdx]?.img || libIndoor}
                       alt="Pojok Carita"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]"
                       style={{ objectPosition: stories[activeCultureIdx]?.imgPosition || 'center' }}

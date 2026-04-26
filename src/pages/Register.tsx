@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { UserPlus, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { registerWithSupabase } from '../services/supabaseAuthService';
+import libRoom from '../assets/image/lib-room.webp';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -96,7 +97,7 @@ export default function Register() {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         {/* HARDCODE ASSET: gambar hero eksternal dari Unsplash. */}
         <img
-          src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=1200&auto=format&fit=crop"
+          src={libRoom}
           alt="Perpustakaan"
           className="absolute inset-0 w-full h-full object-cover"
         />

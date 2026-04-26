@@ -6,6 +6,7 @@ import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getB
 import { getCategories, refreshCategories } from '../services/dataService';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
 import SafeImage from '../components/SafeImage';
+import libBooks from '../assets/image/lib-books.webp';
 
 
 
@@ -210,7 +211,7 @@ export default function KatalogBuku() {
       {/* Hero Header */}
       <section className="relative bg-gradient-to-br from-[#8b1c24] via-[#7a1820] to-[#5a1018] py-24 text-center overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=70&w=1200" className="w-full h-full object-cover" alt="bg" />
+          <img src={libBooks} className="w-full h-full object-cover" alt="bg" />
         </div>
         {/* Decorative circles */}
         <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#d6a54a]/10 rounded-full blur-3xl"></div>

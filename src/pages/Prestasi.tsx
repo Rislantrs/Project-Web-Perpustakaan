@@ -1,4 +1,7 @@
 import { ChevronRight, Award, Star, Trophy } from 'lucide-react';
+import libHero from '../assets/image/lib-hero.webp';
+import libTeam from '../assets/image/lib-team.webp';
+import libIndoor from '../assets/image/lib-indoor.webp';
 
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
@@ -7,28 +10,28 @@ import { getAchievements, type Achievement } from '../services/settingsService';
 
 // HARDCODE FALLBACK DATA:
 // dipakai jika data prestasi dari settings belum tersedia.
-// Beberapa item memakai gambar eksternal.
+// Beberapa item memakai gambar lokal.
 const prestasiList = [
   {
+    id: 1,
+    title: 'Layanan Perpustakaan Terbaik Se-Jawa Barat',
     year: '2023',
-    title: 'Penghargaan Simpul Jaringan Terbaik Nasional',
-    issuer: 'Arsip Nasional Republik Indonesia (ANRI)',
-    desc: 'Disipusda Purwakarta berhasil meraih peringkat pertama tingkat nasional dalam pengelolaan Jaringan Informasi Kearsipan Nasional (JIKN).',
-    img: 'https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?auto=format&fit=crop&q=80&w=800'
+    description: 'Penghargaan atas dedikasi dalam meningkatkan kualitas pelayanan perpustakaan bagi masyarakat.',
+    img: libHero
   },
   {
+    id: 2,
+    title: 'Inovasi Kearsipan Digital Nasional',
+    year: '2023',
+    description: 'Pengakuan atas keberhasilan transformasi sistem kearsipan konvensional menjadi digital yang efisien.',
+    img: libIndoor
+  },
+  {
+    id: 3,
+    title: 'Pegiat Literasi Purwakarta',
     year: '2022',
-    title: 'Inovasi Pelayanan Publik Terbaik Jabar',
-    issuer: 'Pemerintah Provinsi Jawa Barat',
-    desc: 'Bale Panyawangan Diorama dianugerahi sebagai destinasi inovasi literasi sejarah digital terbaik se-Jawa Barat.',
-    img: 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    year: '2021',
-    title: 'Akreditasi A untuk Perpustakaan Daerah',
-    issuer: 'Perpustakaan Nasional RI',
-    desc: 'Meraih nilai standar kesesuaian fasilitas dan manajemen tertinggi, membuktikan dedikasi tanpa batas untuk ruang baca publik.',
-    img: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=800'
+    description: 'Apresiasi atas upaya konsisten dalam menggerakkan minat baca di seluruh wilayah Purwakarta.',
+    img: libTeam
   }
 ];
 

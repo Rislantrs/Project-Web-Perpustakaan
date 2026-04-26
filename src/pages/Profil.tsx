@@ -6,6 +6,7 @@ import {
   Mail, Phone, MapPin, User, AlertCircle, LogOut, Heart,
   ShieldCheck, Eye, EyeOff, Trash2
 } from 'lucide-react';
+import libHero from '../assets/image/lib-hero.webp';
 import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, updateMember, deleteMember, logout, getInitials, type Member } from '../services/authService';
 import { getMemberBorrows, getMemberQueues, getMemberWishlist, type BorrowRecord, type QueueRecord, type Book } from '../services/bookService';
@@ -187,7 +188,7 @@ export default function Profil() {
       {/* Cover / Banner */}
       <div className="relative h-52 bg-gradient-to-br from-[#0c2f3d] via-[#1a4254] to-[#8b1c24] overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000" className="w-full h-full object-cover" alt="bg" />
+          <img src={libHero} className="w-full h-full object-cover" alt="bg" />
         </div>
         <div className="absolute -bottom-1 left-0 right-0 h-16 bg-gradient-to-t from-[#f0f2f5] to-transparent" />
 

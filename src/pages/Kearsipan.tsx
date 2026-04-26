@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import heroImg from '../assets/layanan/kearsipan/Gedung_Arsip.webp';
 import aaiImg from '../assets/layanan/kearsipan/AAI-Cabang-Purwakarta-1024x575.webp';
 import depoImg from '../assets/layanan/kearsipan/Ruang-Depo-Arsip-Disipusda-Purwakarta-1024x575.webp';
+import libTeam from '../assets/image/lib-team.webp';
 
 // Catatan maintenance:
 // konten halaman ini dominan statis; cek tautan eksternal (mis. JIKN) saat update kebijakan layanan.
@@ -137,8 +138,8 @@ export default function Kearsipan() {
               initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               className="lg:w-1/2 grid grid-cols-2 gap-4"
             >
-              <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=600" alt="SDM 1" className="rounded-xl shadow-md w-full h-48 object-cover" />
-              <img src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?auto=format&fit=crop&q=80&w=600" alt="SDM 2" className="rounded-xl shadow-md w-full h-48 object-cover mt-8" />
+              <img src={libTeam} alt="SDM 1" className="rounded-xl shadow-md w-full h-48 object-cover" />
+              <img src={libTeam} alt="SDM 2" className="rounded-xl shadow-md w-full h-48 object-cover mt-8" />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}

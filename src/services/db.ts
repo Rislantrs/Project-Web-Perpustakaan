@@ -1,5 +1,6 @@
 // Centralized DB Service using LocalStorage
 // This acts as a bridge to make switching to a real backend (Node.js/PostgreSQL) easier in the future.
+import libTeam from '../assets/image/lib-team.webp';
 
 export interface Member {
   id: string;
@@ -133,8 +134,8 @@ export const initializeDB = () => {
   const structure = dbGet<any[]>(DB_KEYS.STRUCTURE, []);
   const defaultStructure = [
     // PIMPINAN
-    { id: 'S1', name: 'AAN, S.Pd.I., K.P., M.Si.', position: 'Kepala Dinas', level: 1, category: 'pimpinan', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600' },
-    { id: 'S2', name: 'Dr. Kusnandar, S.Pd, M.T', position: 'Sekretaris Dinas', level: 1, category: 'pimpinan', img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600' },
+    { id: 'S1', name: 'AAN, S.Pd.I., K.P., M.Si.', position: 'Kepala Dinas', level: 1, category: 'pimpinan', img: libTeam },
+    { id: 'S2', name: 'Dr. Kusnandar, S.Pd, M.T', position: 'Sekretaris Dinas', level: 1, category: 'pimpinan', img: libTeam },
 
     // SEKRETARIAT
     { id: 'S3', name: 'Lasmi Binawati, S.E', position: 'Kepala Sub Bagian Keuangan', level: 2, category: 'sekretariat' },
