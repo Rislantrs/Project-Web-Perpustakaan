@@ -47,7 +47,7 @@ export default function Prestasi() {
     id: i.toString(),
     title: d.title,
     year: d.year,
-    description: d.desc,
+    description: d.description,
     img: d.img
   }));
 
