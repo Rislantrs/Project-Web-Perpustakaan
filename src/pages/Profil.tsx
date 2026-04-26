@@ -27,6 +27,7 @@ export default function Profil() {
   const [activeTab, setActiveTab] = useState<'statistik' | 'riwayat' | 'antrian' | 'wishlist'>('statistik');
   const [wishlist, setWishlist] = useState<Book[]>([]);
   const [showPrivateInfo, setShowPrivateInfo] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn()) { navigate('/login'); return; }
@@ -43,9 +44,9 @@ export default function Profil() {
     setTimeout(() => setToast(p => ({ ...p, show: false })), 3500);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!user) return;
-    const result = updateMember(user.id, form);
+    const result = await updateMember(user.id, form);
     if (result.success && result.member) {
       setUser(result.member);
       showToast(result.message, 'success');
@@ -57,9 +58,9 @@ export default function Profil() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const base64 = ev.target?.result as string;
-      const result = updateMember(user.id, { avatarUrl: base64 });
+      const result = await updateMember(user.id, { avatarUrl: base64 });
       if (result.success && result.member) {
         setUser(result.member);
         showToast('Foto profil berhasil diperbarui!', 'success');
@@ -68,21 +69,36 @@ export default function Profil() {
     reader.readAsDataURL(file);
   };
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
-  const handleDeleteAccount = () => {
-    // Safety phrase sederhana sebelum self-delete akun.
-    if (deleteInput !== 'Konfirmasi') {
-      showToast('Ketik "Konfirmasi" dengan benar.', 'error');
+  const handleDeleteAccount = async () => {
+    // Safety phrase sederhana sebelum self-delete akun (Case-insensitive)
+    if (deleteInput.trim().toLowerCase() !== 'konfirmasi') {
+      showToast('Ketik kata "Konfirmasi" dengan benar.', 'error');
       return;
     }
-    if (!user) return;
-    const res = deleteMember(user.id, user.id, true);
-    if (res.success) {
-      logout();
-      navigate('/login');
-    } else {
-      showToast(res.message, 'error');
+
+    if (!user || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteMember(user.id, user.id, true);
+      if (res.success) {
+        showToast('Akun Anda berhasil dihapus.', 'success');
+        setTimeout(async () => {
+          await logout();
+          navigate('/login');
+        }, 1500);
+      } else {
+        showToast(res.message, 'error');
+        setIsDeleting(false);
+      }
+    } catch (err: any) {
+      showToast('Terjadi kesalahan sistem saat menghapus akun.', 'error');
+      setIsDeleting(false);
     }
   };
 
@@ -109,11 +125,18 @@ export default function Profil() {
         {toast.show && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border max-w-md"
-            style={{ background: toast.type === 'success' ? '#ecfdf5' : '#fef2f2', borderColor: toast.type === 'success' ? '#6ee7b7' : '#fca5a5' }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border border-red-200 bg-white max-w-md w-[90%]"
           >
-            {toast.type === 'success' ? <CheckCircle2 size={18} className="text-emerald-600 shrink-0" /> : <AlertCircle size={18} className="text-red-600 shrink-0" />}
-            <span className="text-sm font-medium">{toast.message}</span>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${toast.type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+              {toast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-gray-900">{toast.type === 'success' ? 'Berhasil' : 'Peringatan'}</p>
+              <p className="text-xs text-gray-500 truncate">{toast.message}</p>
+            </div>
+            <button onClick={() => setToast(p => ({ ...p, show: false }))} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
+              <X size={14} className="text-gray-400" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -126,14 +149,32 @@ export default function Profil() {
               <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-4"><Trash2 size={22} className="text-red-600" /></div>
               <h3 className="font-bold text-lg mb-2">Hapus Akun Permanen</h3>
               <p className="text-sm text-gray-500 mb-4">Tindakan ini tidak bisa dibatalkan. Semua data riwayat pinjaman akan terpisah dari akun Anda. Ketik <strong>Konfirmasi</strong> untuk melanjutkan.</p>
-              <input 
+              <input
                 value={deleteInput} onChange={e => setDeleteInput(e.target.value)}
                 placeholder="Ketik Konfirmasi"
-                className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-xl focus:border-red-500 outline-none"
+                disabled={isDeleting}
+                className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-xl focus:border-red-500 outline-none disabled:bg-gray-50"
               />
               <div className="flex gap-3">
-                <button onClick={() => { setShowDeletePrompt(false); setDeleteInput(''); }} className="flex-1 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200">Batal</button>
-                <button onClick={handleDeleteAccount} className="flex-1 py-2 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700">Hapus Akun</button>
+                <button
+                  onClick={() => { if (!isDeleting) { setShowDeletePrompt(false); setDeleteInput(''); } }}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 disabled:bg-red-400 flex items-center justify-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Proses...
+                    </>
+                  ) : 'Hapus Akun'}
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -368,7 +409,7 @@ export default function Profil() {
                       <p className="text-[10px] opacity-80">Informasi sensitif Anda terenkripsi secara lokal.</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setShowPrivateInfo(!showPrivateInfo)}
                     className="flex items-center gap-2 px-3 py-1.5 bg-white border border-emerald-200 rounded-xl text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition-colors shadow-sm"
                   >
@@ -393,8 +434,8 @@ export default function Profil() {
                         <div className="min-w-0 flex-1">
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{item.label}</p>
                           <p className="text-sm text-gray-800 font-bold mt-0.5 truncate">
-                            {item.isPrivate && !showPrivateInfo 
-                              ? '••••••••••••' 
+                            {item.isPrivate && !showPrivateInfo
+                              ? '••••••••••••'
                               : item.value}
                           </p>
                         </div>
@@ -419,13 +460,12 @@ export default function Profil() {
                 <div className="space-y-3">
                   {borrows.slice(0, 8).map(b => (
                     <div key={b.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                        b.status === 'menunggu_diambil' ? 'bg-red-50' : 
-                        b.status === 'dipinjam' ? 'bg-amber-50' : 'bg-emerald-50'
-                      }`}>
-                        {b.status === 'menunggu_diambil' ? <Clock size={15} className="text-red-600" /> : 
-                         b.status === 'dipinjam' ? <Clock size={15} className="text-amber-600" /> : 
-                         <CheckCircle2 size={15} className="text-emerald-600" />}
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${b.status === 'menunggu_diambil' ? 'bg-red-50' :
+                          b.status === 'dipinjam' ? 'bg-amber-50' : 'bg-emerald-50'
+                        }`}>
+                        {b.status === 'menunggu_diambil' ? <Clock size={15} className="text-red-600" /> :
+                          b.status === 'dipinjam' ? <Clock size={15} className="text-amber-600" /> :
+                            <CheckCircle2 size={15} className="text-emerald-600" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{b.bookTitle}</p>
@@ -433,13 +473,12 @@ export default function Profil() {
                           {b.status === 'menunggu_diambil' ? `Ambil sebelum: ${b.batasAmbil}` : `${b.tanggalPinjam} · Kembali: ${b.tanggalKembali}`}
                         </p>
                       </div>
-                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        b.status === 'menunggu_diambil' ? 'bg-red-100 text-red-700' :
-                        b.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 
-                        'bg-emerald-100 text-emerald-700'
-                      }`}>
-                        {b.status === 'menunggu_diambil' ? '⏰ Ambil' : 
-                         b.status === 'dipinjam' ? '📖 Dipinjam' : '✅ Kembali'}
+                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${b.status === 'menunggu_diambil' ? 'bg-red-100 text-red-700' :
+                          b.status === 'dipinjam' ? 'bg-amber-100 text-amber-700' :
+                            'bg-emerald-100 text-emerald-700'
+                        }`}>
+                        {b.status === 'menunggu_diambil' ? '⏰ Ambil' :
+                          b.status === 'dipinjam' ? '📖 Dipinjam' : '✅ Kembali'}
                       </span>
                     </div>
                   ))}

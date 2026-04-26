@@ -1,8 +1,8 @@
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { LogIn, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { dbGet, DB_KEYS } from '../services/db';
+import { supabase } from '../services/supabase';
 import { loginWithSupabase } from '../services/supabaseAuthService';
 
 export default function Login() {
@@ -16,27 +16,26 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Dynamic stats hanya untuk elemen visual di panel kiri.
-  // Tidak mempengaruhi proses autentikasi.
-  const stats = useMemo(() => {
-    const books = dbGet<any[]>(DB_KEYS.BOOKS, []);
-    const categories = new Set(books.map(b => b.category).filter(Boolean));
-    return {
-      totalBooks: books.length || 0,
-      totalCategories: categories.size || 0
-    };
+  // Real-time stats from Supabase
+  const [liveStats, setLiveStats] = useState({ totalBooks: 0, totalCategories: 0 });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const [{ count: bookCount }, { count: catCount }] = await Promise.all([
+          supabase.from('books').select('*', { count: 'exact', head: true }),
+          supabase.from('categories').select('*', { count: 'exact', head: true })
+        ]);
+        setLiveStats({ 
+          totalBooks: bookCount || 0, 
+          totalCategories: catCount || 0 
+        });
+      } catch (err) {
+        console.warn('Failed to fetch stats for login screen');
+      }
+    }
+    fetchStats();
   }, []);
-  
-  /* 
-     PROFESSIONAL CAPTCHA INTEGRATION (API BASED):
-     ----------------------------------------------
-     To use Google reCAPTCHA, import the library and add the component here:
-     import ReCAPTCHA from "react-google-recaptcha";
-     const [captchaToken, setCaptchaToken] = useState(null);
-     
-     In the form:
-     <ReCAPTCHA sitekey="YOUR_SITE_KEY" onChange={token => setCaptchaToken(token)} />
-  */
 
   // Show registration success message if redirected from register
   useEffect(() => {
@@ -128,7 +127,6 @@ export default function Login() {
 
       {/* Left Visual Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* HARDCODE ASSET: gambar hero eksternal dari Unsplash. */}
         <img
           src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200&auto=format&fit=crop"
           alt="Perpustakaan"
@@ -148,11 +146,11 @@ export default function Login() {
 
           <div className="mt-12 grid grid-cols-3 gap-4">
             <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-              <p className="text-2xl font-bold text-[#d6a54a]">{stats.totalBooks}{stats.totalBooks > 0 ? '+' : ''}</p>
+              <p className="text-2xl font-bold text-[#d6a54a]">{liveStats.totalBooks}{liveStats.totalBooks > 0 ? '+' : ''}</p>
               <p className="text-xs text-gray-300 mt-1">Koleksi Buku</p>
             </div>
             <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
-              <p className="text-2xl font-bold text-[#d6a54a]">{stats.totalCategories || 0}</p>
+              <p className="text-2xl font-bold text-[#d6a54a]">{liveStats.totalCategories || 0}</p>
               <p className="text-xs text-gray-300 mt-1">Kategori</p>
             </div>
             <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-center">
@@ -170,9 +168,6 @@ export default function Login() {
             <Link to="/" className="font-serif text-3xl font-bold text-[#0c2f3d] hover:text-[#8b1c24] transition-colors">Disipusda</Link>
             <h1 className="text-2xl font-bold text-[#1a1a1a] mt-4">Masuk ke Akun Anda</h1>
             <p className="text-gray-500 mt-1">Akses layanan Perpustakaan & Kearsipan Online</p>
-            <p className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-              Mode produksi Supabase aktif
-            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -234,7 +229,6 @@ export default function Login() {
                 </>
               )}
             </button>
-
           </form>
 
           <p className="text-center mt-8 text-sm text-gray-600">
