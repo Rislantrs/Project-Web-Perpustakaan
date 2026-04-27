@@ -443,7 +443,7 @@ export default function Profil() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{item.label}</p>
-                          <p className="text-sm text-gray-800 font-bold mt-0.5 truncate">
+                          <p className={`text-sm text-gray-800 font-bold mt-0.5 ${item.label === 'Alamat' ? 'break-words' : 'truncate'}`}>
                             {item.isPrivate && !showPrivateInfo
                               ? '••••••••••••'
                               : item.value}
