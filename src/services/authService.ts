@@ -371,6 +371,18 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
   delete attempts[adminKey];
   localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
 
+  const { error: authError } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
+
+  if (authError) {
+    return {
+      success: false,
+      message: 'Login Cloud gagal. Pastikan akun admin terdaftar di Supabase Auth: ' + authError.message,
+    };
+  }
+
   const sessionData = {
     admin,
     // Expired session ditangani di getCurrentAdmin().
@@ -398,6 +410,7 @@ export const getCurrentAdmin = (): Admin | null => {
 
 export const logoutAdmin = (): void => {
   localStorage.removeItem(CURRENT_ADMIN_KEY);
+  void supabase.auth.signOut();
 };
 
 export const isAdminLoggedIn = (): boolean => !!getCurrentAdmin();

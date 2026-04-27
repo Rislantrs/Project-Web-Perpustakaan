@@ -129,6 +129,11 @@ export const addCategory = async (data: { name: string; type: CategoryType; slug
   if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menambah kategori.' };
   if (data.type !== 'books') return { success: false, message: 'Kategori dinamis hanya tersedia untuk katalog buku.' };
 
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    return { success: false, message: 'Sesi Cloud admin tidak ditemukan. Silakan login ulang admin.' };
+  }
+
   const name = data.name.trim().replace(/\s+/g, ' ');
   if (!name) return { success: false, message: 'Nama kategori tidak boleh kosong.' };
 
@@ -173,6 +178,11 @@ export const addCategory = async (data: { name: string; type: CategoryType; slug
 
 export const deleteCategory = async (id: string, requestedByAdminId?: string): Promise<{ success: boolean; message: string }> => {
   if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menghapus kategori.' };
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData.session) {
+    return { success: false, message: 'Sesi Cloud admin tidak ditemukan. Silakan login ulang admin.' };
+  }
 
   try {
     const { error } = await supabase.from('categories').delete().eq('id', id);

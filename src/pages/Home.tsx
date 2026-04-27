@@ -122,7 +122,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
 
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 flex items-center bg-white overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center bg-white overflow-hidden py-20 lg:py-0">
         {/* Background Image - Right half */}
         <div className="absolute right-0 top-0 w-full lg:w-3/5 h-full z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent lg:via-white/50 z-10"></div>
@@ -339,19 +339,23 @@ export default function Home() {
       {/* Featured Quote & Events */}
       <section className="py-24 bg-[#fcfafc] border-t border-gray-100 overflow-hidden">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left Column: Title & Story */}
-            <div className="lg:col-span-2 flex flex-col">
-              <div className="flex items-center justify-between mb-8 group">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-[2px] bg-[#d6a54a]"></div>
-                  <h3 className="font-serif text-3xl sm:text-4xl text-[#0c2f3d] font-bold">Pojok Carita</h3>
-                </div>
-                <Link to="/artikel?kategori=Pojok Carita" className="text-sm font-bold text-[#d6a54a] flex items-center gap-2 hover:gap-3 transition-all">
-                  Lihat Semua <ArrowRight size={16} />
-                </Link>
-              </div>
+          
+          {/* Section Headings Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-8 items-end">
+            <div className="lg:col-span-2 flex items-center justify-between group">
+              <h3 className="font-serif text-3xl sm:text-4xl text-[#0c2f3d] font-bold">Pojok Carita</h3>
+              <Link to="/artikel?kategori=Pojok Carita" className="text-sm font-bold text-[#d6a54a] flex items-center gap-2 hover:gap-3 transition-all">
+                Lihat Semua <ArrowRight size={16} />
+              </Link>
+            </div>
+            <div className="lg:col-span-1 hidden lg:block">
+              <h3 className="font-serif text-2xl text-[#0c2f3d] font-bold">Jadwal Mendatang</h3>
+            </div>
+          </div>
 
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Left Column: Story */}
+            <div className="lg:col-span-2 flex flex-col">
               {/* Quote Block */}
               <div className="card-elevated rounded-2xl overflow-hidden relative min-h-[480px] flex group bg-[#0c2f3d] shadow-2xl">
               {/* Navigation arrows - Only show if more than 1 story */}
@@ -438,9 +442,6 @@ export default function Home() {
 
             {/* Events Map/List (Dynamic - Restored Dark Theme) */}
             <div className="lg:col-span-1 flex flex-col h-full">
-              <h3 className="font-serif text-2xl text-[#0c2f3d] mb-6 font-bold flex items-center gap-2">
-                Jadwal Mendatang
-              </h3>
               <div className="space-y-4 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[420px]">
                 {schedules.length > 0 ? (
                   schedules.map((event, idx) => (
