@@ -129,14 +129,11 @@ export const addCategory = async (data: { name: string; type: CategoryType; slug
   if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menambah kategori.' };
   if (data.type !== 'books') return { success: false, message: 'Kategori dinamis hanya tersedia untuk katalog buku.' };
 
-  const name = data.name.trim();
+  const name = data.name.trim().replace(/\s+/g, ' ');
   if (!name) return { success: false, message: 'Nama kategori tidak boleh kosong.' };
 
   const slug = slugify(data.slug || name);
-  await refreshCategories();
-
-  const existing = getCategories('books').find(category => category.slug === slug || category.name.toLowerCase() === name.toLowerCase());
-  if (existing) return { success: false, message: 'Kategori dengan nama yang sama sudah ada.' };
+  if (!slug) return { success: false, message: 'Nama kategori tidak valid.' };
 
   const category: Category = {
     id: `cat-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
@@ -146,32 +143,48 @@ export const addCategory = async (data: { name: string; type: CategoryType; slug
     createdAt: new Date().toISOString(),
   };
 
-  const nextCategories = [...getCategories('books'), category];
-  categoryCache = nextCategories;
-  dbSave(CATEGORY_STORAGE_KEY, nextCategories);
-
   try {
-    const { error } = await supabase.from('categories').upsert(category);
+    const { data: inserted, error } = await supabase
+      .from('categories')
+      .insert(category)
+      .select('*')
+      .single();
+
     if (error) throw error;
-    return { success: true, message: 'Kategori berhasil ditambahkan.', category };
+
+    await refreshCategories();
+    return {
+      success: true,
+      message: 'Kategori berhasil ditambahkan.',
+      category: inserted ? normalizeCategory(inserted as Partial<Category>) : category,
+    };
   } catch (err: any) {
-    return { success: false, message: 'Gagal sinkron kategori ke Cloud: ' + err.message };
+    if (err?.code === '23505') {
+      return { success: false, message: 'Kategori dengan nama yang sama sudah ada.' };
+    }
+
+    if (err?.code === '42501' || err?.status === 401 || err?.status === 403) {
+      return { success: false, message: 'Akses ditolak oleh kebijakan Cloud (RLS). Pastikan akun admin sudah terautentikasi.' };
+    }
+
+    return { success: false, message: 'Gagal menambah kategori ke Cloud: ' + (err?.message || 'Unknown error') };
   }
 };
 
 export const deleteCategory = async (id: string, requestedByAdminId?: string): Promise<{ success: boolean; message: string }> => {
   if (!requestedByAdminId) return { success: false, message: 'Akses ditolak: Hanya admin yang dapat menghapus kategori.' };
 
-  const nextCategories = getCategories().filter(category => category.id !== id);
-  categoryCache = nextCategories;
-  dbSave(CATEGORY_STORAGE_KEY, nextCategories);
-
   try {
     const { error } = await supabase.from('categories').delete().eq('id', id);
     if (error) throw error;
+
+    await refreshCategories();
     return { success: true, message: 'Kategori berhasil dihapus.' };
   } catch (err: any) {
-    return { success: false, message: 'Gagal menghapus kategori di Cloud: ' + err.message };
+    if (err?.code === '42501' || err?.status === 401 || err?.status === 403) {
+      return { success: false, message: 'Akses ditolak oleh kebijakan Cloud (RLS). Pastikan akun admin sudah terautentikasi.' };
+    }
+    return { success: false, message: 'Gagal menghapus kategori di Cloud: ' + (err?.message || 'Unknown error') };
   }
 };
 

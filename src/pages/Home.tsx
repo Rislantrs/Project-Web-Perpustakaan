@@ -337,11 +337,23 @@ export default function Home() {
       </section>
 
       {/* Featured Quote & Events */}
-      <section className="py-24 bg-[#fcfafc] border-t border-gray-100">
+      <section className="py-24 bg-[#fcfafc] border-t border-gray-100 overflow-hidden">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Quote Block */}
-            <div className="lg:col-span-2 card-elevated rounded-2xl overflow-hidden relative min-h-[450px] flex group bg-[#0c2f3d]">
+            {/* Left Column: Title & Story */}
+            <div className="lg:col-span-2 flex flex-col">
+              <div className="flex items-center justify-between mb-8 group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-[2px] bg-[#d6a54a]"></div>
+                  <h3 className="font-serif text-3xl sm:text-4xl text-[#0c2f3d] font-bold">Pojok Carita</h3>
+                </div>
+                <Link to="/artikel?kategori=Pojok Carita" className="text-sm font-bold text-[#d6a54a] flex items-center gap-2 hover:gap-3 transition-all">
+                  Lihat Semua <ArrowRight size={16} />
+                </Link>
+              </div>
+
+              {/* Quote Block */}
+              <div className="card-elevated rounded-2xl overflow-hidden relative min-h-[480px] flex group bg-[#0c2f3d] shadow-2xl">
               {/* Navigation arrows - Only show if more than 1 story */}
               {stories.length > 1 && (
                 <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -409,7 +421,7 @@ export default function Home() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-white/50 bg-[#0c2f3d]">
                     <BookOpen size={64} className="mb-4 opacity-20" />
                     <p className="font-serif italic">Menyusun koleksi Pojok Carita...</p>
-                  </div>
+                    </div>
                 )}
               </AnimatePresence>
 
@@ -421,6 +433,7 @@ export default function Home() {
                   ))}
                 </div>
               )}
+              </div>
             </div>
 
             {/* Events Map/List (Dynamic - Restored Dark Theme) */}
