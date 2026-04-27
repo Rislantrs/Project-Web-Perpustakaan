@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getSiteSettings, type SiteSettings } from '../services/settingsService';
 
 // Import Logo
-import logo from '../assets/logo/logoDisispuda.webp';
+import logo from '../assets/logo/logo_perpus.webp';
 
 export default function Footer() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);

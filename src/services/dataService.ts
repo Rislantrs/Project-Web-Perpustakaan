@@ -54,18 +54,6 @@ const failedArticleImageMigrationIds = new Set<string>();
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;
 const CATEGORY_STORAGE_KEY = DB_KEYS.CATEGORIES;
-const DEFAULT_BOOK_CATEGORIES: Category[] = [
-  { id: 'cat-book-1', name: 'Fiksi', slug: 'fiksi', type: 'books' },
-  { id: 'cat-book-2', name: 'Non-Fiksi', slug: 'non-fiksi', type: 'books' },
-  { id: 'cat-book-3', name: 'Sejarah', slug: 'sejarah', type: 'books' },
-  { id: 'cat-book-4', name: 'Sains & Teknologi', slug: 'sains-teknologi', type: 'books' },
-  { id: 'cat-book-5', name: 'Agama & Spiritualitas', slug: 'agama-spiritualitas', type: 'books' },
-  { id: 'cat-book-6', name: 'Anak-Anak', slug: 'anak-anak', type: 'books' },
-  { id: 'cat-book-7', name: 'Sastra Sunda', slug: 'sastra-sunda', type: 'books' },
-  { id: 'cat-book-8', name: 'Referensi', slug: 'referensi', type: 'books' },
-  { id: 'cat-book-9', name: 'Biografi', slug: 'biografi', type: 'books' },
-  { id: 'cat-book-10', name: 'Pendidikan', slug: 'pendidikan', type: 'books' },
-];
 
 // 1. Dapatkan artikel (Cache lokal ringan untuk load instan)
 let memoryCache: Article[] = [];
@@ -100,8 +88,6 @@ const slugify = (value: string) =>
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-const seedCategories = (): Category[] => [...DEFAULT_BOOK_CATEGORIES];
-
 const normalizeCategory = (row: Partial<Category>): Category => ({
   id: row.id || '',
   name: row.name || '',
@@ -111,8 +97,7 @@ const normalizeCategory = (row: Partial<Category>): Category => ({
 });
 
 export const getCategories = (_type: CategoryType = 'books'): Category[] => {
-  const source = categoryCache.length > 0 ? categoryCache : seedCategories();
-  return [...source].sort((a, b) => a.name.localeCompare(b.name, 'id'));
+  return [...categoryCache].sort((a, b) => a.name.localeCompare(b.name, 'id'));
 };
 
 export const refreshCategories = async (): Promise<Category[]> => {
@@ -149,6 +134,10 @@ export const addCategory = async (data: { name: string; type: CategoryType; slug
   if (!name) return { success: false, message: 'Nama kategori tidak boleh kosong.' };
 
   const slug = slugify(data.slug || name);
+  if (categoryCache.length === 0) {
+    await refreshCategories();
+  }
+
   const existing = getCategories('books').find(category => category.slug === slug || category.name.toLowerCase() === name.toLowerCase());
   if (existing) return { success: false, message: 'Kategori dengan nama yang sama sudah ada.' };
 
