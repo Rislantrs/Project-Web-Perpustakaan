@@ -16,7 +16,7 @@ CREATE POLICY "Users can see own borrows"
 ON public.borrows
 FOR SELECT
 USING (
-  memberId = auth.uid()::text
+  "memberId" = auth.uid()::text
   OR (auth.jwt() -> 'app_metadata' ->> 'role')::text IN ('admin', 'super_admin')
 );
 
@@ -25,7 +25,7 @@ CREATE POLICY "Users can insert own borrows"
 ON public.borrows
 FOR INSERT
 WITH CHECK (
-  memberId = auth.uid()::text
+  "memberId" = auth.uid()::text
   OR (auth.jwt() -> 'app_metadata' ->> 'role')::text IN ('admin', 'super_admin')
 );
 
@@ -63,7 +63,7 @@ CREATE POLICY "Users can join queue"
 ON public.queue
 FOR INSERT
 WITH CHECK (
-  memberId = auth.uid()::text
+  "memberId" = auth.uid()::text
   OR (auth.jwt() -> 'app_metadata' ->> 'role')::text IN ('admin', 'super_admin')
 );
 
@@ -72,7 +72,7 @@ CREATE POLICY "Users can cancel own queue"
 ON public.queue
 FOR UPDATE
 USING (
-  memberId = auth.uid()::text
+  "memberId" = auth.uid()::text
   OR (auth.jwt() -> 'app_metadata' ->> 'role')::text IN ('admin', 'super_admin')
 );
 
