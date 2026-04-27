@@ -10,7 +10,6 @@ export const ARTICLE_EDITOR_CATEGORIES = [
   'Berita Terkini',
   'Pojok Carita',
   'Kedinasan',
-  'Media Mewarnai',
   'Perpus Keliling',
   'Serba-serbi Purwakarta',
   'Edukasi',
@@ -134,9 +133,7 @@ export const addCategory = async (data: { name: string; type: CategoryType; slug
   if (!name) return { success: false, message: 'Nama kategori tidak boleh kosong.' };
 
   const slug = slugify(data.slug || name);
-  if (categoryCache.length === 0) {
-    await refreshCategories();
-  }
+  await refreshCategories();
 
   const existing = getCategories('books').find(category => category.slug === slug || category.name.toLowerCase() === name.toLowerCase());
   if (existing) return { success: false, message: 'Kategori dengan nama yang sama sudah ada.' };

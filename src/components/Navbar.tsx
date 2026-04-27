@@ -33,7 +33,6 @@ const navLinks = [
     name: 'Artikel', 
     path: '#',
     subLinks: [
-      { name: 'Media Mewarnai', path: '/artikel?kategori=Media Mewarnai' },
       { name: 'Perpustakaan Keliling', path: '/artikel?kategori=Perpus Keliling' },
       { name: 'Galeri Foto', path: '/artikel?kategori=Galeri' },
       { name: 'Video Terkini', path: '/artikel?kategori=Video Terkini' },

@@ -68,7 +68,6 @@ export default function ManageMedia() {
           <option value="Galeri">Galeri</option>
           <option value="Galeri Perpus Keliling">Galeri Perpus Keliling</option>
           <option value="Video Terkini">Video Terkini</option>
-          <option value="Media Mewarnai">Media Mewarnai</option>
         </select>
       </div>
 
