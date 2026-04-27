@@ -378,14 +378,14 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
     if (queueIdx !== -1) {
       queues[queueIdx].status = 'dibatalkan';
       dbSave(QUEUE_KEY, queues);
-      await supabase.from('queue').upsert(queues[queueIdx]);
+      await supabase.from('queue').update({ status: 'dibatalkan' }).eq('id', queues[queueIdx].id);
     }
 
     // 3. Save Borrow Record locally & Cloud
     const borrows = getBorrows();
     borrows.push(record);
     dbSave(BORROWS_KEY, borrows);
-    await supabase.from('borrows').upsert(record);
+    await supabase.from('borrows').insert(record);
 
     return {
       success: true,
@@ -410,12 +410,17 @@ export const confirmPickup = async (borrowId: string): Promise<{ success: boolea
   }
 
   try {
-    // SECURITY: Ensure we have the latest session
-    await supabase.auth.getSession();
+    // SECURITY: wajib ada sesi cloud agar lolos kebijakan RLS.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      return { success: false, message: 'Sesi Cloud tidak ditemukan. Silakan login ulang admin.' };
+    }
     
-    // 1. Try to update Cloud FIRST
-    const updatedRecord = { ...borrows[idx], status: 'dipinjam' as const };
-    const { error } = await supabase.from('borrows').upsert(updatedRecord);
+    // Update row yang ada. Hindari upsert karena bisa kena cek INSERT policy.
+    const { error } = await supabase
+      .from('borrows')
+      .update({ status: 'dipinjam' })
+      .eq('id', borrowId);
     
     if (error) {
       if (error.code === '42501') {
@@ -449,10 +454,14 @@ export const returnBook = async (borrowId: string, requestedByMemberId?: string)
   }
 
   const now = new Date();
-  borrows[idx].status = 'dikembalikan';
-  borrows[idx].tanggalDikembalikan = formatDate(now);
+  const tanggalDikembalikan = formatDate(now);
 
   try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      return { success: false, message: 'Sesi Cloud tidak ditemukan. Silakan login ulang.' };
+    }
+
     // 1. Restore stock locally & Cloud
     const books = getBooks();
     const bookIdx = books.findIndex(b => b.id === borrows[idx].bookId);
@@ -462,9 +471,23 @@ export const returnBook = async (borrowId: string, requestedByMemberId?: string)
       await supabase.from('books').upsert(books[bookIdx]);
     }
 
-    // 2. Update Borrow record locally & Cloud
+    // 2. Update Borrow record Cloud FIRST
+    const { error: borrowUpdateError } = await supabase
+      .from('borrows')
+      .update({ status: 'dikembalikan', tanggalDikembalikan })
+      .eq('id', borrowId);
+
+    if (borrowUpdateError) {
+      if (borrowUpdateError.code === '42501') {
+        return { success: false, message: 'Akses ditolak Cloud (RLS). Pastikan akun ini punya izin update peminjaman.' };
+      }
+      throw borrowUpdateError;
+    }
+
+    // 3. Setelah cloud sukses, sinkronkan cache lokal
+    borrows[idx].status = 'dikembalikan';
+    borrows[idx].tanggalDikembalikan = tanggalDikembalikan;
     dbSave(BORROWS_KEY, borrows);
-    await supabase.from('borrows').upsert(borrows[idx]);
 
     // Cek antrian berikutnya untuk informasi admin/user setelah pengembalian berhasil.
     const queues = getQueues();
@@ -549,7 +572,7 @@ export const joinQueue = async (bookId: string, memberId: string, _memberNameFro
     const queues = getQueues();
     queues.push(queueRecord);
     dbSave(QUEUE_KEY, queues);
-    await supabase.from('queue').upsert(queueRecord);
+    await supabase.from('queue').insert(queueRecord);
 
     return {
       success: true,
@@ -575,7 +598,10 @@ export const cancelQueue = async (queueId: string, requestedByMemberId?: string)
   dbSave(QUEUE_KEY, queues);
 
   try {
-    const { error } = await supabase.from('queue').upsert(queues[idx]);
+    const { error } = await supabase
+      .from('queue')
+      .update({ status: 'dibatalkan' })
+      .eq('id', queues[idx].id);
     if (error) throw error;
     return { success: true, message: 'Antrian berhasil dibatalkan.' };
   } catch (err: any) {
@@ -730,6 +756,8 @@ export const refreshBooks = async (force: boolean = false) => {
 
   refreshBooksInFlight = (async () => {
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+
       // 1. Sync Books
       const { data: books } = await supabase.from('books').select(BOOK_LIST_COLUMNS);
       if (books && books.length > 0) {
@@ -747,13 +775,15 @@ export const refreshBooks = async (force: boolean = false) => {
         }
       }
 
-      // 2. Sync Borrows
-      const { data: borrows } = await supabase.from('borrows').select('*');
-      if (borrows && borrows.length > 0) dbSave(BORROWS_KEY, borrows);
+      // 2-3. Sync Borrows & Queue hanya saat ada sesi auth.
+      // Ini mencegah spam 403 ketika user publik membuka aplikasi.
+      if (sessionData.session) {
+        const { data: borrows, error: borrowsError } = await supabase.from('borrows').select('*');
+        if (!borrowsError && borrows && borrows.length > 0) dbSave(BORROWS_KEY, borrows);
 
-      // 3. Sync Queue
-      const { data: queue } = await supabase.from('queue').select('*');
-      if (queue && queue.length > 0) dbSave(QUEUE_KEY, queue);
+        const { data: queue, error: queueError } = await supabase.from('queue').select('*');
+        if (!queueError && queue && queue.length > 0) dbSave(QUEUE_KEY, queue);
+      }
 
       lastRefreshBooksAt = Date.now();
     } catch (err) {

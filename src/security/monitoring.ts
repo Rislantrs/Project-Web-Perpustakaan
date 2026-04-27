@@ -16,7 +16,9 @@ declare global {
 
 const monitoringEnabled = import.meta.env.VITE_ENABLE_SECURITY_MONITORING !== 'false';
 const observabilityEndpoint = import.meta.env.VITE_SECURITY_OBSERVABILITY_ENDPOINT;
-const writeToSupabaseAlerts = import.meta.env.VITE_SECURITY_ALERTS_TABLE !== 'false';
+// Opt-in: hanya kirim ke tabel Supabase jika env di-set 'true'.
+// Ini mencegah spam 400 ketika tabel/policy security_alerts belum siap.
+const writeToSupabaseAlerts = import.meta.env.VITE_SECURITY_ALERTS_TABLE === 'true';
 
 const shouldReportAuthFailure = (url: string, status: number) => {
   if (status !== 401 && status !== 403) return false;

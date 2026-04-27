@@ -68,6 +68,8 @@ function ScrollToTop() {
 
 import { supabase } from './services/supabase';
 
+const realtimeEnabled = import.meta.env.VITE_ENABLE_REALTIME === 'true';
+
 function App() {
   const hasInitialized = useRef(false);
 
@@ -87,31 +89,35 @@ function App() {
     migrateLegacyArticleImages();
     migrateLegacyBookCovers();
     
-    // 2. ACTIVATE REAL-TIME: Listen for any changes in Supabase
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public' },
-        (payload) => {
-          // React intelligently to what changed
-          const table = payload.table;
-          console.log(`Real-time change detected in ${table}:`, payload.eventType);
-          
-          if (table === 'articles') refreshHomeArticles();
-          else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
-          else if (table === 'categories') refreshCategories();
-          else if (table === 'members') void refreshMembersFromSupabase();
-          else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
-          
-          // Trigger global UI update
-          window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: table } }));
-        }
-      )
-      .subscribe();
+    // 2. ACTIVATE REAL-TIME (optional): Listen for any changes in Supabase
+    const channel = realtimeEnabled
+      ? supabase
+          .channel('schema-db-changes')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public' },
+            (payload) => {
+              // React intelligently to what changed
+              const table = payload.table;
+              console.log(`Real-time change detected in ${table}:`, payload.eventType);
+              
+              if (table === 'articles') refreshHomeArticles();
+              else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
+              else if (table === 'categories') refreshCategories();
+              else if (table === 'members') void refreshMembersFromSupabase();
+              else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
+              
+              // Trigger global UI update
+              window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: table } }));
+            }
+          )
+          .subscribe()
+      : null;
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, []);
 
