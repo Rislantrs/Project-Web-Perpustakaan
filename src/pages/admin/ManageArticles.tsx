@@ -34,7 +34,7 @@ export default function ManageArticles() {
     await refreshArticles();
     const all = getArticles();
     // Halaman ini hanya untuk artikel tulisan; konten media/ppid difilter keluar.
-    const blogArticles = all.filter(a => !['Galeri', 'Video Terkini', 'Media Mewarnai', 'Ppid', 'Zona Integritas'].includes(a.category));
+    const blogArticles = all.filter(a => !['Galeri', 'Galeri Perpus Keliling', 'Video Terkini', 'Media Mewarnai', 'Ppid', 'Zona Integritas'].includes(a.category));
     setArticles(blogArticles);
   };
 
