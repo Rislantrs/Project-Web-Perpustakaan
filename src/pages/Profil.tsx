@@ -10,6 +10,7 @@ import libHero from '../assets/image/lib-hero.webp';
 import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, updateMember, deleteMember, logout, getInitials, type Member } from '../services/authService';
 import { getMemberBorrows, getMemberQueues, getMemberWishlist, type BorrowRecord, type QueueRecord, type Book } from '../services/bookService';
+import { compressImage } from '../utils/imageUtils';
 // IMPORT KOMPONEN KARTU ANGGOTA QR CODE (Hilangkan komentar untuk mengaktifkan):
 // import MemberCardQR from '../components/MemberCardQR';
 
@@ -60,11 +61,19 @@ export default function Profil() {
     if (!file || !user) return;
     const reader = new FileReader();
     reader.onload = async (ev) => {
-      const base64 = ev.target?.result as string;
-      const result = await updateMember(user.id, { avatarUrl: base64 });
-      if (result.success && result.member) {
-        setUser(result.member);
-        showToast('Foto profil berhasil diperbarui!', 'success');
+      const originalBase64 = ev.target?.result as string;
+      try {
+        // Compress image to max 400x400 for profile picture
+        const compressedBase64 = await compressImage(originalBase64, 400, 400, 0.6);
+        const result = await updateMember(user.id, { avatarUrl: compressedBase64 });
+        if (result.success && result.member) {
+          setUser(result.member);
+          showToast('Foto profil berhasil diperbarui!', 'success');
+        } else {
+          showToast(result.message, 'error');
+        }
+      } catch (err) {
+        showToast('Gagal memproses gambar.', 'error');
       }
     };
     reader.readAsDataURL(file);

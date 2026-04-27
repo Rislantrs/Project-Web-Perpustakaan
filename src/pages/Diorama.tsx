@@ -210,7 +210,7 @@ export default function Diorama() {
                 </div>
                 <div className="lg:w-1/2 w-full">
                   <div className="aspect-[16/10] bg-gray-200 rounded-2xl overflow-hidden shadow-2xl relative group">
-                    <img src={heroPurwakarta} alt="Bale Panyawangan Diorama Purwakarta" className="w-full h-full object-cover" />
+                    <img src={heroPurwakarta} alt="Bale Panyawangan Diorama Purwakarta" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ export default function Diorama() {
                   {purwakartaSegments.map((seg, idx) => (
                     <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                       <div className="aspect-video overflow-hidden relative">
-                        <img src={seg.img} alt={seg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <img src={seg.img} alt={seg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" decoding="async" />
                         <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold">
                           Segmen 0{idx + 1}
                         </div>
@@ -287,7 +287,7 @@ export default function Diorama() {
                 </div>
                 <div className="lg:w-1/2 w-full">
                   <div className="aspect-[16/10] bg-gray-200 rounded-2xl overflow-hidden shadow-2xl relative group">
-                    <img src={heroNusantara} alt="Bale Panyawangan Diorama Nusantara" className="w-full h-full object-cover" />
+                    <img src={heroNusantara} alt="Bale Panyawangan Diorama Nusantara" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export default function Diorama() {
                   {nusantaraSegments.map((seg, idx) => (
                     <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                       <div className="aspect-video overflow-hidden relative">
-                        <img src={seg.img} alt={seg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <img src={seg.img} alt={seg.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" decoding="async" />
                         <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold">
                           Segmen 0{idx + 1}
                         </div>
