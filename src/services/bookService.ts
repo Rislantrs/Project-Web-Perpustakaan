@@ -413,8 +413,18 @@ export const confirmPickup = async (borrowId: string): Promise<{ success: boolea
   dbSave(BORROWS_KEY, borrows);
 
   try {
+    // SECURITY: Ensure we have the latest session before updating
+    const { data: { session } } = await supabase.auth.getSession();
+    
     const { error } = await supabase.from('borrows').upsert(borrows[idx]);
-    if (error) throw error;
+    if (error) {
+      // If it's an RLS error, maybe the session expired or is lagging
+      if (error.code === '42501') {
+         // Attempt one more time after a tiny delay or show better info
+         return { success: false, message: 'Akses ditolak (RLS). Pastikan Anda login sebagai Admin yang sah.' };
+      }
+      throw error;
+    }
     return { success: true, message: 'Pengambilan buku berhasil dikonfirmasi!' };
   } catch (err: any) {
     return { success: false, message: 'Gagal konfirmasi di Cloud: ' + err.message };
