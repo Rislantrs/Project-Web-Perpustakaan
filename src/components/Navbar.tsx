@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, logout, getInitials, isAdminLoggedIn, type Member } from '../services/authService';
 
 // Import Logo
-import logo from '../assets/logo/logo_perpus.webp';
+import logo from '../assets/logo/logoDisispuda.webp';
 
 const navLinks = [
   { name: 'Beranda', path: '/' },

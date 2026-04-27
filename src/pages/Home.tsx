@@ -174,16 +174,6 @@ export default function Home() {
             <p className="text-gray-600 text-lg mb-8 leading-relaxed">
               Instansi Pemerintah yang mengelola kearsipan & perpustakaan. Rumah bagi museum <span className="text-[#0c2f3d] font-semibold italic">Bale Panyawangan Diorama</span>, tempat sejarah bertemu masa depan.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <button className="bg-[#0c2f3d] text-white px-8 py-3 rounded-md font-medium hover:bg-[#15465c] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-                Jelajahi Arsip
-              </button>
-              <Link to="/profil/sejarah">
-                <button className="bg-transparent border-2 border-[#0c2f3d] text-[#0c2f3d] px-8 py-3 rounded-md font-medium hover:bg-[#0c2f3d] hover:text-white transition-all">
-                  Tentang Kami
-                </button>
-              </Link>
-            </div>
           </motion.div>
         </div>
       </section>
