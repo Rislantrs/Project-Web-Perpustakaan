@@ -10,8 +10,13 @@ type SecurityEventPayload = {
 declare global {
   interface Window {
     __securityMonitoringInstalled?: boolean;
+    __securityMonitoringOriginalFetch?: typeof fetch;
   }
 }
+
+const monitoringEnabled = import.meta.env.VITE_ENABLE_SECURITY_MONITORING !== 'false';
+const observabilityEndpoint = import.meta.env.VITE_SECURITY_OBSERVABILITY_ENDPOINT;
+const writeToSupabaseAlerts = import.meta.env.VITE_SECURITY_ALERTS_TABLE !== 'false';
 
 const shouldReportAuthFailure = (url: string, status: number) => {
   if (status !== 401 && status !== 403) return false;
@@ -25,6 +30,8 @@ const insertSecurityEvent = async (
   supabase: SupabaseClient,
   payload: SecurityEventPayload
 ) => {
+  if (!writeToSupabaseAlerts) return;
+
   try {
     await supabase.from('security_alerts').insert(payload);
   } catch {
@@ -33,6 +40,7 @@ const insertSecurityEvent = async (
 };
 
 export const setupSecurityMonitoring = (supabase: SupabaseClient) => {
+  if (!monitoringEnabled) return;
   if (window.__securityMonitoringInstalled) return;
   window.__securityMonitoringInstalled = true;
 
@@ -51,19 +59,22 @@ export const setupSecurityMonitoring = (supabase: SupabaseClient) => {
     };
 
     // Beacon best-effort untuk endpoint observability bila tersedia.
-    try {
-      navigator.sendBeacon(
-        '/api/security/csp-violation',
-        new Blob([JSON.stringify(payload)], { type: 'application/json' })
-      );
-    } catch {
-      // No-op
+    if (observabilityEndpoint) {
+      try {
+        navigator.sendBeacon(
+          observabilityEndpoint,
+          new Blob([JSON.stringify(payload)], { type: 'application/json' })
+        );
+      } catch {
+        // No-op
+      }
     }
 
     void insertSecurityEvent(supabase, payload);
   });
 
-  const originalFetch = window.fetch.bind(window);
+  const originalFetch = (window.__securityMonitoringOriginalFetch || window.fetch).bind(window);
+  window.__securityMonitoringOriginalFetch = originalFetch;
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const response = await originalFetch(input, init);
     const requestUrl = typeof input === 'string' ? input : input.toString();
