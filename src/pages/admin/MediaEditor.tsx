@@ -27,20 +27,20 @@ export default function MediaEditor() {
         setCategory(article.category);
         setDescription(article.excerpt);
         setMediaFile(article.img);
-        
+
         // Load gallery images if any
         if (['Galeri', 'Galeri Perpus Keliling'].includes(article.category) && article.content) {
-            try {
-                const parsed = JSON.parse(article.content);
-                if (Array.isArray(parsed)) setGalleryImages(parsed);
-            } catch (e) { /* not a json array */ }
+          try {
+            const parsed = JSON.parse(article.content);
+            if (Array.isArray(parsed)) setGalleryImages(parsed);
+          } catch (e) { /* not a json array */ }
         }
 
         // If it's a video
         if (article.category === 'Video Terkini' && article.content) {
-            // Very simple extraction
-            const match = article.content.match(/href="([^"]+)"/);
-            if (match) setVideoUrl(match[1]);
+          // Very simple extraction
+          const match = article.content.match(/href="([^"]+)"/);
+          if (match) setVideoUrl(match[1]);
         }
       }
     }
@@ -51,17 +51,17 @@ export default function MediaEditor() {
       alert("Judul tidak boleh kosong");
       return;
     }
-    
+
     // Format content bergantung tipe media:
     // - video: simpan link html sederhana
     // - galeri: simpan array URL dalam JSON string
     let finalContent = '';
     if (category === 'Video Terkini' && videoUrl) {
-        finalContent = `<p>Tautan Video: <a href="${videoUrl}" target="_blank">${videoUrl}</a></p>`;
+      finalContent = `<p>Tautan Video: <a href="${videoUrl}" target="_blank">${videoUrl}</a></p>`;
     } else if (['Galeri', 'Galeri Perpus Keliling'].includes(category) && galleryImages.length > 0) {
-        finalContent = JSON.stringify(galleryImages);
+      finalContent = JSON.stringify(galleryImages);
     }
-    
+
     setIsUploading(true);
     try {
       const admin = getCurrentAdmin();
@@ -126,16 +126,16 @@ export default function MediaEditor() {
 
   return (
     <div className="max-w-3xl mx-auto pb-24">
-      
+
       {/* Top Action Bar */}
       <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
-        <button 
+        <button
           onClick={() => navigate('/admin/media')}
           className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft size={16} /> Kembali
         </button>
-        <button 
+        <button
           onClick={handleSave}
           className="flex items-center gap-2 bg-[#0c2f3d] text-white px-6 py-2.5 rounded-full font-medium hover:bg-[#164153] shadow-sm transition-all hover:shadow"
         >
@@ -148,68 +148,75 @@ export default function MediaEditor() {
 
         {/* Categori Selector */}
         <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Jenis Media</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <button 
-                    onClick={() => setCategory('Galeri')}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Galeri' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
-                >
-                    <ImageIcon size={28} className="mb-2" />
-                    <span className="font-semibold text-sm text-center">Galeri Foto</span>
-                </button>
-                <button 
-                    onClick={() => setCategory('Galeri Perpus Keliling')}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Galeri Perpus Keliling' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
-                >
-                    <Truck size={28} className="mb-2" />
-                    <span className="font-semibold text-sm text-center">Galeri Perpusling</span>
-                </button>
-                <button 
-                    onClick={() => setCategory('Video Terkini')}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Video Terkini' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
-                >
-                    <Video size={28} className="mb-2" />
-                    <span className="font-semibold text-sm text-center">Video Terkini</span>
-                </button>
-            </div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Jenis Media</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button
+              onClick={() => setCategory('Galeri')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Galeri' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
+            >
+              <ImageIcon size={28} className="mb-2" />
+              <span className="font-semibold text-sm text-center">Galeri Foto</span>
+            </button>
+            <button
+              onClick={() => setCategory('Galeri Perpus Keliling')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Galeri Perpus Keliling' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
+            >
+              <Truck size={28} className="mb-2" />
+              <span className="font-semibold text-sm text-center">Galeri Perpusling</span>
+            </button>
+            <button
+              onClick={() => setCategory('Video Terkini')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Video Terkini' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
+            >
+              <Video size={28} className="mb-2" />
+              <span className="font-semibold text-sm text-center">Video Terkini</span>
+            </button>
+            <button
+              onClick={() => setCategory('Media Mewarnai')}
+              className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${category === 'Media Mewarnai' ? 'border-[#0c2f3d] bg-[#0c2f3d]/5 text-[#0c2f3d]' : 'border-gray-100 hover:border-gray-200 text-gray-500'}`}
+            >
+              <PenTool size={28} className="mb-2" />
+              <span className="font-semibold text-sm text-center">Mewarnai</span>
+            </button>
+          </div>
         </div>
 
         {/* Title */}
         <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Judul Media</label>
-            <input 
-              type="text" 
-              placeholder="Contoh: Keseruan Perpusling di Desa..." 
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a]"
-            />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Judul Media</label>
+          <input
+            type="text"
+            placeholder="Contoh: Keseruan Perpusling di Desa..."
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a]"
+          />
         </div>
 
         <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi Singkat</label>
-            <textarea 
-              rows={3}
-              placeholder="Jelaskan isi gambar/video ini..." 
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a] resize-none"
-            />
+          <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi Singkat</label>
+          <textarea
+            rows={3}
+            placeholder="Jelaskan isi gambar/video ini..."
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a] resize-none"
+          />
         </div>
 
         {category === 'Video Terkini' && (
-            <div className="mb-8 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                <label className="block text-sm font-bold text-[#0c2f3d] mb-2">Tautan Video (YouTube / GDrive)</label>
-                <div className="flex gap-2">
-                    <input 
-                    type="url" 
-                    placeholder="https://youtube.com/..." 
-                    value={videoUrl}
-                    onChange={e => setVideoUrl(e.target.value)}
-                    className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:border-[#0c2f3d]"
-                    />
-                </div>
+          <div className="mb-8 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+            <label className="block text-sm font-bold text-[#0c2f3d] mb-2">Tautan Video (YouTube / GDrive)</label>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                placeholder="https://youtube.com/..."
+                value={videoUrl}
+                onChange={e => setVideoUrl(e.target.value)}
+                className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:border-[#0c2f3d]"
+              />
             </div>
+          </div>
         )}
 
         {/* Upload File */}
@@ -219,11 +226,19 @@ export default function MediaEditor() {
           </label>
           {mediaFile ? (
             <div className="relative group rounded-xl overflow-hidden aspect-video bg-gray-100 border border-gray-200">
-              <img src={mediaFile} alt="Cover" className="w-full h-full object-contain" />
+              {mediaFile.startsWith('data:application/pdf') ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-red-50 text-red-600 font-bold p-10">
+                  <PenTool size={48} className="mb-4" />
+                  <span>File PDF Terpilih</span>
+                  <p className="text-xs font-normal text-gray-500 mt-2">Disediakan untuk diunduh & diprint</p>
+                </div>
+              ) : (
+                <img src={mediaFile} alt="Cover" className="w-full h-full object-contain" />
+              )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <label className="cursor-pointer bg-white text-gray-900 px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-gray-50">
                   Ganti Berkas
-                  <input type="file" accept="image/*" className="hidden" onChange={changeMediaFile} />
+                  <input type="file" accept={category === 'Media Mewarnai' ? ".jpg,.jpeg,.png,.pdf" : "image/*"} className="hidden" onChange={changeMediaFile} />
                 </label>
               </div>
             </div>
@@ -232,7 +247,7 @@ export default function MediaEditor() {
               <ImageIcon className="text-gray-400 mb-3" size={36} />
               <span className="text-sm font-medium text-gray-600">Klik untuk menjelajah file (Cover)</span>
               <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG (Max 5MB)</span>
-              <input type="file" accept="image/*" className="hidden" onChange={changeMediaFile} />
+              <input type="file" accept={category === 'Media Mewarnai' ? ".jpg,.jpeg,.png,.pdf" : "image/*"} className="hidden" onChange={changeMediaFile} />
             </label>
           )}
         </div>
@@ -255,7 +270,7 @@ export default function MediaEditor() {
               {galleryImages.map((src, idx) => (
                 <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group">
                   <img src={src} className="w-full h-full object-cover" alt="Gallery item" />
-                  <button 
+                  <button
                     onClick={() => removeGalleryImage(idx)}
                     className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                   >
@@ -273,7 +288,7 @@ export default function MediaEditor() {
         )}
 
       </div>
-      
+
       {isUploading && (
         <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-3">

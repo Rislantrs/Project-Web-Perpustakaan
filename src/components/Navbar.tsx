@@ -9,8 +9,8 @@ import logo from '../assets/logo/logo_perpus.webp';
 
 const navLinks = [
   { name: 'Beranda', path: '/' },
-  { 
-    name: 'Profil', 
+  {
+    name: 'Profil',
     path: '#',
     subLinks: [
       { name: 'Sejarah', path: '/profil/sejarah' },
@@ -18,8 +18,8 @@ const navLinks = [
       { name: 'Prestasi', path: '/profil/prestasi' }
     ]
   },
-  { 
-    name: 'Layanan', 
+  {
+    name: 'Layanan',
     path: '#',
     subLinks: [
       { name: 'Kearsipan', path: '/kearsipan' },
@@ -29,10 +29,11 @@ const navLinks = [
   },
   { name: 'Katalog Buku', path: '/katalog' },
   { name: 'Berita Terkini', path: '/artikel?kategori=Berita Terkini' },
-  { 
-    name: 'Artikel', 
+  {
+    name: 'Artikel',
     path: '#',
     subLinks: [
+      { name: 'Media Mewarnai', path: '/artikel?kategori=Media Mewarnai' },
       { name: 'Perpustakaan Keliling', path: '/artikel?kategori=Perpus Keliling' },
       { name: 'Galeri Foto', path: '/artikel?kategori=Galeri' },
       { name: 'Video Terkini', path: '/artikel?kategori=Video Terkini' },
@@ -43,8 +44,8 @@ const navLinks = [
       { name: 'Statistik', path: '/artikel?kategori=Statistik' }
     ]
   },
-  { 
-    name: 'Lain-Lain', 
+  {
+    name: 'Lain-Lain',
     path: '#',
     subLinks: [
       { name: 'Galeri Perpus Keliling', path: '/artikel?kategori=Galeri Perpus Keliling' },
@@ -104,7 +105,7 @@ export default function Navbar() {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-white/95 backdrop-blur-sm shadow-sm'}`}>
       <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
+
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" />
@@ -116,14 +117,13 @@ export default function Navbar() {
               <div key={link.name} className="relative group">
                 {link.subLinks ? (
                   <div className="flex items-center space-x-1 cursor-pointer py-4 group">
-                    <span className={`text-sm font-medium hover:text-[#d6a54a] transition-colors ${
-                      location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path) 
-                      ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
-                    }`}>
+                    <span className={`text-sm font-medium hover:text-[#d6a54a] transition-colors ${location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path)
+                        ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                      }`}>
                       {link.name}
                     </span>
                     <ChevronDown size={14} className="text-gray-500 group-hover:text-[#d6a54a]" />
-                    
+
                     {/* Dropdown */}
                     <div className="absolute top-full left-0 w-48 bg-white border border-gray-100 shadow-xl rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                       {link.subLinks.map(subLink => (
@@ -134,11 +134,10 @@ export default function Navbar() {
                     </div>
                   </div>
                 ) : (
-                  <Link 
-                    to={link.path} 
-                    className={`py-4 text-sm font-medium hover:text-[#d6a54a] transition-colors ${
-                      location.pathname === link.path ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
-                    }`}
+                  <Link
+                    to={link.path}
+                    className={`py-4 text-sm font-medium hover:text-[#d6a54a] transition-colors ${location.pathname === link.path ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                      }`}
                   >
                     {link.name}
                   </Link>
@@ -233,19 +232,19 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-4">
             {/* Action Mobile Button (Lapor Warga / Login) */}
             {!user ? (
-               <Link to="/login" className="bg-[#0c2f3d] text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-[#1a4254] transition shadow-sm">
-                 Masuk
-               </Link>
+              <Link to="/login" className="bg-[#0c2f3d] text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-[#1a4254] transition shadow-sm">
+                Masuk
+              </Link>
             ) : (
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: user.avatarColor }}
-                >
-                  {getInitials(user.namaLengkap)}
-                </div>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                style={{ backgroundColor: user.avatarColor }}
+              >
+                {getInitials(user.namaLengkap)}
+              </div>
             )}
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2.5 rounded-full bg-gray-50 text-[#0c2f3d] hover:bg-[#d6a54a] hover:text-white border border-gray-200 transition-all active:scale-90 shadow-sm flex items-center justify-center"
               aria-label="Menu"
             >
@@ -254,15 +253,15 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Menu Backdrop */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40" 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
@@ -271,7 +270,7 @@ export default function Navbar() {
       {/* Mobile Menu Panel */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0, y: -20 }}
             animate={{ height: 'auto', opacity: 1, y: 0 }}
             exit={{ height: 0, opacity: 0, y: -20 }}
@@ -312,24 +311,24 @@ export default function Navbar() {
                 )}
               </div>
             ))}
-            
+
             <div className="pt-6 flex flex-col space-y-3 mt-auto">
-               <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-[#1f3e4e] text-white px-4 py-3 rounded-xl text-sm font-bold w-full text-center shadow-md active:scale-95 transition-all">
-                  Laporan Warga
-               </Link>
-               {user ? (
-                 <>
-                   <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
-                     <User size={16} /> Profil Saya
-                   </Link>
-                   <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
-                     <History size={16} /> Riwayat Pinjaman
-                   </Link>
-                   <button onClick={handleLogout} className="px-4 py-3 rounded-xl bg-[#fff5f5] text-red-600 text-sm font-bold w-full flex justify-center items-center gap-2 border border-red-100 hover:bg-red-50">
-                     <LogOut size={16} /> Keluar
-                   </button>
-                 </>
-               ) : null}
+              <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-[#1f3e4e] text-white px-4 py-3 rounded-xl text-sm font-bold w-full text-center shadow-md active:scale-95 transition-all">
+                Laporan Warga
+              </Link>
+              {user ? (
+                <>
+                  <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
+                    <User size={16} /> Profil Saya
+                  </Link>
+                  <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
+                    <History size={16} /> Riwayat Pinjaman
+                  </Link>
+                  <button onClick={handleLogout} className="px-4 py-3 rounded-xl bg-[#fff5f5] text-red-600 text-sm font-bold w-full flex justify-center items-center gap-2 border border-red-100 hover:bg-red-50">
+                    <LogOut size={16} /> Keluar
+                  </button>
+                </>
+              ) : null}
             </div>
           </motion.div>
         )}

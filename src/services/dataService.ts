@@ -351,14 +351,14 @@ export const refreshHomeArticles = async (): Promise<Article[]> => {
     ]);
 
     const allData = [...(newsRes.data || []), ...(storiesRes.data || [])];
-    
+
     if (allData.length > 0) {
       // Merge dengan data lama di memory (agar tidak hilang kategori lain)
       const existingIds = new Set(allData.map(a => a.id));
       const otherArticles = memoryCache.filter(a => !existingIds.has(a.id));
-      
+
       memoryCache = await migrateArticleImageBatch([...allData, ...otherArticles] as Article[]);
-      
+
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache));
       } catch (e) {
