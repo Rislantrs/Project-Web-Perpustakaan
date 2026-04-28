@@ -338,50 +338,46 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
     }
   }
 
-  const admins = await getAdmins();
-  
-  const admin = admins.find(a => {
-    if (a.email !== normalizedEmail) return false;
-    
-    // PRIORITAS: Cek tulisan biasa dulu
-    if (password === a.password) return true;
-
-    try {
-      // Cadangan: Cek pakai Bcrypt (Hash)
-      return bcrypt.compareSync(password, a.password);
-    } catch (e) {
-      return false;
-    }
-  });
-  
-  if (!admin) {
-    const count = (attempts[adminKey]?.count || 0) + 1;
-    attempts[adminKey] = { count, lastAttempt: Date.now() };
-    localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
-    
-    const remaining = 5 - count;
-    return { 
-      success: false, 
-      message: remaining > 0 
-        ? `Email atau password admin salah. Sisa percobaan: ${remaining}` 
-        : 'Akses dikunci selama 15 menit.' 
-    };
-  }
-
-  delete attempts[adminKey];
-  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
-
   const { error: authError } = await supabase.auth.signInWithPassword({
     email: normalizedEmail,
     password,
   });
 
   if (authError) {
+    const count = (attempts[adminKey]?.count || 0) + 1;
+    attempts[adminKey] = { count, lastAttempt: Date.now() };
+    localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+
+    const remaining = 5 - count;
     return {
       success: false,
-      message: 'Login Cloud gagal. Pastikan akun admin terdaftar di Supabase Auth: ' + authError.message,
+      message: remaining > 0
+        ? `Email atau password admin salah. Sisa percobaan: ${remaining}`
+        : 'Akses dikunci selama 15 menit.',
     };
   }
+
+  const { data: adminRow, error: adminError } = await supabase
+    .from(ADMINS_TABLE)
+    .select('*')
+    .eq('email', normalizedEmail)
+    .maybeSingle();
+
+  if (adminError || !adminRow) {
+    await supabase.auth.signOut();
+    const count = (attempts[adminKey]?.count || 0) + 1;
+    attempts[adminKey] = { count, lastAttempt: Date.now() };
+    localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
+    return {
+      success: false,
+      message: 'Akun berhasil login ke Cloud, tapi tidak terdaftar sebagai admin.',
+    };
+  }
+
+  const admin = mapAdminRowToModel(adminRow as SupabaseAdminRow);
+
+  delete attempts[adminKey];
+  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
 
   const sessionData = {
     admin,
