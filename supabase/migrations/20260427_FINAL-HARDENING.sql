@@ -47,10 +47,14 @@ DROP FUNCTION IF EXISTS public.is_super_admin_from_admins();
 
 CREATE OR REPLACE FUNCTION public.is_admin_from_admins()
 RETURNS boolean
-LANGUAGE sql
+LANGUAGE plpgsql
 STABLE
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off
 AS $$
-  SELECT EXISTS (
+BEGIN
+  RETURN EXISTS (
     SELECT 1
     FROM public.admins a
     WHERE (
@@ -59,14 +63,19 @@ AS $$
     )
       AND COALESCE(a.role, '') IN ('admin', 'super_admin')
   );
+END;
 $$;
 
 CREATE OR REPLACE FUNCTION public.is_super_admin_from_admins()
 RETURNS boolean
-LANGUAGE sql
+LANGUAGE plpgsql
 STABLE
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off
 AS $$
-  SELECT EXISTS (
+BEGIN
+  RETURN EXISTS (
     SELECT 1
     FROM public.admins a
     WHERE (
@@ -75,6 +84,7 @@ AS $$
     )
       AND COALESCE(a.role, '') = 'super_admin'
   );
+END;
 $$;
 
 REVOKE ALL ON FUNCTION public.is_admin_from_admins() FROM PUBLIC;
@@ -94,35 +104,27 @@ TO authenticated
 USING (
   id = auth.uid()
   OR lower(COALESCE(email, '')) = lower(COALESCE(auth.jwt() ->> 'email', ''))
-  OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin'), false)
+  OR public.is_admin_from_admins()
 );
 
 CREATE POLICY "admins_insert_super_admin_jwt"
 ON public.admins
 FOR INSERT
 TO authenticated
-WITH CHECK (
-  COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'super_admin', false)
-);
+WITH CHECK (public.is_super_admin_from_admins());
 
 CREATE POLICY "admins_update_super_admin_jwt"
 ON public.admins
 FOR UPDATE
 TO authenticated
-USING (
-  COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'super_admin', false)
-)
-WITH CHECK (
-  COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'super_admin', false)
-);
+USING (public.is_super_admin_from_admins())
+WITH CHECK (public.is_super_admin_from_admins());
 
 CREATE POLICY "admins_delete_super_admin_jwt"
 ON public.admins
 FOR DELETE
 TO authenticated
-USING (
-  COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'super_admin', false)
-);
+USING (public.is_super_admin_from_admins());
 
 -- =====================================================
 -- 2) ARTICLES

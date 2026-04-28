@@ -656,6 +656,81 @@ export const getBorrows = (): BorrowRecord[] => {
   return data ? JSON.parse(data) : [];
 };
 
+const parseIndonesianDate = (value?: string): Date | null => {
+  if (!value) return null;
+  const normalized = value.split(',')[0].trim();
+  const match = normalized.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const monthName = match[2].toLowerCase();
+  const year = Number(match[3]);
+  const monthIndex = months.findIndex((item) => item.toLowerCase() === monthName);
+  if (monthIndex < 0) return null;
+
+  return new Date(year, monthIndex, day);
+};
+
+const csvEscape = (value: unknown): string => {
+  const text = value === null || value === undefined ? '' : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
+export const exportBorrowsToCsv = (options?: { month?: string; status?: BorrowRecord['status'] | 'semua' }) => {
+  const month = (options?.month || '').trim();
+  const status = options?.status || 'semua';
+  const borrows = getBorrows();
+
+  const targetYear = month ? Number(month.split('-')[0]) : null;
+  const targetMonth = month ? Number(month.split('-')[1]) : null;
+
+  const rows = borrows.filter((item) => {
+    if (status !== 'semua' && item.status !== status) return false;
+    if (!targetYear || !targetMonth) return true;
+
+    const borrowDate = parseIndonesianDate(item.tanggalPinjam);
+    if (!borrowDate) return false;
+
+    return borrowDate.getFullYear() === targetYear && borrowDate.getMonth() + 1 === targetMonth;
+  });
+
+  const header = [
+    'id',
+    'book_id',
+    'book_title',
+    'member_id',
+    'member_name',
+    'status',
+    'tanggal_pinjam',
+    'batas_ambil',
+    'tanggal_kembali',
+    'tanggal_dikembalikan',
+  ];
+
+  const body = rows.map((item) => [
+    item.id,
+    item.bookId,
+    item.bookTitle,
+    item.memberId,
+    item.memberName,
+    item.status,
+    item.tanggalPinjam,
+    item.batasAmbil,
+    item.tanggalKembali,
+    item.tanggalDikembalikan || '',
+  ]);
+
+  const csvLines = [header, ...body].map((line) => line.map(csvEscape).join(','));
+  const csv = '\ufeff' + csvLines.join('\n');
+  const fileSuffix = month || 'semua-periode';
+
+  return {
+    csv,
+    fileName: `arsip-peminjaman-${fileSuffix}.csv`,
+    rowCount: rows.length,
+  };
+};
+
 // === WISHLIST FUNCTIONS ===
 
 const WISHLIST_KEY = 'disipusda_wishlist';
