@@ -51,6 +51,51 @@ A modern, cozy, and professional library website designed for government archive
 - **Email Service**: Resend SMTP
 - **Notifications**: Sonner (Toast)
 
+## 📧 Notifikasi Email Otomatis (Resend API + Supabase Edge Functions)
+
+Implementasi notifikasi email member sudah disiapkan dengan arsitektur aman:
+
+- Frontend memanggil Edge Function via `src/services/emailService.ts`
+- Edge Function memanggil Resend API (server-side)
+- `RESEND_API_KEY` hanya disimpan di environment variable Supabase, tidak ada hardcode di React
+
+### Komponen yang ditambahkan
+
+- `src/services/emailService.ts`
+- `supabase/functions/send-borrow-notification/index.ts`
+- `supabase/functions/send-borrow-reminders/index.ts`
+- `supabase/functions/_shared/emailTemplates.ts`
+- `supabase/migrations/20260428_borrow-notification-logs.sql`
+
+### Environment Variable (Supabase Secrets)
+
+Set secret berikut di project Supabase:
+
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` (contoh: `Disipusda <no-reply@domain-anda.com>`)
+- `CRON_SECRET` (opsional tapi direkomendasikan untuk endpoint job harian)
+
+### Deploy Edge Function
+
+```bash
+supabase functions deploy send-borrow-notification
+supabase functions deploy send-borrow-reminders
+```
+
+### Jadwalkan Cron Harian
+
+Contoh via Supabase Dashboard Scheduler atau HTTP Cron eksternal:
+
+- Method: `POST`
+- URL: `https://<project-ref>.supabase.co/functions/v1/send-borrow-reminders`
+- Header: `x-cron-secret: <CRON_SECRET>`
+
+Job harian akan mengirim:
+
+- Pengingat buku belum diambil (H+1 dari tanggal pinjam)
+- Pengingat H-2 sebelum jatuh tempo pengembalian
+- Pengingat keterlambatan pengembalian (maksimal sekali per hari per transaksi)
+
 ## 🔐 Authentication & Security
 
 Sistem ini **TIDAK LAGI MENGGUNAKAN MOCK DATA** untuk autentikasi:

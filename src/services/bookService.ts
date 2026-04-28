@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 import { dbGet, dbSave } from './db';
 import { uploadDataUrlImage } from './storageService';
 import { getCategories } from './dataService';
+import { sendBorrowConfirmationEmail } from './emailService';
 export interface Book {
   id: string;
   judul: string;
@@ -386,6 +387,12 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
     borrows.push(record);
     dbSave(BORROWS_KEY, borrows);
     await supabase.from('borrows').insert(record);
+
+    // Email bersifat non-blocking: peminjaman tetap sukses walau notifikasi gagal dikirim.
+    const emailResult = await sendBorrowConfirmationEmail({ borrowId: record.id });
+    if (!emailResult.success) {
+      console.warn('Notifikasi email konfirmasi peminjaman gagal:', emailResult.message);
+    }
 
     return {
       success: true,
