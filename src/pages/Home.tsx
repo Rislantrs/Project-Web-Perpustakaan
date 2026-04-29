@@ -195,10 +195,10 @@ export default function Home() {
             {/* Main Featured Article (Auto Sliding) */}
             <div className="lg:col-span-7 group cursor-pointer relative rounded-2xl overflow-hidden shadow-lg h-[500px]">
               <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-20 pointer-events-none">
-                <button onClick={prevNews} className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                <button onClick={prevNews} aria-label="Berita sebelumnya" className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#d6a54a]">
                   <ArrowRight size={20} className="rotate-180" />
                 </button>
-                <button onClick={nextNews} className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                <button onClick={nextNews} aria-label="Berita selanjutnya" className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#d6a54a]">
                   <ArrowRight size={20} />
                 </button>
               </div>

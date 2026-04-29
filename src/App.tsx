@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router';
 import { useEffect, useRef, Suspense, lazy } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorBoundaryFallback from './components/ErrorBoundaryFallback';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Kearsipan from './pages/Kearsipan';
@@ -122,77 +124,84 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="kearsipan" element={<Kearsipan />} />
-          <Route path="bale-panyawangan" element={<Diorama />} />
-          <Route path="perpustakaan" element={<Perpustakaan />} />
-          <Route path="profil/sejarah" element={<Sejarah />} />
-          <Route path="profil/struktur" element={<StrukturOrganisasi />} />
-          <Route path="profil/prestasi" element={<Prestasi />} />
-          <Route path="artikel" element={<BlogList />} />
-          <Route path="artikel/:slug" element={<ArticleDetail />} />
-          <Route path="galendo" element={<Galendo />} />
-          <Route path="ppid" element={<Ppid />} />
-          <Route path="zona-integritas" element={<ZonaIntegritas />} />
-          <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
-          <Route path="pabukon" element={<Pabukon />} />
-          <Route path="lapor-warga" element={<LaporWarga />} />
-          <Route path="jadwal" element={<JadwalLayanan />} />
-          <Route path="referensi" element={<Referensi />} />
-          <Route path="katalog" element={<KatalogBuku />} />
-          <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
-          <Route path="layanan-rentan" element={<LayananRentan />} />
-        </Route>
+    <ErrorBoundary 
+      FallbackComponent={ErrorBoundaryFallback}
+      onReset={() => {
+        window.location.href = '/';
+      }}
+    >
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route path="kearsipan" element={<Kearsipan />} />
+            <Route path="bale-panyawangan" element={<Diorama />} />
+            <Route path="perpustakaan" element={<Perpustakaan />} />
+            <Route path="profil/sejarah" element={<Sejarah />} />
+            <Route path="profil/struktur" element={<StrukturOrganisasi />} />
+            <Route path="profil/prestasi" element={<Prestasi />} />
+            <Route path="artikel" element={<BlogList />} />
+            <Route path="artikel/:slug" element={<ArticleDetail />} />
+            <Route path="galendo" element={<Galendo />} />
+            <Route path="ppid" element={<Ppid />} />
+            <Route path="zona-integritas" element={<ZonaIntegritas />} />
+            <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
+            <Route path="pabukon" element={<Pabukon />} />
+            <Route path="lapor-warga" element={<LaporWarga />} />
+            <Route path="jadwal" element={<JadwalLayanan />} />
+            <Route path="referensi" element={<Referensi />} />
+            <Route path="katalog" element={<KatalogBuku />} />
+            <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
+            <Route path="layanan-rentan" element={<LayananRentan />} />
+          </Route>
 
-        {/* Auth Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/auth/verify" element={<AuthVerifyCode />} />
-        <Route path="/auth/update-password" element={<AuthUpdatePassword />} />
-        <Route path="/login-admin" element={<LoginAdmin />} />
-        <Route path="/profil" element={<Profil />} />
+          {/* Auth Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/verify" element={<AuthVerifyCode />} />
+          <Route path="/auth/update-password" element={<AuthUpdatePassword />} />
+          <Route path="/login-admin" element={<LoginAdmin />} />
+          <Route path="/profil" element={<Profil />} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={
-          <Suspense fallback={
-            <div className="h-screen w-full flex items-center justify-center p-6 bg-white overflow-hidden overflow-y-auto">
-              <div className="w-10 h-10 border-4 border-[#0c2f3d]/10 border-t-[#d6a54a] rounded-full animate-spin"></div>
-            </div>
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <Suspense fallback={
+              <div className="h-screen w-full flex items-center justify-center p-6 bg-white overflow-hidden overflow-y-auto">
+                <div className="w-10 h-10 border-4 border-[#0c2f3d]/10 border-t-[#d6a54a] rounded-full animate-spin"></div>
+              </div>
+            }>
+              <AdminLayout />
+            </Suspense>
           }>
-            <AdminLayout />
-          </Suspense>
-        }>
-          <Route index element={<AdminDashboard />} />
-          <Route path="articles" element={<ManageArticles />} />
-          <Route path="articles/new" element={<ArticleEditor />} />
-          <Route path="articles/edit/:id" element={<ArticleEditor />} />
-          <Route path="media" element={<ManageMedia />} />
-          <Route path="media/new" element={<MediaEditor />} />
-          <Route path="media/edit/:id" element={<MediaEditor />} />
-          <Route path="books" element={<ManageBooks />} />
-          <Route path="books/new" element={<BookEditor />} />
-          <Route path="books/edit/:id" element={<BookEditor />} />
-          <Route path="categories" element={<ManageCategories />} />
-          <Route path="admins" element={<ManageAdmins />} />
-          <Route path="members" element={<ManageMembers />} />
-          <Route path="borrows" element={<ManageBorrows />} />
-          <Route path="reports" element={<ManageReports />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="schedules" element={<ManageSchedules />} />
-          <Route path="structure" element={<ManageStructure />} />
-          <Route path="ppid" element={<ManagePpid />} />
-        </Route>
+            <Route index element={<AdminDashboard />} />
+            <Route path="articles" element={<ManageArticles />} />
+            <Route path="articles/new" element={<ArticleEditor />} />
+            <Route path="articles/edit/:id" element={<ArticleEditor />} />
+            <Route path="media" element={<ManageMedia />} />
+            <Route path="media/new" element={<MediaEditor />} />
+            <Route path="media/edit/:id" element={<MediaEditor />} />
+            <Route path="books" element={<ManageBooks />} />
+            <Route path="books/new" element={<BookEditor />} />
+            <Route path="books/edit/:id" element={<BookEditor />} />
+            <Route path="categories" element={<ManageCategories />} />
+            <Route path="admins" element={<ManageAdmins />} />
+            <Route path="members" element={<ManageMembers />} />
+            <Route path="borrows" element={<ManageBorrows />} />
+            <Route path="reports" element={<ManageReports />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="schedules" element={<ManageSchedules />} />
+            <Route path="structure" element={<ManageStructure />} />
+            <Route path="ppid" element={<ManagePpid />} />
+          </Route>
 
-        {/* 404 Generic Error Route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+          {/* 404 Generic Error Route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

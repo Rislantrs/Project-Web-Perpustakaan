@@ -36,3 +36,9 @@ Thumbs.db
 supabase/.temp/
 supabase/functions/.env
 
+# Testing
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+

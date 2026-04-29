@@ -203,7 +203,7 @@ export default function KatalogBuku() {
           >
             {toast.type === 'success' ? <CheckCircle size={20} className="text-emerald-600 shrink-0" /> : <AlertCircle size={20} className="text-red-600 shrink-0" />}
             <span className={`text-sm font-medium ${toast.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>{toast.message}</span>
-            <button onClick={() => setToast(prev => ({ ...prev, show: false }))} className="ml-2 text-gray-400 hover:text-gray-600"><X size={16} /></button>
+            <button onClick={() => setToast(prev => ({ ...prev, show: false }))} aria-label="Tutup notifikasi" className="ml-2 text-gray-500 hover:text-gray-700 focus:ring-2 focus:ring-gray-300 rounded"><X size={16} /></button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -235,10 +235,11 @@ export default function KatalogBuku() {
                 placeholder="Cari judul, penulis, atau ISBN..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/95 backdrop-blur-sm text-gray-800 text-base outline-none focus:ring-4 focus:ring-[#d6a54a]/30 shadow-2xl placeholder:text-gray-400 transition-all"
+                aria-label="Kolom pencarian buku"
+                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/95 backdrop-blur-sm text-gray-800 text-base outline-none focus:ring-4 focus:ring-[#d6a54a]/30 shadow-2xl placeholder:text-gray-500 transition-all"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button onClick={() => setSearchQuery('')} aria-label="Hapus teks pencarian" className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
                   <X size={18} />
                 </button>
               )}
@@ -309,10 +310,10 @@ export default function KatalogBuku() {
               <h2 className="font-serif text-3xl font-bold text-[#1a1a1a]">Rekomendasi Pilihan</h2>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => scrollRec('left')} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors">
+              <button onClick={() => scrollRec('left')} aria-label="Geser rekomendasi ke kiri" className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors focus:ring-2 focus:ring-[#0c2f3d]/30">
                 <ChevronLeft size={18} />
               </button>
-              <button onClick={() => scrollRec('right')} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors">
+              <button onClick={() => scrollRec('right')} aria-label="Geser rekomendasi ke kanan" className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors focus:ring-2 focus:ring-[#0c2f3d]/30">
                 <ChevronRight size={18} />
               </button>
             </div>
@@ -360,7 +361,9 @@ export default function KatalogBuku() {
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${showFilters ? 'bg-[#0c2f3d] text-white border-[#0c2f3d]' : 'bg-white text-gray-700 border-gray-200 hover:border-[#0c2f3d]'}`}
+            aria-expanded={showFilters}
+            aria-controls="filter-panel"
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors focus:ring-2 focus:ring-[#0c2f3d]/30 ${showFilters ? 'bg-[#0c2f3d] text-white border-[#0c2f3d]' : 'bg-white text-gray-700 border-gray-300 hover:border-[#0c2f3d]'}`}
           >
             <SlidersHorizontal size={16} /> Filter
           </button>

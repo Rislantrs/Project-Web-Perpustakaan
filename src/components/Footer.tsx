@@ -31,12 +31,12 @@ export default function Footer() {
             </p>
             <div className="flex space-x-3">
               {[
-                { icon: <Facebook size={18} />, url: settings.facebookUrl },
-                { icon: <Instagram size={18} />, url: settings.instagramUrl },
-                { icon: <Youtube size={18} />, url: settings.youtubeUrl },
-                { icon: <Mail size={18} />, url: `mailto:${settings.emailKontak}` }
+                { icon: <Facebook size={18} />, url: settings.facebookUrl, name: 'Facebook' },
+                { icon: <Instagram size={18} />, url: settings.instagramUrl, name: 'Instagram' },
+                { icon: <Youtube size={18} />, url: settings.youtubeUrl, name: 'YouTube' },
+                { icon: <Mail size={18} />, url: `mailto:${settings.emailKontak}`, name: 'Email' }
               ].map((social, i) => social.url && (
-                <a key={i} href={social.url} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-[#d6a54a] hover:text-[#0c2f3d] transition-all duration-300 border border-white/10 group">
+                <a key={i} href={social.url} target="_blank" rel="noreferrer" aria-label={`Buka ${social.name}`} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-[#d6a54a] hover:text-[#0c2f3d] transition-all duration-300 border border-white/10 group focus:outline-none focus:ring-2 focus:ring-[#d6a54a]">
                   <span className="group-hover:scale-110 transition-transform">{social.icon}</span>
                 </a>
               ))}
@@ -97,6 +97,7 @@ export default function Footer() {
               className="mt-6 w-full h-32 bg-white/5 rounded-xl border border-white/10 block overflow-hidden relative group transition-all hover:border-[#d6a54a]/50"
             >
                <iframe 
+                 title="Peta Lokasi Disipusda Purwakarta"
                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15860.84!2d107.44!3d-6.55!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e690e66699b7751%3A0x6b864a7c067e203c!2sDinas%20Arsip%20dan%20Perpustakaan%20Kabupaten%20Purwakarta!5e0!3m2!1sid!2sid!4v1713500000000!5m2!1sid!2sid"
                  className="absolute inset-0 w-full h-full grayscale opacity-50 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700 pointer-events-none"
                  style={{ border: 0 }}

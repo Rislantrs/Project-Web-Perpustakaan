@@ -118,7 +118,7 @@ export default function Navbar() {
                 {link.subLinks ? (
                   <div className="flex items-center space-x-1 cursor-pointer py-4 group">
                     <span className={`text-sm font-medium hover:text-[#d6a54a] transition-colors ${location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path)
-                        ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                      ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
                       }`}>
                       {link.name}
                     </span>
