@@ -4,58 +4,11 @@ import { User, ChevronDown, Menu, X, LogOut, History, BookOpen, Shield } from 'l
 import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, logout, getInitials, isAdminLoggedIn, type Member } from '../services/authService';
 
-// Import Logo
-import logo from '../assets/logo/logoDisispuda.webp';
+import { SITE_CONFIG } from '../config/siteConfig';
 
-const navLinks = [
-  { name: 'Beranda', path: '/' },
-  {
-    name: 'Profil',
-    path: '#',
-    subLinks: [
-      { name: 'Sejarah', path: '/profil/sejarah' },
-      { name: 'Struktur Organisasi', path: '/profil/struktur' },
-      { name: 'Prestasi', path: '/profil/prestasi' }
-    ]
-  },
-  {
-    name: 'Layanan',
-    path: '#',
-    subLinks: [
-      { name: 'Kearsipan', path: '/kearsipan' },
-      { name: 'Perpustakaan', path: '/perpustakaan' },
-      { name: 'Bale Panyawangan', path: '/bale-panyawangan' }
-    ]
-  },
-  { name: 'Katalog Buku', path: '/katalog' },
-  { name: 'Berita Terkini', path: '/artikel?kategori=Berita Terkini' },
-  {
-    name: 'Artikel',
-    path: '#',
-    subLinks: [
-      { name: 'Media Mewarnai', path: '/artikel?kategori=Media Mewarnai' },
-      { name: 'Perpustakaan Keliling', path: '/artikel?kategori=Perpus Keliling' },
-      { name: 'Galeri Foto', path: '/artikel?kategori=Galeri' },
-      { name: 'Video Terkini', path: '/artikel?kategori=Video Terkini' },
-      { name: 'Pojok Carita', path: '/artikel?kategori=Pojok Carita' },
-      { name: 'Serba-Serbi Purwakarta', path: '/artikel?kategori=Serba-serbi Purwakarta' },
-      { name: 'Edukasi', path: '/artikel?kategori=Edukasi' },
-      { name: 'Kedinasan', path: '/artikel?kategori=Kedinasan' },
-      { name: 'Statistik', path: '/artikel?kategori=Statistik' }
-    ]
-  },
-  {
-    name: 'Lain-Lain',
-    path: '#',
-    subLinks: [
-      { name: 'Galeri Perpus Keliling', path: '/artikel?kategori=Galeri Perpus Keliling' },
-      { name: 'Pabukon', path: '/pabukon' },
-      { name: 'GALENDO', path: '/galendo' },
-      { name: 'PPID', path: '/ppid' },
-      { name: 'Zona Integritas', path: '/zona-integritas' }
-    ]
-  },
-];
+// Import Logo
+const logo = SITE_CONFIG.BRAND.LOGO;
+const navLinks = SITE_CONFIG.NAV_LINKS;
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -3,8 +3,10 @@ import { MapPin, Phone, Mail, Instagram, Facebook, Youtube } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { getSiteSettings, type SiteSettings } from '../services/settingsService';
 
+import { SITE_CONFIG } from '../config/siteConfig';
+
 // Import Logo
-import logo from '../assets/logo/logoDisispuda.webp';
+const logo = SITE_CONFIG.BRAND.LOGO;
 
 export default function Footer() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -51,8 +53,8 @@ export default function Footer() {
               <li><Link to="/profil/struktur" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Struktur Organisasi</Link></li>
               <li><Link to="/profil/prestasi" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Prestasi</Link></li>
               <li><Link to="/referensi" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Referensi</Link></li>
-              <li><a href="https://docs.google.com/forms/d/e/1FAIpQLSe2S9Ck-DAPbISSJcDLRiHg6d3aoiCU7xu7bYoLjbLY-gFGhg/viewform" target="_blank" rel="noreferrer" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Pengaduan dan Saran</a></li>
-              <li><a href="https://api.whatsapp.com/send/?phone=6288971405196&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Helpdesk SRIKANDI</a></li>
+              <li><a href={SITE_CONFIG.EXTERNAL_LINKS.FORM_PENGADUAN} target="_blank" rel="noreferrer" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Pengaduan dan Saran</a></li>
+              <li><a href={SITE_CONFIG.EXTERNAL_LINKS.HELPDESK_SRIKANDI} target="_blank" rel="noreferrer" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Helpdesk SRIKANDI</a></li>
             </ul>
           </div>
 
@@ -108,11 +110,9 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] sm:text-xs text-gray-500 font-medium tracking-widest uppercase">
-          <p>© {new Date().getFullYear() + 2} DISIPUSDA PURWAKARTA. ALL RIGHTS RESERVED.</p>
+          <p>© {new Date().getFullYear()} {SITE_CONFIG.BRAND.NAME.toUpperCase()}. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-6 mt-4 md:mt-0 italic">
-            <span className="text-[#d6a54a]">Memory of the Nation</span>
-            <span className="text-gray-600">|</span>
-            <span className="text-[#d6a54a]">Center of Literacy</span>
+            <span className="text-[#d6a54a]">{SITE_CONFIG.BRAND.SLOGAN}</span>
           </div>
         </div>
       </div>
