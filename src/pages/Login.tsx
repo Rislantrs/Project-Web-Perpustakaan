@@ -104,7 +104,7 @@ export default function Login() {
         else localStorage.removeItem('remembered_user_id');
         
         // Immediate redirection
-        window.location.href = '/perpustakaan';
+        window.location.href = '/katalog';
       } else {
         if (result.needsVerification && result.email) {
           // Set session gate agar halaman verify tidak bisa diakses sembarang user.

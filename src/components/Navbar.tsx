@@ -195,7 +195,7 @@ export default function Navbar() {
                         <User size={16} className="text-gray-400" /> Profil Saya
                       </Link>
                       <Link
-                        to="/perpustakaan"
+                        to="/katalog"
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d] transition-colors"
                       >
                         <BookOpen size={16} className="text-gray-400" /> Katalog Buku

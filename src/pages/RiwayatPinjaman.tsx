@@ -164,7 +164,7 @@ export default function RiwayatPinjaman() {
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-[#d6a54a]/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <Link to="/perpustakaan" className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm mb-6">
+          <Link to="/katalog" className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm mb-6">
             <ArrowLeft size={16} /> Kembali ke Katalog
           </Link>
           <h1 className="font-serif text-white text-4xl lg:text-5xl font-bold mb-3">Riwayat Peminjaman</h1>
@@ -320,7 +320,7 @@ export default function RiwayatPinjaman() {
               {filterStatus === 'semua' ? 'Mulai pinjam buku dari katalog kami!' : 'Ubah filter untuk melihat riwayat lainnya.'}
             </p>
             <Link
-              to="/perpustakaan"
+              to="/katalog"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#0c2f3d] text-white rounded-xl font-bold hover:bg-[#1a4254] transition-colors shadow-lg"
             >
               <BookOpen size={18} /> Jelajahi Katalog

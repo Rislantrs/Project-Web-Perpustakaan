@@ -13,7 +13,7 @@ export default function Pabukon() {
       subtitle: 'Online Public Access Catalog',
       description: 'Sarana bagi pemustaka untuk mencari koleksi yang dibutuhkan di perpustakaan secara digital dan seketika.',
       icon: <BookOpen size={48} className="text-[#d6a54a]" />,
-      link: '/perpustakaan',
+      link: '/katalog',
       color: 'from-[#0c2f3d] to-[#15465c]',
       btnText: 'Cari Buku Sekarang'
     },

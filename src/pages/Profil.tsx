@@ -201,9 +201,8 @@ export default function Profil() {
         </div>
         <div className="absolute -bottom-1 left-0 right-0 h-16 bg-gradient-to-t from-[#f0f2f5] to-transparent" />
 
-        {/* Back button */}
         <div className="absolute top-4 left-4">
-          <Link to="/perpustakaan" className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium bg-black/20 backdrop-blur-sm px-3 py-2 rounded-xl transition-colors">
+          <Link to="/katalog" className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium bg-black/20 backdrop-blur-sm px-3 py-2 rounded-xl transition-colors">
             <ArrowLeft size={16} /> Katalog
           </Link>
         </div>
@@ -462,7 +461,7 @@ export default function Profil() {
                 <div className="text-center py-10">
                   <BookOpen size={36} className="mx-auto text-gray-300 mb-3" />
                   <p className="text-gray-500 font-medium">Belum ada riwayat pinjaman</p>
-                  <Link to="/perpustakaan" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
+                  <Link to="/katalog" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
                     Jelajahi Katalog →
                   </Link>
                 </div>
@@ -507,7 +506,7 @@ export default function Profil() {
                 <div className="text-center py-10">
                   <Users size={36} className="mx-auto text-gray-300 mb-3" />
                   <p className="text-gray-500 font-medium">Tidak ada antrian aktif</p>
-                  <Link to="/perpustakaan" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
+                  <Link to="/katalog" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
                     Cari buku yang diinginkan →
                   </Link>
                 </div>
@@ -537,14 +536,14 @@ export default function Profil() {
                 <div className="text-center py-10">
                   <Heart size={36} className="mx-auto text-gray-300 mb-3" />
                   <p className="text-gray-500 font-medium">Wishlist Anda masih kosong</p>
-                  <Link to="/perpustakaan" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
+                  <Link to="/katalog" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
                     Jelajahi Katalog →
                   </Link>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {wishlist.map(book => (
-                    <Link key={book.id} to={`/perpustakaan?bookId=${book.id}`} className="group border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-all block">
+                    <Link key={book.id} to={`/katalog?bookId=${book.id}`} className="group border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-all block">
                       <div className="aspect-[2/3] bg-gray-100 relative">
                         <img src={book.cover} alt={book.judul} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 flex items-center justify-center text-red-500 shadow-sm">
@@ -565,7 +564,7 @@ export default function Profil() {
 
         {/* Quick Links */}
         <div className="grid grid-cols-2 gap-3 mt-6">
-          <Link to="/perpustakaan" className="bg-[#0c2f3d] text-white rounded-2xl p-4 hover:bg-[#1a4254] transition-colors shadow-sm flex items-center gap-3">
+          <Link to="/katalog" className="bg-[#0c2f3d] text-white rounded-2xl p-4 hover:bg-[#1a4254] transition-colors shadow-sm flex items-center gap-3">
             <BookOpen size={20} /> <span className="font-medium text-sm">Katalog Buku</span>
           </Link>
           <Link to="/riwayat-pinjaman" className="bg-white text-[#0c2f3d] rounded-2xl p-4 hover:bg-gray-50 transition-colors shadow-sm border border-gray-100 flex items-center gap-3">

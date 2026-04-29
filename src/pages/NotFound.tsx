@@ -102,7 +102,7 @@ export default function ErrorPage({ code = 404, title, message }: ErrorPageProps
                   // HARDCODE ROUTE MAP: semua tag non-katalog diarahkan ke listing artikel.
                   <Link 
                     key={tag} 
-                    to={tag === 'Katalog Buku' ? '/perpustakaan' : '/artikel'}
+                    to={tag === 'Katalog Buku' ? '/katalog' : '/artikel'}
                     className="text-xs font-bold text-gray-500 hover:text-[#d6a54a] transition-colors bg-gray-50 px-3 py-1.5 rounded-lg hover:bg-[#d6a54a]/5"
                   >
                     #{tag}

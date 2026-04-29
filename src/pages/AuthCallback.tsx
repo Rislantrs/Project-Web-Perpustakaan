@@ -52,7 +52,7 @@ export default function AuthCallback() {
 
       if (result.type === 'magiclink') {
         setState({ status: 'success', message: 'Autentikasi berhasil. Anda akan diarahkan ke dashboard.' });
-        setTimeout(() => navigate('/perpustakaan'), 1000);
+        setTimeout(() => navigate('/katalog'), 1000);
         return;
       }
 
