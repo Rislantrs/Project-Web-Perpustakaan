@@ -221,7 +221,7 @@ export const deleteMemberFromSupabase = async (memberId: string): Promise<{ succ
  */
 export const registerWithSupabase = async (data: {
   namaLengkap: string;
-  nik: string;
+  nik?: string;
   email: string;
   password: string;
   alamat?: string;
@@ -238,7 +238,7 @@ export const registerWithSupabase = async (data: {
     options: {
       data: {
         namaLengkap: data.namaLengkap.trim(),
-        nik: data.nik.trim(),
+        nik: data.nik?.trim() || '',
         alamat: data.alamat?.trim() || '',
         telepon: data.telepon?.replace(/\D/g, '') || '',
         jenisKelamin: data.jenisKelamin || 'L',

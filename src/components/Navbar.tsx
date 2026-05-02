@@ -70,12 +70,12 @@ export default function Navbar() {
               <div key={link.name} className="relative group">
                 {link.subLinks ? (
                   <div className="flex items-center space-x-1 cursor-pointer py-4 group">
-                    <span className={`text-sm font-medium hover:text-[#d6a54a] transition-colors ${location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path)
-                      ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                    <span className={`text-sm font-medium hover:text-[#8f671d] transition-colors ${location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path)
+                      ? 'text-[#8f671d] border-b-2 border-[#d6a54a]' : 'text-gray-700'
                       }`}>
                       {link.name}
                     </span>
-                    <ChevronDown size={14} className="text-gray-500 group-hover:text-[#d6a54a]" />
+                    <ChevronDown size={14} className="text-gray-500 group-hover:text-[#8f671d]" />
 
                     {/* Dropdown */}
                     <div className="absolute top-full left-0 w-48 bg-white border border-gray-100 shadow-xl rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
@@ -89,7 +89,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to={link.path}
-                    className={`py-4 text-sm font-medium hover:text-[#d6a54a] transition-colors ${location.pathname === link.path ? 'text-[#d6a54a] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                    className={`py-4 text-sm font-medium hover:text-[#8f671d] transition-colors ${location.pathname === link.path ? 'text-[#8f671d] border-b-2 border-[#d6a54a]' : 'text-gray-700'
                       }`}
                   >
                     {link.name}
@@ -138,7 +138,7 @@ export default function Navbar() {
                       <div className="px-4 py-3 border-b border-gray-100">
                         <p className="font-bold text-sm text-[#1a1a1a] truncate">{user.namaLengkap}</p>
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                        <p className="text-xs text-[#d6a54a] font-semibold mt-1">{user.nomorAnggota}</p>
+                        <p className="text-xs text-[#8f671d] font-semibold mt-1">{user.nomorAnggota}</p>
                       </div>
 
                       <Link
@@ -242,7 +242,7 @@ export default function Navbar() {
                   </div>
                   <div>
                     <p className="font-bold text-sm text-[#1a1a1a]">{user.namaLengkap}</p>
-                    <p className="text-xs text-[#d6a54a] font-semibold">{user.nomorAnggota}</p>
+                    <p className="text-xs text-[#8f671d] font-semibold">{user.nomorAnggota}</p>
                   </div>
                 </div>
               </div>
@@ -250,13 +250,13 @@ export default function Navbar() {
 
             {navLinks.map((item) => (
               <div key={item.name} className="border-b border-gray-50 last:border-0 pb-1">
-                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors rounded-lg">
+                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-[#0c2f3d] hover:text-[#8f671d] transition-colors rounded-lg">
                   {item.name}
                 </Link>
                 {item.subLinks && (
                   <div className="pl-4 border-l-2 border-gray-100 ml-4 mb-2 space-y-1">
                     {item.subLinks.map(sub => (
-                      <Link key={sub.name} to={sub.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-[#d6a54a] hover:bg-gray-50 rounded-lg transition-colors">
+                      <Link key={sub.name} to={sub.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-[#8f671d] hover:bg-gray-50 rounded-lg transition-colors">
                         {sub.name}
                       </Link>
                     ))}

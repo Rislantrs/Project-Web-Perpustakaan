@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { UserPlus, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { registerWithSupabase } from '../services/supabaseAuthService';
+import { SITE_CONFIG } from '../config/siteConfig';
 import libRoom from '../assets/image/lib-room.webp';
 
 export default function Register() {
@@ -29,7 +30,7 @@ export default function Register() {
     e.preventDefault();
 
     // Simple validation
-    if (!formData.namaLengkap || !formData.nik || !formData.email || !formData.password) {
+    if (!formData.namaLengkap || !formData.email || !formData.password || (SITE_CONFIG.FEATURES.REQUIRE_NIK && !formData.nik)) {
       setToast({ show: true, message: 'Harap isi semua field yang wajib diisi.', type: 'error' });
       setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
       return;
@@ -148,17 +149,29 @@ export default function Register() {
                 <input
                   type="text" name="namaLengkap" value={formData.namaLengkap} onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
-                  placeholder="Sesuai KTP/KIA"
+                  placeholder="Sesuai KTP/Identitas"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">NIK <span className="text-red-500">*</span></label>
-                <input
-                  type="text" name="nik" value={formData.nik} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
-                  placeholder="Nomor Induk Kependudukan"
-                />
-              </div>
+              
+              {SITE_CONFIG.FEATURES.REQUIRE_NIK ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">NIK <span className="text-red-500">*</span></label>
+                  <input
+                    type="text" name="nik" value={formData.nik} onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
+                    placeholder="Nomor Induk Kependudukan"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">No. Telepon / WhatsApp</label>
+                  <input
+                    type="tel" name="telepon" value={formData.telepon} onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -170,14 +183,35 @@ export default function Register() {
                   placeholder="alamat@email.com"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">No. Telepon</label>
-                <input
-                  type="tel" name="telepon" value={formData.telepon} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
-                  placeholder="08xxxxxxxxxx"
-                />
-              </div>
+              
+              {SITE_CONFIG.FEATURES.REQUIRE_NIK ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">No. Telepon</label>
+                  <input
+                    type="tel" name="telepon" value={formData.telepon} onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white pr-12"
+                      placeholder="Minimal 6 karakter"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,31 +235,33 @@ export default function Register() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Domisili</label>
               <input
                 type="text" name="alamat" value={formData.alamat} onChange={handleChange}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white"
-                placeholder="Alamat lengkap"
+                placeholder="Alamat saat ini"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className="text-red-500">*</span></label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white pr-12"
-                  placeholder="Minimal 6 karakter"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+            {SITE_CONFIG.FEATURES.REQUIRE_NIK && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d] focus:border-[#0c2f3d] outline-none transition-colors bg-white pr-12"
+                    placeholder="Minimal 6 karakter"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="pt-2">
               <button

@@ -11,8 +11,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, updateMember, deleteMember, logout, getInitials, type Member } from '../services/authService';
 import { getMemberBorrows, getMemberQueues, getMemberWishlist, type BorrowRecord, type QueueRecord, type Book } from '../services/bookService';
 import { compressImage } from '../utils/imageUtils';
-// IMPORT KOMPONEN KARTU ANGGOTA QR CODE (Hilangkan komentar untuk mengaktifkan):
-// import MemberCardQR from '../components/MemberCardQR';
+// IMPORT KOMPONEN KARTU ANGGOTA QR CODE:
+import MemberCardQR from '../components/MemberCardQR';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 export default function Profil() {
   const navigate = useNavigate();
@@ -220,12 +221,12 @@ export default function Profil() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* 
-          Untuk menampilkan Kartu Anggota QR Code, hilangkan komentar kode di bawah ini:
+        {/* Kartu Anggota QR Code (Diatur oleh Feature Flag) */}
+        {SITE_CONFIG.FEATURES.SHOW_DIGITAL_CARD && (
           <div className="relative -mt-32 mb-6 z-10">
             <MemberCardQR member={user} />
           </div>
-        */}
+        )}
 
         {/* Profile Card */}
         <div className="relative -mt-16 mb-6">

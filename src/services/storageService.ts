@@ -104,7 +104,9 @@ export const uploadImage = async (file: File, options: UploadOptions = {}): Prom
 
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(filePath, optimizedFile);
+    .upload(filePath, optimizedFile, {
+      cacheControl: '2592000'
+    });
 
   if (uploadError) {
     throw new Error(`Upload gambar ke Storage gagal: ${uploadError.message}`);

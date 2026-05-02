@@ -55,6 +55,19 @@ EXTERNAL_LINKS: {
 ```
 Jika besok nomor WhatsApp admin Srikandi ganti, Anda **hanya perlu** mengganti URL-nya di sini, dan otomatis link di *Footer* maupun *Halaman Layanan* akan mengikuti (selama komponen tersebut memanggil file ini).
 
+### 4. Menghidup-matikan Fitur (Feature Flags) ⭐ PENTING
+Sistem ini dilengkapi dengan "Sakelar" jarak jauh. Cari bagian `FEATURES`:
+```typescript
+FEATURES: {
+  ENABLE_CATALOG: true,
+  REQUIRE_NIK: true,
+  SHOW_DIGITAL_CARD: false,
+}
+```
+*   **`REQUIRE_NIK`**: Ubah ke `false` jika klien merasa kolom NIK terlalu ribet saat pendaftaran. Formulir akan otomatis hilang tanpa merusak kode.
+*   **`SHOW_DIGITAL_CARD`**: Ubah ke `true` jika klien ingin menampilkan desain Kartu Anggota Digital ber-QR Code di halaman Profil.
+*   **`ENABLE_CATALOG`**: (Segera Hadir) Ubah ke `false` untuk merubah website menjadi murni Company Profile tanpa fitur perpustakaan.
+
 ---
 
 ## Kesimpulan (Untuk Klien)

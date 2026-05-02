@@ -147,7 +147,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="max-w-xl"
           >
-            <p className="text-[#d6a54a] font-bold text-sm tracking-widest uppercase mb-4">Identitas Daerah</p>
+            <p className="text-[#8f671d] font-bold text-sm tracking-widest uppercase mb-4">Identitas Daerah</p>
             <div className="h-[180px] mb-6 flex items-center overflow-visible">
               <AnimatePresence mode="wait">
                 {!isSundanese ? (
@@ -183,7 +183,7 @@ export default function Home() {
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-10">
             <div>
-              <p className="text-[#d6a54a] font-bold text-xs tracking-widest uppercase mb-2">Edisi Digital</p>
+              <p className="text-[#8f671d] font-bold text-xs tracking-widest uppercase mb-2">Edisi Digital</p>
               <h2 className="font-serif text-4xl font-bold text-[#0c2f3d]">Berita Terkini</h2>
             </div>
             <a href="/artikel?kategori=Berita Terkini" className="hidden sm:flex items-center text-sm font-semibold text-[#0c2f3d] hover:text-[#d6a54a] transition-colors gap-1 border-b border-transparent hover:border-[#d6a54a]">
@@ -264,7 +264,7 @@ export default function Home() {
                   <Link to={`/artikel/${article.slug}`} key={article.id} className="bg-[#f3f5f8] p-5 rounded-2xl group cursor-pointer flex gap-4 flex-1 border border-gray-200/50 hover:shadow-md transition-all overflow-hidden shadow-sm">
                     <div className="flex-1 flex flex-col justify-center min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-[10px] font-black text-[#d6a54a] uppercase tracking-widest">{article.category}</span>
+                        <span className="text-[10px] font-black text-[#8f671d] uppercase tracking-widest">{article.category}</span>
                         <span className="text-gray-400 text-[10px] font-medium uppercase">{article.date}</span>
                       </div>
                       <h4 className="font-bold text-gray-800 leading-tight group-hover:text-[#0c2f3d] transition-colors line-clamp-2 text-sm md:text-base">
@@ -306,7 +306,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
               </div>
-              <img src={gedungArsip} alt="Arsip" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
+              <img src={gedungArsip} alt="Arsip" loading="lazy" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
 
             {/* Layanan 2: Perpustakaan */}
@@ -318,7 +318,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
               </div>
-              <img src={perpustakaanImg} alt="Perpustakaan" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover object-top rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
+              <img src={perpustakaanImg} alt="Perpustakaan" loading="lazy" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover object-top rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
 
             {/* Layanan 3: Diorama */}
@@ -330,7 +330,7 @@ export default function Home() {
               <div className="w-12 h-12 rounded-full border-2 border-[#0c2f3d] flex items-center justify-center text-[#0c2f3d] group-hover:bg-[#0c2f3d] group-hover:text-white transition-colors z-10 absolute bottom-8 left-8">
                 <ArrowRight size={20} />
               </div>
-              <img src={dioramaImg} alt="Diorama" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
+              <img src={dioramaImg} alt="Diorama" loading="lazy" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
           </div>
         </div>
@@ -344,7 +344,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-8 items-end">
             <div className="lg:col-span-2 flex items-center justify-between group">
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0c2f3d] font-bold">Pojok Carita</h3>
-              <Link to="/artikel?kategori=Pojok Carita" className="text-sm font-bold text-[#d6a54a] flex items-center gap-2 hover:gap-3 transition-all">
+              <Link to="/artikel?kategori=Pojok Carita" className="text-sm font-bold text-[#8f671d] flex items-center gap-2 hover:gap-3 transition-all">
                 Lihat Semua <ArrowRight size={16} />
               </Link>
             </div>
@@ -361,10 +361,10 @@ export default function Home() {
               {/* Navigation arrows - Only show if more than 1 story */}
               {stories.length > 1 && (
                 <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button onClick={prevCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                  <button onClick={prevCulture} aria-label="Cerita sebelumnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
                     <ArrowRight size={20} className="rotate-180" />
                   </button>
-                  <button onClick={nextCulture} className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                  <button onClick={nextCulture} aria-label="Cerita selanjutnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
                     <ArrowRight size={20} />
                   </button>
                 </div>
@@ -490,7 +490,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Pameran Virtual Card */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-              <img src={virtualImg} alt="Pameran Virtual" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={virtualImg} alt="Pameran Virtual" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent opacity-90 transition-opacity duration-300"></div>
 
               <div className="absolute inset-0 p-10 flex flex-col justify-end">
@@ -509,7 +509,7 @@ export default function Home() {
 
             {/* SIKN/JIKN Card */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-              <img src={siknImg} alt="Arsip Nasional SIKN JIKN" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={siknImg} alt="Arsip Nasional SIKN JIKN" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#5a3b21] via-[#5a3b21]/70 to-transparent opacity-90 transition-opacity duration-300"></div>
 
               <div className="absolute inset-0 p-10 flex flex-col justify-end">

@@ -108,5 +108,21 @@ export const SITE_CONFIG = {
     PAMERAN_VIRTUAL: 'https://jikn.anri.go.id/pameran-virtual',
     FORM_PENGADUAN: 'https://docs.google.com/forms/d/e/1FAIpQLSe2S9Ck-DAPbISSJcDLRiHg6d3aoiCU7xu7bYoLjbLY-gFGhg/viewform',
     HELPDESK_SRIKANDI: 'https://api.whatsapp.com/send/?phone=6288971405196&text&type=phone_number&app_absent=0'
+  },
+
+  // --------------------------------------------------------------------------
+  // 5. FITUR OPSIONAL (FEATURE FLAGS)
+  // --------------------------------------------------------------------------
+  // Gunakan pengaturan ini untuk menghidup-matikan fitur tertentu tanpa perlu
+  // menghapus kode. Sangat berguna untuk menyesuaikan keinginan klien.
+  FEATURES: {
+    // Jika false: Menu katalog, pencarian buku, dan riwayat pinjaman akan disembunyikan.
+    ENABLE_CATALOG: true,
+    
+    // Jika false: Pendaftaran tidak akan meminta NIK. Cocok untuk perpus sekolah/kampus.
+    REQUIRE_NIK: true,
+    
+    // Jika true: Menampilkan Kartu Anggota Digital ber-QR Code di halaman Profil.
+    SHOW_DIGITAL_CARD: false,
   }
 };
