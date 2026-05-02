@@ -9,8 +9,8 @@ import { getSchedules, Schedule } from '../services/settingsService';
 import gedungArsip from '../assets/layanan/kearsipan/Gedung_Arsip.webp';
 import perpustakaanImg from '../assets/layanan/perpustakaan/mohHatta.webp';
 import dioramaImg from '../assets/layanan/dioramaPurwakarta/image-1.webp';
-import siknImg from '../assets/home/sikn_jikn_network.png';
-import virtualImg from '../assets/home/pameran_virtual.png';
+import siknImg from '../assets/home/sikn_jikn_network.webp';
+import virtualImg from '../assets/home/pameran_virtual.webp';
 
 
 import libHero from '../assets/image/lib-hero.webp';
