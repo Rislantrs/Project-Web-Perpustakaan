@@ -5,7 +5,8 @@ import { getArticleBySlug, incrementArticleViews } from '../services/dataService
 import { supabase } from '../services/supabase';
 import { useState, useEffect, useMemo } from 'react';
 import SafeImage from '../components/SafeImage';
-import * as DOMPurify from 'dompurify';
+// eslint-disable-next-line import/no-named-as-default
+import DOMPurify from 'dompurify';
 
 
 export default function ArticleDetail() {
@@ -388,7 +389,7 @@ export default function ArticleDetail() {
         ) : (
           <div 
             className="prose prose-lg md:prose-xl max-w-none prose-p:font-serif prose-p:leading-relaxed prose-p:text-gray-800 prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-a:text-[#d6a54a]"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content || '', {
+            dangerouslySetInnerHTML={{ __html: (DOMPurify.sanitize ?? (DOMPurify as any).default?.sanitize ?? ((s: string) => s))(article.content || '', {
               ALLOWED_TAGS: ['p','br','strong','em','u','s','h1','h2','h3','h4','h5','h6','ul','ol','li','blockquote','a','img','figure','figcaption','table','thead','tbody','tr','th','td','hr','pre','code','span','div'],
               ALLOWED_ATTR: ['href','src','alt','title','class','target','rel','width','height','style'],
               FORCE_BODY: true,

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["esnext", "deno.ns"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noImplicitAny": false,
+    "allowImportingTsExtensions": true
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "indentWidth": 2,
+    "singleQuote": true
+  }
+}

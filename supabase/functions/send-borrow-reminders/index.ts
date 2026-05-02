@@ -1,3 +1,5 @@
+// @ts-nocheck – File ini dijalankan di runtime Deno (Supabase Edge Function), bukan Node.js.
+// TypeScript checker standar VS Code tidak mengenal Deno globals & ESM HTTP imports.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildLibraryEmailHtml, formatInfoGrid } from '../_shared/emailTemplates.ts';
 

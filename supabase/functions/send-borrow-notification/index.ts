@@ -1,3 +1,5 @@
+// @ts-nocheck – File ini dijalankan di runtime Deno (Supabase Edge Function), bukan Node.js.
+// TypeScript checker standar VS Code tidak mengenal Deno globals & ESM HTTP imports.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildLibraryEmailHtml, formatInfoGrid } from '../_shared/emailTemplates.ts';
 
@@ -49,7 +51,7 @@ const isAdminUser = async (supabaseAdmin: ReturnType<typeof createClient>, userI
   if (error || !data) return false;
 
   const normalizedEmail = (userEmail || '').toLowerCase();
-  return data.some((row) => {
+  return data.some((row: { id: string; email: string | null; role: string }) => {
     const rowEmail = String(row.email || '').toLowerCase();
     return row.id === userId || (normalizedEmail && rowEmail === normalizedEmail);
   });
