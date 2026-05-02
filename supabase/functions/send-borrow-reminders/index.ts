@@ -244,11 +244,12 @@ Deno.serve(async (req) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: borrows, error: borrowsError } = await supabaseAdmin
+  const { data: borrowsData, error: borrowsError } = await supabaseAdmin
     .from('borrows')
     .select('id, "bookId", "memberId", "memberName", "bookTitle", "tanggalPinjam", "tanggalKembali", "batasAmbil", status')
-    .in('status', ['menunggu_diambil', 'dipinjam'])
-    .returns<BorrowRow[]>();
+    .in('status', ['menunggu_diambil', 'dipinjam']);
+
+  const borrows = (borrowsData as any[]) as BorrowRow[] | null;
 
   if (borrowsError) {
     return json(500, { success: false, message: `Gagal membaca data borrows: ${borrowsError.message}` }, origin);
@@ -259,11 +260,12 @@ Deno.serve(async (req) => {
   }
 
   const memberIds = Array.from(new Set(borrows.map((row) => row.memberId).filter(Boolean)));
-  const { data: members, error: memberError } = await supabaseAdmin
+  const { data: membersData, error: memberError } = await supabaseAdmin
     .from('members')
     .select('id, nama_lengkap, email')
-    .in('id', memberIds)
-    .returns<MemberRow[]>();
+    .in('id', memberIds);
+
+  const members = (membersData as any[]) as MemberRow[] | null;
 
   if (memberError) {
     return json(500, { success: false, message: `Gagal membaca data members: ${memberError.message}` }, origin);

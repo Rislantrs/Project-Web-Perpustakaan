@@ -132,11 +132,13 @@ Deno.serve(async (req) => {
     return json(400, { success: false, message: 'borrowId wajib diisi.' }, origin);
   }
 
-  const { data: borrow, error: borrowError } = await supabaseAdmin
+  const { data: borrowData, error: borrowError } = await supabaseAdmin
     .from('borrows')
     .select('id, "bookId", "memberId", "memberName", "bookTitle", "tanggalPinjam", "tanggalKembali", "batasAmbil", status')
     .eq('id', borrowId)
-    .single<BorrowRow>();
+    .single();
+
+  const borrow = borrowData as BorrowRow | null;
 
   if (borrowError || !borrow) {
     return json(404, { success: false, message: 'Data peminjaman tidak ditemukan.' }, origin);
@@ -148,11 +150,13 @@ Deno.serve(async (req) => {
     return json(403, { success: false, message: 'Forbidden: tidak boleh mengirim notifikasi untuk data ini.' }, origin);
   }
 
-  const { data: member, error: memberError } = await supabaseAdmin
+  const { data: memberData, error: memberError } = await supabaseAdmin
     .from('members')
     .select('id, nama_lengkap, email')
     .eq('id', borrow.memberId)
-    .single<MemberRow>();
+    .single();
+
+  const member = memberData as MemberRow | null;
 
   if (memberError || !member?.email) {
     return json(404, { success: false, message: 'Email member tidak ditemukan.' }, origin);

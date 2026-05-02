@@ -5,7 +5,7 @@ import { getArticleBySlug, incrementArticleViews } from '../services/dataService
 import { supabase } from '../services/supabase';
 import { useState, useEffect, useMemo } from 'react';
 import SafeImage from '../components/SafeImage';
-import DOMPurify from 'dompurify';
+import * as DOMPurify from 'dompurify';
 
 
 export default function ArticleDetail() {
