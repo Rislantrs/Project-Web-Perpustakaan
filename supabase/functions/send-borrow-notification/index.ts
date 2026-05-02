@@ -1,10 +1,23 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildLibraryEmailHtml, formatInfoGrid } from '../_shared/emailTemplates.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+// Daftar origin yang diizinkan memanggil edge function ini.
+// Tambahkan origin baru di sini jika domain berubah.
+const ALLOWED_ORIGINS = [
+  'https://lann.codes',
+  'https://disipusda.purwakartakab.go.id',
+];
+
+const getCorsHeaders = (requestOrigin: string | null) => {
+  const origin = ALLOWED_ORIGINS.includes(requestOrigin || '')
+    ? requestOrigin!
+    : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
 };
 
 type BorrowRow = {
@@ -25,10 +38,10 @@ type MemberRow = {
   email: string | null;
 };
 
-const json = (status: number, body: Record<string, unknown>) =>
+const json = (status: number, body: Record<string, unknown>, origin: string | null) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
   });
 
 const isAdminUser = async (supabaseAdmin: ReturnType<typeof createClient>, userId: string, userEmail?: string) => {
@@ -72,12 +85,14 @@ const sendResendEmail = async (params: {
 };
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(origin) });
   }
 
   if (req.method !== 'POST') {
-    return json(405, { success: false, message: 'Method not allowed.' });
+    return json(405, { success: false, message: 'Method not allowed.' }, origin);
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -89,13 +104,13 @@ Deno.serve(async (req) => {
     return json(500, {
       success: false,
       message: 'Environment variable belum lengkap (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, RESEND_FROM_EMAIL).',
-    });
+    }, origin);
   }
 
   const authHeader = req.headers.get('Authorization') || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   if (!token) {
-    return json(401, { success: false, message: 'Unauthorized: token tidak ditemukan.' });
+    return json(401, { success: false, message: 'Unauthorized: token tidak ditemukan.' }, origin);
   }
 
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
@@ -108,13 +123,13 @@ Deno.serve(async (req) => {
   } = await supabaseAdmin.auth.getUser(token);
 
   if (userError || !user) {
-    return json(401, { success: false, message: 'Unauthorized: sesi tidak valid.' });
+    return json(401, { success: false, message: 'Unauthorized: sesi tidak valid.' }, origin);
   }
 
   const body = await req.json().catch(() => ({}));
   const borrowId = String((body as { borrowId?: string }).borrowId || '').trim();
   if (!borrowId) {
-    return json(400, { success: false, message: 'borrowId wajib diisi.' });
+    return json(400, { success: false, message: 'borrowId wajib diisi.' }, origin);
   }
 
   const { data: borrow, error: borrowError } = await supabaseAdmin
@@ -124,13 +139,13 @@ Deno.serve(async (req) => {
     .single<BorrowRow>();
 
   if (borrowError || !borrow) {
-    return json(404, { success: false, message: 'Data peminjaman tidak ditemukan.' });
+    return json(404, { success: false, message: 'Data peminjaman tidak ditemukan.' }, origin);
   }
 
   const adminAccess = await isAdminUser(supabaseAdmin, user.id, user.email || undefined);
   const isOwner = user.id === borrow.memberId;
   if (!isOwner && !adminAccess) {
-    return json(403, { success: false, message: 'Forbidden: tidak boleh mengirim notifikasi untuk data ini.' });
+    return json(403, { success: false, message: 'Forbidden: tidak boleh mengirim notifikasi untuk data ini.' }, origin);
   }
 
   const { data: member, error: memberError } = await supabaseAdmin
@@ -140,7 +155,7 @@ Deno.serve(async (req) => {
     .single<MemberRow>();
 
   if (memberError || !member?.email) {
-    return json(404, { success: false, message: 'Email member tidak ditemukan.' });
+    return json(404, { success: false, message: 'Email member tidak ditemukan.' }, origin);
   }
 
   const memberName = member.nama_lengkap || borrow.memberName || 'Member';
@@ -177,5 +192,5 @@ Deno.serve(async (req) => {
     success: true,
     message: 'Email konfirmasi peminjaman berhasil dikirim.',
     data: { borrowId, email: member.email },
-  });
+  }, origin);
 });

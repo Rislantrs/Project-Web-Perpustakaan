@@ -1,10 +1,22 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildLibraryEmailHtml, formatInfoGrid } from '../_shared/emailTemplates.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+// Daftar origin yang diizinkan memanggil edge function ini.
+const ALLOWED_ORIGINS = [
+  'https://lann.codes',
+  'https://disipusda.purwakartakab.go.id',
+];
+
+const getCorsHeaders = (requestOrigin: string | null) => {
+  const origin = ALLOWED_ORIGINS.includes(requestOrigin || '')
+    ? requestOrigin!
+    : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
 };
 
 type BorrowRow = {
@@ -64,10 +76,10 @@ const parseIndonesianDate = (value?: string) => {
   return new Date(year, month, day);
 };
 
-const json = (status: number, body: Record<string, unknown>) =>
+const json = (status: number, body: Record<string, unknown>, origin: string | null) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...getCorsHeaders(origin), 'Content-Type': 'application/json' },
   });
 
 const sendResendEmail = async (params: {
@@ -198,12 +210,14 @@ const buildReminderEmail = (
 };
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: getCorsHeaders(origin) });
   }
 
   if (req.method !== 'POST') {
-    return json(405, { success: false, message: 'Method not allowed.' });
+    return json(405, { success: false, message: 'Method not allowed.' }, origin);
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -216,13 +230,13 @@ Deno.serve(async (req) => {
     return json(500, {
       success: false,
       message: 'Environment variable belum lengkap (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, RESEND_FROM_EMAIL).',
-    });
+    }, origin);
   }
 
   if (cronSecret) {
     const headerSecret = req.headers.get('x-cron-secret');
     if (headerSecret !== cronSecret) {
-      return json(401, { success: false, message: 'Unauthorized cron request.' });
+      return json(401, { success: false, message: 'Unauthorized cron request.' }, origin);
     }
   }
 
@@ -237,11 +251,11 @@ Deno.serve(async (req) => {
     .returns<BorrowRow[]>();
 
   if (borrowsError) {
-    return json(500, { success: false, message: `Gagal membaca data borrows: ${borrowsError.message}` });
+    return json(500, { success: false, message: `Gagal membaca data borrows: ${borrowsError.message}` }, origin);
   }
 
   if (!borrows || borrows.length === 0) {
-    return json(200, { success: true, message: 'Tidak ada data peminjaman yang perlu dicek.', sent: 0 });
+    return json(200, { success: true, message: 'Tidak ada data peminjaman yang perlu dicek.', sent: 0 }, origin);
   }
 
   const memberIds = Array.from(new Set(borrows.map((row) => row.memberId).filter(Boolean)));
@@ -252,7 +266,7 @@ Deno.serve(async (req) => {
     .returns<MemberRow[]>();
 
   if (memberError) {
-    return json(500, { success: false, message: `Gagal membaca data members: ${memberError.message}` });
+    return json(500, { success: false, message: `Gagal membaca data members: ${memberError.message}` }, origin);
   }
 
   const memberMap = new Map<string, MemberRow>((members || []).map((item) => [item.id, item]));
@@ -338,5 +352,5 @@ Deno.serve(async (req) => {
     sent,
     skipped,
     failures,
-  });
+  }, origin);
 });

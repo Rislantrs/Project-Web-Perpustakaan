@@ -1,21 +1,24 @@
 # 🚀 Email Notification Setup Guide
 
+> ⚠️ **CATATAN KEAMANAN**: File ini tidak boleh berisi nilai secrets yang asli.  
+> Semua kunci API harus diset langsung di **Supabase Dashboard → Settings → Secrets**.
+
 ## Step 1️⃣: Set Supabase Secrets via Dashboard
 
 Karena Supabase CLI belum installed, gunakan Dashboard:
 
 ### Buka Settings > Secrets
 ```
-Dashboard URL: https://supabase.com/dashboard/project/anqopdxzdkpsmtxuultp/settings/api
+Dashboard URL: https://supabase.com/dashboard/project/<project-id>/settings/api
 ```
 
 ### Add 3 Secrets (klik "New Secret" untuk setiap baris)
 
 | Variable | Value |
 |----------|-------|
-| `RESEND_API_KEY` | `re_WvX6yTuH_6dgRi5UTGAYpDANrP2Lqm8jB` |
+| `RESEND_API_KEY` | *(dapatkan dari https://resend.com/api-keys)* |
 | `RESEND_FROM_EMAIL` | `Disipusda <no-reply@lann.codes>` |
-| `CRON_SECRET` | `YjkyYzdjMTYtMmU4ZC00OTU0LWI5NTYtNDhlZDc5NTQ0OTcwNjM3Mzc3Mw==` |
+| `CRON_SECRET` | *(generate dengan `openssl rand -base64 32`)* |
 
 **Klik "Save" setelah setiap secret**
 
@@ -64,7 +67,7 @@ WHERE table_schema = 'public' AND table_name = 'borrow_notification_logs';
 5. **Schedule:** `0 1 * * *` (setiap hari jam 1 AM UTC)
 6. **Headers:**
    ```
-   x-cron-secret: YjkyYzdjMTYtMmU4ZC00OTU0LWI5NTYtNDhlZDc5NTQ0OTcwNjM3Mzc3Mw==
+   x-cron-secret: <nilai CRON_SECRET yang sudah kamu set di Secrets>
    ```
 
 ### **Option B: Via EasyCron (External)**
@@ -76,7 +79,7 @@ WHERE table_schema = 'public' AND table_name = 'borrow_notification_logs';
    - **Headers:** 
      ```json
      {
-       "x-cron-secret": "YjkyYzdjMTYtMmU4ZC00OTU0LWI5NTYtNDhlZDc5NTQ0OTcwNjM3Mzc3Mw=="
+       "x-cron-secret": "<nilai CRON_SECRET yang sudah kamu set di Secrets>"
      }
      ```
 
@@ -101,7 +104,7 @@ curl -X POST \
 curl -X POST \
   https://[project-ref].supabase.co/functions/v1/send-borrow-reminders \
   -H "Content-Type: application/json" \
-  -H "x-cron-secret: YjkyYzdjMTYtMmU4ZC00OTU0LWI5NTYtNDhlZDc5NTQ0OTcwNjM3Mzc3Mw==" \
+  -H "x-cron-secret: <nilai CRON_SECRET dari Supabase Secrets>" \
   -d '{}'
 ```
 
@@ -120,7 +123,7 @@ curl -X POST \
 
 ## 📋 Checklist Implementasi
 
-- [ ] 3 Secrets sudah set di Supabase Dashboard
+- [ ] 3 Secrets sudah set di Supabase Dashboard (BUKAN di file ini)
 - [ ] Edge Functions sudah di-deploy
 - [ ] Migration `borrow_notification_logs` sudah dijalankan
 - [ ] Cron job sudah dijadwalkan
@@ -138,6 +141,7 @@ curl -X POST \
 | `403 Forbidden on cron call` | Pastikan `x-cron-secret` header matching dengan value di Dashboard |
 | `Email tidak terkirim` | Check Resend email verification di https://resend.com/emails |
 | `401 Unauthorized` | JWT token expired, pastikan user login terlebih dahulu |
+| `CORS error` | Pastikan request berasal dari `lann.codes` atau `disipusda.purwakartakab.go.id` |
 
 ---
 

@@ -339,7 +339,7 @@ export default function Home() {
       {/* Featured Quote & Events */}
       <section className="py-24 bg-[#fcfafc] border-t border-gray-100 overflow-hidden">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           {/* Section Headings Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-8 items-end">
             <div className="lg:col-span-2 flex items-center justify-between group">
@@ -358,85 +358,85 @@ export default function Home() {
             <div className="lg:col-span-2 flex flex-col">
               {/* Quote Block */}
               <div className="card-elevated rounded-2xl overflow-hidden relative min-h-[480px] flex group bg-[#0c2f3d] shadow-2xl">
-              {/* Navigation arrows - Only show if more than 1 story */}
-              {stories.length > 1 && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button onClick={prevCulture} aria-label="Cerita sebelumnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
-                    <ArrowRight size={20} className="rotate-180" />
-                  </button>
-                  <button onClick={nextCulture} aria-label="Cerita selanjutnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
-                    <ArrowRight size={20} />
-                  </button>
-                </div>
-              )}
-
-              <AnimatePresence mode="wait">
-                {stories.length > 0 ? (
-                  <motion.div
-                    key={stories[activeCultureIdx]?.id || 'empty'}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
-                    className="absolute inset-0 w-full h-full"
-                  >
-                    <motion.img
-                      initial={{ scale: 1.05 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 8, ease: "easeOut" }}
-                      src={stories[activeCultureIdx]?.img || libIndoor}
-                      alt="Pojok Carita"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]"
-                      style={{ objectPosition: stories[activeCultureIdx]?.imgPosition || 'center' }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 sm:via-[#0c2f3d]/40 to-transparent"></div>
-
-                    <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end text-white z-20">
-                      <motion.span
-                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
-                        className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md"
-                      >
-                        POJOK CARITA
-                      </motion.span>
-                      <motion.h3
-                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
-                        className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-tight line-clamp-2"
-                      >
-                        {stories[activeCultureIdx]?.title}
-                      </motion.h3>
-                      <motion.p
-                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
-                        className="text-gray-200 text-sm sm:text-base leading-relaxed max-w-2xl mb-6 sm:mb-8 line-clamp-3"
-                      >
-                        {stories[activeCultureIdx]?.excerpt}
-                      </motion.p>
-                      <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/20 pt-5 sm:pt-6 gap-4 sm:gap-0"
-                      >
-                        <Link to={`/artikel/${stories[activeCultureIdx]?.slug}`} className="bg-transparent border border-white text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm w-full sm:w-auto text-center">
-                          Baca Cerita Selengkapnya
-                        </Link>
-                        <span className="text-[10px] sm:text-xs font-bold tracking-[0.1em] text-gray-400 sm:text-gray-300 uppercase italic">Terbit: {stories[activeCultureIdx]?.date}</span>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-white/50 bg-[#0c2f3d]">
-                    <BookOpen size={64} className="mb-4 opacity-20" />
-                    <p className="font-serif italic">Menyusun koleksi Pojok Carita...</p>
-                    </div>
+                {/* Navigation arrows - Only show if more than 1 story */}
+                {stories.length > 1 && (
+                  <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button onClick={prevCulture} aria-label="Cerita sebelumnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                      <ArrowRight size={20} className="rotate-180" />
+                    </button>
+                    <button onClick={nextCulture} aria-label="Cerita selanjutnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
+                      <ArrowRight size={20} />
+                    </button>
+                  </div>
                 )}
-              </AnimatePresence>
 
-              {/* Slider indicators */}
-              {stories.length > 1 && (
-                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1.5 z-20 bg-black/20 px-2 py-1.5 rounded-full backdrop-blur-sm">
-                  {stories.map((_, i) => (
-                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/60 hover:bg-white'}`} />
-                  ))}
-                </div>
-              )}
+                <AnimatePresence mode="wait">
+                  {stories.length > 0 ? (
+                    <motion.div
+                      key={stories[activeCultureIdx]?.id || 'empty'}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.6, ease: "easeInOut" }}
+                      className="absolute inset-0 w-full h-full"
+                    >
+                      <motion.img
+                        initial={{ scale: 1.05 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 8, ease: "easeOut" }}
+                        src={stories[activeCultureIdx]?.img || libIndoor}
+                        alt="Pojok Carita"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[10s]"
+                        style={{ objectPosition: stories[activeCultureIdx]?.imgPosition || 'center' }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/80 sm:via-[#0c2f3d]/40 to-transparent"></div>
+
+                      <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end text-white z-20">
+                        <motion.span
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+                          className="bg-[#d6a54a] text-[#0c2f3d] text-[10px] font-black px-3 py-1 rounded-md w-fit mb-4 uppercase tracking-widest shadow-md"
+                        >
+                          POJOK CARITA
+                        </motion.span>
+                        <motion.h3
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+                          className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 leading-snug sm:leading-tight line-clamp-2"
+                        >
+                          {stories[activeCultureIdx]?.title}
+                        </motion.h3>
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
+                          className="text-gray-200 text-sm sm:text-base leading-relaxed max-w-2xl mb-6 sm:mb-8 line-clamp-3"
+                        >
+                          {stories[activeCultureIdx]?.excerpt}
+                        </motion.p>
+                        <motion.div
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5 }}
+                          className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-white/20 pt-5 sm:pt-6 gap-4 sm:gap-0"
+                        >
+                          <Link to={`/artikel/${stories[activeCultureIdx]?.slug}`} className="bg-transparent border border-white text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-white hover:text-[#0c2f3d] transition-all shadow-sm w-full sm:w-auto text-center">
+                            Baca Cerita Selengkapnya
+                          </Link>
+                          <span className="text-[10px] sm:text-xs font-bold tracking-[0.1em] text-gray-400 sm:text-gray-300 uppercase italic">Terbit: {stories[activeCultureIdx]?.date}</span>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center text-white/50 bg-[#0c2f3d]">
+                      <BookOpen size={64} className="mb-4 opacity-20" />
+                      <p className="font-serif italic">Menyusun koleksi Pojok Carita...</p>
+                    </div>
+                  )}
+                </AnimatePresence>
+
+                {/* Slider indicators */}
+                {stories.length > 1 && (
+                  <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1.5 z-20 bg-black/20 px-2 py-1.5 rounded-full backdrop-blur-sm">
+                    {stories.map((_, i) => (
+                      <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === activeCultureIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/60 hover:bg-white'}`} />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
