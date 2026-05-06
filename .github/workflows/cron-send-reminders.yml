@@ -1,0 +1,27 @@
+name: Cron – Borrow Reminders
+
+# Jalankan setiap jam agar reminder "6 jam sebelum batasAmbil" bisa terdeteksi
+# tepat waktu. Unique index di borrow_notification_logs memastikan setiap tipe
+# hanya dikirim sekali per hari meskipun cron berjalan berkali-kali.
+on:
+  schedule:
+    - cron: '0 * * * *'   # Setiap jam, menit ke-0
+  workflow_dispatch:        # Bisa dipicu manual dari tab Actions untuk testing
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger send-borrow-reminders Edge Function
+        run: |
+          curl -sSf -X POST \
+            "${{ secrets.SUPABASE_FUNCTIONS_URL }}/send-borrow-reminders" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -d '{}' \
+            --max-time 30
+        # SUPABASE_FUNCTIONS_URL  → https://[project-ref].supabase.co/functions/v1
+        # CRON_SECRET             → nilai yang sama dengan CRON_SECRET di Supabase Secrets
+        # Setel kedua nilai di: GitHub → Settings → Secrets and variables → Actions
