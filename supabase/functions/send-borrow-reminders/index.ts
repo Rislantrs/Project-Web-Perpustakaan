@@ -39,7 +39,7 @@ type MemberRow = {
   email: string | null;
 };
 
-type ReminderType = 'pickup_h1' | 'due_h2' | 'overdue_daily';
+type ReminderType = 'pickup_6h' | 'due_h2' | 'overdue_daily';
 
 const monthMap: Record<string, number> = {
   januari: 0,
@@ -76,6 +76,23 @@ const parseIndonesianDate = (value?: string) => {
   if (Number.isNaN(day) || month === undefined || Number.isNaN(year)) return null;
 
   return new Date(year, month, day);
+};
+
+// Mem-parse format "1 Mei 2026, 10:30" menjadi Date dengan komponen jam/menit.
+// Digunakan untuk mengecek sisa waktu hingga batasAmbil secara presisi (dalam jam).
+const parseIndonesianDateTime = (value?: string) => {
+  if (!value) return null;
+  const match = value.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4}),\s*(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const month = monthMap[match[2].toLowerCase()];
+  const year = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  if (Number.isNaN(day) || month === undefined || Number.isNaN(year)) return null;
+
+  return new Date(year, month, day, hour, minute);
 };
 
 const json = (status: number, body: Record<string, unknown>, origin: string | null) =>
@@ -137,18 +154,18 @@ const buildReminderEmail = (
   reminderType: ReminderType,
   payload: { memberName: string; bookTitle: string; batasAmbil: string; tanggalKembali: string },
 ) => {
-  if (reminderType === 'pickup_h1') {
+  if (reminderType === 'pickup_6h') {
     return {
       subject: `Pengingat Pengambilan Buku: ${payload.bookTitle}`,
       html: buildLibraryEmailHtml({
-        preheader: 'Buku Anda belum diambil sejak kemarin.',
-        title: 'Pengingat Pengambilan Buku (H+1)',
+        preheader: 'Kurang dari 6 jam lagi untuk mengambil buku Anda.',
+        title: 'Pengingat Pengambilan Buku (6 Jam)',
         subtitle: 'Mohon lakukan pengambilan sebelum batas waktu berakhir.',
         memberName: payload.memberName,
         tone: 'warning',
         contentHtml: `
           <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#374151;">
-            Kami melihat buku yang Anda pinjam belum diambil hingga H+1 sejak tanggal peminjaman.
+            Batas waktu pengambilan buku Anda kurang dari 6 jam lagi. Segera ambil untuk menghindari pembatalan otomatis.
           </p>
           ${formatInfoGrid([
             { label: 'Judul Buku', value: payload.bookTitle },
@@ -295,11 +312,15 @@ Deno.serve(async (req) => {
     let reminderType: ReminderType | null = null;
     let reason = '';
 
-    if (borrow.status === 'menunggu_diambil' && borrowDate) {
-      const daysFromBorrow = dayDiff(now, borrowDate);
-      if (daysFromBorrow === 1) {
-        reminderType = 'pickup_h1';
-        reason = 'Belum diambil pada H+1 dari tanggal pinjam';
+    if (borrow.status === 'menunggu_diambil') {
+      const pickupDeadline = parseIndonesianDateTime(borrow.batasAmbil);
+      if (pickupDeadline) {
+        const hoursUntilDeadline = (pickupDeadline.getTime() - now.getTime()) / (60 * 60 * 1000);
+        // Kirim reminder jika sisa waktu pengambilan antara 0 hingga 6 jam.
+        if (hoursUntilDeadline > 0 && hoursUntilDeadline <= 6) {
+          reminderType = 'pickup_6h';
+          reason = `Batas ambil dalam ${Math.ceil(hoursUntilDeadline)} jam lagi (${borrow.batasAmbil})`;
+        }
       }
     }
 
