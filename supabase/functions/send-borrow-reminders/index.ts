@@ -39,7 +39,7 @@ type MemberRow = {
   email: string | null;
 };
 
-type ReminderType = 'pickup_6h' | 'due_h2' | 'overdue_daily';
+type ReminderType = 'pickup_h1' | 'pickup_h_minus_3' | 'due_h2' | 'overdue_daily';
 
 const monthMap: Record<string, number> = {
   januari: 0,
@@ -78,21 +78,26 @@ const parseIndonesianDate = (value?: string) => {
   return new Date(year, month, day);
 };
 
-// Mem-parse format "1 Mei 2026, 10:30" menjadi Date dengan komponen jam/menit.
-// Digunakan untuk mengecek sisa waktu hingga batasAmbil secara presisi (dalam jam).
+/**
+ * Parses "10 Mei 2026, 10:00" into a Date object.
+ */
 const parseIndonesianDateTime = (value?: string) => {
   if (!value) return null;
-  const match = value.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4}),\s*(\d{1,2}):(\d{2})$/);
-  if (!match) return null;
+  const parts = value.split(',');
+  const datePart = parts[0].trim();
+  const timePart = parts[1]?.trim();
 
-  const day = Number(match[1]);
-  const month = monthMap[match[2].toLowerCase()];
-  const year = Number(match[3]);
-  const hour = Number(match[4]);
-  const minute = Number(match[5]);
-  if (Number.isNaN(day) || month === undefined || Number.isNaN(year)) return null;
+  const date = parseIndonesianDate(datePart);
+  if (!date) return null;
 
-  return new Date(year, month, day, hour, minute);
+  if (timePart) {
+    const timeMatch = timePart.match(/^(\d{1,2}):(\d{1,2})$/);
+    if (timeMatch) {
+      date.setHours(Number(timeMatch[1]));
+      date.setMinutes(Number(timeMatch[2]));
+    }
+  }
+  return date;
 };
 
 const json = (status: number, body: Record<string, unknown>, origin: string | null) =>
@@ -154,18 +159,43 @@ const buildReminderEmail = (
   reminderType: ReminderType,
   payload: { memberName: string; bookTitle: string; batasAmbil: string; tanggalKembali: string },
 ) => {
-  if (reminderType === 'pickup_6h') {
+  if (reminderType === 'pickup_h_minus_3') {
+    return {
+      subject: `Segera Ambil Buku: ${payload.bookTitle} (Batas waktu 3 jam lagi)`,
+      html: buildLibraryEmailHtml({
+        preheader: 'Batas waktu pengambilan buku Anda hampir berakhir.',
+        title: 'Pengingat Pengambilan (3 Jam Lagi)',
+        subtitle: 'Buku Anda akan dibatalkan otomatis jika tidak diambil segera.',
+        memberName: payload.memberName,
+        tone: 'danger',
+        contentHtml: `
+          <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#374151;">
+            Kami mengingatkan bahwa batas waktu pengambilan buku Anda tinggal <strong>3 jam lagi</strong>.
+          </p>
+          ${formatInfoGrid([
+            { label: 'Judul Buku', value: payload.bookTitle },
+            { label: 'Batas Waktu', value: payload.batasAmbil },
+          ])}
+          <p style="margin:12px 0 0 0;font-size:13px;line-height:1.7;color:#7a1b16;">
+            Mohon segera datang ke perpustakaan untuk melakukan pengambilan.
+          </p>
+        `,
+      }),
+    };
+  }
+
+  if (reminderType === 'pickup_h1') {
     return {
       subject: `Pengingat Pengambilan Buku: ${payload.bookTitle}`,
       html: buildLibraryEmailHtml({
-        preheader: 'Kurang dari 6 jam lagi untuk mengambil buku Anda.',
-        title: 'Pengingat Pengambilan Buku (6 Jam)',
+        preheader: 'Buku Anda belum diambil sejak kemarin.',
+        title: 'Pengingat Pengambilan Buku (H+1)',
         subtitle: 'Mohon lakukan pengambilan sebelum batas waktu berakhir.',
         memberName: payload.memberName,
         tone: 'warning',
         contentHtml: `
           <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#374151;">
-            Batas waktu pengambilan buku Anda kurang dari 6 jam lagi. Segera ambil untuk menghindari pembatalan otomatis.
+            Kami melihat buku yang Anda pinjam belum diambil hingga H+1 sejak tanggal peminjaman.
           </p>
           ${formatInfoGrid([
             { label: 'Judul Buku', value: payload.bookTitle },
@@ -253,8 +283,13 @@ Deno.serve(async (req) => {
   }
 
   if (cronSecret) {
-    const headerSecret = req.headers.get('x-cron-secret');
-    if (headerSecret !== cronSecret) {
+    const headerSecret = req.headers.get('x-cron-secret')?.trim();
+    const actualSecret = cronSecret.trim();
+
+    if (headerSecret !== actualSecret) {
+      console.error(`[Auth] Secret mismatch!`);
+      console.error(`Header Secret length: ${headerSecret?.length || 0}`);
+      console.error(`Env Secret length: ${actualSecret.length}`);
       return json(401, { success: false, message: 'Unauthorized cron request.' }, origin);
     }
   }
@@ -308,22 +343,35 @@ Deno.serve(async (req) => {
     const memberName = member?.nama_lengkap || borrow.memberName || 'Member';
     const borrowDate = parseIndonesianDate(borrow.tanggalPinjam);
     const dueDate = parseIndonesianDate(borrow.tanggalKembali);
+    const deadlineDate = parseIndonesianDateTime(borrow.batasAmbil);
 
     let reminderType: ReminderType | null = null;
     let reason = '';
 
+    // Logic: Menunggu Diambil
     if (borrow.status === 'menunggu_diambil') {
-      const pickupDeadline = parseIndonesianDateTime(borrow.batasAmbil);
-      if (pickupDeadline) {
-        const hoursUntilDeadline = (pickupDeadline.getTime() - now.getTime()) / (60 * 60 * 1000);
-        // Kirim reminder jika sisa waktu pengambilan antara 0 hingga 6 jam.
-        if (hoursUntilDeadline > 0 && hoursUntilDeadline <= 6) {
-          reminderType = 'pickup_6h';
-          reason = `Batas ambil dalam ${Math.ceil(hoursUntilDeadline)} jam lagi (${borrow.batasAmbil})`;
+      // 1. Cek 3 Jam sebelum deadline
+      if (deadlineDate) {
+        const msToDeadline = deadlineDate.getTime() - now.getTime();
+        const hoursToDeadline = msToDeadline / (1000 * 60 * 60);
+
+        if (hoursToDeadline > 0 && hoursToDeadline <= 3.5) {
+          reminderType = 'pickup_h_minus_3';
+          reason = '3 jam sebelum batas waktu pengambilan';
+        }
+      }
+
+      // 2. Cek H+1 (fallback/tambahan)
+      if (!reminderType && borrowDate) {
+        const daysFromBorrow = dayDiff(now, borrowDate);
+        if (daysFromBorrow === 1) {
+          reminderType = 'pickup_h1';
+          reason = 'Belum diambil pada H+1 dari tanggal pinjam';
         }
       }
     }
 
+    // Logic: Dipinjam
     if (!reminderType && borrow.status === 'dipinjam' && dueDate) {
       const daysToDue = dayDiff(dueDate, now);
       if (daysToDue === 2) {

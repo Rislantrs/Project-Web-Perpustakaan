@@ -60,7 +60,7 @@ export default function AdminLogin() {
           <p className="text-sm text-gray-400 mt-1 uppercase tracking-widest font-bold">Disipusda Purwakarta</p>
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100"
         >
@@ -82,10 +82,10 @@ export default function AdminLogin() {
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Email Institusi</label>
               <div className="relative group">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
-                <input 
+                <input
                   required value={email} onChange={e => setEmail(e.target.value)}
-                  type="email" placeholder="email@disipusda.go.id" 
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all" 
+                  type="email" placeholder="email@disipusda.go.id"
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all"
                 />
               </div>
             </div>
@@ -94,10 +94,10 @@ export default function AdminLogin() {
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Kata Sandi</label>
               <div className="relative group">
                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
-                <input 
+                <input
                   required value={password} onChange={e => setPassword(e.target.value)}
-                  type={showPassword ? "text" : "password"} placeholder="••••••••" 
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all" 
+                  type={showPassword ? "text" : "password"} placeholder="••••••••"
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -108,9 +108,9 @@ export default function AdminLogin() {
             <div className="flex items-center justify-between px-1">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <div className="relative w-5 h-5 flex items-center justify-center">
-                  <input 
+                  <input
                     type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
-                    className="appearance-none w-full h-full border-2 border-gray-200 rounded-md checked:bg-[#0c2f3d] checked:border-[#0c2f3d] transition-all cursor-pointer" 
+                    className="appearance-none w-full h-full border-2 border-gray-200 rounded-md checked:bg-[#0c2f3d] checked:border-[#0c2f3d] transition-all cursor-pointer"
                   />
                   {rememberMe && <CheckCircle size={12} className="absolute text-white pointer-events-none" />}
                 </div>
@@ -118,7 +118,7 @@ export default function AdminLogin() {
               </label>
             </div>
 
-            <button 
+            <button
               disabled={status === 'loading' || status === 'success'}
               className="w-full bg-[#0c2f3d] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#0c2f3d]/20 hover:bg-[#1a4254] hover:translate-y-[-2px] active:translate-y-[0px] transition-all disabled:opacity-50"
             >
