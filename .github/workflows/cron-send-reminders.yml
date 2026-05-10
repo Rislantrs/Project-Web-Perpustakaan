@@ -1,27 +1,64 @@
 name: Cron – Borrow Reminders
 
-# Jalankan setiap jam agar reminder "6 jam sebelum batasAmbil" bisa terdeteksi
-# tepat waktu. Unique index di borrow_notification_logs memastikan setiap tipe
-# hanya dikirim sekali per hari meskipun cron berjalan berkali-kali.
 on:
   schedule:
     - cron: '0 * * * *'   # Setiap jam, menit ke-0
   workflow_dispatch:        # Bisa dipicu manual dari tab Actions untuk testing
 
 jobs:
-  send-reminders:
+  trigger:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
+    env:
+      SUPABASE_FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      # Gunakan Service Role Key untuk melewati "Satpam" Supabase (Gateway Auth)
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
-      - name: Trigger send-borrow-reminders Edge Function
+      - name: Validate and normalize invoke URL
+        shell: bash
         run: |
-          curl -sSf -X POST \
-            "${{ secrets.SUPABASE_FUNCTIONS_URL }}/send-borrow-reminders" \
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_FUNCTIONS_URL:-}" ]; then
+            echo "Error: SUPABASE_FUNCTIONS_URL is empty"
+            exit 1
+          fi
+
+          # Hilangkan trailing slash jika ada
+          BASE="${SUPABASE_FUNCTIONS_URL%/}"
+          
+          # Pastikan URL mengarah ke endpoint yang benar
+          if [[ "$BASE" != */send-borrow-reminders ]]; then
+            INVOKE_URL="$BASE/send-borrow-reminders"
+          else
+            INVOKE_URL="$BASE"
+          fi
+
+          echo "INVOKE_URL=$INVOKE_URL" >> "$GITHUB_ENV"
+          echo "Target URL: $INVOKE_URL"
+
+      - name: Invoke function with full diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Gunakan curl tanpa -f agar kita bisa baca body error jika gagal
+          HTTP_CODE=$(curl -sS -X POST "$INVOKE_URL" \
             -H "Content-Type: application/json" \
-            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
-            -d '{}' \
-            --max-time 30
-        # SUPABASE_FUNCTIONS_URL  → https://[project-ref].supabase.co/functions/v1
-        # CRON_SECRET             → nilai yang sama dengan CRON_SECRET di Supabase Secrets
-        # Setel kedua nilai di: GitHub → Settings → Secrets and variables → Actions
+            -H "x-cron-secret: $CRON_SECRET" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -D /tmp/resp_headers.txt \
+            -o /tmp/resp_body.txt \
+            -w "%{http_code}" \
+            --data '{}')
+
+          echo "HTTP status: $HTTP_CODE"
+          echo "----- Response headers -----"
+          cat /tmp/resp_headers.txt || true
+          echo "----- Response body -----"
+          cat /tmp/resp_body.txt || true
+
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "Invoke failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
