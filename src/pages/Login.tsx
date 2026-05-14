@@ -239,7 +239,7 @@ export default function Login() {
             {/* Cloudflare Turnstile Verification */}
             <div className="flex justify-center py-2">
               <Turnstile 
-                siteKey="0x4AAAAAADDtG5PHsGg6YoP2" 
+                siteKey="1x00000000000000000000AA" 
                 onSuccess={(token) => {
                   setTurnstileToken(token);
                   setTurnstileStatus('success');

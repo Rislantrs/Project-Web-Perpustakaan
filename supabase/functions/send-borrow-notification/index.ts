@@ -8,6 +8,7 @@ import { buildLibraryEmailHtml, formatInfoGrid } from '../_shared/emailTemplates
 const ALLOWED_ORIGINS = [
   'https://lann.codes',
   'https://disipusda.purwakartakab.go.id',
+  'http://localhost:5173',
 ];
 
 const getCorsHeaders = (requestOrigin: string | null) => {
@@ -190,7 +191,7 @@ Deno.serve(async (req) => {
     apiKey: resendApiKey,
     from: resendFromEmail,
     to: member.email,
-    subject: `Konfirmasi Peminjaman: ${borrow.bookTitle}`,
+    subject: `[TESTING] Konfirmasi Peminjaman: ${borrow.bookTitle}`,
     html,
   });
 

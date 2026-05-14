@@ -4,10 +4,13 @@ export type BorrowNotificationPayload = {
   borrowId: string;
 };
 
-type EdgeFunctionResponse<T = Record<string, unknown>> = {
+export type EdgeFunctionResponse<T = any> = {
   success: boolean;
   message: string;
   data?: T;
+  sent?: number;
+  skipped?: number;
+  failures?: any[];
 };
 
 export const sendBorrowConfirmationEmail = async (

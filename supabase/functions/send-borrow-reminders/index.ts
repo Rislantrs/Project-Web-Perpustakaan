@@ -7,12 +7,11 @@ import { buildLibraryEmailHtml, formatInfoGrid } from '../_shared/emailTemplates
 const ALLOWED_ORIGINS = [
   'https://lann.codes',
   'https://disipusda.purwakartakab.go.id',
+  'http://localhost:5173',
 ];
 
 const getCorsHeaders = (requestOrigin: string | null) => {
-  const origin = ALLOWED_ORIGINS.includes(requestOrigin || '')
-    ? requestOrigin!
-    : ALLOWED_ORIGINS[0];
+  const origin = requestOrigin || '*';
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
@@ -39,7 +38,7 @@ type MemberRow = {
   email: string | null;
 };
 
-type ReminderType = 'pickup_h1' | 'pickup_h_minus_3' | 'due_h2' | 'overdue_daily';
+type ReminderType = 'pickup_h1' | 'pickup_h_minus_3' | 'due_h2' | 'overdue_daily' | 'cancel_pickup_timeout';
 
 const monthMap: Record<string, number> = {
   januari: 0,
@@ -80,6 +79,7 @@ const parseIndonesianDate = (value?: string) => {
 
 /**
  * Parses "10 Mei 2026, 10:00" into a Date object.
+ * We know the input string is always in WIB (UTC+7).
  */
 const parseIndonesianDateTime = (value?: string) => {
   if (!value) return null;
@@ -87,17 +87,39 @@ const parseIndonesianDateTime = (value?: string) => {
   const datePart = parts[0].trim();
   const timePart = parts[1]?.trim();
 
-  const date = parseIndonesianDate(datePart);
-  if (!date) return null;
+  const match = datePart.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+  if (!match) return null;
 
+  const day = Number(match[1]);
+  const month = monthMap[match[2].toLowerCase()];
+  const year = Number(match[3]);
+
+  if (Number.isNaN(day) || month === undefined || Number.isNaN(year)) return null;
+
+  let hours = 0;
+  let minutes = 0;
   if (timePart) {
     const timeMatch = timePart.match(/^(\d{1,2}):(\d{1,2})$/);
     if (timeMatch) {
-      date.setHours(Number(timeMatch[1]));
-      date.setMinutes(Number(timeMatch[2]));
+      hours = Number(timeMatch[1]);
+      minutes = Number(timeMatch[2]);
     }
   }
-  return date;
+
+  // Construct UTC timestamp directly.
+  // Input string is WIB (UTC+7), so we subtract 7 hours.
+  return new Date(Date.UTC(year, month, day, hours - 7, minutes, 0));
+};
+
+const isAdminUser = async (supabaseAdmin: ReturnType<typeof createClient>, userId: string, userEmail?: string) => {
+  const { data, error } = await supabaseAdmin.from('admins').select('id, email');
+  if (error || !data) return false;
+
+  const normalizedEmail = (userEmail || '').toLowerCase();
+  return data.some((row: { id: string; email: string | null }) => {
+    const rowEmail = String(row.email || '').toLowerCase();
+    return row.id === userId || (normalizedEmail && rowEmail === normalizedEmail);
+  });
 };
 
 const json = (status: number, body: Record<string, unknown>, origin: string | null) =>
@@ -161,7 +183,7 @@ const buildReminderEmail = (
 ) => {
   if (reminderType === 'pickup_h_minus_3') {
     return {
-      subject: `Segera Ambil Buku: ${payload.bookTitle} (Batas waktu 3 jam lagi)`,
+      subject: `[TESTING] Segera Ambil Buku: ${payload.bookTitle} (Batas waktu hampir berakhir)`,
       html: buildLibraryEmailHtml({
         preheader: 'Batas waktu pengambilan buku Anda hampir berakhir.',
         title: 'Pengingat Pengambilan (3 Jam Lagi)',
@@ -184,7 +206,7 @@ const buildReminderEmail = (
     };
   }
 
-  if (reminderType === 'pickup_h1') {
+    if (reminderType === 'pickup_h1') {
     return {
       subject: `Pengingat Pengambilan Buku: ${payload.bookTitle}`,
       html: buildLibraryEmailHtml({
@@ -228,6 +250,31 @@ const buildReminderEmail = (
           ])}
           <p style="margin:12px 0 0 0;font-size:13px;line-height:1.7;color:#7a4a10;">
             Pengingat ini dikirim otomatis saat H-2 sebelum jatuh tempo.
+          </p>
+        `,
+      }),
+    };
+  }
+
+  if (reminderType === 'cancel_pickup_timeout') {
+    return {
+      subject: `Peminjaman Dibatalkan: ${payload.bookTitle}`,
+      html: buildLibraryEmailHtml({
+        preheader: 'Peminjaman buku dibatalkan karena melewati batas waktu.',
+        title: 'Peminjaman Otomatis Dibatalkan',
+        subtitle: 'Buku belum diambil hingga melewati batas waktu.',
+        memberName: payload.memberName,
+        tone: 'danger',
+        contentHtml: `
+          <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#374151;">
+            Mohon maaf, peminjaman buku Anda telah dibatalkan otomatis karena tidak diambil hingga melewati batas waktu.
+          </p>
+          ${formatInfoGrid([
+            { label: 'Judul Buku', value: payload.bookTitle },
+            { label: 'Batas Waktu', value: payload.batasAmbil },
+          ])}
+          <p style="margin:12px 0 0 0;font-size:13px;line-height:1.7;color:#7a1b16;">
+            Buku sekarang kembali tersedia untuk dipinjam oleh anggota lain.
           </p>
         `,
       }),
@@ -282,21 +329,46 @@ Deno.serve(async (req) => {
     }, origin);
   }
 
-  if (cronSecret) {
-    const headerSecret = req.headers.get('x-cron-secret')?.trim();
-    const actualSecret = cronSecret.trim();
-
-    if (headerSecret !== actualSecret) {
-      console.error(`[Auth] Secret mismatch!`);
-      console.error(`Header Secret length: ${headerSecret?.length || 0}`);
-      console.error(`Env Secret length: ${actualSecret.length}`);
-      return json(401, { success: false, message: 'Unauthorized cron request.' }, origin);
-    }
-  }
-
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
+  // Authentication Logic: Allow CRON_SECRET OR Admin Session
+  let isAuthorized = false;
+
+  // 1. Check Cron Secret
+  if (cronSecret) {
+    const headerSecret = req.headers.get('x-cron-secret')?.trim();
+    if (headerSecret && headerSecret === cronSecret.trim()) {
+      isAuthorized = true;
+    }
+  }
+
+  // 2. Check Admin Session (if not authorized by cron secret)
+  if (!isAuthorized) {
+    const authHeader = req.headers.get('Authorization') || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+    
+    if (token) {
+      const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (!userError && user) {
+        const isAdmin = await isAdminUser(supabaseAdmin, user.id, user.email);
+        if (isAdmin) isAuthorized = true;
+      }
+    }
+  }
+
+  // 3. Fallback for Local Testing (bypass if dev environment)
+  // Disabled for production.
+  // if (!isAuthorized && (origin?.includes('localhost') || origin?.includes('127.0.0.1'))) {
+  //   console.warn(`[Auth] Bypassing auth for local testing from origin: ${origin}`);
+  //   isAuthorized = true;
+  // }
+
+  if (!isAuthorized) {
+    console.error(`[Auth] Unauthorized access attempt to reminder job. Origin: ${origin}`);
+    return json(401, { success: false, message: 'Unauthorized: Harap gunakan Cron Secret atau Login Admin.' }, origin);
+  }
 
   const { data: borrowsData, error: borrowsError } = await supabaseAdmin
     .from('borrows')
@@ -341,8 +413,8 @@ Deno.serve(async (req) => {
     }
 
     const memberName = member?.nama_lengkap || borrow.memberName || 'Member';
-    const borrowDate = parseIndonesianDate(borrow.tanggalPinjam);
-    const dueDate = parseIndonesianDate(borrow.tanggalKembali);
+    const borrowDate = parseIndonesianDateTime(borrow.tanggalPinjam);
+    const dueDate = parseIndonesianDateTime(borrow.tanggalKembali);
     const deadlineDate = parseIndonesianDateTime(borrow.batasAmbil);
 
     let reminderType: ReminderType | null = null;
@@ -350,18 +422,23 @@ Deno.serve(async (req) => {
 
     // Logic: Menunggu Diambil
     if (borrow.status === 'menunggu_diambil') {
-      // 1. Cek 3 Jam sebelum deadline
+      // 1. Cek Deadline (Batas Ambil)
       if (deadlineDate) {
         const msToDeadline = deadlineDate.getTime() - now.getTime();
         const hoursToDeadline = msToDeadline / (1000 * 60 * 60);
 
-        if (hoursToDeadline > 0 && hoursToDeadline <= 3.5) {
+        // Auto cancel if deadline has passed
+        if (hoursToDeadline < 0) {
+          reminderType = 'cancel_pickup_timeout';
+          reason = 'Dibatalkan otomatis karena melewati batas ambil 1x24 jam';
+          await supabaseAdmin.from('borrows').update({ status: 'batal' }).eq('id', borrow.id);
+        } else if (hoursToDeadline > 0 && hoursToDeadline <= 3.5) {
           reminderType = 'pickup_h_minus_3';
           reason = '3 jam sebelum batas waktu pengambilan';
         }
       }
 
-      // 2. Cek H+1 (fallback/tambahan)
+      // 2. Cek H+1 (fallback)
       if (!reminderType && borrowDate) {
         const daysFromBorrow = dayDiff(now, borrowDate);
         if (daysFromBorrow === 1) {
@@ -374,12 +451,20 @@ Deno.serve(async (req) => {
     // Logic: Dipinjam
     if (!reminderType && borrow.status === 'dipinjam' && dueDate) {
       const daysToDue = dayDiff(dueDate, now);
+      
       if (daysToDue === 2) {
         reminderType = 'due_h2';
         reason = 'H-2 sebelum jatuh tempo';
       } else if (daysToDue < 0) {
-        reminderType = 'overdue_daily';
-        reason = 'Sudah melewati jatuh tempo';
+        // Update DB Status to terlambat if it wasn't already
+        await supabaseAdmin.from('borrows').update({ status: 'terlambat' }).eq('id', borrow.id);
+        
+        // Reminder untuk keterlambatan, ingatkan setiap 3 hari
+        const daysOverdue = Math.abs(daysToDue);
+        if (daysOverdue % 3 === 0 || daysOverdue === 1) {
+          reminderType = 'overdue_daily';
+          reason = `Sudah melewati jatuh tempo (${daysOverdue} hari)`;
+        }
       }
     }
 

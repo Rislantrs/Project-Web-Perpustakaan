@@ -20,6 +20,7 @@ export default function KatalogBuku() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
   const [isLoadingBookDetail, setIsLoadingBookDetail] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,6 +129,9 @@ export default function KatalogBuku() {
       showToast('Silakan login terlebih dahulu untuk meminjam buku.', 'error');
       return;
     }
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     const user = getCurrentUser()!;
     try {
       const result = await borrowBook(book.id, user.id, user.namaLengkap);
@@ -141,6 +145,8 @@ export default function KatalogBuku() {
       }
     } catch (err) {
       showToast('Gagal memproses peminjaman.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -716,24 +722,32 @@ export default function KatalogBuku() {
                   selectedBook.stok > 0 ? (
                     <button
                       onClick={() => handleBorrow(selectedBook)}
-                      className="w-full py-4 rounded-xl font-bold text-white bg-[#8b1c24] hover:bg-[#721720] hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-3 transition-all shadow-lg"
+                      disabled={isSubmitting}
+                      className="w-full py-4 rounded-xl font-bold text-white bg-[#8b1c24] hover:bg-[#721720] disabled:opacity-50 hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-3 transition-all shadow-lg"
                     >
-                      <BookOpen size={20} /> Pinjam Buku Ini
+                      <BookOpen size={20} /> {isSubmitting ? 'Memproses...' : 'Pinjam Buku Ini'}
                     </button>
                   ) : (
                     <button
                       onClick={async () => {
-                        const user = getCurrentUser()!;
-                        const result = await joinQueue(selectedBook.id, user.id, user.namaLengkap);
-                        showToast(result.message, result.success ? 'success' : 'error');
-                        if (result.success) {
-                          const refreshed = getBooks().find(b => b.id === selectedBook.id);
-                          if (refreshed) setSelectedBook(refreshed);
+                        if (isSubmitting) return;
+                        setIsSubmitting(true);
+                        try {
+                          const user = getCurrentUser()!;
+                          const result = await joinQueue(selectedBook.id, user.id, user.namaLengkap);
+                          showToast(result.message, result.success ? 'success' : 'error');
+                          if (result.success) {
+                            const refreshed = getBooks().find(b => b.id === selectedBook.id);
+                            if (refreshed) setSelectedBook(refreshed);
+                          }
+                        } finally {
+                          setIsSubmitting(false);
                         }
                       }}
-                      className="w-full py-4 rounded-xl font-bold text-white bg-[#d6a54a] hover:bg-[#c4943e] hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-3 transition-all shadow-lg"
+                      disabled={isSubmitting}
+                      className="w-full py-4 rounded-xl font-bold text-white bg-[#d6a54a] hover:bg-[#c4943e] disabled:opacity-50 hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-3 transition-all shadow-lg"
                     >
-                      <Users size={20} /> Daftar Antrian
+                      <Users size={20} /> {isSubmitting ? 'Memproses...' : 'Daftar Antrian'}
                     </button>
                   )
                 ) : (

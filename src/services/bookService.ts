@@ -333,22 +333,23 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
   if (!book) return { success: false, message: 'Buku tidak ditemukan.' };
   if (book.stok <= 0) return { success: false, message: 'Stok buku habis. Anda bisa mendaftar antrian untuk buku ini.' };
 
-  // Check if already borrowing this book
-  const activeBorrows = getActiveBorrows(memberId);
-  if (activeBorrows.find(b => b.bookId === bookId)) {
-    return { success: false, message: 'Anda sudah meminjam buku ini. Kembalikan terlebih dahulu.' };
+  // Check if already borrowing this book (either waiting for pickup or actively borrowed)
+  const memberBorrows = getMemberBorrows(memberId);
+  const activeOrPending = memberBorrows.filter(b => b.status === 'dipinjam' || b.status === 'menunggu_diambil');
+  if (activeOrPending.find(b => b.bookId === bookId)) {
+    return { success: false, message: 'Anda sudah meminjam (atau sedang memesan) buku ini.' };
   }
 
   // HARDCODE BUSINESS RULE: maksimal 3 buku aktif per member.
-  if (activeBorrows.length >= 3) {
+  if (activeOrPending.length >= 3) {
     return { success: false, message: 'Maksimal peminjaman 3 buku. Silakan kembalikan buku terlebih dahulu.' };
   }
 
   const now = new Date();
-  // HARDCODE BUSINESS RULE: masa pinjam standar 7 hari.
-  const returnDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 hari masa pinjam
-  // HARDCODE BUSINESS RULE: batas ambil buku 1x24 jam setelah request pinjam.
-  const pickupDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 1x24 jam batas ambil
+  // Masa pinjam standar: 7 hari.
+  const returnDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); 
+  // Batas ambil buku: 1x24 jam setelah request pinjam.
+  const pickupDeadline = new Date(now.getTime() + 24 * 60 * 60 * 1000); 
 
   const record: BorrowRecord = {
     id: generateBorrowId(),
@@ -356,8 +357,8 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
     memberId,
     memberName,
     bookTitle: book.judul,
-    tanggalPinjam: formatDate(now),
-    tanggalKembali: formatDate(returnDate),
+    tanggalPinjam: formatDateTime(now),
+    tanggalKembali: formatDateTime(returnDate),
     batasAmbil: formatDateTime(pickupDeadline),
     status: 'menunggu_diambil',
   };
@@ -396,7 +397,7 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
 
     return {
       success: true,
-      message: `Buku "${book.judul}" berhasil dipinjam!\n⏰ Ambil sebelum: ${formatDateTime(pickupDeadline)}\n📅 Batas pengembalian: ${formatDate(returnDate)} (7 hari)`
+      message: `[TESTING] Buku "${book.judul}" berhasil dipinjam!\n⏰ Ambil sebelum: ${formatDateTime(pickupDeadline)}\n📅 Batas pengembalian: ${formatDateTime(returnDate)}`
     };
   } catch (err: any) {
     return { success: false, message: 'Gagal sinkronisasi peminjaman ke Cloud: ' + err.message };
@@ -634,9 +635,10 @@ export const checkAndCancelOverdueBorrows = () => {
   const updatedBorrows = borrows.map(record => {
     // Only check records that are waiting for pickup
     if (record.status === 'menunggu_diambil') {
-      const deadline = new Date(record.batasAmbil);
-      if (now > deadline) {
+      const deadline = parseIndonesianDateTimeFromService(record.batasAmbil);
+      if (deadline && now > deadline) {
         // Otomatis batal jika lewat batas ambil.
+        console.log(`[Service] Auto-cancelling borrow ${record.id} - Deadline passed: ${record.batasAmbil}`);
         record.status = 'batal';
         changed = true;
         
@@ -653,7 +655,27 @@ export const checkAndCancelOverdueBorrows = () => {
   if (changed) {
     localStorage.setItem(BORROWS_KEY, JSON.stringify(updatedBorrows));
     localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+    // Trigger sync ke cloud jika memungkinkan (optional, for now keep local sync consistency)
   }
+};
+
+const parseIndonesianDateTimeFromService = (value?: string): Date | null => {
+  if (!value) return null;
+  const parts = value.split(',');
+  const dateStr = parts[0].trim();
+  const timeStr = parts[1]?.trim();
+
+  const d = parseIndonesianDate(dateStr);
+  if (!d) return null;
+
+  if (timeStr) {
+    const timeMatch = timeStr.match(/^(\d{1,2}):(\d{1,2})$/);
+    if (timeMatch) {
+      d.setHours(Number(timeMatch[1]));
+      d.setMinutes(Number(timeMatch[2]));
+    }
+  }
+  return d;
 };
 
 // Hook into getBorrows logic
