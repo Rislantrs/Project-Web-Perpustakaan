@@ -27,7 +27,10 @@ export default function RiwayatPinjaman() {
     // Tarik dua domain sekaligus: histori pinjam + status antrian buku.
     const user = getCurrentUser();
     if (user) {
-      setBorrows(getMemberBorrows(user.id));
+      const userBorrows = getMemberBorrows(user.id);
+      // Urutkan riwayat peminjaman agar yang terbaru selalu berada di paling atas
+      const sortedBorrows = [...userBorrows].reverse();
+      setBorrows(sortedBorrows);
       setQueues(getMemberQueues(user.id));
     }
   };
