@@ -49,11 +49,11 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-brand-light flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         {/* Logo and Greeting */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#0c2f3d] rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-xl shadow-[#0c2f3d]/20">
+          <div className="w-16 h-16 bg-brand-primary rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-xl shadow-brand-primary-10">
             <Shield size={32} />
           </div>
           <h1 className="text-2xl font-black text-gray-900">Admin Area</h1>
@@ -81,11 +81,11 @@ export default function AdminLogin() {
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Email Institusi</label>
               <div className="relative group">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors" />
                 <input
                   required value={email} onChange={e => setEmail(e.target.value)}
                   type="email" placeholder="email@disipusda.go.id"
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-brand-primary-10 outline-none transition-all"
                 />
               </div>
             </div>
@@ -93,11 +93,11 @@ export default function AdminLogin() {
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Kata Sandi</label>
               <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0c2f3d] transition-colors" />
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors" />
                 <input
                   required value={password} onChange={e => setPassword(e.target.value)}
                   type={showPassword ? "text" : "password"} placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none transition-all"
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-brand-primary-10 outline-none transition-all"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -110,7 +110,7 @@ export default function AdminLogin() {
                 <div className="relative w-5 h-5 flex items-center justify-center">
                   <input
                     type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
-                    className="appearance-none w-full h-full border-2 border-gray-200 rounded-md checked:bg-[#0c2f3d] checked:border-[#0c2f3d] transition-all cursor-pointer"
+                    className="appearance-none w-full h-full border-2 border-gray-200 rounded-md checked:bg-brand-primary checked:border-brand-primary transition-all cursor-pointer"
                   />
                   {rememberMe && <CheckCircle size={12} className="absolute text-white pointer-events-none" />}
                 </div>
@@ -120,7 +120,7 @@ export default function AdminLogin() {
 
             <button
               disabled={status === 'loading' || status === 'success'}
-              className="w-full bg-[#0c2f3d] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#0c2f3d]/20 hover:bg-[#1a4254] hover:translate-y-[-2px] active:translate-y-[0px] transition-all disabled:opacity-50"
+              className="w-full bg-brand-primary text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand-primary-10 bg-brand-primary-10 hover:bg-brand-primary-dark hover:translate-y-[-2px] active:translate-y-[0px] transition-all disabled:opacity-50"
             >
               {status === 'loading' ? 'Otentikasi...' : 'Masuk Dashboard'}
             </button>
@@ -128,7 +128,7 @@ export default function AdminLogin() {
         </motion.div>
 
         <div className="mt-8 text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-[#0c2f3d] transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-brand-primary transition-colors">
             <ArrowLeft size={14} /> Kembali ke Beranda
           </Link>
         </div>

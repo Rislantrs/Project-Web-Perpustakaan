@@ -120,7 +120,7 @@ export default function ManageAdmins() {
         </div>
         <button
           onClick={() => { if (showForm && editingAdmin) resetForm(); else setShowForm(!showForm); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0c2f3d] text-white text-sm font-medium rounded-xl hover:bg-[#1a4254] transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2.5 bg-brand-primary text-white text-sm font-medium rounded-xl hover:bg-brand-primary-dark transition-colors shadow-sm"
         >
           {showForm && editingAdmin ? <X size={18} /> : <Plus size={18} />}
           {showForm && editingAdmin ? 'Batal Edit' : 'Tambah Admin'}
@@ -137,7 +137,7 @@ export default function ManageAdmins() {
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-                  {editingAdmin ? <Pencil size={18} className="text-[#d6a54a]" /> : <Shield size={18} className="text-[#0c2f3d]" />}
+                  {editingAdmin ? <Pencil size={18} className="text-brand-accent" /> : <Shield size={18} className="text-brand-primary" />}
                   {editingAdmin ? 'Edit Detail Admin' : 'Tambah Admin Baru'}
                 </h2>
                 <button type="button" onClick={resetForm} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
@@ -145,24 +145,24 @@ export default function ManageAdmins() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Nama Lengkap *</label>
-                  <input required value={form.namaLengkap} onChange={e => setForm(p => ({ ...p, namaLengkap: e.target.value }))} placeholder="Nama admin" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
+                  <input required value={form.namaLengkap} onChange={e => setForm(p => ({ ...p, namaLengkap: e.target.value }))} placeholder="Nama admin" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Email *</label>
-                  <input type="email" required value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="admin@disipusda.go.id" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
+                  <input type="email" required value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="admin@disipusda.go.id" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
                     {editingAdmin ? 'Password Baru (Opsional)' : 'Password *'}
                   </label>
                   <div className="relative">
-                    <input type="password" required={!editingAdmin} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder={editingAdmin ? "Kosongkan jika tidak ingin ganti" : "••••••••"} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all" />
+                    <input type="password" required={!editingAdmin} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} placeholder={editingAdmin ? "Kosongkan jika tidak ingin ganti" : "••••••••"} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all" />
                     {editingAdmin && <Key size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />}
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Role</label>
-                  <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value as 'admin' | 'super_admin' }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all">
+                  <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value as 'admin' | 'super_admin' }))} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all">
                     <option value="admin">Admin</option>
                     <option value="super_admin">Super Admin</option>
                   </select>
@@ -170,7 +170,7 @@ export default function ManageAdmins() {
               </div>
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={resetForm} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Batal</button>
-                <button type="submit" className="px-5 py-2.5 bg-[#0c2f3d] text-white rounded-xl text-sm font-medium hover:bg-[#1a4254] transition-colors">
+                <button type="submit" className="px-5 py-2.5 bg-brand-primary text-white rounded-xl text-sm font-medium hover:bg-brand-primary-dark transition-colors">
                   {editingAdmin ? 'Update Data' : 'Simpan Admin'}
                 </button>
               </div>
@@ -185,7 +185,7 @@ export default function ManageAdmins() {
           <motion.div
             key={admin.id}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className={`bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all ${editingAdmin?.id === admin.id ? 'border-[#d6a54a] ring-1 ring-[#d6a54a]/20' : 'border-gray-100'}`}
+            className={`bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all ${editingAdmin?.id === admin.id ? 'border-brand-accent ring-1 ring-brand-accent/20' : 'border-gray-100'}`}
           >
             <div className="flex items-start gap-4">
               {/* Avatar */}
@@ -195,11 +195,11 @@ export default function ManageAdmins() {
               >
                 {getInitials(admin.namaLengkap)}
               </div>
-
+ 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold text-gray-900 text-sm truncate">{admin.namaLengkap}</h3>
-                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${admin.role === 'super_admin' ? 'bg-[#d6a54a]/15 text-[#c09030]' : 'bg-[#0c2f3d]/10 text-[#0c2f3d]'}`}>
+                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${admin.role === 'super_admin' ? 'bg-brand-accent-10 text-[#c09030]' : 'bg-brand-primary-10 text-brand-primary'}`}>
                     {admin.role === 'super_admin' ? <Crown size={9} /> : <User size={9} />}
                     {admin.role === 'super_admin' ? 'Super Admin' : 'Admin'}
                   </span>
@@ -211,11 +211,11 @@ export default function ManageAdmins() {
                   <Calendar size={11} /> Dibuat: {admin.tanggalDibuat}
                 </div>
               </div>
-
+ 
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => handleEditClick(admin)}
-                  className="p-1.5 text-gray-300 hover:text-[#d6a54a] hover:bg-[#d6a54a]/5 rounded-lg transition-colors shrink-0"
+                  className="p-1.5 text-gray-300 hover:text-brand-accent hover:bg-brand-accent-10 rounded-lg transition-colors shrink-0"
                   title="Edit Admin"
                 >
                   <Pencil size={15} />

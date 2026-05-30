@@ -181,7 +181,7 @@ export const refreshMembersFromSupabase = async (): Promise<Member[]> => {
  */
 export const deleteMemberFromSupabase = async (memberId: string): Promise<{ success: boolean; message: string }> => {
   try {
-    console.log('Mencoba menghapus member dengan ID:', memberId);
+    console.warn('Mencoba menghapus member dengan ID:', memberId);
     
     // 1. Hapus dari tabel Members (Membutuhkan SQL Bypass RLS)
     const { error, count } = await supabase
@@ -208,8 +208,9 @@ export const deleteMemberFromSupabase = async (memberId: string): Promise<{ succ
     dbSave(DB_KEYS.MEMBERS, localMembers);
     
     return { success: true, message: 'Anggota berhasil dihapus secara permanen dari sistem.' };
-  } catch (err: any) {
-    return { success: false, message: `Eror Sistem: ${err.message}` };
+  } catch (err: unknown) {
+    const e = err as { message?: string };
+    return { success: false, message: `Eror Sistem: ${String(e?.message || err)}` };
   }
 };
 
@@ -408,6 +409,21 @@ export const loginWithSupabase = async (email: string, password: string): Promis
   };
 };
 
+export const loginWithGoogle = async (): Promise<{ success: boolean; message: string }> => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  return { success: true, message: 'Menghubungkan ke Google...' };
+};
+
 export const resetPasswordWithSupabase = async (email: string): Promise<{ success: boolean; message: string }> => {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${window.location.origin}/auth/callback`,
@@ -487,8 +503,9 @@ export const consumeAuthCallbackUrl = async (): Promise<AuthCallbackResult> => {
     }
 
     return { success: false, message: 'Link autentikasi tidak valid atau sudah kedaluwarsa.' };
-  } catch (err: any) {
-    return { success: false, message: err?.message || 'Gagal memproses link autentikasi.' };
+  } catch (err: unknown) {
+    const e = err as { message?: string };
+    return { success: false, message: e?.message || 'Gagal memproses link autentikasi.' };
   }
 };
 
@@ -544,7 +561,8 @@ export const consumeAuthCallbackFromLink = async (link: string): Promise<AuthCal
     }
 
     return { success: false, message: 'Link verifikasi tidak valid.' };
-  } catch (err: any) {
-    return { success: false, message: err?.message || 'Gagal memproses link verifikasi.' };
+  } catch (err: unknown) {
+    const e = err as { message?: string };
+    return { success: false, message: e?.message || 'Gagal memproses link verifikasi.' };
   }
 };

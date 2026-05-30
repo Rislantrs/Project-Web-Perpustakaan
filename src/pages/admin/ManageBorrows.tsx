@@ -119,7 +119,7 @@ export default function ManageBorrows() {
           <input
             value={query} onChange={e => setQuery(e.target.value)}
             placeholder="Cari berdasarkan judul buku, nama peminjam, atau ID..."
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all bg-white"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white"
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-xl">
@@ -127,7 +127,7 @@ export default function ManageBorrows() {
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filter === tab ? 'bg-white text-[#0c2f3d] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filter === tab ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
               {tab.replace('_', ' ')}
             </button>
@@ -170,7 +170,7 @@ export default function ManageBorrows() {
                     <BookOpen size={14} className="text-gray-400 shrink-0" />
                     <span className="truncate">{b.bookTitle}</span>
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-[#d6a54a] font-bold truncate">
+                  <div className="flex items-center gap-2 text-xs text-brand-accent font-bold truncate">
                     <User size={12} /> {b.memberName} ({b.memberId})
                   </div>
                 </div>
@@ -202,7 +202,7 @@ export default function ManageBorrows() {
                 {b.status === 'menunggu_diambil' && (
                   <button 
                     onClick={() => handleConfirm(b.id)}
-                    className="px-3 py-2 bg-[#0c2f3d] text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-[#1a4254] transition-colors shadow-sm flex items-center justify-center gap-1"
+                    className="px-3 py-2 bg-brand-primary text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-brand-primary-dark transition-colors shadow-sm flex items-center justify-center gap-1"
                   >
                     <CheckCircle size={14} /> Konfirmasi Pengambilan
                   </button>
@@ -247,7 +247,7 @@ export default function ManageBorrows() {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-xs font-bold ${currentPage === page ? 'bg-[#0c2f3d] text-white' : 'bg-white border border-gray-200 text-gray-600'}`}
+                className={`w-8 h-8 rounded-lg text-xs font-bold ${currentPage === page ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600'}`}
               >
                 {page}
               </button>

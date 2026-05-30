@@ -46,17 +46,18 @@ export const DB_KEYS = {
 };
 
 // Fallback in-memory cache saat localStorage gagal (misal quota penuh).
-const memoryFallback: Record<string, any> = {};
+const memoryFallback: Record<string, unknown> = {};
 
-export const dbSave = (key: string, data: any) => {
+export const dbSave = (key: string, data: unknown) => {
   memoryFallback[key] = data; // Simpan di memori sementara sebagai cadangan
   try {
     localStorage.setItem(key, JSON.stringify(data));
-  } catch (err: any) {
-    if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-      console.warn("⚠️ LocalStorage penuh! Beralih ke penyimpanan memori sementara.");
+  } catch (err: unknown) {
+    const e = err as { name?: string; message?: string };
+    if (e?.name === 'QuotaExceededError' || e?.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      console.warn('⚠️ LocalStorage penuh! Beralih ke penyimpanan memori sementara.');
     } else {
-      console.error("Gagal menyimpan ke database:", err);
+      console.error('Gagal menyimpan ke database:', String(e?.message || e));
     }
   } finally {
     // Pastikan UI tetap ter-update walau LocalStorage error
@@ -76,8 +77,9 @@ export const dbGet = <T,>(key: string, defaultValue: T): T => {
     const parsed = JSON.parse(data) as T;
     memoryFallback[key] = parsed; // Cache ke memori
     return parsed;
-  } catch (err) {
-    console.error(`Error reading DB key "${key}":`, err);
+  } catch (err: unknown) {
+    const e = err as { message?: string };
+    console.error(`Error reading DB key "${key}":`, String(e?.message || err));
     return defaultValue;
   }
 };
@@ -131,7 +133,7 @@ export const initializeDB = () => {
   }
 
   // Initialize structure
-  const structure = dbGet<any[]>(DB_KEYS.STRUCTURE, []);
+  const structure = dbGet<unknown[]>(DB_KEYS.STRUCTURE, []);
   const defaultStructure = [
     // PIMPINAN
     { id: 'S1', name: 'AAN, S.Pd.I., K.P., M.Si.', position: 'Kepala Dinas', level: 1, category: 'pimpinan', img: libTeam },
@@ -225,7 +227,7 @@ export const initializeDB = () => {
   }
 
   // Initialize achievements
-  const achievements = dbGet<any[]>(DB_KEYS.ACHIEVEMENTS, []);
+  const achievements = dbGet<unknown[]>(DB_KEYS.ACHIEVEMENTS, []);
   if (achievements.length <= 1) {
     // HARDCODE ACHIEVEMENTS:
     // data prestasi default untuk first run/demo.

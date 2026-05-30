@@ -1,34 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Calendar, Trash2, MessageSquare, CheckCircle, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-
-interface Report {
-  id: number;
-  nama: string;
-  email: string;
-  telepon: string;
-  kategori: string;
-  pesan: string;
-  alamat: string;
-  tanggal: string;
-  status: string;
-}
+import { motion } from 'motion/react';
+import { deleteReport, getReports, type Report } from '../../services/reportService';
 
 export default function ManageReports() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    // HARDCODE DATA SOURCE: laporan warga masih disimpan di localStorage.
-    // jika nanti pindah backend, ganti load/save di halaman ini ke service API.
-    const data = JSON.parse(localStorage.getItem('disipusda_reports') || '[]');
-    setReports(data.sort((a: any, b: any) => b.id - a.id));
+  const loadReports = useCallback(async () => {
+    setIsLoading(true);
+    const result = await getReports();
+    setReports(result.reports);
+    setErrorMessage(result.success ? '' : result.message);
+    setIsLoading(false);
   }, []);
 
-  const handleDelete = (id: number) => {
-    // Mutasi dilakukan lokal lalu dipersist ulang agar UI langsung sinkron.
-    const filtered = reports.filter(r => r.id !== id);
-    setReports(filtered);
-    localStorage.setItem('disipusda_reports', JSON.stringify(filtered));
+  useEffect(() => {
+    void loadReports();
+  }, [loadReports]);
+
+  const handleDelete = async (id: string) => {
+    const result = await deleteReport(id);
+    if (!result.success) {
+      setErrorMessage(result.message);
+    }
+
+    void loadReports();
   };
 
   return (
@@ -37,6 +35,18 @@ export default function ManageReports() {
         <h1 className="text-2xl font-bold text-gray-900">Laporan Warga</h1>
         <p className="text-sm text-gray-500 mt-1">Kelola aspirasi dan pengaduan dari masyarakat</p>
       </div>
+
+      {errorMessage && (
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {errorMessage}
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="rounded-3xl border border-dashed border-gray-200 bg-white py-20 text-center text-sm text-gray-400">
+          Memuat laporan warga...
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6">
         {reports.map((report) => (

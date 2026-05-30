@@ -9,14 +9,14 @@ type CurrentMemberSession = {
 };
 
 export const saveCurrentMember = (member: Member, expiresAt?: number): void => {
-  // expiresAt opsional untuk support sesi bertenggat (remember me vs session pendek).
+  // Menggunakan sessionStorage untuk memitigasi risiko persistensi serangan XSS.
   const payload: CurrentMemberSession = expiresAt ? { member, expiresAt } : { member };
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(payload));
+  sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(payload));
 };
 
 export const getSavedCurrentMember = (): Member | null => {
   try {
-    const raw = localStorage.getItem(CURRENT_USER_KEY);
+    const raw = sessionStorage.getItem(CURRENT_USER_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Member | CurrentMemberSession;
 
@@ -36,5 +36,5 @@ export const getSavedCurrentMember = (): Member | null => {
 };
 
 export const clearCurrentMember = (): void => {
-  localStorage.removeItem(CURRENT_USER_KEY);
+  sessionStorage.removeItem(CURRENT_USER_KEY);
 };

@@ -117,7 +117,7 @@ export default function ManageMembers() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Cari anggota berdasarkan nama, nomor anggota, atau NIK..."
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all bg-white"
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white"
         />
         {query && <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2"><X size={14} className="text-gray-400" /></button>}
       </div>
@@ -153,7 +153,7 @@ export default function ManageMembers() {
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-gray-900 truncate">{member.namaLengkap}</p>
-                          <p className="text-xs text-[#d6a54a] font-bold">{member.nomorAnggota}</p>
+                          <p className="text-xs text-brand-accent font-bold">{member.nomorAnggota}</p>
                         </div>
                       </div>
                     </td>
@@ -219,7 +219,7 @@ export default function ManageMembers() {
                 <button
                   key={`page-${p}`}
                   onClick={() => setCurrentPage(p as number)}
-                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-[#0c2f3d] text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
+                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-brand-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
                 >
                   {p}
                 </button>

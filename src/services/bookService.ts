@@ -397,7 +397,7 @@ export const borrowBook = async (bookId: string, memberId: string, _memberNameFr
 
     return {
       success: true,
-      message: `[TESTING] Buku "${book.judul}" berhasil dipinjam!\n⏰ Ambil sebelum: ${formatDateTime(pickupDeadline)}\n📅 Batas pengembalian: ${formatDateTime(returnDate)}`
+      message: `Buku "${book.judul}" berhasil dipinjam!\n⏰ Ambil sebelum: ${formatDateTime(pickupDeadline)}\n📅 Batas pengembalian: ${formatDateTime(returnDate)}`
     };
   } catch (err: any) {
     return { success: false, message: 'Gagal sinkronisasi peminjaman ke Cloud: ' + err.message };
@@ -646,6 +646,20 @@ export const checkAndCancelOverdueBorrows = () => {
         const bookIdx = books.findIndex(b => b.id === record.bookId);
         if (bookIdx !== -1) {
           books[bookIdx].stok += 1;
+          
+          // Sync ke cloud secara background
+          const targetRecordId = record.id;
+          const targetBookId = record.bookId;
+          const targetStok = books[bookIdx].stok;
+          void (async () => {
+            try {
+              await supabase.from('borrows').update({ status: 'batal' }).eq('id', targetRecordId);
+              await supabase.from('books').update({ stok: targetStok }).eq('id', targetBookId);
+              console.log(`[Service] Cloud sync auto-cancellation success for borrow ${targetRecordId}`);
+            } catch (syncErr) {
+              console.warn(`[Service] Cloud sync auto-cancellation failed for borrow ${targetRecordId}:`, syncErr);
+            }
+          })();
         }
       }
     }
@@ -655,7 +669,6 @@ export const checkAndCancelOverdueBorrows = () => {
   if (changed) {
     localStorage.setItem(BORROWS_KEY, JSON.stringify(updatedBorrows));
     localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
-    // Trigger sync ke cloud jika memungkinkan (optional, for now keep local sync consistency)
   }
 };
 

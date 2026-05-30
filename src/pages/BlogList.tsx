@@ -3,13 +3,13 @@ import { ChevronRight, Calendar, User, Search, Filter, X, Download, Image as Ima
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { fetchArticlesPageWithCount, Article, ARTICLE_CATEGORIES } from '../services/dataService';
+import { APP_LIMITS } from '../config/appLimits';
 
 
 
 export default function BlogList() {
-  // HARDCODE: jumlah artikel per halaman.
-  // Ubah ini kalau ingin menampilkan lebih banyak/sedikit artikel per page.
-  const PAGE_SIZE = 10;
+  // Jumlah artikel per halaman disinkronkan ke APP_LIMITS.
+  const PAGE_SIZE = APP_LIMITS.ITEMS_PER_PAGE;
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get('kategori') || '';
 
@@ -149,13 +149,13 @@ export default function BlogList() {
   };
 
   return (
-    <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24 relative">
+    <div className="bg-brand-light min-h-screen pt-12 pb-24 relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex items-center text-sm text-gray-500 mb-10">
-          <Link to="/" className="hover:text-[#0c2f3d]">Beranda</Link>
+          <Link to="/" className="hover:text-brand-primary">Beranda</Link>
           <ChevronRight size={14} className="mx-2" />
-          <span className="text-[#0c2f3d] font-medium">{currentCategoryDisplay}</span>
+          <span className="text-brand-primary font-medium">{currentCategoryDisplay}</span>
         </div>
 
         <div className="border-b border-gray-200 pb-8 mb-8">
@@ -177,26 +177,26 @@ export default function BlogList() {
               placeholder="Cari judul..." 
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a]"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent"
             />
           </div>
-
+ 
           <div className="flex gap-4">
             <select 
               value={selectedCategory || urlCategory} 
               onChange={(e) => { setSelectedCategory(e.target.value); }}
-              className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700"
+              className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-brand-accent text-gray-700"
             >
               <option value="Semua Kategori">Semua Kategori</option>
               {ARTICLE_CATEGORIES.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
-
+ 
             <select 
               value={selectedYear} 
               onChange={(e) => { setSelectedYear(e.target.value); }}
-              className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-[#d6a54a] text-gray-700 w-32"
+              className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:border-brand-accent text-gray-700 w-32"
             >
               <option value="">Tahun</option>
               {availableYears.map(year => (
@@ -270,13 +270,13 @@ export default function BlogList() {
 
                   <div className="w-full md:w-[60%] flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="text-[#0c2f3d] font-bold text-xs uppercase tracking-widest bg-[#0c2f3d]/10 px-3 py-1 rounded-full">
+                      <span className="text-brand-primary font-bold text-xs uppercase tracking-widest bg-brand-primary-10 px-3 py-1 rounded-full">
                         {article.category}
                       </span>
                     </div>
                     
                     <Link to={`/artikel/${article.slug}`}>
-                      <h2 className="font-serif text-3xl font-bold text-[#1a1a1a] leading-snug mb-3 group-hover:text-[#d6a54a] transition-colors line-clamp-2">
+                      <h2 className="font-serif text-3xl font-bold text-[#1a1a1a] leading-snug mb-3 group-hover:text-brand-accent transition-colors line-clamp-2">
                         {article.title}
                       </h2>
                     </Link>
@@ -311,20 +311,20 @@ export default function BlogList() {
           <div className="mt-14 rounded-2xl border border-gray-200 bg-white px-4 py-4 sm:px-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <p className="text-xs sm:text-sm text-gray-600">
-                Halaman <span className="font-bold text-[#0c2f3d]">{currentPage}</span> dari <span className="font-bold text-[#0c2f3d]">{totalPages}</span>
+                Halaman <span className="font-bold text-brand-primary">{currentPage}</span> dari <span className="font-bold text-brand-primary">{totalPages}</span>
                 <span className="text-gray-400"> • </span>
                 <span>{totalArticles} artikel</span>
               </p>
-
+ 
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
+                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-colors"
                 >
                   <ChevronLeft size={16} />
                 </button>
-
+ 
                 {visiblePages.map((page, index) => (
                   page === '...'
                     ? <span key={`ellipsis-${index}`} className="w-10 text-center text-gray-400">...</span>
@@ -333,7 +333,7 @@ export default function BlogList() {
                         key={page}
                         onClick={() => setCurrentPage(page)}
                         className={`h-10 min-w-10 px-3 rounded-xl text-sm font-bold transition-colors ${currentPage === page
-                          ? 'bg-[#0c2f3d] text-white shadow-md'
+                          ? 'bg-brand-primary text-white shadow-md'
                           : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                       >
@@ -341,11 +341,11 @@ export default function BlogList() {
                       </button>
                     )
                 ))}
-
+ 
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-[#0c2f3d] hover:text-white hover:border-[#0c2f3d] transition-colors"
+                  className="h-10 min-w-10 px-3 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 disabled:opacity-30 hover:bg-brand-primary hover:text-white hover:border-brand-primary transition-colors"
                 >
                   <ChevronRight size={16} />
                 </button>
@@ -388,13 +388,13 @@ export default function BlogList() {
               </div>
               
               <div className="w-full bg-white p-5 flex items-center justify-between border-t border-gray-100">
-                 <h3 className="font-bold text-lg text-[#0c2f3d]">{lightboxImg.title}</h3>
+                 <h3 className="font-bold text-lg text-brand-primary">{lightboxImg.title}</h3>
                  <a 
                    href={lightboxImg.src} 
                    download={`${lightboxImg.title}.jpg`}
                    target="_blank"
                    rel="noreferrer"
-                   className="flex items-center gap-2 bg-[#d6a54a] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-[#c09440] transition-colors"
+                   className="flex items-center gap-2 bg-brand-accent text-white px-5 py-2.5 rounded-lg font-bold hover:brightness-105 transition-colors"
                  >
                    <Download size={18} /> Unduh
                  </a>

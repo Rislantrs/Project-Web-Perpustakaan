@@ -64,16 +64,16 @@ export default function JasaKearsipan() {
     <div className="min-h-screen bg-white pt-0 pb-20">
       
       {/* Hero Header */}
-      <section className="relative py-20 bg-[#0c2f3d] overflow-hidden text-center">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#d6a54a]/5 -skew-x-12 translate-x-1/2"></div>
+      <section className="relative py-20 bg-brand-primary overflow-hidden text-center">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-accent-10 -skew-x-12 translate-x-1/2"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-[#d6a54a] text-xs font-bold tracking-[0.3em] uppercase mb-6">Professional Services</div>
+            <div className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-brand-accent text-xs font-bold tracking-[0.3em] uppercase mb-6">Professional Services</div>
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-6">
-              Jasa Kearsipan & <span className="text-[#d6a54a]">Prosedur Pelayanan</span>
+              Jasa Kearsipan & <span className="text-brand-accent">Prosedur Pelayanan</span>
             </h1>
             <p className="text-gray-400 max-w-2xl mx-auto">
               Solusi manajemen dokumen terintegrasi untuk instansi pemerintah dan swasta guna mewujudkan tata kelola arsip yang modern dan akuntabel.
@@ -84,9 +84,9 @@ export default function JasaKearsipan() {
 
       {/* Jasa Kearsipan Timeline */}
       <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
-          <h2 className="font-serif text-3xl font-bold text-[#0c2f3d] mb-4">Layanan Jasa Kearsipan</h2>
-          <div className="w-16 h-1 bg-[#d6a54a] mx-auto"></div>
+          <div className="text-center mb-20">
+          <h2 className="font-serif text-3xl font-bold text-brand-primary mb-4">Layanan Jasa Kearsipan</h2>
+          <div className="w-16 h-1 bg-brand-accent mx-auto"></div>
         </div>
 
         <div className="relative">
@@ -103,14 +103,14 @@ export default function JasaKearsipan() {
                 className={`relative flex flex-col md:flex-row items-center gap-8 ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
               >
                 {/* Connector Dot */}
-                <div className="absolute left-0 md:left-1/2 w-4 h-4 rounded-full bg-[#d6a54a] md:-translate-x-1/2 border-4 border-white shadow-sm z-20"></div>
+                <div className="absolute left-0 md:left-1/2 w-4 h-4 rounded-full bg-brand-accent md:-translate-x-1/2 border-4 border-white shadow-sm z-20"></div>
                 
                 <div className="w-full md:w-1/2">
                   <div className={`p-8 rounded-3xl border border-gray-100 bg-white transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 group ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
-                    <div className={`w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-[#d6a54a] mb-6 group-hover:bg-[#0c2f3d] group-hover:text-white transition-all ${idx % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'}`}>
+                    <div className={`w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-brand-accent mb-6 group-hover:bg-brand-primary group-hover:text-white transition-all ${idx % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'}`}>
                       {item.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-[#0c2f3d] mb-4">{item.title}</h3>
+                    <h3 className="text-xl font-bold text-brand-primary mb-4">{item.title}</h3>
                     <p className="text-gray-500 text-sm leading-relaxed">
                       {item.desc}
                     </p>

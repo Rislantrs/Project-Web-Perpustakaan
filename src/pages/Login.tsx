@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { LogIn, CheckCircle, AlertCircle, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../services/supabase';
-import { loginWithSupabase } from '../services/supabaseAuthService';
+import { loginWithSupabase, loginWithGoogle } from '../services/supabaseAuthService';
 import { Turnstile } from '@marsidev/react-turnstile';
 import libIndoor from '../assets/image/lib-indoor.webp';
 
@@ -79,6 +79,21 @@ export default function Login() {
       setRememberMe(true);
     }
   }, [location, searchParams]);
+
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await loginWithGoogle();
+      if (!result.success) {
+        setToast({ show: true, message: result.message, type: 'error' });
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setToast({ show: true, message: 'Gagal menghubungi Google OAuth.', type: 'error' });
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -272,6 +287,42 @@ export default function Login() {
                   <LogIn size={18} /> Masuk
                 </>
               )}
+            </button>
+
+            <div className="relative my-5">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500 font-semibold">Atau masuk dengan</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm active:scale-[0.98] disabled:opacity-60"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path
+                  fill="#EA4335"
+                  d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 14.99 1 12 1 7.35 1 3.37 3.65 1.45 7.55l3.85 2.99C6.27 7.55 8.95 5.04 12 5.04z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.76 2.91c2.2-2.03 3.67-5.02 3.67-8.64z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.3 14.54c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.45 6.96C.52 8.8.01 10.84.01 12.98s.51 4.18 1.44 6.02l3.85-3.46z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.76-2.91c-1.05.7-2.4 1.12-4.2 1.12-3.05 0-5.73-2.51-6.7-5.51L1.45 16.28C3.37 20.35 7.35 23 12 23z"
+                />
+              </svg>
+              Google
             </button>
           </form>
 

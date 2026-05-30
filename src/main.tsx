@@ -5,6 +5,7 @@ import './styles/tailwind.css';
 import { supabase } from './services/supabase';
 import { setupSecurityMonitoring } from './security/monitoring';
 import * as Sentry from "@sentry/react";
+import { initWebVitals } from './utils/webVitals';
 
 // Inisialisasi Sentry (Error Tracking)
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -46,6 +47,13 @@ try {
   setupSecurityMonitoring(supabase);
 } catch (err) {
   console.warn('Security monitoring dinonaktifkan sementara:', err);
+}
+
+// Lightweight web-vitals collection (read-only)
+try {
+  initWebVitals();
+} catch (err) {
+  console.warn('web-vitals init failed:', err);
 }
 
 createRoot(document.getElementById('root')!).render(

@@ -85,7 +85,7 @@ export default function BookEditor() {
     }
   };
 
-  const inputCls = "w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all bg-white";
+  const inputCls = "w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white";
   const labelCls = "block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide";
 
   return (
@@ -180,8 +180,8 @@ export default function BookEditor() {
             value={form.sinopsis} onChange={e => update('sinopsis', e.target.value)}
           />
           <div className="flex items-center gap-3 mt-4">
-            <input type="checkbox" id="recommended" checked={!!form.isRecommended} onChange={e => update('isRecommended', e.target.checked)} className="w-4 h-4 accent-[#d6a54a]" />
-            <label htmlFor="recommended" className="text-sm text-gray-700 font-medium">Tampilkan di bagian <span className="text-[#d6a54a] font-semibold">Rekomendasi</span></label>
+            <input type="checkbox" id="recommended" checked={!!form.isRecommended} onChange={e => update('isRecommended', e.target.checked)} className="w-4 h-4 accent-brand-accent" />
+            <label htmlFor="recommended" className="text-sm text-gray-700 font-medium">Tampilkan di bagian <span className="text-brand-accent font-semibold">Rekomendasi</span></label>
           </div>
         </div>
 
@@ -211,7 +211,7 @@ export default function BookEditor() {
           <button type="button" onClick={() => navigate('/admin/books')} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
             Batal
           </button>
-          <button type="submit" disabled={loading} className="flex-1 py-3 rounded-xl bg-[#0c2f3d] text-white text-sm font-semibold hover:bg-[#1a4254] transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-60">
+          <button type="submit" disabled={loading} className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-dark transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-60">
             <Save size={16} />
             {loading ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambah Buku'}
           </button>

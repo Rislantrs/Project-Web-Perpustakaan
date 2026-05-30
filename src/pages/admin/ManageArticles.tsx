@@ -70,7 +70,7 @@ export default function ManageArticles() {
         </div>
         <Link
           to="/admin/articles/new"
-          className="flex items-center gap-2 bg-[#0c2f3d] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-[#164153] transition-colors"
+          className="flex items-center gap-2 bg-brand-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-primary-dark transition-colors"
         >
           <Plus size={18} /> Tulis Baru
         </Link>
@@ -85,7 +85,7 @@ export default function ManageArticles() {
               placeholder="Cari judul artikel..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#d6a54a] focus:ring-1 focus:ring-[#d6a54a]"
+              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent"
             />
           </div>
 
@@ -93,18 +93,18 @@ export default function ManageArticles() {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#d6a54a]"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent"
             >
               <option value="">Semua Kategori</option>
               <option value="Kedinasan">Kedinasan</option>
               <option value="Pojok Carita">Pojok Carita</option>
               <option value="Berita Terkini">Berita Terkini</option>
             </select>
-
+ 
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-[#d6a54a]"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent"
             >
               <option value="">Semua Status</option>
               <option value="Published">Terbit</option>
@@ -153,7 +153,7 @@ export default function ManageArticles() {
                     </td>
                     <td className="px-6 py-4 text-gray-500">{article.date}</td>
                     <td className="px-6 py-4 flex items-center justify-end gap-3 text-gray-400">
-                      <Link to={`/admin/articles/edit/${article.id}`} className="hover:text-[#0c2f3d] transition-colors">
+                      <Link to={`/admin/articles/edit/${article.id}`} className="hover:text-brand-primary transition-colors">
                         <Edit2 size={16} />
                       </Link>
                       <button onClick={() => handleDelete(article.id)} className="hover:text-red-600 transition-colors">

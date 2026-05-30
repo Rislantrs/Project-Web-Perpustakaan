@@ -171,7 +171,7 @@ export default function Diorama() {
 
           {/* Animated Background Indicator */}
           <div
-            className="absolute top-1.5 bottom-1.5 w-1/2 bg-[#0c2f3d] rounded-full shadow-md transition-transform duration-300 ease-in-out"
+            className="absolute top-1.5 bottom-1.5 w-1/2 bg-brand-primary rounded-full shadow-md transition-transform duration-300 ease-in-out"
             style={{ transform: activeTab === 'purwakarta' ? 'translateX(0)' : 'translateX(100%)' }}
           />
         </div>
@@ -193,18 +193,18 @@ export default function Diorama() {
               {/* Hero Section */}
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20 mb-20">
                 <div className="lg:w-1/2">
-                  <h1 className="font-serif text-4xl lg:text-5xl font-bold text-[#0c2f3d] mb-4">
+                  <h1 className="font-serif text-4xl lg:text-5xl font-bold text-brand-primary mb-4">
                     Bale Panyawangan <br /> Diorama Purwakarta
                   </h1>
-                  <p className="text-[#d6a54a] font-serif text-xl italic mb-6">“ Neuleuman Lampah Ki Sunda ”</p>
-
+                  <p className="text-brand-accent font-serif text-xl italic mb-6">“ Neuleuman Lampah Ki Sunda ”</p>
+ 
                   <p className="text-gray-600 text-lg leading-relaxed mb-4">
                     Pembangunan Bale Panyawangan Diorama Purwakarta diprakarsai oleh Bupati Purwakarta Kang Dedi Mulyadi yang bertujuan untuk mengangkat peranan arsip sebagai bagian penting dari proses kehidupan berbangsa, bernegara dan bermasyarakat.
                   </p>
                   <p className="text-gray-600 text-lg leading-relaxed mb-4">
                     Bale Panyawangan Diorama Purwakarta merupakan ungkapan sejarah Purwakarta dan perkembangan dari masa ke masa yang di tampilkan melalui perpaduan arsip, seni, dan teknologi.
                   </p>
-                  <p className="text-gray-600 text-lg leading-relaxed border-l-4 border-[#0c2f3d] pl-4">
+                  <p className="text-gray-600 text-lg leading-relaxed border-l-4 border-brand-primary pl-4">
                     Penggubahan bentuk arsip menjadi karya seni dengan sentuhan teknologi adalah untuk memperkenalkan arsip kepada masyarakat dengan cara yang mudah dipahami dan menarik.
                   </p>
                 </div>
@@ -244,10 +244,10 @@ export default function Diorama() {
               {/* 9 Segmen Diorama Grid */}
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-24">
                 <div className="text-center mb-16">
-                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#0c2f3d] mb-4">9 Segmen Diorama</h2>
-                  <p className="text-[#d6a54a] font-bold uppercase tracking-widest text-sm">Rangkaian Materi Bale Panyawangan Diorama Purwakarta</p>
+                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-primary mb-4">9 Segmen Diorama</h2>
+                  <p className="text-brand-accent font-bold uppercase tracking-widest text-sm">Rangkaian Materi Bale Panyawangan Diorama Purwakarta</p>
                 </div>
-
+ 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {purwakartaSegments.map((seg, idx) => (
                     <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -258,7 +258,7 @@ export default function Diorama() {
                         </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="font-bold text-xl text-[#0c2f3d] mb-3 leading-snug group-hover:text-[#d6a54a] transition-colors">{seg.title}</h3>
+                        <h3 className="font-bold text-xl text-brand-primary mb-3 leading-snug group-hover:text-brand-accent transition-colors">{seg.title}</h3>
                         <p className="text-gray-600 text-sm leading-relaxed">{seg.desc}</p>
                       </div>
                     </div>
@@ -273,15 +273,15 @@ export default function Diorama() {
             <div>
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20 mb-20">
                 <div className="lg:w-1/2">
-                  <h1 className="font-serif text-4xl lg:text-5xl font-bold text-[#0c2f3d] mb-4">
+                  <h1 className="font-serif text-4xl lg:text-5xl font-bold text-brand-primary mb-4">
                     Bale Panyawangan <br /> Diorama Nusantara
                   </h1>
-                  <p className="text-[#d6a54a] font-serif text-xl italic mb-6">“ Menjelajah Sejarah Bangsa ”</p>
-
+                  <p className="text-brand-accent font-serif text-xl italic mb-6">“ Menjelajah Sejarah Bangsa ”</p>
+ 
                   <p className="text-gray-600 text-lg leading-relaxed mb-4">
                     Bale Panyawangan Diorama Nusantara membawa pengunjung dalam sebuah perjalanan epik melintasi ribuan tahun sejarah kepulauan Indonesia.
                   </p>
-                  <p className="text-gray-600 text-lg leading-relaxed border-l-4 border-[#0c2f3d] pl-4">
+                  <p className="text-gray-600 text-lg leading-relaxed border-l-4 border-brand-primary pl-4">
                     Penggubahan bentuk arsip menceritakan terbentuknya Nusantara, kejayaan kerajaan-kerajaan besar, hingga proklamasi kemerdekaan yang dikemas dengan teknologi digital modern kelas dunia.
                   </p>
                 </div>
@@ -296,10 +296,10 @@ export default function Diorama() {
               {/* 12 Segmen Diorama Nusantara Grid */}
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-24">
                 <div className="text-center mb-16">
-                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#0c2f3d] mb-4">12 Segmen Diorama Nusantara</h2>
-                  <p className="text-[#d6a54a] font-bold uppercase tracking-widest text-sm">Menelusuri Jejak Sejarah Kepulauan Indonesia</p>
+                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-primary mb-4">12 Segmen Diorama Nusantara</h2>
+                  <p className="text-brand-accent font-bold uppercase tracking-widest text-sm">Menelusuri Jejak Sejarah Kepulauan Indonesia</p>
                 </div>
-
+ 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {nusantaraSegments.map((seg, idx) => (
                     <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -310,7 +310,7 @@ export default function Diorama() {
                         </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="font-bold text-xl text-[#0c2f3d] mb-3 leading-snug group-hover:text-[#d6a54a] transition-colors">{seg.title}</h3>
+                        <h3 className="font-bold text-xl text-brand-primary mb-3 leading-snug group-hover:text-brand-accent transition-colors">{seg.title}</h3>
                         <p className="text-gray-600 text-sm leading-relaxed">{seg.desc}</p>
                       </div>
                     </div>
@@ -360,7 +360,7 @@ export default function Diorama() {
                 <Heart size={180} />
               </div>
               <div className="relative z-10">
-                <h3 className="text-2xl font-bold text-[#0c2f3d] mb-4 flex items-center gap-3">
+                <h3 className="text-2xl font-bold text-brand-primary mb-4 flex items-center gap-3">
                   <Heart className="text-red-500" /> Ramah Kelompok Rentan
                 </h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">
@@ -378,18 +378,18 @@ export default function Diorama() {
             </div>
 
             {/* Layanan Pengaduan */}
-            <div className="bg-[#0c2f3d] text-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden">
+            <div className="bg-brand-primary text-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden">
               <div className="absolute -right-10 -bottom-10 text-white/5">
                 <MessageCircle size={180} />
               </div>
               <div className="relative z-10">
                 <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                  <PhoneCall className="text-[#d6a54a]" /> Layanan Pengaduan
+                  <PhoneCall className="text-brand-accent" /> Layanan Pengaduan
                 </h3>
                 <p className="text-gray-300 mb-8 leading-relaxed">
                   Sampaikan pengaduan anda berkenaan dengan layanan Bale Panyawangan Purwakarta melalui jalur yang tersedia:
                 </p>
-
+ 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <a href="tel:112" className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all hover:-translate-y-1 block">
                     <p className="text-gray-300 text-xs mb-1 uppercase tracking-wider">Telepon Darurat</p>
@@ -408,8 +408,8 @@ export default function Diorama() {
                     <p className="font-bold text-lg">Span LAPOR</p>
                   </a>
                 </div>
-
-                <div className="mt-4 bg-[#d6a54a] text-white p-4 rounded-xl font-bold text-center hover:bg-[#c09440] transition-colors cursor-pointer">
+ 
+                <div className="mt-4 bg-brand-accent text-white p-4 rounded-xl font-bold text-center hover:bg-brand-accent/90 transition-colors cursor-pointer">
                   Atau Pengaduan Langsung ke Loket
                 </div>
               </div>

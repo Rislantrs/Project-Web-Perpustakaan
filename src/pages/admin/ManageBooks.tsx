@@ -78,8 +78,7 @@ export default function ManageBooks() {
         {toast.show && (
           <motion.div
             initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl border"
-            style={{ background: toast.type === 'success' ? '#ecfdf5' : '#fef2f2', borderColor: toast.type === 'success' ? '#6ee7b7' : '#fca5a5' }}
+            className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl border ${toast.type === 'success' ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}
           >
             {toast.type === 'success' ? <CheckCircle size={18} className="text-emerald-600" /> : <AlertCircle size={18} className="text-red-600" />}
             <span className="text-sm font-medium">{toast.message}</span>
@@ -123,7 +122,7 @@ export default function ManageBooks() {
         </div>
         <Link
           to="/admin/books/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0c2f3d] text-white text-sm font-medium rounded-xl hover:bg-[#1a4254] transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2.5 bg-brand-primary text-white text-sm font-medium rounded-xl hover:bg-brand-primary-dark transition-colors shadow-sm"
         >
           <Plus size={18} /> Tambah Buku
         </Link>
@@ -132,10 +131,10 @@ export default function ManageBooks() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Total Buku', value: books.length, color: 'text-[#0c2f3d]', bg: 'bg-[#0c2f3d]/5' },
+          { label: 'Total Buku', value: books.length, color: 'text-brand-primary', bg: 'bg-brand-primary-5' },
           { label: 'Tersedia', value: books.filter(b => b.stok > 0).length, color: 'text-emerald-700', bg: 'bg-emerald-50' },
           { label: 'Stok Habis', value: books.filter(b => b.stok === 0).length, color: 'text-red-600', bg: 'bg-red-50' },
-          { label: 'Kategori', value: getCategories('books').length, color: 'text-[#d6a54a]', bg: 'bg-[#d6a54a]/10' },
+          { label: 'Kategori', value: getCategories('books').length, color: 'text-brand-accent', bg: 'bg-brand-accent-10' },
         ].map(s => (
           <div key={s.label} className={`${s.bg} rounded-xl p-4`}>
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
@@ -151,7 +150,7 @@ export default function ManageBooks() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Cari buku berdasarkan judul, penulis, atau kategori..."
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none transition-all bg-white"
+          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white"
         />
         {query && <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2"><X size={14} className="text-gray-400" /></button>}
       </div>
@@ -205,7 +204,7 @@ export default function ManageBooks() {
                       </div>
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#0c2f3d]/5 text-[#0c2f3d]">{book.kategori}</span>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-primary-5 text-brand-primary">{book.kategori}</span>
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell text-gray-600 text-xs">{book.penulis}</td>
                     <td className="px-4 py-3.5 text-center">
@@ -217,7 +216,7 @@ export default function ManageBooks() {
                       <div className="flex items-center justify-center gap-1">
                         <Link
                           to={`/admin/books/edit/${book.id}`}
-                          className="p-1.5 text-gray-400 hover:text-[#0c2f3d] hover:bg-[#0c2f3d]/5 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-brand-primary hover:bg-brand-primary-5 rounded-lg transition-colors"
                           title="Edit"
                         >
                           <Edit2 size={15} />
@@ -267,7 +266,7 @@ export default function ManageBooks() {
                 <button
                   key={`page-${p}`}
                   onClick={() => setCurrentPage(p as number)}
-                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-[#0c2f3d] text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
+                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-brand-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
                 >
                   {p}
                 </button>

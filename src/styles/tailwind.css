@@ -16,6 +16,17 @@
     --animate-slide-up: slideUp 0.6s ease-out;
 }
 
+/* RGB helper variables for token opacity utilities */
+:root {
+    --color-brand-primary-rgb: 12 47 61; /* #0c2f3d */
+    --color-brand-secondary-rgb: 31 62 78; /* #1f3e4e */
+    --color-brand-accent-rgb: 214 165 74; /* #d6a54a */
+    --color-brand-light-rgb: 248 249 250; /* #f8f9fa */
+    --color-danger-rgb: 139 28 36; /* #8b1c24 */
+    --color-ink-rgb: 26 26 26; /* #1a1a1a */
+    --color-brand-primary-dark-rgb: 26 66 84; /* approximate #1a4254 */
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -85,6 +96,28 @@ h4,
     scrollbar-width: none;
     /* Firefox */
 }
+
+/* Design token utility classes (use these instead of hex literals) */
+.text-brand-primary { color: rgb(var(--color-brand-primary-rgb)); }
+.text-brand-accent { color: rgb(var(--color-brand-accent-rgb)); }
+.text-ink { color: rgb(var(--color-ink-rgb)); }
+
+.bg-brand-light { background-color: rgb(var(--color-brand-light-rgb)); }
+.bg-brand-primary-5 { background-color: rgb(var(--color-brand-primary-rgb) / 0.05); }
+.bg-brand-primary-10 { background-color: rgb(var(--color-brand-primary-rgb) / 0.1); }
+.bg-danger-5 { background-color: rgb(var(--color-danger-rgb) / 0.05); }
+
+.bg-brand-accent-10 { background-color: rgb(var(--color-brand-accent-rgb) / 0.1); }
+
+.border-brand-primary-10 { border-color: rgb(var(--color-brand-primary-rgb) / 0.1); }
+.border-t-brand-accent { border-top-color: rgb(var(--color-brand-accent-rgb)); }
+
+.bg-brand-primary { background-color: rgb(var(--color-brand-primary-rgb)); }
+.hover\:bg-brand-primary-dark:hover { background-color: rgb(var(--color-brand-primary-dark-rgb)); }
+
+/* Gradient helper for member card header */
+.bg-gradient-brand { background: linear-gradient(135deg, rgb(var(--color-brand-primary-rgb)), rgb(var(--color-brand-primary-dark-rgb)), rgb(var(--color-brand-primary-rgb))); }
+
 
 /* =========================================
    KIOSK MODE (DIGITAL SIGNAGE / VERTICAL TV)

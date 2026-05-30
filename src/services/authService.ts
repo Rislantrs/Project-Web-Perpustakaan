@@ -2,6 +2,7 @@ import { dbGet, dbSave, DB_KEYS, initializeDB, Member as MemberType, Admin as Ad
 import bcrypt from 'bcryptjs';
 import { clearCurrentMember, getSavedCurrentMember, saveCurrentMember } from './memberSession';
 import { supabase } from './supabase';
+import { AVATAR_COLORS } from '../config/colorPalette';
 
 export type Member = MemberType;
 export type Admin = AdminType;
@@ -22,10 +23,7 @@ const ADMIN_SESSION_TTL = 12 * 60 * 60 * 1000; // 12 hours
 // Initialize DB on first import
 initializeDB();
 
-const avatarColors = [
-  '#8b1c24', '#0c2f3d', '#d6a54a', '#0f6063', '#6b5840',
-  '#2d5a27', '#5b3a8c', '#c05621', '#1a6b8a', '#8b4513'
-];
+const avatarColors = AVATAR_COLORS;
 
 const generateId = (): string => crypto.randomUUID();
 
@@ -69,7 +67,7 @@ const mapAdminRowToModel = (row: SupabaseAdminRow): Admin => ({
   password: row.password_hash,
   role: row.role,
   tanggalDibuat: row.tanggal_dibuat || formatDateNow(),
-  avatarColor: row.avatar_color || '#0c2f3d',
+  avatarColor: row.avatar_color || AVATAR_COLORS[1],
 });
 
 const mapMemberRowToModel = (row: SupabaseMemberRow): Member => ({
@@ -84,7 +82,7 @@ const mapMemberRowToModel = (row: SupabaseMemberRow): Member => ({
   jenisKelamin: row.jenis_kelamin || 'L',
   tanggalLahir: row.tanggal_lahir || '',
   tanggalDaftar: row.tanggal_daftar || formatDateNow(),
-  avatarColor: row.avatar_color || '#0c2f3d',
+  avatarColor: row.avatar_color || AVATAR_COLORS[1],
   avatarUrl: row.avatar_url || '',
   bio: row.bio || '',
 });
@@ -205,7 +203,7 @@ const getDefaultAdmins = (): Admin[] => [
     password: '$2a$10$wR.lXz.vXWzJvXw.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X.w.X',
     role: 'super_admin',
     tanggalDibuat: '14 April 2024',
-    avatarColor: '#0c2f3d'
+    avatarColor: AVATAR_COLORS[1]
   },
 ];
 
@@ -384,12 +382,12 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
     // Expired session ditangani di getCurrentAdmin().
     expiresAt: Date.now() + ADMIN_SESSION_TTL
   };
-  localStorage.setItem(CURRENT_ADMIN_KEY, JSON.stringify(sessionData));
+  sessionStorage.setItem(CURRENT_ADMIN_KEY, JSON.stringify(sessionData));
   return { success: true, message: `Selamat datang, ${admin.namaLengkap}!`, admin };
 };
 
 export const getCurrentAdmin = (): Admin | null => {
-  const sessionStr = localStorage.getItem(CURRENT_ADMIN_KEY);
+  const sessionStr = sessionStorage.getItem(CURRENT_ADMIN_KEY);
   if (!sessionStr) return null;
   
   const sessionData = JSON.parse(sessionStr);
@@ -405,7 +403,7 @@ export const getCurrentAdmin = (): Admin | null => {
 };
 
 export const logoutAdmin = (): void => {
-  localStorage.removeItem(CURRENT_ADMIN_KEY);
+  sessionStorage.removeItem(CURRENT_ADMIN_KEY);
   void supabase.auth.signOut();
 };
 

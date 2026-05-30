@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { ShieldCheck, Mail, KeyRound, CheckCircle2, AlertCircle, Send, ArrowLeft, Sparkles } from 'lucide-react';
 import { verifySignupOtp, resendSignupVerification } from '../services/supabaseAuthService';
+import { APP_LIMITS } from '../config/appLimits';
 
 export default function AuthVerifyCode() {
   const [searchParams] = useSearchParams();
@@ -87,22 +88,22 @@ export default function AuthVerifyCode() {
     show(result.success ? 'success' : 'error', result.message);
 
     if (result.success) {
-      // HARDCODE: cooldown kirim ulang email 60 detik.
-      const until = Date.now() + 60_000;
+      // Menggunakan APP_LIMITS untuk cooldown kirim ulang email.
+      const until = Date.now() + APP_LIMITS.VERIFICATION_CODE_TTL_SECONDS * 1000;
       localStorage.setItem(cooldownKey, String(until));
-      setResendCooldown(60);
+      setResendCooldown(APP_LIMITS.VERIFICATION_CODE_TTL_SECONDS);
     }
   };
 
   if (accessDenied) {
     return (
-      <div className="min-h-screen bg-[#0a1f2c] bg-[radial-gradient(circle_at_top,_rgba(214,165,74,0.18),_transparent_45%),radial-gradient(circle_at_bottom_right,_rgba(26,66,84,0.55),_transparent_45%)] flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-[#0a1f2c] bg-[radial-gradient(circle_at_top,_rgba(var(--color-brand-accent-rgb),0.18),_transparent_45%),radial-gradient(circle_at_bottom_right,_rgba(var(--color-brand-primary-dark-rgb),0.55),_transparent_45%)] flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl p-8 text-center text-white">
           <AlertCircle size={42} className="mx-auto text-amber-600 mb-3" />
           <h1 className="text-xl font-bold">Akses Verifikasi Dibatasi</h1>
           <p className="text-sm text-slate-200 mt-2">Halaman ini hanya muncul dari alur daftar/login. Silakan mulai dari login atau daftar dulu.</p>
           <div className="mt-6 flex justify-center gap-3">
-            <Link to="/login" className="px-4 py-2 rounded-lg bg-[#0c2f3d] text-white text-sm font-semibold hover:bg-[#1a4254]">Ke Login</Link>
+            <Link to="/login" className="px-4 py-2 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-dark">Ke Login</Link>
             <Link to="/register" className="px-4 py-2 rounded-lg border border-white/30 text-white text-sm font-semibold hover:bg-white/10">Ke Daftar</Link>
           </div>
         </div>
@@ -111,20 +112,20 @@ export default function AuthVerifyCode() {
   }
 
   return (
-    <div className="min-h-screen bg-[#091e2a] bg-[radial-gradient(circle_at_10%_20%,_rgba(214,165,74,0.2),_transparent_30%),radial-gradient(circle_at_80%_0%,_rgba(12,47,61,0.7),_transparent_35%),radial-gradient(circle_at_90%_80%,_rgba(139,28,36,0.22),_transparent_40%)] px-4 py-10 md:py-14">
+    <div className="min-h-screen bg-[#091e2a] bg-[radial-gradient(circle_at_10%_20%,_rgba(var(--color-brand-accent-rgb),0.2),_transparent_30%),radial-gradient(circle_at_80%_0%,_rgba(var(--color-brand-primary-rgb),0.7),_transparent_35%),radial-gradient(circle_at_90%_80%,_rgba(var(--color-danger-rgb),0.22),_transparent_40%)] px-4 py-10 md:py-14">
       <div className="mx-auto w-full max-w-xl">
         <div className="rounded-[2rem] border border-white/20 bg-white/12 backdrop-blur-2xl shadow-[0_24px_64px_rgba(1,8,18,0.5)] p-6 md:p-10 text-white">
           <div className="flex items-center justify-between gap-3 mb-6">
             <Link to="/login" className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide uppercase text-slate-200 hover:text-white">
               <ArrowLeft size={14} /> Kembali
             </Link>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#d6a54a]/50 bg-[#d6a54a]/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#f5d59a]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-brand-accent/50 bg-brand-accent-10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#f5d59a]">
               <Sparkles size={12} /> Secure Verification
             </span>
           </div>
 
           <div className="text-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d6a54a] to-[#b47f22] text-[#072433] flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-accent to-[#b47f22] text-brand-primary flex items-center justify-center mx-auto mb-3 shadow-lg">
             <ShieldCheck size={26} />
           </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Verifikasi Email Akun</h1>
@@ -149,7 +150,7 @@ export default function AuthVerifyCode() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value.trim())}
-                  className="w-full pl-9 pr-3 py-3 rounded-xl border border-white/25 bg-white/10 text-white placeholder:text-slate-300 focus:ring-2 focus:ring-[#d6a54a]/50 focus:border-[#d6a54a] outline-none"
+                  className="w-full pl-9 pr-3 py-3 rounded-xl border border-white/25 bg-white/10 text-white placeholder:text-slate-300 focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent outline-none"
                   placeholder="email@domain.com"
                 />
               </div>
@@ -165,7 +166,7 @@ export default function AuthVerifyCode() {
                   maxLength={8}
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D+/g, '').slice(0, 8))}
-                  className="w-full pl-9 pr-3 py-3 rounded-xl border border-white/25 bg-white/10 text-white tracking-[0.45em] text-center font-semibold placeholder:text-slate-300 focus:ring-2 focus:ring-[#d6a54a]/50 focus:border-[#d6a54a] outline-none"
+                  className="w-full pl-9 pr-3 py-3 rounded-xl border border-white/25 bg-white/10 text-white tracking-[0.45em] text-center font-semibold placeholder:text-slate-300 focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent outline-none"
                   placeholder="123456"
                 />
               </div>
@@ -174,7 +175,7 @@ export default function AuthVerifyCode() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#d6a54a] to-[#c48e2b] text-[#06212f] font-bold hover:brightness-105 transition-all disabled:opacity-60 shadow-lg"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-brand-accent to-[#c48e2b] text-[#06212f] font-bold hover:brightness-105 transition-all disabled:opacity-60 shadow-lg"
             >
               {loading ? 'Memverifikasi...' : 'Verifikasi OTP'}
             </button>

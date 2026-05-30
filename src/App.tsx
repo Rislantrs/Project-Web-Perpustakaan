@@ -20,13 +20,13 @@ import AuthVerifyCode from './pages/AuthVerifyCode';
 import AuthUpdatePassword from './pages/AuthUpdatePassword';
 import NotFound from './pages/NotFound';
 import BlogList from './pages/BlogList';
-import ArticleDetail from './pages/ArticleDetail';
+const ArticleDetail = lazy(() => import('./pages/ArticleDetail'));
 import Galendo from './pages/Galendo';
 import Ppid from './pages/Ppid';
 import ZonaIntegritas from './pages/ZonaIntegritas';
 import Referensi from './pages/Referensi';
 import JasaKearsipan from './pages/JasaKearsipan';
-import KatalogBuku from './pages/KatalogBuku';
+const KatalogBuku = lazy(() => import('./pages/KatalogBuku'));
 import LaporWarga from './pages/LaporWarga';
 import Pabukon from './pages/Pabukon';
 import LayananRentan from './pages/LayananRentan';
@@ -142,7 +142,11 @@ function App() {
             <Route path="profil/struktur" element={<StrukturOrganisasi />} />
             <Route path="profil/prestasi" element={<Prestasi />} />
             <Route path="artikel" element={<BlogList />} />
-            <Route path="artikel/:slug" element={<ArticleDetail />} />
+            <Route path="artikel/:slug" element={
+              <Suspense fallback={<div className="py-20 flex items-center justify-center"><div className="w-8 h-8 border-4 border-brand-primary-10 border-t-brand-accent rounded-full animate-spin"/></div>}>
+                <ArticleDetail />
+              </Suspense>
+            } />
             <Route path="galendo" element={<Galendo />} />
             <Route path="ppid" element={<Ppid />} />
             <Route path="zona-integritas" element={<ZonaIntegritas />} />
@@ -151,7 +155,11 @@ function App() {
             <Route path="lapor-warga" element={<LaporWarga />} />
             <Route path="jadwal" element={<JadwalLayanan />} />
             <Route path="referensi" element={<Referensi />} />
-            <Route path="katalog" element={<KatalogBuku />} />
+            <Route path="katalog" element={
+              <Suspense fallback={<div className="py-12 flex items-center justify-center"><div className="w-8 h-8 border-4 border-brand-primary-10 border-t-brand-accent rounded-full animate-spin"/></div>}>
+                <KatalogBuku />
+              </Suspense>
+            } />
             <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
             <Route path="layanan-rentan" element={<LayananRentan />} />
           </Route>
@@ -170,7 +178,7 @@ function App() {
           <Route path="/admin" element={
             <Suspense fallback={
               <div className="h-screen w-full flex items-center justify-center p-6 bg-white overflow-hidden overflow-y-auto">
-                <div className="w-10 h-10 border-4 border-[#0c2f3d]/10 border-t-[#d6a54a] rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-brand-primary-10 border-t-brand-accent rounded-full animate-spin"></div>
               </div>
             }>
               <AdminLayout />

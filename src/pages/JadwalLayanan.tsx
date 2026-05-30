@@ -5,10 +5,10 @@ import { getSchedules, type Schedule } from '../services/settingsService';
 
 function ScheduleCard({ schedule }: { schedule: Schedule }) {
   return (
-    <div className="flex flex-col group w-full bg-[#1f3e4e] rounded-2xl shadow-lg border border-[#0c2f3d] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-[#d6a54a]/50 p-8 relative overflow-hidden h-full">
+    <div className="flex flex-col group w-full bg-brand-secondary rounded-2xl shadow-lg border border-brand-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-brand-accent-10 p-8 relative overflow-hidden h-full">
       {/* Header Card: Day & Icon */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 text-[#d6a54a] font-bold text-xs uppercase tracking-widest">
+        <div className="flex items-center gap-2 text-brand-accent font-bold text-xs uppercase tracking-widest">
           <Calendar size={16} />
           {schedule.day}
         </div>
@@ -23,13 +23,13 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
       {/* Time Capsule - Matching Image Style */}
       <div className="mt-auto">
         <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2.5 rounded-xl text-white shadow-inner">
-          <Clock size={16} className="text-[#d6a54a]" />
+          <Clock size={16} className="text-brand-accent" />
           <span className="text-base font-bold tracking-tight">{schedule.hours}</span>
         </div>
       </div>
 
       {/* Subtle Gold Decoration */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#d6a54a]/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#d6a54a]/10 transition-colors"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent-10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-brand-accent-10 transition-colors"></div>
     </div>
   );
 }
@@ -44,21 +44,21 @@ export default function JadwalLayanan() {
   }, []);
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-40">
+    <div className="bg-brand-light min-h-screen pt-12 pb-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb - Clean & Constant */}
         <div className="flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-8 font-sans">
-          <Link to="/" className="hover:text-[#d6a54a] transition-colors">Beranda</Link>
+          <Link to="/" className="hover:text-brand-accent transition-colors">Beranda</Link>
           <span className="mx-4 text-gray-300">|</span>
-          <span className="text-[#d6a54a]">Jadwal Layanan</span>
+          <span className="text-brand-accent">Jadwal Layanan</span>
         </div>
 
         {/* Header - Consistent with Structure Page */}
         <div className="text-center mb-24">
-          <h1 className="font-serif text-6xl lg:text-7xl font-bold text-[#0c2f3d] tracking-tighter mb-6">Waktu Layanan</h1>
+          <h1 className="font-serif text-6xl lg:text-7xl font-bold text-brand-primary tracking-tighter mb-6">Waktu Layanan</h1>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">"Pintu Literasi Selalu Terbuka Menanti Kehadiran Anda."</p>
-          <div className="w-24 h-1 bg-[#d6a54a] mx-auto mt-10 rounded-full"></div>
+          <div className="w-24 h-1 bg-brand-accent mx-auto mt-10 rounded-full"></div>
         </div>
 
         {/* Schedule Grid - Dark Mode Cards (Consistent with Image) */}

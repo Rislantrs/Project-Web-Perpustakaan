@@ -4,6 +4,8 @@ import { Search, Star, BookOpen, Filter, X, ChevronLeft, ChevronRight, UserPlus,
 import { motion, AnimatePresence } from 'motion/react';
 import { getBooks, getRecommendedBooks, filterBooks, borrowBook, joinQueue, getBookQueue, getQueuePosition, toggleWishlist, isInWishlist, rateBook, getBookDetailById, type Book } from '../services/bookService';
 import { getCategories, refreshCategories } from '../services/dataService';
+import { APP_LIMITS } from '../config/appLimits';
+import { useCallback } from 'react';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
 import SafeImage from '../components/SafeImage';
 import libBooks from '../assets/image/lib-books.webp';
@@ -11,8 +13,8 @@ import libBooks from '../assets/image/lib-books.webp';
 
 
 
-// HARDCODE: ukuran halaman katalog pada mode list/grid utama.
-const BOOKS_PER_PAGE = 12;
+// Ukuran halaman katalog diambil terpusat dari APP_LIMITS.
+const BOOKS_PER_PAGE = APP_LIMITS.ITEMS_PER_PAGE;
 
 export default function KatalogBuku() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -33,16 +35,31 @@ export default function KatalogBuku() {
   const catScrollRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  useEffect(() => {
-    // Bootstrap awal: ambil rekomendasi + muat katalog dari cache/service.
-    const bootstrapCatalog = () => {
-      setIsLoadingCatalog(true);
-      setRecommendedBooks(getRecommendedBooks());
-      loadBooks();
-      setIsLoadingCatalog(false);
-    };
+  const hasBootstrappedRef = useRef(false);
 
-    bootstrapCatalog();
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const loadBooks = useCallback(() => {
+    // Filter utama dijalankan di service agar aturan konsisten lintas halaman.
+    const filtered = filterBooks({
+      query: searchQuery,
+      kategori: selectedCategory,
+      bahasa: filterBahasa || undefined,
+      tersedia: filterTersedia || undefined,
+    });
+    setBooks(filtered);
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, filterBahasa, filterTersedia]);
+
+  useEffect(() => {
+    if (hasBootstrappedRef.current) return;
+    hasBootstrappedRef.current = true;
+
+    // Bootstrap awal: ambil rekomendasi + muat katalog dari cache/service.
+    setIsLoadingCatalog(true);
+    setRecommendedBooks(getRecommendedBooks());
+    loadBooks();
+    setIsLoadingCatalog(false);
+
     refreshCategories();
 
     const onDbChange = () => {
@@ -51,7 +68,7 @@ export default function KatalogBuku() {
     };
     window.addEventListener('dbChange', onDbChange);
     return () => window.removeEventListener('dbChange', onDbChange);
-  }, []);
+  }, [loadBooks]);
 
   const openBookDetail = async (book: Book) => {
     // Buka detail cepat dari data card, lalu hydrate versi lengkap dari service.
@@ -76,23 +93,13 @@ export default function KatalogBuku() {
         setSearchParams({}, { replace: true });
       }
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
-  const loadBooks = () => {
-    // Filter utama dijalankan di service agar aturan konsisten lintas halaman.
-    const filtered = filterBooks({
-      query: searchQuery,
-      kategori: selectedCategory,
-      bahasa: filterBahasa || undefined,
-      tersedia: filterTersedia || undefined,
-    });
-    setBooks(filtered);
-    setCurrentPage(1);
-  };
+
 
   useEffect(() => {
     loadBooks();
-  }, [searchQuery, selectedCategory, filterBahasa, filterTersedia]);
+  }, [loadBooks]);
 
   const totalPages = Math.ceil(books.length / BOOKS_PER_PAGE);
   const paginatedBooks = books.slice((currentPage - 1) * BOOKS_PER_PAGE, currentPage * BOOKS_PER_PAGE);

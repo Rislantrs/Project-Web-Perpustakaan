@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getStructure, saveStructure, getAchievements, saveAchievements, type StructureNode, type Achievement } from '../../services/settingsService';
 import { getCurrentAdmin } from '../../services/authService';
 import { compressImage } from '../../services/imageUtils';
+import { APP_LIMITS } from '../../config/appLimits';
 
 const CATEGORIES = [
   // HARDCODE MASTER CATEGORY:
@@ -102,15 +103,15 @@ export default function ManageStructure() {
       return;
     }
     
-    // HARDCODE LIMIT: 5MB sebelum kompresi agar proses tetap ringan.
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Ukuran file terlalu besar (Maks 5MB)', 'error');
+    // Menggunakan limit dinamis dari APP_LIMITS sebelum kompresi.
+    if (file.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024) {
+      showToast(`Ukuran file terlalu besar (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`, 'error');
       return;
     }
 
     try {
       // Kompres + resize untuk menjaga performa halaman publik.
-      const compressedWebp = await compressImage(file, 5, 800);
+      const compressedWebp = await compressImage(file, APP_LIMITS.MAX_UPLOAD_MB, 800);
       updateNode(id, 'img', compressedWebp);
     } catch (error: any) {
       showToast(error.message || 'Gagal memproses gambar', 'error');
@@ -122,12 +123,12 @@ export default function ManageStructure() {
       updateAchievement(id, 'img', '');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Ukuran file terlalu besar (Maks 5MB)', 'error');
+    if (file.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024) {
+      showToast(`Ukuran file terlalu besar (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`, 'error');
       return;
     }
     try {
-      const compressedWebp = await compressImage(file, 5, 800);
+      const compressedWebp = await compressImage(file, APP_LIMITS.MAX_UPLOAD_MB, 800);
       updateAchievement(id, 'img', compressedWebp);
     } catch (error: any) {
       showToast(error.message || 'Gagal memproses gambar', 'error');

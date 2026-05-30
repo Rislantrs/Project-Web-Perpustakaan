@@ -4,6 +4,7 @@ import { saveArticle, Article, getArticles } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { Image as ImageIcon, Save, ArrowLeft, Video, PenTool, Trash2, Truck } from 'lucide-react';
 import { uploadImage } from '../../services/storageService';
+import { APP_LIMITS } from '../../config/appLimits';
 
 export default function MediaEditor() {
   const { id } = useParams();
@@ -89,6 +90,11 @@ export default function MediaEditor() {
 
   const addGalleryFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    const oversizedFiles = files.filter(f => f.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      alert(`Beberapa file melebihi batas ukuran (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`);
+      return;
+    }
     if (files.length > 0) {
       setIsUploading(true);
       try {
@@ -111,6 +117,10 @@ export default function MediaEditor() {
   const changeMediaFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024) {
+        alert(`Ukuran file terlalu besar (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`);
+        return;
+      }
       setIsUploading(true);
       try {
         const imageUrl = await uploadImage(file);
@@ -246,7 +256,7 @@ export default function MediaEditor() {
             <label className="cursor-pointer flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
               <ImageIcon className="text-gray-400 mb-3" size={36} />
               <span className="text-sm font-medium text-gray-600">Klik untuk menjelajah file (Cover)</span>
-              <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG (Max 5MB)</span>
+              <span className="text-xs text-gray-400 mt-1">Mendukung JPG, PNG (Max {APP_LIMITS.MAX_UPLOAD_MB}MB)</span>
               <input type="file" accept={category === 'Media Mewarnai' ? ".jpg,.jpeg,.png,.pdf" : "image/*"} className="hidden" onChange={changeMediaFile} />
             </label>
           )}

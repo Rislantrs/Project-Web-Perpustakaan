@@ -1,21 +1,26 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Send, User, Mail, Phone, MessageSquare, AlertCircle, CheckCircle, ArrowRight, ShieldCheck, MapPin } from 'lucide-react';
+import { createReport } from '../services/reportService';
 
 export default function LaporWarga() {
   const [form, setForm] = useState({ nama: '', email: '', telepon: '', kategori: 'Layanan Perpustakaan', pesan: '', alamat: '' });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+    setErrorMessage('');
 
-    // Simpan ke LocalStorage untuk Admin (mode frontend-only).
-    // Untuk produksi skala besar, disarankan pindah ke backend DB.
-    const reports = JSON.parse(localStorage.getItem('disipusda_reports') || '[]');
-    const newReport = { id: Date.now(), ...form, tanggal: new Date().toLocaleString('id-ID'), status: 'Baru' };
-    reports.push(newReport);
-    localStorage.setItem('disipusda_reports', JSON.stringify(reports));
+    const result = await createReport(form);
+    if (result.success) {
+      setStatus('success');
+      return;
+    }
+
+    setErrorMessage(result.message);
+    setStatus('error');
 
      /* 
        KODE CADANGAN UNTUK TELEGRAM BOT:
@@ -33,7 +38,6 @@ export default function LaporWarga() {
        });
     */
 
-    setTimeout(() => setStatus('success'), 1500);
   };
 
   if (status === 'success') {
@@ -163,6 +167,10 @@ export default function LaporWarga() {
                   </label>
                   <textarea required value={form.pesan} onChange={e => setForm({...form, pesan: e.target.value})} rows={5} placeholder="Jelaskan secara detail keluhan Anda..." className="w-full px-4 py-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-[#0c2f3d]/10 outline-none resize-none" />
                 </div>
+
+                {status === 'error' && errorMessage && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">{errorMessage}</p>
+                )}
 
                 <button disabled={status === 'loading'} type="submit" className="w-full bg-[#0c2f3d] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-[#1a4254] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
                   {status === 'loading' ? 'Mengirim...' : (

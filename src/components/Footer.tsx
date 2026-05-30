@@ -18,7 +18,7 @@ export default function Footer() {
   if (!settings) return null;
 
   return (
-    <footer className="bg-[#0c2f3d] text-white pt-20 pb-10 border-t-4 border-[#d6a54a]">
+    <footer className="bg-brand-primary text-white pt-20 pb-10 border-t-4 border-brand-accent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           
@@ -27,7 +27,7 @@ export default function Footer() {
             <div className="mb-6">
               <img src={logo} alt="Logo Disipusda" className="h-16 w-auto object-contain" />
             </div>
-            <h3 className="font-serif text-2xl font-bold text-[#d6a54a] mb-4">{settings.namaInstansi}</h3>
+            <h3 className="font-serif text-2xl font-bold text-brand-accent mb-4">{settings.namaInstansi}</h3>
             <p className="text-gray-400 text-sm leading-relaxed mb-8">
               Mewujudkan layanan kearsipan dan perpustakaan yang modern, akuntabel, dan berbasis teknologi untuk masyarakat Purwakarta.
             </p>
@@ -37,8 +37,8 @@ export default function Footer() {
                 { icon: <Instagram size={18} />, url: settings.instagramUrl, name: 'Instagram' },
                 { icon: <Youtube size={18} />, url: settings.youtubeUrl, name: 'YouTube' },
                 { icon: <Mail size={18} />, url: `mailto:${settings.emailKontak}`, name: 'Email' }
-              ].map((social, i) => social.url && (
-                <a key={i} href={social.url} target="_blank" rel="noreferrer" aria-label={`Buka ${social.name}`} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-[#d6a54a] hover:text-[#0c2f3d] transition-all duration-300 border border-white/10 group focus:outline-none focus:ring-2 focus:ring-[#d6a54a]">
+                ].map((social, i) => social.url && (
+                <a key={i} href={social.url} target="_blank" rel="noreferrer" aria-label={`Buka ${social.name}`} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-brand-accent hover:text-brand-primary transition-all duration-300 border border-white/10 group focus:outline-none focus:ring-2 focus:ring-brand-accent">
                   <span className="group-hover:scale-110 transition-transform">{social.icon}</span>
                 </a>
               ))}
@@ -47,46 +47,46 @@ export default function Footer() {
 
           {/* Column 2: Tentang Kami */}
           <div className="col-span-1">
-            <h4 className="font-bold mb-6 tracking-wider text-sm uppercase text-[#d6a54a] border-b border-[#d6a54a]/20 pb-2 w-fit">Tentang Kami</h4>
+            <h4 className="font-bold mb-6 tracking-wider text-sm uppercase text-brand-accent border-b border-brand-accent/20 pb-2 w-fit">Tentang Kami</h4>
             <ul className="space-y-3 text-sm text-gray-300">
-              <li><Link to="/profil/sejarah" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Sejarah Kantor</Link></li>
-              <li><Link to="/profil/struktur" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Struktur Organisasi</Link></li>
-              <li><Link to="/profil/prestasi" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Prestasi</Link></li>
-              <li><Link to="/referensi" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Referensi</Link></li>
-              <li><a href={SITE_CONFIG.EXTERNAL_LINKS.FORM_PENGADUAN} target="_blank" rel="noreferrer" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Pengaduan dan Saran</a></li>
-              <li><a href={SITE_CONFIG.EXTERNAL_LINKS.HELPDESK_SRIKANDI} target="_blank" rel="noreferrer" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Helpdesk SRIKANDI</a></li>
+              <li><Link to="/profil/sejarah" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Sejarah Kantor</Link></li>
+              <li><Link to="/profil/struktur" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Struktur Organisasi</Link></li>
+              <li><Link to="/profil/prestasi" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Prestasi</Link></li>
+              <li><Link to="/referensi" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Referensi</Link></li>
+              <li><a href={SITE_CONFIG.EXTERNAL_LINKS.FORM_PENGADUAN} target="_blank" rel="noreferrer" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Pengaduan dan Saran</a></li>
+              <li><a href={SITE_CONFIG.EXTERNAL_LINKS.HELPDESK_SRIKANDI} target="_blank" rel="noreferrer" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Helpdesk SRIKANDI</a></li>
             </ul>
           </div>
 
           {/* Column 3: Layanan Utama */}
           <div className="col-span-1">
-            <h4 className="font-bold mb-6 tracking-wider text-sm uppercase text-[#d6a54a] border-b border-[#d6a54a]/20 pb-2 w-fit">Layanan Utama</h4>
+            <h4 className="font-bold mb-6 tracking-wider text-sm uppercase text-brand-accent border-b border-brand-accent/20 pb-2 w-fit">Layanan Utama</h4>
             <ul className="space-y-3 text-sm text-gray-300">
-              <li><Link to="/perpustakaan" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Perpustakaan Daerah</Link></li>
-              <li><Link to="/bale-panyawangan" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Diorama Purwakarta</Link></li>
-              <li><Link to="/bale-panyawangan" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Diorama Nusantara</Link></li>
-              <li><Link to="/kearsipan" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Kearsipan</Link></li>
-              <li><Link to="/jasa-kearsipan" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Jasa Kearsipan & Prosedur</Link></li>
-              <li><Link to="/layanan-rentan" className="hover:text-[#d6a54a] transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-[#d6a54a] opacity-0 group-hover:opacity-100 transition-opacity"></div> Layanan Kelompok Rentan</Link></li>
+              <li><Link to="/perpustakaan" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Perpustakaan Daerah</Link></li>
+              <li><Link to="/bale-panyawangan" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Diorama Purwakarta</Link></li>
+              <li><Link to="/bale-panyawangan" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Diorama Nusantara</Link></li>
+              <li><Link to="/kearsipan" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Kearsipan</Link></li>
+              <li><Link to="/jasa-kearsipan" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Jasa Kearsipan & Prosedur</Link></li>
+              <li><Link to="/layanan-rentan" className="hover:text-brand-accent transition-colors flex items-center gap-2 group"><div className="w-1 h-1 bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity"></div> Layanan Kelompok Rentan</Link></li>
             </ul>
           </div>
 
           {/* Column 4: Kontak Kami */}
           <div className="col-span-1">
-            <h4 className="font-bold mb-6 tracking-wider text-sm uppercase text-[#d6a54a] border-b border-[#d6a54a]/20 pb-2 w-fit">Kontak Kami</h4>
+            <h4 className="font-bold mb-6 tracking-wider text-sm uppercase text-brand-accent border-b border-brand-accent/20 pb-2 w-fit">Kontak Kami</h4>
             <ul className="space-y-4 text-sm text-gray-300">
               <li className="flex items-start gap-3 group">
-                <MapPin size={20} className="text-[#d6a54a] shrink-0 mt-1 group-hover:scale-110 transition-transform" />
+                <MapPin size={20} className="text-brand-accent shrink-0 mt-1 group-hover:scale-110 transition-transform" />
                 <span className="leading-relaxed">
                   {settings.alamatInstansi}
                 </span>
               </li>
               <li className="flex items-center gap-3 group">
-                <Mail size={18} className="text-[#d6a54a] shrink-0 group-hover:scale-110 transition-transform" />
+                <Mail size={18} className="text-brand-accent shrink-0 group-hover:scale-110 transition-transform" />
                 <span className="truncate">{settings.emailKontak}</span>
               </li>
               <li className="flex items-center gap-3 group">
-                <Phone size={18} className="text-[#d6a54a] shrink-0 group-hover:scale-110 transition-transform" />
+                <Phone size={18} className="text-brand-accent shrink-0 group-hover:scale-110 transition-transform" />
                 <span>{settings.teleponKontak}</span>
               </li>
             </ul>
@@ -96,7 +96,7 @@ export default function Footer() {
               href={settings.linkGmaps || "https://www.google.com/maps/search/?api=1&query=Disipusda+Purwakarta"} 
               target="_blank" 
               rel="noreferrer"
-              className="mt-6 w-full h-32 bg-white/5 rounded-xl border border-white/10 block overflow-hidden relative group transition-all hover:border-[#d6a54a]/50"
+              className="mt-6 w-full h-32 bg-white/5 rounded-xl border border-white/10 block overflow-hidden relative group transition-all hover:border-brand-accent/50"
             >
                <iframe 
                  title="Peta Lokasi Disipusda Purwakarta"
@@ -109,10 +109,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] sm:text-xs text-gray-500 font-medium tracking-widest uppercase">
+          <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] sm:text-xs text-gray-500 font-medium tracking-widest uppercase">
           <p>© {new Date().getFullYear()} {SITE_CONFIG.BRAND.NAME.toUpperCase()}. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-6 mt-4 md:mt-0 italic">
-            <span className="text-[#d6a54a]">{SITE_CONFIG.BRAND.SLOGAN}</span>
+            <span className="text-brand-accent">{SITE_CONFIG.BRAND.SLOGAN}</span>
           </div>
         </div>
       </div>

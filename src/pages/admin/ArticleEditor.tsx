@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { saveArticle, Article, getArticles, ARTICLE_EDITOR_CATEGORIES } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { uploadImage } from '../../services/storageService';
+import { APP_LIMITS } from '../../config/appLimits';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -87,6 +88,10 @@ export default function ArticleEditor() {
           Promise.all(images.map(async (item) => {
             const file = item.getAsFile();
             if (file) {
+              if (file.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024) {
+                showToast(`Ukuran file clipboard terlalu besar (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`, "error");
+                return;
+              }
               const imageUrl = await uploadImage(file);
               const { schema } = view.state;
               const node = schema.nodes.image.create({ src: imageUrl });
@@ -202,6 +207,13 @@ export default function ArticleEditor() {
   const addImageToEditor = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && editor) {
+      if (file.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024) {
+        showToast(`Ukuran file terlalu besar (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`, "error");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
       setIsUploading(true);
       try {
         const imageUrl = await uploadImage(file);
@@ -227,6 +239,10 @@ export default function ArticleEditor() {
   const changeCoverImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > APP_LIMITS.MAX_UPLOAD_MB * 1024 * 1024) {
+        showToast(`Ukuran file terlalu besar (Maks ${APP_LIMITS.MAX_UPLOAD_MB}MB)`, "error");
+        return;
+      }
       setIsUploading(true);
       try {
         const imageUrl = await uploadImage(file);
@@ -243,7 +259,7 @@ export default function ArticleEditor() {
     <div className="max-w-4xl mx-auto pb-24">
       
       {/* Top Action Bar - Sekarang Lengket (Sticky) */}
-      <div className="sticky top-0 z-[60] -mx-4 px-4 py-4 bg-[#fcfdfd]/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between mb-8">
+      <div className="sticky top-0 z-[60] -mx-4 px-4 py-4 bg-brand-light/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between mb-8">
         <button 
           disabled={isUploading}
           onClick={() => navigate('/admin/articles')}
@@ -255,7 +271,7 @@ export default function ArticleEditor() {
             <button 
               disabled={isUploading}
               onClick={handleSave}
-              className="flex items-center gap-2 bg-[#0c2f3d] text-white px-6 py-2.5 rounded-full font-medium hover:bg-[#164153] shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 disabled:opacity-50"
+              className="flex items-center gap-2 bg-brand-primary text-white px-6 py-2.5 rounded-full font-medium hover:bg-brand-primary-dark shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 disabled:opacity-50"
             >
               {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
               {isUploading ? 'Memproses...' : 'Simpan & Publikasi'}
@@ -266,7 +282,7 @@ export default function ArticleEditor() {
       {isUploading && (
         <div className="fixed inset-0 z-[100] bg-black/10 backdrop-blur-[2px] flex items-center justify-center">
             <div className="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4">
-                <Loader2 size={32} className="text-[#d6a54a] animate-spin" />
+                <Loader2 size={32} className="text-brand-accent animate-spin" />
                 <p className="text-sm font-bold text-gray-700">Mengunggah Gambar ke Cloud...</p>
             </div>
         </div>
@@ -297,7 +313,7 @@ export default function ArticleEditor() {
               <div className="bg-gray-50 border-t border-gray-100 p-6 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                    <div className="flex items-center gap-2">
-                     <div className="w-8 h-8 rounded-lg bg-[#0c2f3d] flex items-center justify-center text-white">
+                     <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white">
                         <Maximize2 size={16} />
                      </div>
                      <div>
@@ -305,7 +321,7 @@ export default function ArticleEditor() {
                        <p className="text-[10px] text-gray-400 mt-0.5 font-medium">Geser untuk menyesuaikan bagian yang tampil</p>
                      </div>
                    </div>
-                   <span className="text-xs font-black text-[#d6a54a] bg-[#d6a54a]/10 px-3 py-1 rounded-full">{imgPosition === 'center' ? '50%' : imgPosition.split(' ')[1]}</span>
+                   <span className="text-xs font-black text-brand-accent bg-brand-accent-10 px-3 py-1 rounded-full">{imgPosition === 'center' ? '50%' : imgPosition.split(' ')[1]}</span>
                 </div>
                 
                 <div className="relative h-2 flex items-center group/slider">
@@ -343,7 +359,7 @@ export default function ArticleEditor() {
               placeholder="Tulis ringkasan narasi yang akan muncul di daftar berita..." 
               value={excerpt}
               onChange={e => setExcerpt(e.target.value)}
-              className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base focus:outline-none focus:border-[#d6a54a] transition-all bg-gray-50/30 font-serif leading-relaxed"
+              className="w-full px-5 py-4 border border-gray-200 rounded-2xl text-base focus:outline-none focus:border-brand-accent transition-all bg-gray-50/30 font-serif leading-relaxed"
             />
           </div>
 
@@ -353,7 +369,7 @@ export default function ArticleEditor() {
               <select 
                 value={category} 
                 onChange={e => setCategory(e.target.value)}
-                className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#d6a54a] bg-white"
+                className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-accent bg-white"
               >
                 {category && !ARTICLE_EDITOR_CATEGORIES.includes(category as any) && (
                   <option value={category}>{category}</option>
@@ -369,7 +385,7 @@ export default function ArticleEditor() {
                 type="date"
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#d6a54a] bg-white h-[46px]"
+                className="w-full px-5 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-brand-accent bg-white h-[46px]"
               />
             </div>
           </div>
@@ -386,47 +402,47 @@ export default function ArticleEditor() {
 
         {/* Tiptap Toolbar - Lengket di bawah Top Bar */}
         <div className="sticky top-20 z-40 flex flex-wrap items-center gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 p-2 rounded-xl mb-6 shadow-sm">
-          <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <Bold size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('italic') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('italic') ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <Italic size={18} />
           </button>
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
           
-          <button onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('heading', { level: 1 }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('heading', { level: 1 }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <Heading1 size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <Heading2 size={18} />
           </button>
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
           {/* Alignment Controls */}
-          <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <AlignLeft size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <AlignCenter size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <AlignRight size={18} />
           </button>
 
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
-          <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bulletList') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bulletList') ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <List size={18} />
           </button>
-          <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('orderedList') ? 'bg-gray-100 text-[#0c2f3d]' : 'text-gray-600'}`}>
+          <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('orderedList') ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <ListOrdered size={18} />
           </button>
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
-          <label className="p-2 cursor-pointer text-gray-600 hover:text-[#0c2f3d] hover:bg-gray-100 rounded-lg transition-colors group relative">
+          <label className="p-2 cursor-pointer text-gray-600 hover:text-brand-primary hover:bg-gray-100 rounded-lg transition-colors group relative">
             <ImageIcon size={18} />
             <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={addImageToEditor} />
           </label>
@@ -434,7 +450,7 @@ export default function ArticleEditor() {
           {/* Caption Button */}
           <button 
             onClick={addCaptionPlaceholder} 
-            className="p-2 text-gray-600 hover:text-[#0c2f3d] hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
+            className="p-2 text-gray-600 hover:text-brand-primary hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
             title="Tambah Keterangan Gambar"
           >
             <Type size={16} />

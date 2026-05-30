@@ -5,7 +5,6 @@ import { getArticleBySlug, incrementArticleViews } from '../services/dataService
 import { supabase } from '../services/supabase';
 import { useState, useEffect, useMemo } from 'react';
 import SafeImage from '../components/SafeImage';
-// eslint-disable-next-line import/no-named-as-default
 import DOMPurify from 'dompurify';
 
 
@@ -163,9 +162,9 @@ export default function ArticleDetail() {
 
   if (isColoringMedia) {
     return (
-      <div className="bg-[#050505] min-h-screen text-white font-sans">
+      <div className="bg-black min-h-screen text-white font-sans">
         {/* Cinematic Header */}
-        <div className="sticky top-0 z-40 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <Link
               to={article.category ? `/artikel?kategori=${encodeURIComponent(article.category)}` : '/artikel'}
@@ -186,7 +185,7 @@ export default function ArticleDetail() {
                 </button>
                 <button
                   onClick={() => handleDownload()}
-                  className="inline-flex items-center gap-2 bg-[#d6a54a] text-[#0c2f3d] px-6 py-2.5 rounded-full font-black text-sm uppercase tracking-wider hover:bg-white hover:text-[#0c2f3d] transition-all shadow-[0_10px_30px_rgba(214,165,74,0.3)] hover:shadow-[0_10px_40px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 active:translate-y-0"
+                  className="inline-flex items-center gap-2 bg-brand-accent text-brand-primary px-6 py-2.5 rounded-full font-black text-sm uppercase tracking-wider hover:bg-white hover:text-brand-primary transition-all shadow-[0_10px_30px_rgba(214,165,74,0.3)] hover:shadow-[0_10px_40px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <Download size={18} /> Download
                 </button>
@@ -200,7 +199,7 @@ export default function ArticleDetail() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-12 text-center"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d6a54a]/10 border border-[#d6a54a]/20 text-[#d6a54a] text-[10px] font-black uppercase tracking-[0.2em] mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-accent-10 border border-brand-accent/20 text-brand-accent text-[10px] font-black uppercase tracking-[0.2em] mb-6">
                 <PenTool size={12} /> Kreativitas Anak
             </div>
             <h1 className="font-serif text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">{article.title}</h1>
@@ -218,10 +217,10 @@ export default function ArticleDetail() {
             className="relative"
           >
             {/* Glow Effect */}
-            <div className="absolute inset-0 bg-[#d6a54a]/5 blur-[120px] rounded-full"></div>
+            <div className="absolute inset-0 bg-brand-accent-10 blur-[120px] rounded-full"></div>
             
-            <div className="relative rounded-[2.5rem] border border-white/10 bg-[#0f0f10] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
-                <div className="h-[70vh] md:h-[85vh] flex items-center justify-center bg-[#151516] p-4 md:p-12">
+            <div className="relative rounded-[2.5rem] border border-white/10 bg-black shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden">
+                <div className="h-[70vh] md:h-[85vh] flex items-center justify-center bg-black p-4 md:p-12">
                 {isPdfAsset ? (
                     <iframe src={article.img} title={article.title} className="w-full h-full rounded-2xl" />
                 ) : (
@@ -265,7 +264,7 @@ export default function ArticleDetail() {
         <div className="mb-10">
           <Link 
             to={article.category ? `/artikel?kategori=${encodeURIComponent(article.category)}` : '/artikel'} 
-            className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-[#0c2f3d]"
+            className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-brand-primary"
           >
             <ChevronLeft size={16} className="mr-1" /> Kembali ke {article.category || 'Artikel'}
           </Link>
@@ -274,11 +273,11 @@ export default function ArticleDetail() {
         {/* Title Block */}
         <header className="mb-10 text-center md:text-left">
           <div className="mb-4">
-            <span className="text-[#d6a54a] font-bold text-xs uppercase tracking-widest bg-[#d6a54a]/10 px-3 py-1 rounded-full">
+            <span className="text-brand-accent font-bold text-xs uppercase tracking-widest bg-brand-accent-10 px-3 py-1 rounded-full">
               {article.category}
             </span>
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-[#1a1a1a] leading-tight mb-6">
+          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-ink leading-tight mb-6">
             {article.title}
           </h1>
           
@@ -301,7 +300,7 @@ export default function ArticleDetail() {
                <button 
                  onClick={handleShare}
                  className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
-                   shareStatus ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400 hover:bg-[#0c2f3d]/5 hover:text-[#0c2f3d]'
+                   shareStatus ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400 hover:bg-brand-primary-5 hover:text-brand-primary'
                  }`}
                >
                  {shareStatus ? <Check size={18} /> : <Share2 size={18} />}
@@ -311,7 +310,7 @@ export default function ArticleDetail() {
                <button 
                  onClick={toggleBookmark}
                  className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
-                   isBookmarked ? 'bg-[#d6a54a]/10 text-[#d6a54a]' : 'bg-gray-50 text-gray-400 hover:bg-[#0c2f3d]/5 hover:text-[#0c2f3d]'
+                   isBookmarked ? 'bg-brand-accent-10 text-brand-accent' : 'bg-gray-50 text-gray-400 hover:bg-brand-primary-5 hover:text-brand-primary'
                  }`}
                >
                  <Bookmark size={18} className={isBookmarked ? 'fill-current' : ''} />
@@ -356,7 +355,7 @@ export default function ArticleDetail() {
                  >
                    <SafeImage src={src} alt={`${article.title} - ${i+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="bg-white/90 backdrop-blur-sm text-[#0c2f3d] px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">Lihat Penuh</span>
+                      <span className="bg-white/90 backdrop-blur-sm text-brand-primary px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">Lihat Penuh</span>
                    </div>
                  </div>
                ))}
@@ -370,7 +369,7 @@ export default function ArticleDetail() {
               {!isPdfAsset && (
                 <button
                   onClick={() => setLightboxData({ title: article.title, images: [article.img], currentIndex: 0 })}
-                  className="inline-flex items-center gap-2 bg-[#0c2f3d] text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-[#17485a] transition-colors"
+                  className="inline-flex items-center gap-2 bg-brand-primary text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-brand-primary-dark transition-colors"
                 >
                   <Share2 size={16} /> Lihat Gambar Penuh
                 </button>
@@ -380,7 +379,7 @@ export default function ArticleDetail() {
                 download={`${article.title}${isPdfAsset ? '.pdf' : '.jpg'}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 bg-[#d6a54a] text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-[#c09440] transition-colors"
+                className="inline-flex items-center gap-2 bg-brand-accent text-white px-4 py-2.5 rounded-lg font-semibold hover:brightness-105 transition-colors"
               >
                 <Download size={16} /> Unduh Media
               </a>
@@ -388,7 +387,7 @@ export default function ArticleDetail() {
           </div>
         ) : (
           <div 
-            className="prose prose-lg md:prose-xl max-w-none prose-p:font-serif prose-p:leading-relaxed prose-p:text-gray-800 prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-a:text-[#d6a54a]"
+            className="prose prose-lg md:prose-xl max-w-none prose-p:font-serif prose-p:leading-relaxed prose-p:text-gray-800 prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-a:text-brand-accent"
             dangerouslySetInnerHTML={{ __html: (DOMPurify.sanitize ?? (DOMPurify as any).default?.sanitize ?? ((s: string) => s))(article.content || '', {
               ALLOWED_TAGS: ['p','br','strong','em','u','s','h1','h2','h3','h4','h5','h6','ul','ol','li','blockquote','a','img','figure','figcaption','table','thead','tbody','tr','th','td','hr','pre','code','span','div'],
               ALLOWED_ATTR: ['href','src','alt','title','class','target','rel','width','height','style'],
@@ -470,21 +469,20 @@ export default function ArticleDetail() {
                   className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
                 />
               </motion.div>
-              
-              <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md p-4 rounded-2xl flex flex-col items-center gap-2 mt-4">
+                            <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md p-4 rounded-2xl flex flex-col items-center gap-2 mt-4">
                  <h3 className="font-bold text-lg text-white text-center">{lightboxData.title}</h3>
                  
                  {lightboxData.images.length > 1 && (
                    <div className="flex items-center gap-1.5 flex-wrap justify-center max-w-xs">
                       {lightboxData.images.map((_, i) => (
-                        <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === lightboxData.currentIndex ? 'bg-[#d6a54a] w-4' : 'bg-white/30'}`} />
+                        <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === lightboxData.currentIndex ? 'bg-brand-accent w-4' : 'bg-white/30'}`} />
                       ))}
                    </div>
                  )}
-
+ 
                  <button 
                    onClick={() => handleDownload(lightboxData.images[lightboxData.currentIndex])}
-                   className="mt-2 flex items-center gap-2 bg-[#d6a54a] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#c09440] transition-transform hover:scale-105 shadow-lg"
+                   className="mt-2 flex items-center gap-2 bg-brand-accent text-white px-5 py-2.5 rounded-xl font-bold hover:brightness-105 transition-transform hover:scale-105 shadow-lg"
                  >
                    <Download size={20} /> Unduh Gambar
                  </button>

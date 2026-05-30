@@ -183,7 +183,7 @@ const buildReminderEmail = (
 ) => {
   if (reminderType === 'pickup_h_minus_3') {
     return {
-      subject: `[TESTING] Segera Ambil Buku: ${payload.bookTitle} (Batas waktu hampir berakhir)`,
+      subject: `Segera Ambil Buku: ${payload.bookTitle} (Batas waktu hampir berakhir)`,
       html: buildLibraryEmailHtml({
         preheader: 'Batas waktu pengambilan buku Anda hampir berakhir.',
         title: 'Pengingat Pengambilan (3 Jam Lagi)',

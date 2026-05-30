@@ -16,6 +16,7 @@ import virtualImg from '../assets/home/pameran_virtual.webp';
 import libHero from '../assets/image/lib-hero.webp';
 import libIndoor from '../assets/image/lib-indoor.webp';
 import libRoom from '../assets/image/lib-room.webp';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 // HARDCODE ASSET FALLBACK:
 // dipakai untuk hero rotator jika konten dinamis tidak tersedia.
@@ -147,7 +148,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="max-w-xl"
           >
-            <p className="text-[#8f671d] font-bold text-sm tracking-widest uppercase mb-4">Identitas Daerah</p>
+            <p className="text-brand-accent font-bold text-sm tracking-widest uppercase mb-4">Identitas Daerah</p>
             <div className="h-[180px] mb-6 flex items-center overflow-visible">
               <AnimatePresence mode="wait">
                 {!isSundanese ? (
@@ -155,7 +156,7 @@ export default function Home() {
                     key="ind"
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.4 }}
-                    className="font-serif text-5xl lg:text-6xl font-bold text-[#0c2f3d] leading-tight"
+                    className="font-serif text-5xl lg:text-6xl font-bold text-brand-primary leading-tight"
                   >
                     Disipusda <br /><span className="text-[#1f3e4e]">Purwakarta</span>
                   </motion.h1>
@@ -164,7 +165,7 @@ export default function Home() {
                     key="sun"
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.4 }}
-                    className="sundanese-text text-5xl lg:text-5xl xl:text-6xl font-bold text-[#d6a54a] leading-normal pb-2 mt-4"
+                    className="sundanese-text text-5xl lg:text-5xl xl:text-6xl font-bold text-brand-accent leading-normal pb-2 mt-4"
                   >
                     ᮓᮤᮞᮤᮕᮥᮞ᮪ᮓ <br /><span className="text-[#c09440] text-4xl lg:text-5xl">ᮕᮥᮁᮝᮊᮁᮒ</span>
                   </motion.h1>
@@ -172,14 +173,14 @@ export default function Home() {
               </AnimatePresence>
             </div>
             <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-              Instansi Pemerintah yang mengelola kearsipan & perpustakaan. Rumah bagi museum <span className="text-[#0c2f3d] font-semibold italic">Bale Panyawangan Diorama</span>, tempat sejarah bertemu masa depan.
+              Instansi Pemerintah yang mengelola kearsipan & perpustakaan. Rumah bagi museum <span className="text-brand-primary font-semibold italic">Bale Panyawangan Diorama</span>, tempat sejarah bertemu masa depan.
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* Berita Terkini Section */}
-      <section className="py-24 bg-[#fcfafc]">
+      <section className="py-24 bg-brand-light">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-10">
             <div>
@@ -195,7 +196,7 @@ export default function Home() {
             {/* Main Featured Article (Auto Sliding) */}
             <div className="lg:col-span-7 group cursor-pointer relative rounded-2xl overflow-hidden shadow-lg h-[500px]">
               <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-20 pointer-events-none">
-                <button onClick={prevNews} aria-label="Berita sebelumnya" className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#d6a54a]">
+                <button onClick={prevNews} aria-label="Berita sebelumnya" className="pointer-events-auto bg-black/30 hover:bg-brand-accent text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-brand-accent">
                   <ArrowRight size={20} className="rotate-180" />
                 </button>
                 <button onClick={nextNews} aria-label="Berita selanjutnya" className="pointer-events-auto bg-black/30 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#d6a54a]">
@@ -212,7 +213,7 @@ export default function Home() {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                   >
-                    <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative overflow-hidden bg-[#0c2f3d]">
+                    <Link to={`/artikel/${news[activeNewsIdx].slug}`} className="block h-full relative overflow-hidden bg-brand-primary">
                       {news[activeNewsIdx].img ? (
                         <img
                           src={news[activeNewsIdx].img}
@@ -231,10 +232,10 @@ export default function Home() {
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent"></div>
                       <div className="absolute bottom-0 left-0 p-8 w-full z-10">
                         <div className="flex items-center gap-3 mb-4">
-                          <span className="bg-[#d6a54a] text-white text-[10px] font-black px-3 py-1 rounded tracking-widest">HIGHLIGHT</span>
+                          <span className="bg-brand-accent text-white text-[10px] font-black px-3 py-1 rounded tracking-widest">HIGHLIGHT</span>
                           <span className="text-gray-300 text-sm font-medium">{news[activeNewsIdx].date}</span>
                         </div>
-                        <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-[#d6a54a] transition-colors leading-tight line-clamp-2">
+                          <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-brand-accent transition-colors leading-tight line-clamp-2">
                           {news[activeNewsIdx].title}
                         </h3>
                         <div className="flex justify-between items-center text-white border-t border-white/10 pt-4 mt-6">
@@ -243,7 +244,7 @@ export default function Home() {
                           </span>
                           <div className="flex gap-1.5">
                             {news.slice(0, Math.min(news.length, 5)).map((_, i) => (
-                              <div key={i} className={`h-1 rounded-full transition-all ${i === activeNewsIdx ? 'w-6 bg-[#d6a54a]' : 'w-2 bg-white/30'}`} />
+                              <div key={i} className={`h-1 rounded-full transition-all ${i === activeNewsIdx ? 'w-6 bg-brand-accent' : 'w-2 bg-white/30'}`} />
                             ))}
                           </div>
                         </div>
@@ -261,18 +262,18 @@ export default function Home() {
             <div className="lg:col-span-5 flex flex-col gap-4 h-[500px]">
               {news.length > 0 ? (
                 news.filter((_, idx) => idx !== activeNewsIdx).slice(0, 4).map((article) => (
-                  <Link to={`/artikel/${article.slug}`} key={article.id} className="bg-[#f3f5f8] p-5 rounded-2xl group cursor-pointer flex gap-4 flex-1 border border-gray-200/50 hover:shadow-md transition-all overflow-hidden shadow-sm">
+                  <Link to={`/artikel/${article.slug}`} key={article.id} className="bg-brand-light p-5 rounded-2xl group cursor-pointer flex gap-4 flex-1 border border-gray-200/50 hover:shadow-md transition-all overflow-hidden shadow-sm">
                     <div className="flex-1 flex flex-col justify-center min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-[10px] font-black text-[#8f671d] uppercase tracking-widest">{article.category}</span>
+                        <span className="text-[10px] font-black text-brand-accent uppercase tracking-widest">{article.category}</span>
                         <span className="text-gray-400 text-[10px] font-medium uppercase">{article.date}</span>
                       </div>
-                      <h4 className="font-bold text-gray-800 leading-tight group-hover:text-[#0c2f3d] transition-colors line-clamp-2 text-sm md:text-base">
+                      <h4 className="font-bold text-gray-800 leading-tight group-hover:text-brand-primary transition-colors line-clamp-2 text-sm md:text-base">
                         {article.title}
                       </h4>
                     </div>
                     <div className="flex items-center justify-center shrink-0">
-                      <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-[#0c2f3d] group-hover:text-white transition-all transform group-hover:rotate-45">
+                      <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-brand-primary group-hover:text-white transition-all transform group-hover:rotate-45">
                         <ArrowRight size={16} />
                       </div>
                     </div>
@@ -501,7 +502,7 @@ export default function Home() {
                 <p className="text-gray-200 mb-8 max-w-md line-clamp-3">
                   Eksplorasi virtual ke berbagai sudut Bale Panyawangan Diorama Purwakarta seolah-olah Anda berada tepat di sana. Temukan arsip sejarah dengan visualisasi menakjubkan.
                 </p>
-                <a href="https://jikn.anri.go.id/pameran-virtual" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#d6a54a] text-white px-6 py-3 rounded-lg font-bold w-fit hover:bg-[#c09440] transition-colors">
+                <a href={SITE_CONFIG.EXTERNAL_LINKS.PAMERAN_VIRTUAL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#d6a54a] text-white px-6 py-3 rounded-lg font-bold w-fit hover:bg-[#c09440] transition-colors">
                   Mulai Tur Virtual <ExternalLink size={18} />
                 </a>
               </div>
@@ -520,7 +521,7 @@ export default function Home() {
                 <p className="text-gray-200 mb-8 max-w-md line-clamp-3">
                   Akses jutaan khazanah arsip sebagai bukti pertanggungjawaban memori kolektif bangsa melalui Sistem Informasi Kearsipan Nasional (SIKN) dan JIKN Terintegrasi.
                 </p>
-                <a href="https://jikn.anri.go.id/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-[#5a3b21] px-6 py-3 rounded-lg font-bold w-fit hover:bg-gray-100 transition-colors">
+                <a href={SITE_CONFIG.EXTERNAL_LINKS.JIKN} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-[#5a3b21] px-6 py-3 rounded-lg font-bold w-fit hover:bg-gray-100 transition-colors">
                   Telusuri Arsip Nasional <ExternalLink size={18} />
                 </a>
               </div>

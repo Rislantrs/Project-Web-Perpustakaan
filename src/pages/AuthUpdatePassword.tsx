@@ -40,23 +40,23 @@ export default function AuthUpdatePassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-brand-light flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-3xl border border-gray-100 shadow-xl p-8">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-[#d6a54a] text-white flex items-center justify-center mx-auto mb-3">
+          <div className="w-14 h-14 rounded-2xl bg-brand-accent text-white flex items-center justify-center mx-auto mb-3">
             <Lock size={26} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Atur Password Baru</h1>
           <p className="text-sm text-gray-500 mt-1">Buat password baru untuk akun Anda.</p>
         </div>
-
+ 
         {toast && (
           <div className={`mb-4 rounded-xl px-4 py-3 text-sm font-medium border ${toast.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
             {toast.type === 'success' ? <CheckCircle2 size={16} className="inline mr-2" /> : <AlertCircle size={16} className="inline mr-2" />}
             {toast.message}
           </div>
         )}
-
+ 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Password Baru</label>
@@ -64,33 +64,33 @@ export default function AuthUpdatePassword() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none"
               placeholder="Minimal 6 karakter"
             />
           </div>
-
+ 
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Konfirmasi Password</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#0c2f3d]/20 focus:border-[#0c2f3d] outline-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none"
               placeholder="Ulangi password"
             />
           </div>
-
+ 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-[#0c2f3d] text-white font-semibold hover:bg-[#1a4254] transition-colors disabled:opacity-60"
+            className="w-full py-3 rounded-xl bg-brand-primary text-white font-semibold hover:bg-brand-primary-dark transition-colors disabled:opacity-60"
           >
             {loading ? 'Menyimpan...' : 'Simpan Password Baru'}
           </button>
         </form>
-
+ 
         <div className="mt-6 text-center text-sm">
-          <Link to="/login" className="text-[#0c2f3d] hover:underline font-semibold">Kembali ke Login</Link>
+          <Link to="/login" className="text-brand-primary hover:underline font-semibold">Kembali ke Login</Link>
         </div>
       </div>
     </div>

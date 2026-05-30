@@ -72,11 +72,11 @@ export default function AdminDashboard() {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1 line-clamp-1">{article.title}</h4>
                   <div className="flex gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                    <span className="text-[#0c2f3d]">{article.category}</span>
+                    <span className="text-brand-primary">{article.category}</span>
                     <span>{article.date}</span>
                   </div>
                 </div>
-                <Link to={`/admin/articles/edit/${article.id}`} className="text-xs font-bold text-gray-300 hover:text-[#0c2f3d] uppercase tracking-wider">Edit</Link>
+                <Link to={`/admin/articles/edit/${article.id}`} className="text-xs font-bold text-gray-300 hover:text-brand-primary uppercase tracking-wider">Edit</Link>
               </div>
             ))}
             {articles.length === 0 && (

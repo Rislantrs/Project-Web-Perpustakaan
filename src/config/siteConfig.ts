@@ -1,6 +1,7 @@
 // Import Assets secara terpusat
 import logoUtama from '../assets/logo/logoDisispuda.webp';
 import logoAlternatif from '../assets/logo/logo_perpus.webp';
+import externalLinks from './externalLinks';
 
 /**
  * ============================================================================
@@ -103,12 +104,7 @@ export const SITE_CONFIG = {
   // 4. LINK EKSTERNAL (HARDCODED)
   // --------------------------------------------------------------------------
   // Link-link yang mengarah ke website luar pemerintahan atau formulir eksternal.
-  EXTERNAL_LINKS: {
-    JIKN: 'https://jikn.anri.go.id/',
-    PAMERAN_VIRTUAL: 'https://jikn.anri.go.id/pameran-virtual',
-    FORM_PENGADUAN: 'https://docs.google.com/forms/d/e/1FAIpQLSe2S9Ck-DAPbISSJcDLRiHg6d3aoiCU7xu7bYoLjbLY-gFGhg/viewform',
-    HELPDESK_SRIKANDI: 'https://api.whatsapp.com/send/?phone=6288971405196&text&type=phone_number&app_absent=0'
-  },
+  EXTERNAL_LINKS: externalLinks,
 
   // --------------------------------------------------------------------------
   // 5. FITUR OPSIONAL (FEATURE FLAGS)
@@ -120,7 +116,7 @@ export const SITE_CONFIG = {
     ENABLE_CATALOG: true,
     
     // Jika false: Pendaftaran tidak akan meminta NIK. Cocok untuk perpus sekolah/kampus.
-    REQUIRE_NIK: true,
+    REQUIRE_NIK: false,
     
     // Jika true: Menampilkan Kartu Anggota Digital ber-QR Code di halaman Profil.
     SHOW_DIGITAL_CARD: false,

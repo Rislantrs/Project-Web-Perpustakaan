@@ -3,18 +3,18 @@ import { FallbackProps } from 'react-error-boundary';
 
 export default function ErrorBoundaryFallback({ error, resetErrorBoundary }: FallbackProps) {
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-6 font-sans">
+    <div className="min-h-screen bg-brand-light flex items-center justify-center p-6 font-sans">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 text-center relative overflow-hidden">
         {/* Background Decoration */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#8b1c24]/5 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#0c2f3d]/5 rounded-full blur-2xl"></div>
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-danger-5 rounded-full blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-brand-primary-5 rounded-full blur-2xl"></div>
 
         <div className="relative z-10">
           <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-600 shadow-inner">
             <AlertTriangle size={40} />
           </div>
 
-          <h1 className="text-2xl font-bold text-[#1a1a1a] mb-3 font-serif">Oops, Terjadi Kesalahan</h1>
+          <h1 className="text-2xl font-bold text-ink mb-3 font-serif">Oops, Terjadi Kesalahan</h1>
           <p className="text-gray-500 text-sm mb-6 leading-relaxed">
             Aplikasi mengalami kendala teknis yang tidak terduga. Jangan khawatir, data Anda tetap aman.
           </p>
@@ -29,7 +29,7 @@ export default function ErrorBoundaryFallback({ error, resetErrorBoundary }: Fal
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={resetErrorBoundary}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#0c2f3d] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#1a4254] transition-all shadow-lg active:scale-95"
+              className="flex-1 flex items-center justify-center gap-2 bg-brand-primary text-white py-3 px-4 rounded-xl font-bold hover:bg-brand-primary-dark transition-all shadow-lg active:scale-95"
             >
               <RefreshCcw size={18} /> Coba Lagi
             </button>

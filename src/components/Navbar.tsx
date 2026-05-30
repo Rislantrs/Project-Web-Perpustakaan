@@ -70,17 +70,17 @@ export default function Navbar() {
               <div key={link.name} className="relative group">
                 {link.subLinks ? (
                   <div className="flex items-center space-x-1 cursor-pointer py-4 group">
-                    <span className={`text-sm font-medium hover:text-[#8f671d] transition-colors ${location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path)
-                      ? 'text-[#8f671d] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                    <span className={`text-sm font-medium hover:text-brand-accent transition-colors ${location.pathname.startsWith(link.path) || link.subLinks.some(sub => location.pathname === sub.path)
+                      ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-700'
                       }`}>
                       {link.name}
                     </span>
-                    <ChevronDown size={14} className="text-gray-500 group-hover:text-[#8f671d]" />
+                    <ChevronDown size={14} className="text-gray-500 hover:text-brand-accent" />
 
                     {/* Dropdown */}
                     <div className="absolute top-full left-0 w-48 bg-white border border-gray-100 shadow-xl rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                       {link.subLinks.map(subLink => (
-                        <Link key={subLink.name} to={subLink.path} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d]">
+                        <Link key={subLink.name} to={subLink.path} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary">
                           {subLink.name}
                         </Link>
                       ))}
@@ -89,7 +89,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to={link.path}
-                    className={`py-4 text-sm font-medium hover:text-[#8f671d] transition-colors ${location.pathname === link.path ? 'text-[#8f671d] border-b-2 border-[#d6a54a]' : 'text-gray-700'
+                    className={`py-4 text-sm font-medium hover:text-brand-accent transition-colors ${location.pathname === link.path ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-700'
                       }`}
                   >
                     {link.name}
@@ -101,7 +101,7 @@ export default function Navbar() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/lapor-warga" className="bg-[#1f3e4e] text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#0c2f3d] transition-colors shadow-sm">
+            <Link to="/lapor-warga" className="bg-brand-secondary text-white px-4 py-2 rounded text-sm font-medium hover:bg-brand-primary transition-colors shadow-sm">
               Laporan Warga
             </Link>
 
@@ -113,7 +113,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 cursor-pointer group"
                 >
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-white ring-2 ring-gray-200 group-hover:ring-[#d6a54a] transition-all overflow-hidden"
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-white ring-2 ring-gray-200 group-hover:ring-brand-accent transition-all overflow-hidden"
                     style={{ backgroundColor: !user.avatarUrl ? user.avatarColor : 'transparent' }}
                   >
                     {user.avatarUrl ? (
@@ -136,26 +136,26 @@ export default function Navbar() {
                     >
                       {/* User Info Header */}
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="font-bold text-sm text-[#1a1a1a] truncate">{user.namaLengkap}</p>
+                        <p className="font-bold text-sm text-ink truncate">{user.namaLengkap}</p>
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                        <p className="text-xs text-[#8f671d] font-semibold mt-1">{user.nomorAnggota}</p>
+                        <p className="text-xs text-brand-accent font-semibold mt-1">{user.nomorAnggota}</p>
                       </div>
 
                       <Link
                         to="/profil"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
                       >
                         <User size={16} className="text-gray-400" /> Profil Saya
                       </Link>
                       <Link
                         to="/katalog"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
                       >
                         <BookOpen size={16} className="text-gray-400" /> Katalog Buku
                       </Link>
                       <Link
                         to="/riwayat-pinjaman"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0c2f3d] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
                       >
                         <History size={16} className="text-gray-400" /> Riwayat Pinjaman
                       </Link>
@@ -175,7 +175,7 @@ export default function Navbar() {
               </div>
             ) : (
               /* Login Button */
-              <Link to="/login" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-[#0c2f3d] hover:text-white transition-colors cursor-pointer border border-gray-200 shadow-sm">
+              <Link to="/login" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-colors cursor-pointer border border-gray-200 shadow-sm">
                 <User size={18} />
               </Link>
             )}
@@ -185,7 +185,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center gap-4">
             {/* Action Mobile Button (Lapor Warga / Login) */}
             {!user ? (
-              <Link to="/login" className="bg-[#0c2f3d] text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-[#1a4254] transition shadow-sm">
+              <Link to="/login" className="bg-brand-primary text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-brand-primary-dark transition shadow-sm">
                 Masuk
               </Link>
             ) : (
@@ -198,7 +198,7 @@ export default function Navbar() {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2.5 rounded-full bg-gray-50 text-[#0c2f3d] hover:bg-[#d6a54a] hover:text-white border border-gray-200 transition-all active:scale-90 shadow-sm flex items-center justify-center"
+              className="p-2.5 rounded-full bg-gray-50 text-brand-primary hover:bg-brand-accent hover:text-white border border-gray-200 transition-all active:scale-90 shadow-sm flex items-center justify-center"
               aria-label="Menu"
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -241,8 +241,8 @@ export default function Navbar() {
                     {getInitials(user.namaLengkap)}
                   </div>
                   <div>
-                    <p className="font-bold text-sm text-[#1a1a1a]">{user.namaLengkap}</p>
-                    <p className="text-xs text-[#8f671d] font-semibold">{user.nomorAnggota}</p>
+                    <p className="font-bold text-sm text-ink">{user.namaLengkap}</p>
+                    <p className="text-xs text-brand-accent font-semibold">{user.nomorAnggota}</p>
                   </div>
                 </div>
               </div>
@@ -250,13 +250,13 @@ export default function Navbar() {
 
             {navLinks.map((item) => (
               <div key={item.name} className="border-b border-gray-50 last:border-0 pb-1">
-                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-[#0c2f3d] hover:text-[#8f671d] transition-colors rounded-lg">
+                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-brand-primary hover:text-brand-accent transition-colors rounded-lg">
                   {item.name}
                 </Link>
                 {item.subLinks && (
                   <div className="pl-4 border-l-2 border-gray-100 ml-4 mb-2 space-y-1">
                     {item.subLinks.map(sub => (
-                      <Link key={sub.name} to={sub.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-[#8f671d] hover:bg-gray-50 rounded-lg transition-colors">
+                      <Link key={sub.name} to={sub.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-gray-500 hover:text-brand-accent hover:bg-gray-50 rounded-lg transition-colors">
                         {sub.name}
                       </Link>
                     ))}
@@ -266,15 +266,15 @@ export default function Navbar() {
             ))}
 
             <div className="pt-6 flex flex-col space-y-3 mt-auto">
-              <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-[#1f3e4e] text-white px-4 py-3 rounded-xl text-sm font-bold w-full text-center shadow-md active:scale-95 transition-all">
+                <Link to="/lapor-warga" onClick={() => setIsMobileMenuOpen(false)} className="bg-brand-secondary text-white px-4 py-3 rounded-xl text-sm font-bold w-full text-center shadow-md active:scale-95 transition-all">
                 Laporan Warga
               </Link>
               {user ? (
                 <>
-                  <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
+                  <Link to="/profil" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-brand-primary">
                     <User size={16} /> Profil Saya
                   </Link>
-                  <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-[#0c2f3d]">
+                  <Link to="/riwayat-pinjaman" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-sm font-bold w-full flex justify-center items-center gap-2 hover:border-brand-primary">
                     <History size={16} /> Riwayat Pinjaman
                   </Link>
                   <button onClick={handleLogout} className="px-4 py-3 rounded-xl bg-[#fff5f5] text-red-600 text-sm font-bold w-full flex justify-center items-center gap-2 border border-red-100 hover:bg-red-50">

@@ -191,7 +191,7 @@ Deno.serve(async (req) => {
     apiKey: resendApiKey,
     from: resendFromEmail,
     to: member.email,
-    subject: `[TESTING] Konfirmasi Peminjaman: ${borrow.bookTitle}`,
+    subject: `Konfirmasi Peminjaman: ${borrow.bookTitle}`,
     html,
   });
 

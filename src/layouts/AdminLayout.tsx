@@ -62,12 +62,12 @@ export default function AdminLayout() {
   const handleLogout = () => { logoutAdmin(); navigate('/'); };
 
   return (
-    <div className="flex h-screen bg-[#f8f9fa] overflow-hidden font-sans">
+    <div className="flex h-screen bg-brand-light overflow-hidden font-sans">
       
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col hide-scrollbar">
         <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <h1 className="font-bold text-xl text-[#0c2f3d]">Perpus<span className="text-[#d6a54a]">Admin</span></h1>
+          <h1 className="font-bold text-xl text-brand-primary">Perpus<span className="text-brand-accent">Admin</span></h1>
         </div>
         
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
@@ -82,7 +82,7 @@ export default function AdminLayout() {
                 <button
                   type="button"
                   onClick={() => setOpenGroups((prev) => ({ ...prev, [group.id]: !prev[group.id] }))}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${isGroupActive ? 'text-[#0c2f3d] bg-[#0c2f3d]/5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${isGroupActive ? 'text-brand-primary bg-brand-primary-5' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
                 >
                   <span>{group.title}</span>
                   <ChevronDown size={14} className={`transition-transform ${openGroups[group.id] ? 'rotate-180' : ''}`} />
@@ -99,10 +99,10 @@ export default function AdminLayout() {
                           key={item.path}
                           to={item.path}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                            isActive
-                              ? 'bg-[#0c2f3d]/5 text-[#0c2f3d]'
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                          }`}
+                              isActive
+                                ? 'bg-brand-primary-5 text-brand-primary'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            }`}
                         >
                           {item.icon}
                           {item.name}
@@ -132,7 +132,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-[#fafafa]">
+      <main className="flex-1 overflow-y-auto bg-brand-light">
         <div className="p-8 max-w-5xl mx-auto">
           <Outlet />
         </div>
