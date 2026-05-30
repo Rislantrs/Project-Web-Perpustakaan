@@ -6,9 +6,10 @@ import { getCurrentUser, isLoggedIn, logout, getInitials, isAdminLoggedIn, type 
 
 import { SITE_CONFIG } from '../config/siteConfig';
 
-// Import Logo
 const logo = SITE_CONFIG.BRAND.LOGO;
-const navLinks = SITE_CONFIG.NAV_LINKS;
+const navLinks = SITE_CONFIG.FEATURES.ENABLE_CATALOG
+  ? SITE_CONFIG.NAV_LINKS
+  : SITE_CONFIG.NAV_LINKS.filter(link => link.path !== '/katalog' && link.name !== 'Katalog Buku');
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -105,96 +106,99 @@ export default function Navbar() {
               Laporan Warga
             </Link>
 
-            {user ? (
-              /* Logged-in User Avatar & Dropdown */
-              <div ref={userDropdownRef} className="relative">
-                <button
-                  onClick={() => setShowUserDropdown(!showUserDropdown)}
-                  className="flex items-center gap-2 cursor-pointer group"
-                >
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-white ring-2 ring-gray-200 group-hover:ring-brand-accent transition-all overflow-hidden"
-                    style={{ backgroundColor: !user.avatarUrl ? user.avatarColor : 'transparent' }}
+            {SITE_CONFIG.FEATURES.ENABLE_CATALOG && (
+              user ? (
+                /* Logged-in User Avatar & Dropdown */
+                <div ref={userDropdownRef} className="relative">
+                  <button
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                    className="flex items-center gap-2 cursor-pointer group"
                   >
-                    {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt="PP" className="w-full h-full object-cover" />
-                    ) : (
-                      getInitials(user.namaLengkap)
-                    )}
-                  </div>
-                  <ChevronDown size={14} className={`text-gray-500 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
-                </button>
-
-                <AnimatePresence>
-                  {showUserDropdown && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl py-2 overflow-hidden"
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border-2 border-white ring-2 ring-gray-200 group-hover:ring-brand-accent transition-all overflow-hidden"
+                      style={{ backgroundColor: !user.avatarUrl ? user.avatarColor : 'transparent' }}
                     >
-                      {/* User Info Header */}
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="font-bold text-sm text-ink truncate">{user.namaLengkap}</p>
-                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                        <p className="text-xs text-brand-accent font-semibold mt-1">{user.nomorAnggota}</p>
-                      </div>
+                      {user.avatarUrl ? (
+                        <img src={user.avatarUrl} alt="PP" className="w-full h-full object-cover" />
+                      ) : (
+                        getInitials(user.namaLengkap)
+                      )}
+                    </div>
+                    <ChevronDown size={14} className={`text-gray-500 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
+                  </button>
 
-                      <Link
-                        to="/profil"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
+                  <AnimatePresence>
+                    {showUserDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl py-2 overflow-hidden"
                       >
-                        <User size={16} className="text-gray-400" /> Profil Saya
-                      </Link>
-                      <Link
-                        to="/katalog"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
-                      >
-                        <BookOpen size={16} className="text-gray-400" /> Katalog Buku
-                      </Link>
-                      <Link
-                        to="/riwayat-pinjaman"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
-                      >
-                        <History size={16} className="text-gray-400" /> Riwayat Pinjaman
-                      </Link>
+                        {/* User Info Header */}
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="font-bold text-sm text-ink truncate">{user.namaLengkap}</p>
+                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          <p className="text-xs text-brand-accent font-semibold mt-1">{user.nomorAnggota}</p>
+                        </div>
 
-                      {/* Removed Admin Panel link from here for security and clarity */}
-                      <div className="border-t border-gray-100 mt-1 pt-1">
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full transition-colors"
+                        <Link
+                          to="/profil"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
                         >
-                          <LogOut size={16} /> Keluar
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              /* Login Button */
-              <Link to="/login" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-colors cursor-pointer border border-gray-200 shadow-sm">
-                <User size={18} />
-              </Link>
+                          <User size={16} className="text-gray-400" /> Profil Saya
+                        </Link>
+                        <Link
+                          to="/katalog"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
+                        >
+                          <BookOpen size={16} className="text-gray-400" /> Katalog Buku
+                        </Link>
+                        <Link
+                          to="/riwayat-pinjaman"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors"
+                        >
+                          <History size={16} className="text-gray-400" /> Riwayat Pinjaman
+                        </Link>
+
+                        {/* Removed Admin Panel link from here for security and clarity */}
+                        <div className="border-t border-gray-100 mt-1 pt-1">
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full transition-colors"
+                          >
+                            <LogOut size={16} /> Keluar
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                /* Login Button */
+                <Link to="/login" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-colors cursor-pointer border border-gray-200 shadow-sm">
+                  <User size={18} />
+                </Link>
+              )
             )}
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center gap-4">
-            {/* Action Mobile Button (Lapor Warga / Login) */}
-            {!user ? (
-              <Link to="/login" className="bg-brand-primary text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-brand-primary-dark transition shadow-sm">
-                Masuk
-              </Link>
-            ) : (
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                style={{ backgroundColor: user.avatarColor }}
-              >
-                {getInitials(user.namaLengkap)}
-              </div>
+            {SITE_CONFIG.FEATURES.ENABLE_CATALOG && (
+              !user ? (
+                <Link to="/login" className="bg-brand-primary text-white px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-brand-primary-dark transition shadow-sm">
+                  Masuk
+                </Link>
+              ) : (
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: user.avatarColor }}
+                >
+                  {getInitials(user.namaLengkap)}
+                </div>
+              )
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

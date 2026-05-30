@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router';
 import { useEffect, useRef, Suspense, lazy } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorBoundaryFallback from './components/ErrorBoundaryFallback';
@@ -53,6 +53,7 @@ const ManageSchedules = lazy(() => import('./pages/admin/ManageSchedules'));
 const ManageStructure = lazy(() => import('./pages/admin/ManageStructure'));
 const ManagePpid = lazy(() => import('./pages/admin/ManagePpid'));
 import JadwalLayanan from './pages/JadwalLayanan';
+import { SITE_CONFIG } from './config/siteConfig';
 
 import { refreshHomeArticles, migrateLegacyArticleImages, refreshCategories } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
@@ -150,29 +151,47 @@ function App() {
             <Route path="galendo" element={<Galendo />} />
             <Route path="ppid" element={<Ppid />} />
             <Route path="zona-integritas" element={<ZonaIntegritas />} />
-            <Route path="riwayat-pinjaman" element={<RiwayatPinjaman />} />
+            <Route path="riwayat-pinjaman" element={
+               SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <RiwayatPinjaman /> : <Navigate to="/" replace />
+             } />
             <Route path="pabukon" element={<Pabukon />} />
             <Route path="lapor-warga" element={<LaporWarga />} />
             <Route path="jadwal" element={<JadwalLayanan />} />
             <Route path="referensi" element={<Referensi />} />
             <Route path="katalog" element={
-              <Suspense fallback={<div className="py-12 flex items-center justify-center"><div className="w-8 h-8 border-4 border-brand-primary-10 border-t-brand-accent rounded-full animate-spin"/></div>}>
-                <KatalogBuku />
-              </Suspense>
-            } />
+               SITE_CONFIG.FEATURES.ENABLE_CATALOG ? (
+                 <Suspense fallback={<div className="py-12 flex items-center justify-center"><div className="w-8 h-8 border-4 border-brand-primary-10 border-t-brand-accent rounded-full animate-spin"/></div>}>
+                   <KatalogBuku />
+                 </Suspense>
+               ) : <Navigate to="/" replace />
+             } />
             <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
             <Route path="layanan-rentan" element={<LayananRentan />} />
           </Route>
 
           {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/auth/verify" element={<AuthVerifyCode />} />
-          <Route path="/auth/update-password" element={<AuthUpdatePassword />} />
+          <Route path="/login" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <Login /> : <Navigate to="/" replace />
+          } />
+          <Route path="/register" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <Register /> : <Navigate to="/" replace />
+          } />
+          <Route path="/forgot-password" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <ForgotPassword /> : <Navigate to="/" replace />
+          } />
+          <Route path="/auth/callback" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <AuthCallback /> : <Navigate to="/" replace />
+          } />
+          <Route path="/auth/verify" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <AuthVerifyCode /> : <Navigate to="/" replace />
+          } />
+          <Route path="/auth/update-password" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <AuthUpdatePassword /> : <Navigate to="/" replace />
+          } />
           <Route path="/login-admin" element={<LoginAdmin />} />
-          <Route path="/profil" element={<Profil />} />
+          <Route path="/profil" element={
+            SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <Profil /> : <Navigate to="/" replace />
+          } />
 
           {/* Admin Routes */}
           <Route path="/admin" element={

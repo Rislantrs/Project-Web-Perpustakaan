@@ -1,199 +1,214 @@
-# 📘 Panduan Integrasi Sistem & Layanan Eksternal
-### (Supabase, Google OAuth, Custom SMTP, & Keamanan Cloudflare)
+# 📕 PANDUAN INTEGRASI UTAMA & PEMELIHARAAN SISTEM
+### (Supabase, Google OAuth, Custom SMTP, DNS Domain, & Mode Company Profile)
 
-Panduan ini disusun untuk memberikan petunjuk langkah-demi-langkah bagi pengembang maupun tim IT dalam menyambungkan sistem website perpustakaan **Disipusda** ke berbagai infrastruktur dan layanan eksternal di lingkungan produksi (*production*).
+Panduan satu pintu (*all-in-one guide*) ini dirancang untuk mempermudah administrator, pemilik situs, maupun tim IT dalam mengelola, mengintegrasikan, dan memelihara seluruh infrastruktur sistem website perpustakaan digital **Disipusda**.
 
 ---
 
 ## 📂 Daftar Isi
-1. [Koneksi Supabase ke Proyek (Variabel Lingkungan)](#1-koneksi-supabase-ke-proyek)
-2. [Konfigurasi Integrasi Google OAuth (Google Sign-In)](#2-konfigurasi-integrasi-google-oauth)
-3. [Konfigurasi Layanan Email SMTP Kustom](#3-konfigurasi-layanan-email-smtp-kustom)
-4. [Persiapan Database & Kebijakan RLS (Security Policies)](#4-persiapan-database--kebijakan-rls)
-5. [Konfigurasi Cloudflare Turnstile (Anti-Bot Captcha)](#5-konfigurasi-cloudflare-turnstile)
-6. [Langkah Uji Coba & Troubleshooting](#6-langkah-uji-coba--troubleshooting)
+1. [Rangkuman Variabel Lingkungan & API Keys](#1-rangkuman-variabel-lingkungan--api-keys)
+2. [Integrasi Google OAuth (Google Sign-In)](#2-integrasi-google-oauth-google-sign-in)
+3. [Layanan Email Transaksional (Custom SMTP & Resend)](#3-layanan-email-transaksional-custom-smtp--resend)
+4. [Konfigurasi DNS, Hosting, & Pengalihan Domain](#4-konfigurasi-dns-hosting--pengalihan-domain)
+5. [Persiapan Database & Penjadwal Otomatis (Cron Job)](#5-persiapan-database--penjadwal-otomatis-cron-job)
+6. [Mode Company Profile (Menonaktifkan Katalog & Login secara Otomatis)](#6-mode-company-profile-menonaktifkan-katalog--login-secara-otomatis)
+7. [Panduan Pemecahan Masalah (Troubleshooting)](#7-panduan-pemecahan-masalah-troubleshooting)
 
 ---
 
-## 1. Koneksi Supabase ke Proyek
+## 1. Rangkuman Variabel Lingkungan & API Keys
 
-Agar aplikasi React dapat berkomunikasi dengan basis data dan otentikasi di Cloud, Anda perlu mendefinisikan URL proyek dan Kunci Anonim (*Anonymous Key*) dari Supabase.
+Sistem menggunakan beberapa kunci API untuk menghubungkan frontend ke layanan cloud. Berikut adalah daftar kunci yang wajib dikonfigurasi:
 
-### Langkah-langkah:
-1. Masuk ke **[Supabase Dashboard](https://supabase.com/dashboard)**.
-2. Buka proyek Anda, lalu navigasikan ke menu **Settings** (ikon gerigi) > **API**.
-3. Salin nilai dari kolom berikut:
-   * **Project URL**: `https://xxxxxxxxxxxxxxxxxxxx.supabase.co`
-   * **API Keys (anon/public)**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-4. Buat atau edit berkas bernama `.env` di direktori utama (*root*) proyek Anda, lalu masukkan nilai tersebut:
+### A. Kunci Frontend (Disimpan di berkas `.env` atau Dashboard Hosting)
+> [!IMPORTANT]
+> Di Vite/React, seluruh variabel lingkungan untuk frontend **wajib diawali dengan awalan `VITE_`** agar dapat terbaca saat kompilasi.
 
-```env
-# Koneksi Supabase API
-VITE_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+* **`VITE_SUPABASE_URL`**: Alamat URL API Proyek Supabase Anda.  
+  *Contoh:* `https://anqopdxzdkpsmtxuultp.supabase.co`
+* **`VITE_SUPABASE_ANON_KEY`**: Kunci publik API Supabase (bersifat aman untuk diletakkan di browser).
+* **`VITE_TURNSTILE_SITE_KEY`**: **Site Key** publik dari Cloudflare Turnstile.  
+  *Nilai Lokal:* `1x00000000000000000000AA` (untuk uji coba di localhost).  
+  *Nilai Produksi:* Salin **Site Key** asli dari dashboard Cloudflare Anda (berawalan `0x4AAAAAA...`).
 
-# Keamanan Turnstile (opsional)
-VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
-```
+### B. Kunci Rahasia Cloud (Disimpan di Supabase Dashboard → Settings → Secrets)
+* **`RESEND_API_KEY`**: Kunci API dari layanan pengirim email Resend.com.
+* **`RESEND_FROM_EMAIL`**: Alamat email pengirim transaksional (misal: `Disipusda <no-reply@domainanda.com>`).
+* **`CRON_SECRET`**: Kunci keamanan acak untuk mengamankan trigger Cron Job pengingat peminjaman.
 
-> [!WARNING]
-> Berkas `.env` menyimpan kunci keamanan aplikasi Anda. **JANGAN PERNAH** memasukkan berkas `.env` ke repositori publik seperti GitHub. Berkas ini sudah dimasukkan ke dalam `.gitignore` secara default.
+### C. Kunci Rahasia GitHub (Disimpan di GitHub → Settings → Secrets and variables → Actions)
+* **`CRON_SECRET`**: Masukkan nilai kunci rahasia yang **sama persis** dengan nilai `CRON_SECRET` di Supabase Secrets agar GitHub Actions diizinkan memicu cron job pengiriman email.
+* **`SUPABASE_FUNCTIONS_URL`**: URL fungsi pengingat Supabase Anda.  
+  *Contoh:* `https://anqopdxzdkpsmtxuultp.supabase.co/functions/v1/send-borrow-reminders`
+* **`SUPABASE_SERVICE_ROLE_KEY`**: Kunci akses admin tingkat tinggi Supabase untuk memotong pembatasan keamanan (*bypassing gateway auth*).
 
 ---
 
-## 2. Konfigurasi Integrasi Google OAuth
+## 2. Integrasi Google OAuth (Google Sign-In)
 
-Dengan penonaktifan NIK dan aktivasi sistem masuk satu klik (*one-click login*), Google OAuth sangat krusial untuk memberikan pengalaman autentikasi yang instan.
+Menghubungkan sistem pendaftaran dan masuk satu klik (*one-click login*) menggunakan akun Google.
 
-### Bagian A: Membuat Kredensial di Google Cloud Console
-1. Buka **[Google Cloud Console](https://console.cloud.google.com/)**.
-2. Buat proyek baru atau pilih proyek yang sudah ada.
-3. Cari dan buka menu **OAuth Consent Screen** (Layar Persetujuan OAuth):
-   * Pilih Jenis Pengguna: **External** (Eksternal).
-   * Isi informasi wajib aplikasi (Nama Aplikasi, Email Dukungan Pengguna, dan Email Kontak Pengembang).
-   * Pada langkah *Scopes*, tambahkan cakupan dasar: `.../auth/userinfo.email` dan `.../auth/userinfo.profile`.
-   * Pada langkah *Test Users*, tambahkan email Anda sendiri jika status aplikasi masih dalam tahap draf/pengujian.
-4. Buka menu **Credentials** (Kredensial) di bilah navigasi samping:
-   * Klik **+ Create Credentials** > pilih **OAuth Client ID**.
-   * Pilih tipe aplikasi: **Web Application** (Aplikasi Web).
-   * Masukkan nama identifikasi (misal: `Disipusda Library Production`).
-   * Pada bagian **Authorized redirect URIs** (URI Pengalihan yang Diizinkan), masukkan URI callback Supabase proyek Anda. Formatnya:
+### Langkah A: Buat Kredensial di Google Cloud Console
+1. Buka **[Google Cloud Console](https://console.cloud.google.com/)** dan buat proyek baru bernama `Disipusda Perpustakaan`.
+2. Masuk ke menu **OAuth Consent Screen** (Layar Persetujuan):
+   * Setel jenis pengguna ke **External**.
+   * Isi kolom nama aplikasi dengan **Disipusda Purwakarta** dan pasang logo perpustakaan agar pengguna percaya saat login.
+3. Masuk ke menu **Credentials** (Kredensial):
+   * Klik **+ Create Credentials** > **OAuth Client ID** > Tipe Aplikasi: **Web Application**.
+   * Pada kolom **Authorized JavaScript origins**, tambahkan:
+     * `http://localhost:5173` (untuk uji coba lokal).
+     * `https://lann.codes` (domain staging).
+     * `https://disipusda.purwakartakab.go.id` (domain produksi).
+   * Pada kolom **Authorized redirect URIs**, tambahkan URL callback Supabase Anda secara persis:
      ```text
-     https://<PROJECT_REF_ID>.supabase.co/auth/v1/callback
+     https://anqopdxzdkpsmtxuultp.supabase.co/auth/v1/callback
      ```
-     *(Ganti `<PROJECT_REF_ID>` dengan ID unik proyek Supabase Anda. Anda dapat melihat ID ini di URL dashboard Supabase Anda).*
-   * Klik **Create**.
-5. Simpan informasi penting yang ditampilkan pada dialog sukses:
-   * **Client ID**
-   * **Client Secret**
+   * Klik **Create**, lalu salin **Client ID** dan **Client Secret** yang diberikan.
 
-### Bagian B: Mengaktifkan Google Provider di Supabase
-1. Masuk kembali ke **Supabase Dashboard** Anda.
-2. Buka menu **Auth** > **Providers** > klik pilihan **Google**.
-3. Aktifkan sakelar (*toggle*) **Enable Google Provider**.
-4. Tempelkan informasi dari Google Cloud Console tadi ke kolom masing-masing:
-   * **Client ID (for OAuth)**
-   * **Client Secret (for OAuth)**
-5. Klik **Save** (Simpan).
+### Langkah B: Daftarkan Kredensial di Supabase
+1. Masuk ke **Supabase Dashboard** > **Auth** > **Providers** > **Google**.
+2. Aktifkan sakelar **Enable Google Provider**.
+3. Masukkan **Client ID** (kode panjang berakhiran `.apps.googleusercontent.com`) dan **Client Secret** yang Anda peroleh dari Google Cloud Console.
+4. Klik **Save**.
 
 ---
 
-## 3. Konfigurasi Layanan Email SMTP Kustom
+## 3. Layanan Email Transaksional (Custom SMTP & Resend)
 
-Secara default, Supabase menyediakan kuota pengiriman email built-in yang sangat terbatas (hanya 3 email per jam) dan menggunakan nama pengirim default. Untuk skala produksi, Anda wajib menghubungkan server SMTP kustom Anda sendiri (misal: layanan SMTP internal `.go.id`, SendGrid, Mailgun, Brevo, atau Gmail SMTP).
+Untuk skala produksi, Anda wajib mengaktifkan SMTP Kustom agar link aktivasi pendaftaran dan token reset password dapat dikirimkan secara instan ke email pengguna perpustakaan.
 
-### Mengapa SMTP Kustom Diperlukan?
-* Mengirimkan link aktivasi pendaftaran secara andal.
-* Mengirimkan instruksi pemulihan (*Reset Password*) ke email pengguna.
-* Menghindari pembatasan laju pengiriman (*rate limit*).
-
-### Langkah-langkah Konfigurasi di Supabase:
-1. Masuk ke **Supabase Dashboard** > **Auth** > **SMTP Settings**.
-2. Aktifkan sakelar **Enable Custom SMTP**.
-3. Lengkapi parameter server email Anda:
-   * **Sender Email**: Email resmi perpustakaan (misalnya: `perpustakaan@disipusda.purwakartakab.go.id` atau `no-reply@domainanda.com`).
-   * **Sender Name**: Nama pengirim yang tampil di inbox pengguna (misalnya: `Disipusda Purwakarta`).
-   * **SMTP Provider / Host**: Alamat server pengiriman (misalnya: `smtp.gmail.com` atau `smtp.sendgrid.net`).
-   * **Port**:
-     * `587` (Rekomendasi untuk enkripsi STARTTLS).
-     * `465` (Untuk enkripsi SSL murni).
-   * **SMTP Username**: Username autentikasi email (biasanya sama dengan alamat email pengirim).
-   * **SMTP Password**: Kata sandi email Anda (atau *App Password* khusus jika menggunakan verifikasi 2 langkah di Gmail).
+### Cara Konfigurasi SMTP di Supabase:
+1. Buka **Supabase Dashboard** > **Auth** > **SMTP Settings**.
+2. Aktifkan **Enable Custom SMTP**.
+3. Isi kolom pengaturan SMTP sesuai dengan penyedia email Anda:
+   * **Sender Email**: Email resmi (misal: `no-reply@disipusda.purwakartakab.go.id`).
+   * **Sender Name**: `Disipusda Purwakarta`.
+   * **SMTP Provider / Host**: Host server email Anda (misal: `smtp.gmail.com` atau server SMTP instansi).
+   * **Port**: `587` (STARTTLS) atau `465` (SSL).
+   * **SMTP Username** & **SMTP Password**: Kredensial autentikasi akun email Anda.
 4. Klik **Save Changes**.
 
 ---
 
-## 4. Persiapan Database & Kebijakan RLS
+## 4. Konfigurasi DNS, Hosting, & Pengalihan Domain
 
-Sistem pendaftaran menyimpan profil ke tabel database publik. Struktur tabel dan keamanan data harus dipastikan siap di sisi Supabase.
+Agar login Google dan tautan aktivasi berjalan normal tanpa terlempar kembali ke alamat default `http://localhost:3000`, Anda harus mendaftarkan domain produksi asli Anda ke dalam pengaturan otentikasi Supabase.
 
-### Bagian A: Membuat Tabel Anggota (`members`)
-Eksekusi script SQL berikut di menu **SQL Editor** pada dashboard Supabase untuk memastikan tabel `members` siap menerima sinkronisasi data dari Google Auth maupun form manual:
+### Langkah A: Konfigurasi DNS di Cloudflare / Niagahoster / IDCloudHost
+1. Masuk ke panel kontrol DNS domain Anda.
+2. Tambahkan **DNS Record** berikut untuk mengarahkan domain ke server hosting (misalnya Vercel/Cloudflare Pages):
+   * **A Record**: Hubungkan nama domain utama `@` ke IP Address hosting Anda.
+   * **CNAME Record**: Arahkan subdomain `www` ke URL target hosting Anda.
+
+### Langkah B: Seting URL Pengalihan Aman di Supabase Auth
+1. Masuk ke **Supabase Dashboard** > **Auth** > **URL Configuration**.
+2. **Site URL**: Ganti `http://localhost:3000` dengan domain utama produksi Anda.  
+   *Contoh:* `https://lann.codes` (atau `https://disipusda.purwakartakab.go.id`).
+3. **Redirect URLs**: Klik **Add URL** dan tambahkan domain Anda diikuti dengan wildcard `/**` agar mencakup seluruh rute callback internal:
+   * `https://lann.codes/**`
+   * `https://disipusda.purwakartakab.go.id/**`
+4. Klik **Save**.
+
+---
+
+## 5. Persiapan Database & Penjadwal Otomatis (Cron Job)
+
+Sistem perpustakaan memerlukan penjadwalan otomatis harian untuk membatalkan antrian peminjaman yang kedaluwarsa serta mengirim notifikasi pengingat via email.
+
+### Langkah A: Inisialisasi Skema Tabel
+Buka menu **SQL Editor** di dashboard Supabase, buat tab query baru, lalu jalankan script berikut untuk membuat tabel histori notifikasi:
 
 ```sql
--- Membuat Tabel Members
-CREATE TABLE IF NOT EXISTS public.members (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    nomor_anggota VARCHAR(50) UNIQUE NOT NULL,
-    nama_lengkap VARCHAR(255) NOT NULL,
-    nik_masked VARCHAR(50) DEFAULT '************',
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) DEFAULT 'managed-by-supabase-auth',
-    alamat TEXT DEFAULT '',
-    telepon VARCHAR(50) DEFAULT '',
-    jenis_kelamin CHAR(1) CHECK (jenis_kelamin IN ('L', 'P')) DEFAULT 'L',
-    tanggal_lahir DATE,
-    tanggal_daftar VARCHAR(50),
-    avatar_color VARCHAR(10) DEFAULT '#0c2f3d',
-    avatar_url TEXT DEFAULT '',
-    bio TEXT DEFAULT '',
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+CREATE TABLE IF NOT EXISTS public.borrow_notification_logs (
+    id BIGSERIAL PRIMARY KEY,
+    borrow_id UUID NOT NULL,
+    member_id UUID NOT NULL,
+    notification_type VARCHAR(50) NOT NULL,
+    notification_date DATE NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    CONSTRAINT unique_borrow_notification_day UNIQUE (borrow_id, notification_type, notification_date)
 );
 ```
 
-### Bagian B: Kebijakan RLS (Row Level Security)
-Row Level Security memastikan anggota biasa tidak dapat memodifikasi, menghapus, atau membaca data sensitif anggota lain tanpa izin otorisasi yang sah.
-
-Buka **SQL Editor** dan jalankan kebijakan pengamanan berikut:
+### Langkah B: Menjadwalkan Cron Job Secara Natif di Supabase
+Untuk menjadwalkan agar pemeriksaan buku berjalan otomatis setiap jam secara mandiri tanpa pihak ketiga, jalankan perintah SQL berikut di **SQL Editor**:
 
 ```sql
--- 1. Mengaktifkan RLS pada Tabel Members
-ALTER TABLE public.members ENABLE ROW LEVEL SECURITY;
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- 2. Kebijakan Membaca Data: 
--- Anggota hanya boleh membaca profilnya sendiri, Admin boleh membaca semua profil.
-CREATE POLICY "Allow members to read own profile"
-ON public.members FOR SELECT
-TO authenticated
-USING (
-    auth.uid() = id
-    OR 
-    EXISTS (
-        SELECT 1 FROM public.admins WHERE email = auth.email()
-    )
+-- Hapus job lama jika ada agar tidak duplikat
+SELECT cron.unschedule('kirim-pengingat-peminjaman-harian');
+
+-- Jadwalkan pemanggilan otomatis Edge Function setiap jam
+SELECT cron.schedule(
+  'kirim-pengingat-peminjaman-harian',
+  '0 * * * *', -- Berjalan setiap jam pada menit ke-0
+  $$
+  SELECT net.http_post(
+    url := 'https://anqopdxzdkpsmtxuultp.supabase.co/functions/v1/send-borrow-reminders',
+    headers := '{"Content-Type": "application/json", "x-cron-secret": "MASUKKAN_CRON_SECRET_ANDA"}'::jsonb,
+    body := '{}'::jsonb
+  );
+  $$
 );
-
--- 3. Kebijakan Pembaruan Data:
--- Pengguna hanya diizinkan mengedit datanya sendiri secara mandiri.
-CREATE POLICY "Allow members to update own profile"
-ON public.members FOR UPDATE
-TO authenticated
-USING (auth.uid() = id)
-WITH CHECK (auth.uid() = id);
-
--- 4. Kebijakan Pendaftaran (Insert):
--- Mengizinkan pembuatan baris baru untuk pengguna terautentikasi baru.
-CREATE POLICY "Allow system/self registration insert"
-ON public.members FOR INSERT
-WITH CHECK (true);
 ```
+*(Ganti `MASUKKAN_CRON_SECRET_ANDA` dengan kunci rahasia yang sama dengan yang diset di Secrets).*
 
 ---
 
-## 5. Konfigurasi Cloudflare Turnstile
+## 6. Mode Company Profile (Menonaktifkan Katalog & Login secara Otomatis)
 
-Cloudflare Turnstile digunakan pada sistem masuk (*Login*) untuk menangkal upaya pembobolan paksa (*brute force attack*) oleh bot otomatis tanpa mengganggu pengalaman kenyamanan pengguna dengan gambar teka-teki yang sulit.
+Jika di masa mendatang instansi meminta agar website dirubah menjadi **Company Profile murni** (hanya berisi portal berita, sejarah, PPID, dan profil dinas) tanpa ada fitur perpustakaan, pendaftaran, dan sistem masuk/login anggota, Anda hanya perlu mengubah satu flag konfigurasi!
 
-### Langkah-langkah:
-1. Buka dashboard **[Cloudflare Turnstile](https://dash.cloudflare.com/)**.
-2. Daftarkan domain website produksi Anda.
-3. Dapatkan nilai **Site Key** dan **Secret Key**.
-4. Masukkan **Site Key** ke berkas `.env` proyek Anda pada bagian `VITE_TURNSTILE_SITE_KEY` agar Turnstile Widget di halaman Login ter-render dengan normal di web produksi Anda.
-   *(Di lingkungan lokal/development, Turnstile disetel menggunakan kode dummy bawaan Cloudflare `1x00000000000000000000AA` yang otomatis selalu lulus verifikasi secara instan).*
+### Cara Menonaktifkan:
+1. Buka berkas [src/config/siteConfig.ts](file:///c:/Users/Rislan/Downloads/Library%20Website%20Design/src/config/siteConfig.ts).
+2. Temukan bagian konfigurasi fitur opsional di bagian bawah:
+   ```typescript
+   FEATURES: {
+     ENABLE_CATALOG: true, // Nilai default (aktif)
+     REQUIRE_NIK: false,
+     SHOW_DIGITAL_CARD: false,
+   }
+   ```
+3. Ubah nilai **`ENABLE_CATALOG`** menjadi **`false`**:
+   ```typescript
+   FEATURES: {
+     ENABLE_CATALOG: false, // Cukup ubah ini ke false!
+     REQUIRE_NIK: false,
+     SHOW_DIGITAL_CARD: false,
+   }
+   ```
+4. Simpan berkas, lalu lakukan build/deploy ulang proyek Anda.
+
+### Apa yang Terjadi Secara Otomatis di Sistem?
+Ketika `ENABLE_CATALOG` diatur ke `false`, arsitektur kode kami telah dirancang untuk secara otomatis melakukan tindakan berikut secara instan:
+1. **Navigasi Utama Bersih**: Menu "Katalog Buku" dan "Riwayat Pinjaman" akan langsung disembunyikan dan dihilangkan dari menu Navbar atas maupun navigasi menu Mobile.
+2. **Tombol Autentikasi Lenyap**: Tombol "Masuk / Login" dan avatar profil anggota akan disembunyikan sepenuhnya dari header halaman web agar publik tidak dapat mengakses portal pendaftaran.
+3. **Pengalihan Proteksi Rute (Auto-Redirect)**: Untuk mengamankan rute jika ada pengguna yang mencoba mengetikkan URL secara manual di browser, sistem router kami di [src/App.tsx](file:///c:/Users/Rislan/Downloads/Library%20Website%20Design/src/App.tsx) akan memblokir akses dan langsung mengalihkan rute-rute berikut kembali ke **Beranda (`/`)** secara aman:
+   * Halaman Login (`/login`)
+   * Halaman Pendaftaran (`/register`)
+   * Halaman Lupa Password (`/forgot-password`)
+   * Halaman Profil Anggota (`/profil`)
+   * Halaman Riwayat Peminjaman (`/riwayat-pinjaman`)
+   * Halaman Katalog Utama (`/katalog`)
 
 ---
 
-## 6. Langkah Uji Coba & Troubleshooting
+## 7. Panduan Pemecahan Masalah (Troubleshooting)
 
-Setelah semua integrasi terpasang, lakukan pemeriksaan kesehatan sistem (*system check*) berikut:
+### A. Eror "Redirect URI Mismatch" saat Klik Tombol Google
+* **Penyebab**: Alamat URL callback di Google Developer Console tidak sama dengan URL redirect Supabase Anda.
+* **Solusi**: Periksa kembali domain Anda di Google Cloud Console. Pastikan menggunakan protokol aman `https` dan URL callback mengarah persis ke proyek Supabase Anda: `https://anqopdxzdkpsmtxuultp.supabase.co/auth/v1/callback`.
 
-| Gejala Masalah | Penyebab Umum | Solusi Penyelesaian |
-| :--- | :--- | :--- |
-| **Eror "Redirect URI mismatch" saat klik tombol Google** | URL Callback di Google Cloud Console berbeda dengan yang didaftarkan di Supabase. | Pastikan URL di Google Developer Console sama persis dengan URL redirect dari Supabase (gunakan protokol `https` untuk production). |
-| **Email verifikasi pendaftaran tidak masuk ke kotak masuk** | Kuota bawaan Supabase habis atau SMTP kustom salah konfigurasi password/port. | Periksa kredensial SMTP Anda di menu **Auth > SMTP Settings**. Uji kirim email manual dengan mengganti port dari `465` ke `587` (atau sebaliknya). |
-| **Data Google login masuk, tapi nama lengkap kosong/salah** | Skema tabel database `members` gagal memetakan nama dari OAuth Metadata. | Sistem kami telah dilengkapi fallback aman di berkas `supabaseAuthService.ts`. Pastikan kolom `namaLengkap` diatur mengambil nama awal email jika metadata `full_name` Google kosong. |
-| **Katalog buku lambat atau error database** | Kunci API Key di berkas `.env` kadaluarsa atau koneksi internet terputus. | Periksa log konsol browser Anda. Salin ulang kunci anon terbaru dari dashboard proyek Supabase. |
+### B. Eror "HTTP status: 401 Unauthorized" saat GitHub Actions / Cron Job Berjalan
+* **Penyebab**: Nilai `CRON_SECRET` yang disimpan di **Supabase Secrets** tidak cocok dengan nilai yang dikirimkan oleh **GitHub Actions Secrets** atau cron job eksternal Anda.
+* **Solusi**: Perbarui nilai `CRON_SECRET` di menu **Settings > Edge Functions** di Supabase Dashboard dan menu **Settings > Secrets > Actions** di GitHub agar keduanya menggunakan nilai rahasia baru yang sama persis.
+
+### C. Tulisan "Hanya untuk pengujian" di Cloudflare Turnstile Produksi
+* **Penyebab**: Program dikompilasi menggunakan kunci uji coba default `1x00000000000000000000AA`.
+* **Solusi**: Daftarkan domain Anda di dashboard Cloudflare Turnstile, dapatkan Site Key asli Anda yang berawalan `0x4AAAAAA...`, pasang sebagai variabel `VITE_TURNSTILE_SITE_KEY` di hosting produksi Anda, lalu jalankan perintah deploy/build ulang proyek Anda.
 
 ---
-*Dokumen ini dibuat khusus untuk mempermudah transisi pengelolaan tim IT Perpustakaan dan Kearsipan Disipusda.*
+*Dokumen ini dibuat khusus untuk mempermudah transisi tim pengembang dan pemelihara website Disipusda Purwakarta.*
