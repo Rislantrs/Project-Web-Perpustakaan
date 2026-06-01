@@ -174,8 +174,8 @@ export const createReport = async (input: ReportInput): Promise<{ success: boole
 
     const fallbackMessage = error instanceof Error ? error.message : 'Gagal menyimpan ke Supabase.';
     return {
-      success: true,
-      message: `${fallbackMessage} Laporan disimpan sementara di penyimpanan lokal.`,
+      success: false,
+      message: `${fallbackMessage} Gagal mengirim laporan ke database.`,
       report,
     };
   }

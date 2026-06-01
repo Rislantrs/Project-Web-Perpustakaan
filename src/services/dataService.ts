@@ -48,7 +48,7 @@ export interface Article {
   views?: number;
 }
 
-const ARTICLE_LIST_COLUMNS = 'id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt';
+const ARTICLE_LIST_COLUMNS = 'id, slug, title, excerpt, category, author, date, year, readTime, img, imgPosition, createdAt, views';
 const failedArticleImageMigrationIds = new Set<string>();
 
 const STORAGE_KEY = DB_KEYS.ARTICLES;

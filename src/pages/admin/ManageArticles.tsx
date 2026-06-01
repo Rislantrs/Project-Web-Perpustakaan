@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getArticles, deleteArticle, refreshArticles, Article } from '../../services/dataService';
+import { getArticles, deleteArticle, refreshArticles, Article, ARTICLE_EDITOR_CATEGORIES } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { Link } from 'react-router';
 import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
@@ -66,7 +66,7 @@ export default function ManageArticles() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Kelola Artikel</h1>
-          <p className="text-gray-500 mt-1">Daftar semua artikel Publik, Pojok Carita, dan Kedinasan.</p>
+          <p className="text-gray-500 mt-1">Kelola dan terbitkan semua artikel berita, literasi, edukasi, dan informasi dinas.</p>
         </div>
         <Link
           to="/admin/articles/new"
@@ -96,9 +96,11 @@ export default function ManageArticles() {
               className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent"
             >
               <option value="">Semua Kategori</option>
-              <option value="Kedinasan">Kedinasan</option>
-              <option value="Pojok Carita">Pojok Carita</option>
-              <option value="Berita Terkini">Berita Terkini</option>
+              {ARTICLE_EDITOR_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
             </select>
  
             <select
