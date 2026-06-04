@@ -10,16 +10,7 @@ import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { BK_COLORS, BK_STATUS_COLORS, BK_FONTS, BK_RADIUS, BK_SHADOW } from '../constants/designTokens';
 import type { CalendarDay } from '../types/booking.types';
 
-// ─── Service import (will be created separately) ─────────────────────────────
-// If the service doesn't exist yet, we gracefully handle errors
-let getCalendarData: (year: number, month: number) => Promise<CalendarDay[]>;
-try {
-  // Dynamic-ish import handled at runtime
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  getCalendarData = require('../services/bookingService').getCalendarData;
-} catch {
-  getCalendarData = async () => [];
-}
+import { getCalendarData } from '../services/bookingService';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface BookingCalendarProps {
@@ -153,22 +144,21 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
     const dateStr = toYMD(currentYear, currentMonth, dayNumber);
     const cellDate = new Date(currentYear, currentMonth, dayNumber);
     const isToday = dateStr === toYMD(today.getFullYear(), today.getMonth(), today.getDate());
-    const isSunday = cellDate.getDay() === 0;
+    const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
     const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const isSelected = dateStr === selectedDate;
 
     // Determine status
     let status = statusMap.get(dateStr) ?? 'available';
-    if (isPast || isSunday) status = 'disabled';
+    if (isPast || isWeekend) status = 'disabled';
 
-    const isClickable = status === 'available' && !isPast && !isSunday;
+    const isClickable = status === 'available' && !isPast && !isWeekend;
 
-    // ─── Style calculation ──────────────────────────────────────────────
+    // ─── Style calculation (Premium, Modern UI) ────────────────────────
     let cellBg = '#ffffff';
     let cellTextColor = BK_COLORS.text;
     let cellBorder = '1px solid transparent';
     let dotColor: string | null = null;
-    let leftAccent: string | null = null;
     let cursor = 'default';
     let tooltipText: string | null = null;
     let fontWeight: number = 400;
@@ -177,34 +167,33 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
       cellBg = BK_COLORS.primary;
       cellTextColor = '#ffffff';
       fontWeight = 700;
+      cellBorder = '1px solid transparent';
     } else if (status === 'disabled') {
       cellBg = '#f8fafc';
       cellTextColor = '#cbd5e1';
       cursor = 'not-allowed';
+      cellBorder = '1px solid #f1f5f9';
     } else if (status === 'pending') {
-      cellBg = BK_STATUS_COLORS.pending.bg;
-      cellTextColor = BK_STATUS_COLORS.pending.text;
-      dotColor = BK_STATUS_COLORS.pending.dot;
+      cellBg = '#fffbeb'; // soft amber
+      cellTextColor = '#b45309'; // dark amber text
+      dotColor = '#d97706';
       cursor = 'not-allowed';
       tooltipText = 'Sudah ada booking, menunggu konfirmasi';
-    } else if (status === 'approved') {
-      cellBg = BK_STATUS_COLORS.approved.bg;
-      cellTextColor = BK_STATUS_COLORS.approved.text;
-      dotColor = BK_STATUS_COLORS.approved.dot;
+      cellBorder = '1px solid #fef3c7';
+    } else if (status === 'approved' || status === 'rescheduled') {
+      cellBg = '#fef2f2'; // soft red
+      cellTextColor = '#b91c1c'; // dark red text
+      dotColor = '#ef4444';
       cursor = 'not-allowed';
       tooltipText = 'Tanggal ini sudah dipesan';
-    } else if (status === 'rescheduled') {
-      cellBg = BK_STATUS_COLORS.rescheduled.bg;
-      cellTextColor = BK_STATUS_COLORS.rescheduled.text;
-      dotColor = BK_STATUS_COLORS.rescheduled.dot;
-      cursor = 'not-allowed';
-      tooltipText = 'Tanggal ini sudah dipesan';
+      cellBorder = '1px solid #fee2e2';
     } else if (status === 'available') {
-      leftAccent = BK_STATUS_COLORS.available.dot;
-      dotColor = BK_STATUS_COLORS.available.dot;
+      cellBg = '#ffffff';
+      cellTextColor = '#1e293b'; // slate-800
+      dotColor = '#16a34a'; // clean green dot
       cursor = 'pointer';
-      fontWeight = 500;
-      cellBorder = `1px solid ${BK_STATUS_COLORS.available.border}`;
+      fontWeight = 600;
+      cellBorder = '1px solid #e2e8f0'; // slate-200 subtle outline
     }
 
     if (isToday && !isSelected) {
@@ -225,14 +214,23 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
       >
         <motion.button
           type="button"
-          whileHover={isClickable ? { scale: 1.06, y: -1 } : {}}
-          whileTap={isClickable ? { scale: 0.97 } : {}}
+          whileHover={
+            isClickable
+              ? {
+                  scale: 1.03,
+                  backgroundColor: '#f8fafc',
+                  borderColor: '#cbd5e1',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                }
+              : {}
+          }
+          whileTap={isClickable ? { scale: 0.98 } : {}}
           disabled={!isClickable}
           onClick={() => isClickable && onSelectDate(dateStr)}
           style={{
             width: '100%',
-            minHeight: '44px',
-            borderRadius: BK_RADIUS.md,
+            minHeight: '46px',
+            borderRadius: '12px',
             backgroundColor: cellBg,
             color: cellTextColor,
             border: cellBorder,
@@ -241,17 +239,14 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '3px',
+            gap: '4px',
             fontFamily: BK_FONTS.sans,
             fontWeight,
             fontSize: '0.85rem',
             position: 'relative',
             overflow: 'hidden',
-            transition: 'box-shadow 0.15s ease',
+            transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
             boxShadow: isSelected ? `0 4px 12px ${BK_COLORS.primary}40` : isClickable ? BK_SHADOW.sm : 'none',
-            ...(leftAccent && !isSelected
-              ? { borderLeft: `3px solid ${leftAccent}` }
-              : {}),
           }}
           title={tooltipText ?? undefined}
         >
@@ -347,17 +342,17 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
       <div
         style={{
           backgroundColor: BK_COLORS.surfaceWhite,
-          borderRadius: BK_RADIUS.xl,
-          boxShadow: BK_SHADOW.lg,
-          border: `1px solid ${BK_COLORS.border}`,
+          borderRadius: '24px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.02), 0 10px 10px -5px rgba(0, 0, 0, 0.01), 0 0 0 1px rgba(0, 0, 0, 0.04)',
           overflow: 'hidden',
           fontFamily: BK_FONTS.sans,
         }}
       >
-        {/* ── Header: navigation ── */}
+        {/* ── Header: navigation (Premium Clean White style) ── */}
         <div
           style={{
-            background: `linear-gradient(135deg, ${BK_COLORS.primary} 0%, ${BK_COLORS.secondary} 100%)`,
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #f1f5f9',
             padding: '1.25rem 1.5rem',
             display: 'flex',
             alignItems: 'center',
@@ -366,22 +361,22 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
         >
           <motion.button
             type="button"
-            whileHover={!isCurrentOrPast ? { scale: 1.1 } : {}}
+            whileHover={!isCurrentOrPast ? { scale: 1.05, backgroundColor: 'rgba(30, 58, 95, 0.08)' } : {}}
             whileTap={!isCurrentOrPast ? { scale: 0.95 } : {}}
             onClick={goToPrevMonth}
             disabled={isCurrentOrPast}
             style={{
               width: '36px',
               height: '36px',
-              borderRadius: '50%',
-              backgroundColor: isCurrentOrPast ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)',
+              borderRadius: '12px',
+              backgroundColor: 'rgba(30, 58, 95, 0.04)',
               border: 'none',
               cursor: isCurrentOrPast ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: isCurrentOrPast ? 'rgba(255,255,255,0.3)' : '#ffffff',
-              transition: 'background 0.2s',
+              color: isCurrentOrPast ? '#cbd5e1' : BK_COLORS.primary,
+              transition: 'all 0.2s',
             }}
             aria-label="Bulan sebelumnya"
           >
@@ -392,13 +387,13 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
             <motion.div
               key={`${currentYear}-${currentMonth}`}
               custom={direction}
-              initial={{ opacity: 0, x: direction * 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: direction * -30 }}
+              initial={{ opacity: 0, y: direction * 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: direction * -10 }}
               transition={{ duration: 0.2, ease: 'easeInOut' }}
               style={{
                 textAlign: 'center',
-                color: '#ffffff',
+                color: '#1e293b',
               }}
             >
               <div
@@ -409,13 +404,14 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
                   justifyContent: 'center',
                 }}
               >
-                <Calendar size={16} style={{ opacity: 0.8 }} />
+                <Calendar size={16} style={{ color: BK_COLORS.primary, opacity: 0.9 }} />
                 <span
                   style={{
                     fontFamily: BK_FONTS.display,
-                    fontWeight: 700,
-                    fontSize: '1.05rem',
-                    letterSpacing: '-0.01em',
+                    fontWeight: 800,
+                    fontSize: '1.1rem',
+                    letterSpacing: '-0.025em',
+                    color: '#0f172a',
                   }}
                 >
                   {BULAN_ID[currentMonth]} {currentYear}
@@ -426,21 +422,21 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
 
           <motion.button
             type="button"
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.05, backgroundColor: 'rgba(30, 58, 95, 0.08)' }}
             whileTap={{ scale: 0.95 }}
             onClick={goToNextMonth}
             style={{
               width: '36px',
               height: '36px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              borderRadius: '12px',
+              backgroundColor: 'rgba(30, 58, 95, 0.04)',
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff',
-              transition: 'background 0.2s',
+              color: BK_COLORS.primary,
+              transition: 'all 0.2s',
             }}
             aria-label="Bulan berikutnya"
           >

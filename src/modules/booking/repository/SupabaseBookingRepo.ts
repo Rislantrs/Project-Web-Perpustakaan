@@ -43,9 +43,10 @@ function toYMD(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
-/** Cek apakah tanggal jatuh pada hari Minggu (0) */
-function isSunday(dateStr: string): boolean {
-  return new Date(dateStr + 'T00:00:00').getDay() === 0;
+/** Cek apakah tanggal jatuh pada hari Sabtu (6) atau Minggu (0) */
+function isWeekend(dateStr: string): boolean {
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  return day === 0 || day === 6;
 }
 
 /** Cek apakah tanggal sudah lewat (sebelum hari ini) */
@@ -196,13 +197,13 @@ export class SupabaseBookingRepo implements IBookingRepository {
 
     for (let day = 1; day <= totalDays; day++) {
       const dateStr = `${year}-${paddedMonth}-${String(day).padStart(2, '0')}`;
-      const sunday  = isSunday(dateStr);
+      const weekend = isWeekend(dateStr);
       const past    = isPastDate(dateStr);
       const lockStatus = lockMap.get(dateStr);
 
       let status: CalendarDayStatus;
 
-      if (sunday || past) {
+      if (weekend || past) {
         status = 'disabled';
       } else if (lockStatus && BLOCKING_STATUSES.includes(lockStatus as BookingStatus)) {
         status = lockStatus as CalendarDayStatus;
@@ -213,7 +214,7 @@ export class SupabaseBookingRepo implements IBookingRepository {
       calendarDays.push({
         date:      dateStr,
         status,
-        isWeekend: sunday,
+        isWeekend: weekend,
         isPast:    past,
       });
     }

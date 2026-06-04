@@ -60,10 +60,11 @@ function daysFromToday(dateStr: string): number {
 }
 
 /**
- * Cek apakah tanggal jatuh pada hari Minggu (day index 0).
+ * Cek apakah tanggal jatuh pada hari Sabtu (6) atau Minggu (0).
  */
-function isSunday(dateStr: string): boolean {
-  return new Date(dateStr + 'T00:00:00').getDay() === 0;
+function isWeekend(dateStr: string): boolean {
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  return day === 0 || day === 6;
 }
 
 /**
@@ -71,7 +72,7 @@ function isSunday(dateStr: string): boolean {
  * Format valid: 08xxxxxxxxxx atau +62xxxxxxxxxx (10-15 digit setelah prefix)
  */
 function isValidWhatsApp(wa: string): boolean {
-  return /^(\+62|08)[0-9]{8,13}$/.test(wa.replace(/[\s\-]/g, ''));
+  return /^(\+62|08)[0-9]{8,13}$/.test(wa.replace(/[\s-]/g, ''));
 }
 
 /**
@@ -149,8 +150,8 @@ function validateCreateBookingDTO(data: CreateBookingDTO): string {
   if (daysAhead > MAX_BOOKING_DAYS_AHEAD) {
     return `Tanggal booking tidak boleh lebih dari ${MAX_BOOKING_DAYS_AHEAD} hari ke depan.`;
   }
-  if (isSunday(tanggal_booking)) {
-    return 'Layanan tidak tersedia pada hari Minggu. Silakan pilih hari lain.';
+  if (isWeekend(tanggal_booking)) {
+    return 'Layanan tidak tersedia pada hari Sabtu dan Minggu. Silakan pilih hari lain.';
   }
 
   return ''; // semua valid
@@ -176,7 +177,7 @@ export async function createBooking(
   const sanitized: CreateBookingDTO = {
     ...data,
     nama_lengkap:  data.nama_lengkap.trim(),
-    whatsapp:      data.whatsapp.trim().replace(/[\s\-]/g, ''),
+    whatsapp:      data.whatsapp.trim().replace(/[\s-]/g, ''),
     email:         data.email.trim().toLowerCase(),
     jenis_layanan: data.jenis_layanan.trim(),
     instansi:      data.instansi?.trim() || undefined,

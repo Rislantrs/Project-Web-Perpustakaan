@@ -26,22 +26,8 @@ import { BK_COLORS, BK_FONTS, BK_RADIUS, BK_SHADOW } from '../constants/designTo
 import { JENIS_LAYANAN, JENIS_LAYANAN_DESC, MAX_DOKUMEN, MIN_DOKUMEN } from '../constants/jenisLayanan';
 import type { Booking, CreateBookingDTO } from '../types/booking.types';
 
-// ─── Service imports ─────────────────────────────────────────────────────────
-let createBooking: (data: CreateBookingDTO) => Promise<{ success: boolean; message: string; data?: Booking }>;
-let notifyNewBooking: (booking: Booking) => Promise<void>;
-
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  createBooking = require('../services/bookingService').createBooking;
-} catch {
-  createBooking = async () => ({ success: false, message: 'Service belum tersedia.' });
-}
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  notifyNewBooking = require('../services/notificationService').notifyNewBooking;
-} catch {
-  notifyNewBooking = async () => {};
-}
+import { createBooking } from '../services/bookingService';
+import { notifyNewBooking } from '../services/notificationService';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface BookingFormProps {
@@ -287,7 +273,7 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
 
       if (result.success && result.data) {
         // Fire and forget notification
-        notifyNewBooking(result.data).catch(console.warn);
+        notifyNewBooking(result.data.id).catch(console.warn);
         onSuccess(result.data);
         return;
       }
@@ -339,14 +325,15 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
       {/* ── Tanggal Header ── */}
       <div
         style={{
-          background: `linear-gradient(135deg, ${BK_COLORS.primary} 0%, ${BK_COLORS.secondary} 100%)`,
+          backgroundColor: BK_COLORS.primary,
           borderRadius: BK_RADIUS.xl,
           padding: '1.25rem 1.5rem',
           marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          boxShadow: BK_SHADOW.md,
+          boxShadow: BK_SHADOW.sm,
+          border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       >
         <div

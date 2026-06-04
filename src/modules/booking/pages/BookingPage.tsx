@@ -505,78 +505,87 @@ export default function BookingPage() {
         fontFamily: BK_FONTS.sans,
       }}
     >
-      {/* ── Hero Section ── */}
+      {/* ── Hero Section (Premium UI Redesign) ── */}
       <div
         style={{
-          background: `linear-gradient(160deg, ${BK_COLORS.surface} 0%, #edf2fb 50%, #f0f4ff 100%)`,
-          borderBottom: `1px solid ${BK_COLORS.border}`,
-          padding: '3rem 1.5rem 2.5rem',
+          background: `linear-gradient(180deg, #f8fafc 0%, ${BK_COLORS.surface} 100%)`,
+          borderBottom: `1px solid ${BK_COLORS.border}50`,
+          padding: '4rem 1.5rem 3.5rem',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        {/* Subtle decorative glow circles */}
+        <div style={{ position: 'absolute', top: '-10%', left: '5%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none' }}></div>
+        <div style={{ position: 'absolute', bottom: '0', right: '5%', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(45, 106, 159, 0.04) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none' }}></div>
+
         <div
           style={{
             maxWidth: '1100px',
             margin: '0 auto',
             textAlign: 'center',
+            position: 'relative',
+            zIndex: 2,
           }}
         >
-          {/* Icon */}
+          {/* Icon (Premium Glassmorphic shadow layout) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 0.85, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              width: '72px',
-              height: '72px',
-              borderRadius: BK_RADIUS.lg,
+              width: '80px',
+              height: '80px',
+              borderRadius: '24px',
               background: `linear-gradient(135deg, ${BK_COLORS.primary} 0%, ${BK_COLORS.secondary} 100%)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              boxShadow: BK_SHADOW.lg,
+              margin: '0 auto 1.75rem',
+              boxShadow: '0 20px 25px -5px rgba(30, 58, 95, 0.2), 0 8px 10px -6px rgba(30, 58, 95, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
             }}
           >
-            <Archive size={34} color="#ffffff" />
+            <Archive size={36} color="#ffffff" />
           </motion.div>
 
-          {/* Badge */}
+          {/* Badge (Pill Style) */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '4px 12px',
-              borderRadius: BK_RADIUS.full,
-              backgroundColor: `${BK_COLORS.primary}10`,
-              border: `1px solid ${BK_COLORS.primary}20`,
+              padding: '6px 16px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(30, 58, 95, 0.05)',
+              border: '1px solid rgba(30, 58, 95, 0.08)',
               color: BK_COLORS.primary,
-              fontSize: '0.7rem',
+              fontSize: '0.72rem',
               fontWeight: 700,
-              letterSpacing: '0.08em',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              marginBottom: '1rem',
+              marginBottom: '1.25rem',
             }}
           >
-            <Shield size={12} /> Disipusda Purwakarta · Layanan Digital
+            <Shield size={13} style={{ color: BK_COLORS.secondary }} /> Disipusda Purwakarta · Layanan Digital
           </motion.div>
 
           {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
             style={{
               fontFamily: BK_FONTS.display,
               fontWeight: 800,
-              fontSize: 'clamp(1.5rem, 4vw, 2.25rem)',
-              color: BK_COLORS.text,
-              letterSpacing: '-0.025em',
-              margin: '0 0 0.75rem',
-              lineHeight: 1.25,
+              fontSize: 'clamp(1.75rem, 5vw, 2.5rem)',
+              color: '#0f172a', // slate-900
+              letterSpacing: '-0.03em',
+              margin: '0 0 1rem',
+              lineHeight: 1.2,
             }}
           >
             Booking Layanan Enkapsulasi Arsip
@@ -586,13 +595,14 @@ export default function BookingPage() {
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
             style={{
-              fontSize: 'clamp(0.85rem, 2vw, 1rem)',
-              color: BK_COLORS.textMuted,
-              maxWidth: '560px',
-              margin: '0 auto 1.75rem',
+              fontSize: 'clamp(0.88rem, 2vw, 1.02rem)',
+              color: '#475569', // slate-600
+              maxWidth: '620px',
+              margin: '0 auto 2.25rem',
               lineHeight: 1.7,
+              fontWeight: 500,
             }}
           >
             Layanan pelindungan arsip menggunakan bahan bebas asam berkualitas tinggi untuk menjaga
@@ -600,40 +610,41 @@ export default function BookingPage() {
             Anda.
           </motion.p>
 
-          {/* Info badges */}
+          {/* Info badges (Tailwind CSS styled premium pills) */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.28 }}
+            transition={{ delay: 0.28, duration: 0.5 }}
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: '10px',
+              gap: '12px',
               justifyContent: 'center',
             }}
           >
             {[
-              { icon: '📅', text: '1 Slot Per Hari' },
-              { icon: '✉', text: 'Konfirmasi via Email' },
-              { icon: '📱', text: 'Notifikasi WhatsApp' },
+              { icon: <CalendarCheck size={14} style={{ color: BK_COLORS.secondary }} />, text: '1 Slot Per Hari' },
+              { icon: <Mail size={14} style={{ color: BK_COLORS.secondary }} />, text: 'Konfirmasi via Email' },
+              { icon: <Phone size={14} style={{ color: BK_COLORS.secondary }} />, text: 'Notifikasi WhatsApp' },
             ].map(({ icon, text }) => (
               <span
                 key={text}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 14px',
-                  borderRadius: BK_RADIUS.full,
-                  backgroundColor: BK_COLORS.surfaceWhite,
-                  border: `1px solid ${BK_COLORS.border}`,
+                  gap: '8px',
+                  padding: '8px 18px',
+                  borderRadius: '9999px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e2e8f0',
                   fontSize: '0.78rem',
                   fontWeight: 600,
-                  color: BK_COLORS.text,
-                  boxShadow: BK_SHADOW.sm,
+                  color: '#334155', // slate-700
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.02)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
                 }}
               >
-                <span>{icon}</span>
+                {icon}
                 {text}
               </span>
             ))}
