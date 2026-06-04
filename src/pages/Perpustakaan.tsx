@@ -1,6 +1,7 @@
 import { History, Target, Landmark, Clock, ChevronRight, CheckCircle2, Quote, BookOpen, MapPin, Sparkles } from 'lucide-react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 // Assets
 import heroImg from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
@@ -14,7 +15,7 @@ export default function Perpustakaan() {
   return (
     <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24 overflow-x-hidden">
 
-      {/* --- 1. HERO SECTION (Standardized with Kearsipan) --- */}
+      {/* Bagian Hero Utama */}
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-20 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -31,7 +32,7 @@ export default function Perpustakaan() {
         </motion.div>
       </section>
 
-      {/* --- 2. QUICK STATS (3 Column Grid) --- */}
+      {/* Ringkasan Informasi Layanan */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
@@ -57,7 +58,7 @@ export default function Perpustakaan() {
         </div>
       </section>
 
-      {/* --- 3. SEJARAH 1953 (Standardized: Image Left) --- */}
+      {/* Sejarah Awal Perpustakaan */}
       <section className="py-20 bg-gray-50 border-y border-gray-200 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -88,7 +89,7 @@ export default function Perpustakaan() {
         </div>
       </section>
 
-      {/* --- 4. TRANSFORMASI (Standardized: Image Right) --- */}
+      {/* Transformasi dan Perubahan Status Organisasi */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
@@ -120,7 +121,7 @@ export default function Perpustakaan() {
         </div>
       </section>
 
-      {/* --- 5. MODERN QUOTE (Standardized) --- */}
+      {/* Kutipan Media Massa */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
@@ -136,7 +137,7 @@ export default function Perpustakaan() {
         </motion.div>
       </section>
 
-      {/* --- 6. MISI STRATEGIS (Standardized with Check List) --- */}
+      {/* Penjelasan Misi Strategis */}
       <section className="py-20 bg-[#f8f9fa] border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
@@ -169,20 +170,22 @@ export default function Perpustakaan() {
         </div>
       </section>
 
-      {/* --- 7. FINAL CTA --- */}
-      <section className="mt-24 text-center">
-        <motion.div
-           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-        >
-          <Link
-            to="/katalog"
-            className="inline-flex items-center gap-3 bg-[#0c2f3d] text-white px-10 py-5 rounded-full font-bold hover:bg-[#1a4254] transition-all shadow-xl hover:-translate-y-1"
+      {/* Tombol Ajakan Bertindak Menuju Katalog */}
+      {SITE_CONFIG.FEATURES.ENABLE_CATALOG && (
+        <section className="mt-24 text-center">
+          <motion.div
+             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
-            Mulai Menjelajahi Katalog Buku <ChevronRight size={20} />
-          </Link>
-          <p className="mt-6 text-gray-400 text-sm italic">Akses koleksi fisik dan digital sekarang juga</p>
-        </motion.div>
-      </section>
+            <Link
+              to="/katalog"
+              className="inline-flex items-center gap-3 bg-[#0c2f3d] text-white px-10 py-5 rounded-full font-bold hover:bg-[#1a4254] transition-all shadow-xl hover:-translate-y-1"
+            >
+              Mulai Menjelajahi Katalog Buku <ChevronRight size={20} />
+            </Link>
+            <p className="mt-6 text-gray-400 text-sm italic">Akses koleksi fisik dan digital sekarang juga</p>
+          </motion.div>
+        </section>
+      )}
 
     </div>
   );

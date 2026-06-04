@@ -55,12 +55,17 @@ const ManagePpid = lazy(() => import('./pages/admin/ManagePpid'));
 import JadwalLayanan from './pages/JadwalLayanan';
 import { SITE_CONFIG } from './config/siteConfig';
 
+// Booking Module (Lazy Loaded — Modul Mandiri)
+const BookingPage = lazy(() => import('./modules/booking/pages/BookingPage'));
+const RescheduleConfirm = lazy(() => import('./modules/booking/pages/RescheduleConfirm'));
+const AdminBookings = lazy(() => import('./modules/booking/pages/admin/AdminBookings'));
+
 import { refreshHomeArticles, migrateLegacyArticleImages, refreshCategories } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
 import { refreshBooks, migrateLegacyBookCovers } from './services/bookService';
 import { refreshMembersFromSupabase } from './services/supabaseAuthService';
 
-// Scroll to top on route change
+// Otomatis menggulirkan halaman ke atas saat rute berpindah
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -76,14 +81,14 @@ const realtimeEnabled = import.meta.env.VITE_ENABLE_REALTIME === 'true';
 function App() {
   const hasInitialized = useRef(false);
 
-  // Global Data Sync on Startup
+  // Sinkronisasi data global saat aplikasi pertama kali dijalankan
   useEffect(() => {
     if (hasInitialized.current) {
       return;
     }
     hasInitialized.current = true;
 
-    // 1. Initial background sync
+    // 1. Sinkronisasi awal di latar belakang
     refreshHomeArticles();
     refreshCategories();
     refreshSettings();
@@ -92,7 +97,7 @@ function App() {
     migrateLegacyArticleImages();
     migrateLegacyBookCovers();
     
-    // 2. ACTIVATE REAL-TIME (optional): Listen for any changes in Supabase
+    // 2. Mengaktifkan fitur real-time untuk mendengarkan perubahan data di Supabase
     const channel = realtimeEnabled
       ? supabase
           .channel('schema-db-changes')
@@ -100,9 +105,9 @@ function App() {
             'postgres_changes',
             { event: '*', schema: 'public' },
             (payload) => {
-              // React intelligently to what changed
+              // Memperbarui data lokal secara cerdas berdasarkan tabel yang berubah
               const table = payload.table;
-              console.log(`Real-time change detected in ${table}:`, payload.eventType);
+              console.log(`Perubahan real-time terdeteksi pada tabel ${table}:`, payload.eventType);
               
               if (table === 'articles') refreshHomeArticles();
               else if (['settings', 'schedules', 'achievements', 'structure'].includes(table)) refreshSettings();
@@ -110,7 +115,7 @@ function App() {
               else if (table === 'members') void refreshMembersFromSupabase();
               else if (['books', 'borrows', 'queue'].includes(table)) refreshBooks();
               
-              // Trigger global UI update
+              // Memicu pembaruan antarmuka secara global
               window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: table } }));
             }
           )
@@ -167,9 +172,24 @@ function App() {
              } />
             <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
             <Route path="layanan-rentan" element={<LayananRentan />} />
+            {/* Booking Enkapsulasi Arsip — Modul Mandiri */}
+            <Route path="booking-enkapsulasi" element={
+              SITE_CONFIG.FEATURES.ENABLE_BOOKING ? (
+                <Suspense fallback={<div className="py-20 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-200 border-t-[#1e3a5f] rounded-full animate-spin"/></div>}>
+                  <BookingPage />
+                </Suspense>
+              ) : <Navigate to="/" replace />
+            } />
+            <Route path="booking-enkapsulasi/konfirmasi-reschedule" element={
+              SITE_CONFIG.FEATURES.ENABLE_BOOKING ? (
+                <Suspense fallback={<div className="py-20 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-200 border-t-[#1e3a5f] rounded-full animate-spin"/></div>}>
+                  <RescheduleConfirm />
+                </Suspense>
+              ) : <Navigate to="/" replace />
+            } />
           </Route>
 
-          {/* Auth Routes */}
+          {/* Rute Autentikasi Anggota */}
           <Route path="/login" element={
             SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <Login /> : <Navigate to="/" replace />
           } />
@@ -193,7 +213,7 @@ function App() {
             SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <Profil /> : <Navigate to="/" replace />
           } />
 
-          {/* Admin Routes */}
+          {/* Rute Panel Admin */}
           <Route path="/admin" element={
             <Suspense fallback={
               <div className="h-screen w-full flex items-center justify-center p-6 bg-white overflow-hidden overflow-y-auto">
@@ -210,21 +230,41 @@ function App() {
             <Route path="media" element={<ManageMedia />} />
             <Route path="media/new" element={<MediaEditor />} />
             <Route path="media/edit/:id" element={<MediaEditor />} />
-            <Route path="books" element={<ManageBooks />} />
-            <Route path="books/new" element={<BookEditor />} />
-            <Route path="books/edit/:id" element={<BookEditor />} />
-            <Route path="categories" element={<ManageCategories />} />
+            <Route path="books" element={
+              SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <ManageBooks /> : <Navigate to="/admin" replace />
+            } />
+            <Route path="books/new" element={
+              SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <BookEditor /> : <Navigate to="/admin" replace />
+            } />
+            <Route path="books/edit/:id" element={
+              SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <BookEditor /> : <Navigate to="/admin" replace />
+            } />
+            <Route path="categories" element={
+              SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <ManageCategories /> : <Navigate to="/admin" replace />
+            } />
             <Route path="admins" element={<ManageAdmins />} />
-            <Route path="members" element={<ManageMembers />} />
-            <Route path="borrows" element={<ManageBorrows />} />
+            <Route path="members" element={
+              SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <ManageMembers /> : <Navigate to="/admin" replace />
+            } />
+            <Route path="borrows" element={
+              SITE_CONFIG.FEATURES.ENABLE_CATALOG ? <ManageBorrows /> : <Navigate to="/admin" replace />
+            } />
             <Route path="reports" element={<ManageReports />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="schedules" element={<ManageSchedules />} />
             <Route path="structure" element={<ManageStructure />} />
             <Route path="ppid" element={<ManagePpid />} />
+            {/* Admin Booking Enkapsulasi Arsip */}
+            <Route path="bookings" element={
+              SITE_CONFIG.FEATURES.ENABLE_BOOKING ? (
+                <Suspense fallback={<div className="h-40 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-200 border-t-[#1e3a5f] rounded-full animate-spin"/></div>}>
+                  <AdminBookings />
+                </Suspense>
+              ) : <Navigate to="/admin" replace />
+            } />
           </Route>
 
-          {/* 404 Generic Error Route */}
+          {/* Rute penanganan error 404 halaman tidak ditemukan */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

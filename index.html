@@ -4,6 +4,10 @@
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       
+      <!-- Preconnect to Google Fonts to speed up rendering -->
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      
       <!-- Primary Meta Tags -->
       <title>Disipusda Purwakarta | Perpustakaan & Kearsipan Daerah</title>
       <meta name="title" content="Disipusda Purwakarta | Perpustakaan & Kearsipan Daerah" />
@@ -25,6 +29,59 @@
       <meta property="twitter:title" content="Disipusda Purwakarta | Perpustakaan & Kearsipan Daerah" />
       <meta property="twitter:description" content="Website resmi Dinas Arsip dan Perpustakaan Daerah (Disipusda) Kabupaten Purwakarta. Jelajahi layanan perpustakaan dan kearsipan kami." />
       <meta property="twitter:image" content="/og-image.webp" />
+
+      <!-- JSON-LD Schema untuk SEO & GEO (Google, Gemini, ChatGPT, Perplexity) -->
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "GovernmentOffice",
+          "@id": "https://disipusda.purwakartakab.go.id/#organization",
+          "name": "Dinas Kearsipan dan Perpustakaan Daerah Kabupaten Purwakarta",
+          "alternateName": "Disipusda Purwakarta",
+          "url": "https://disipusda.purwakartakab.go.id/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://disipusda.purwakartakab.go.id/logo_perpus.webp"
+          },
+          "image": {
+            "@type": "ImageObject",
+            "url": "https://disipusda.purwakartakab.go.id/og-image.webp"
+          },
+          "description": "Website resmi Dinas Arsip dan Perpustakaan Daerah (Disipusda) Kabupaten Purwakarta. Layanan perpustakaan, kearsipan, galendo, diorama, dan enkapsulasi arsip secara online.",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Jl. Veteran No. 1, Komplek Perum Griya Asri, Ciseureuh",
+            "addressLocality": "Purwakarta",
+            "addressRegion": "Jawa Barat",
+            "postalCode": "41118",
+            "addressCountry": "ID"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-6.538564",
+            "longitude": "107.4435572"
+          },
+          "telephone": "+6281234567890",
+          "email": "arsip@disipusda.purwakarta.go.id",
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+              "opens": "08:00",
+              "closes": "15:30"
+            },
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": "Friday",
+              "opens": "08:00",
+              "closes": "11:30"
+            }
+          ],
+          "sameAs": [
+            "https://www.instagram.com/disipusdapwk/"
+          ]
+        }
+      </script>
 
       <link rel="icon" type="image/webp" href="/src/assets/logo/logo_perpus.webp" />
     </head>

@@ -1,22 +1,24 @@
 import { BookOpen, BarChart3, UserPlus, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 export default function Pabukon() {
-  // HARDCODE FEATURE MAP:
-  // setiap kartu punya route CTA sendiri.
-  // jika struktur menu berubah, update link di sini.
+  // Setiap kartu memiliki tujuan rute aksi (CTA) sendiri.
+  // Jika struktur menu diubah, sesuaikan tautan di bawah ini.
   const pabukonFeatures = [
-    {
-      id: 'opac',
-      title: 'Pabukon OPAC',
-      subtitle: 'Online Public Access Catalog',
-      description: 'Sarana bagi pemustaka untuk mencari koleksi yang dibutuhkan di perpustakaan secara digital dan seketika.',
-      icon: <BookOpen size={48} className="text-[#d6a54a]" />,
-      link: '/katalog',
-      color: 'from-[#0c2f3d] to-[#15465c]',
-      btnText: 'Cari Buku Sekarang'
-    },
+    ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [
+      {
+        id: 'opac',
+        title: 'Pabukon OPAC',
+        subtitle: 'Online Public Access Catalog',
+        description: 'Sarana bagi pemustaka untuk mencari koleksi yang dibutuhkan di perpustakaan secara digital dan seketika.',
+        icon: <BookOpen size={48} className="text-[#d6a54a]" />,
+        link: '/katalog',
+        color: 'from-[#0c2f3d] to-[#15465c]',
+        btnText: 'Cari Buku Sekarang'
+      }
+    ] : []),
     {
       id: 'statistik',
       title: 'Pabukon Statistik',
@@ -30,22 +32,24 @@ export default function Pabukon() {
       btnBg: 'bg-white text-[#0c2f3d] border border-[#0c2f3d]',
       btnText: 'Lihat Statistik'
     },
-    {
-      id: 'daftar',
-      title: 'Pabukon Daftar',
-      subtitle: 'Registrasi Anggota Online',
-      description: 'Layanan pendaftaran keanggotaan perpustakaan secara online yang cepat, mudah, dan terintegrasi.',
-      icon: <UserPlus size={48} className="text-white" />,
-      link: '/register',
-      color: 'from-[#d6a54a] to-[#c09440]',
-      btnBg: 'bg-white text-[#d6a54a]',
-      btnText: 'Daftar Anggota'
-    }
+    ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [
+      {
+        id: 'daftar',
+        title: 'Pabukon Daftar',
+        subtitle: 'Registrasi Anggota Online',
+        description: 'Layanan pendaftaran keanggotaan perpustakaan secara online yang cepat, mudah, dan terintegrasi.',
+        icon: <UserPlus size={48} className="text-white" />,
+        link: '/register',
+        color: 'from-[#d6a54a] to-[#c09440]',
+        btnBg: 'bg-white text-[#d6a54a]',
+        btnText: 'Daftar Anggota'
+      }
+    ] : [])
   ];
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-24">
-      {/* Header Section */}
+      {/* Bagian Judul dan Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -75,7 +79,7 @@ export default function Pabukon() {
         </motion.p>
       </div>
 
-      {/* Cards Section */}
+      {/* Bagian Daftar Kartu Layanan */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {pabukonFeatures.map((feature, index) => (
@@ -86,7 +90,7 @@ export default function Pabukon() {
               transition={{ delay: 0.3 + (index * 0.1) }}
               className={`relative overflow-hidden rounded-3xl p-8 shadow-xl bg-gradient-to-br ${feature.color} flex flex-col h-full group hover:-translate-y-2 transition-transform duration-300`}
             >
-              {/* Background Decoration */}
+              {/* Dekorasi Latar Belakang Kartu */}
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
               
               <div className="relative z-10 flex-grow">

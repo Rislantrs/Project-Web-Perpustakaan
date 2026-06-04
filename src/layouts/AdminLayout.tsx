@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, Navigate, useNavigate } from 'react-router';
 import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags, ChevronDown } from 'lucide-react';
 import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -29,8 +30,10 @@ export default function AdminLayout() {
       id: 'konten',
       title: 'Konten & Koleksi',
       items: [
-        { name: 'Kelola Buku', path: '/admin/books', icon: <BookOpen size={20} /> },
-        { name: 'Kelola Kategori', path: '/admin/categories', icon: <Tags size={20} /> },
+        ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [
+          { name: 'Kelola Buku', path: '/admin/books', icon: <BookOpen size={20} /> },
+          { name: 'Kelola Kategori', path: '/admin/categories', icon: <Tags size={20} /> },
+        ] : []),
         { name: 'Semua Artikel', path: '/admin/articles', icon: <FileText size={20} /> },
         { name: 'Tulis Artikel', path: '/admin/articles/new', icon: <FilePlus size={20} /> },
         { name: 'Kelola Media', path: '/admin/media', icon: <ImageIcon size={20} /> },
@@ -40,8 +43,10 @@ export default function AdminLayout() {
       id: 'layanan',
       title: 'Layanan & Publik',
       items: [
-        { name: 'Konfirmasi Ambil', path: '/admin/borrows', icon: <LucideHistory size={20} /> },
-        { name: 'Kelola Member', path: '/admin/members', icon: <Users size={20} /> },
+        ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [
+          { name: 'Konfirmasi Ambil', path: '/admin/borrows', icon: <LucideHistory size={20} /> },
+          { name: 'Kelola Member', path: '/admin/members', icon: <Users size={20} /> },
+        ] : []),
         { name: 'Jadwal Layanan', path: '/admin/schedules', icon: <Clock size={20} /> },
         { name: 'Kelola PPID', path: '/admin/ppid', icon: <FileText size={20} /> },
         { name: 'Laporan Warga', path: '/admin/reports', icon: <MessageSquare size={20} /> },
@@ -64,7 +69,7 @@ export default function AdminLayout() {
   return (
     <div className="flex h-screen bg-brand-light overflow-hidden font-sans">
       
-      {/* Sidebar */}
+      {/* Sidebar navigasi panel admin */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col hide-scrollbar">
         <div className="h-16 flex items-center px-6 border-b border-gray-100">
           <h1 className="font-bold text-xl text-brand-primary">Perpus<span className="text-brand-accent">Admin</span></h1>
@@ -131,7 +136,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Konten utama halaman dashboard admin */}
       <main className="flex-1 overflow-y-auto bg-brand-light">
         <div className="p-8 max-w-5xl mx-auto">
           <Outlet />

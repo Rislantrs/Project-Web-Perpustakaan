@@ -1,0 +1,31 @@
+# Robots.txt untuk Disipusda Purwakarta
+# Dioptimalkan untuk SEO (Search Engine) dan GEO (Generative Engine / AI Crawlers)
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /login/
+Disallow: /register/
+
+# Mengizinkan AI crawler Google (Gemini)
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+
+# Mengizinkan ChatGPT / OpenAI
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+
+# Mengizinkan Claude / Anthropic
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+
+# Mengizinkan Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin/
+
+# Link ke Sitemap web jika sudah ada (silakan sesuaikan domainnya)
+Sitemap: https://disipusda.purwakartakab.go.id/sitemap.xml

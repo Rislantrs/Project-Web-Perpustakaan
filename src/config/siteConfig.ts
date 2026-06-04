@@ -67,7 +67,8 @@ export const SITE_CONFIG = {
       subLinks: [
         { name: 'Kearsipan', path: '/kearsipan' },
         { name: 'Perpustakaan', path: '/perpustakaan' },
-        { name: 'Bale Panyawangan', path: '/bale-panyawangan' }
+        { name: 'Bale Panyawangan', path: '/bale-panyawangan' },
+        { name: 'Booking Enkapsulasi Arsip', path: '/booking-enkapsulasi' }
       ]
     },
     { name: 'Katalog Buku', path: '/katalog' },
@@ -120,5 +121,10 @@ export const SITE_CONFIG = {
     
     // Jika true: Menampilkan Kartu Anggota Digital ber-QR Code di halaman Profil.
     SHOW_DIGITAL_CARD: false,
+
+    // Jika true: Mengaktifkan modul Booking Layanan Enkapsulasi Arsip.
+    // Set false untuk menonaktifkan tanpa menghapus kode.
+    // Dikontrol juga via env: VITE_ENABLE_BOOKING
+    ENABLE_BOOKING: import.meta.env.VITE_ENABLE_BOOKING !== 'false',
   }
 };

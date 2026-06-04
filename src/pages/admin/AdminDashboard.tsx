@@ -5,6 +5,7 @@ import { getMembers } from '../../services/authService';
 import { refreshMembersFromSupabase } from '../../services/supabaseAuthService';
 import { FileText, TrendingUp, Users, BookOpen, Clock, History as LucideHistory } from 'lucide-react';
 import { Link } from 'react-router';
+import { SITE_CONFIG } from '../../config/siteConfig';
 
 export default function AdminDashboard() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -34,8 +35,10 @@ export default function AdminDashboard() {
   const stats = [
     { title: 'Total Artikel', value: articles.length, icon: <FileText size={24} className="text-blue-500" />, bg: 'bg-blue-50' },
     { title: 'Total Pembaca', value: articles.reduce((acc, curr) => acc + (curr.views || 0), 0), icon: <TrendingUp size={24} className="text-orange-500" />, bg: 'bg-orange-50' },
-    { title: 'Peminjaman Aktif', value: activeBorrows, icon: <LucideHistory size={24} className="text-emerald-500" />, bg: 'bg-emerald-50' },
-    { title: 'Total Anggota', value: membersCount, icon: <Users size={24} className="text-purple-500" />, bg: 'bg-purple-50' },
+    ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [
+      { title: 'Peminjaman Aktif', value: activeBorrows, icon: <LucideHistory size={24} className="text-emerald-500" />, bg: 'bg-emerald-50' },
+      { title: 'Total Anggota', value: membersCount, icon: <Users size={24} className="text-purple-500" />, bg: 'bg-purple-50' },
+    ] : []),
   ];
 
   return (
@@ -60,7 +63,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Articles */}
+        {/* Artikel Terbaru */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><FileText size={20} className="text-gray-400" /> Artikel Terbaru</h2>
@@ -85,7 +88,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Most Viewed Articles */}
+        {/* Artikel Terpopuler */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><TrendingUp size={20} className="text-orange-400" /> Artikel Terpopuler</h2>

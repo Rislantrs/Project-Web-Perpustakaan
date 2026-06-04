@@ -1,0 +1,391 @@
+// @ts-nocheck – Deno runtime (Supabase Edge Function), bukan Node.js.
+// Webhook untuk Telegram Bot — menangani callback_data dari inline keyboard.
+// Register URL ini ke Telegram via:
+//   POST https://api.telegram.org/bot{TOKEN}/setWebhook
+//     { url: "{SUPABASE_FUNCTIONS_URL}/telegram-webhook",
+//       secret_token: "{TELEGRAM_WEBHOOK_SECRET}" }
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+interface TelegramUser {
+  id: number;
+  first_name: string;
+  username?: string;
+}
+
+interface TelegramMessage {
+  message_id: number;
+  chat: { id: number; type: string };
+  text?: string;
+}
+
+interface TelegramCallbackQuery {
+  id: string;
+  from: TelegramUser;
+  message?: TelegramMessage;
+  data?: string;
+}
+
+interface TelegramUpdate {
+  update_id: number;
+  callback_query?: TelegramCallbackQuery;
+  message?: TelegramMessage & { from?: TelegramUser };
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+const tgPost = async (
+  token: string,
+  method: string,
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> => {
+  const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return res.json().catch(() => ({}));
+};
+
+/** Answer a callback query so Telegram stops the loading spinner. */
+const answerCallback = (
+  token: string,
+  callbackQueryId: string,
+  text: string,
+  showAlert = false,
+) =>
+  tgPost(token, 'answerCallbackQuery', {
+    callback_query_id: callbackQueryId,
+    text,
+    show_alert: showAlert,
+  });
+
+/** Remove inline keyboard buttons from the original message. */
+const removeButtons = (
+  token: string,
+  chatId: number,
+  messageId: number,
+) =>
+  tgPost(token, 'editMessageReplyMarkup', {
+    chat_id: chatId,
+    message_id: messageId,
+    reply_markup: { inline_keyboard: [] },
+  });
+
+/** Send a plain text message to a Telegram chat. */
+const sendMessage = (
+  token: string,
+  chatId: number,
+  text: string,
+  parseMode: 'MarkdownV2' | 'HTML' | '' = 'HTML',
+) =>
+  tgPost(token, 'sendMessage', {
+    chat_id: chatId,
+    text,
+    parse_mode: parseMode || undefined,
+  });
+
+/** Escape MarkdownV2 special characters. */
+const escMd = (text: string): string =>
+  text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+
+/** Call the booking-status-change edge function to trigger email. */
+const triggerStatusChange = async (
+  supabaseFunctionsUrl: string,
+  serviceRoleKey: string,
+  bookingId: string,
+  status: string,
+  note?: string,
+): Promise<void> => {
+  await fetch(`${supabaseFunctionsUrl}/booking-status-change`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${serviceRoleKey}`,
+    },
+    body: JSON.stringify({ booking_id: bookingId, status, note }),
+  }).catch(() => undefined);
+};
+
+// ---------------------------------------------------------------------------
+// Booking action handlers
+// ---------------------------------------------------------------------------
+const handleApprove = async (
+  bookingId: string,
+  supabase: ReturnType<typeof createClient>,
+  token: string,
+  callbackQuery: TelegramCallbackQuery,
+  supabaseFunctionsUrl: string,
+  serviceRoleKey: string,
+  siteUrl: string,
+): Promise<void> => {
+  // 1. Update booking status in DB
+  const { data: booking, error } = await supabase
+    .from('bookings')
+    .update({ status: 'approved', updated_at: new Date().toISOString() })
+    .eq('id', bookingId)
+    .select('nama_lengkap, tanggal_booking, email')
+    .single();
+
+  if (error || !booking) {
+    await answerCallback(token, callbackQuery.id, '⚠️ Gagal: booking tidak ditemukan.', true);
+    return;
+  }
+
+  // 2. Answer callback & remove buttons
+  await Promise.all([
+    answerCallback(token, callbackQuery.id, '✅ Booking telah disetujui!'),
+    callbackQuery.message
+      ? removeButtons(token, callbackQuery.message.chat.id, callbackQuery.message.message_id)
+      : Promise.resolve(),
+  ]);
+
+  // 3. Send confirmation message in chat
+  const nama = escMd(String(booking.nama_lengkap || bookingId));
+  const tanggal = escMd(
+    new Date(booking.tanggal_booking).toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }),
+  );
+
+  if (callbackQuery.message) {
+    await sendMessage(
+      token,
+      callbackQuery.message.chat.id,
+      [
+        `✅ <b>BOOKING DISETUJUI</b>`,
+        ``,
+        `👤 Nama: <b>${String(booking.nama_lengkap || bookingId)}</b>`,
+        `📅 Tanggal: <b>${new Date(booking.tanggal_booking).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</b>`,
+        `📧 Email: ${String(booking.email || '-')}`,
+        ``,
+        `📨 Email konfirmasi telah dikirim ke pemohon.`,
+        `🔗 <a href="${siteUrl}/admin/bookings">Lihat Dashboard</a>`,
+      ].join('\n'),
+      'HTML',
+    );
+  }
+
+  // 4. Trigger email notification
+  await triggerStatusChange(supabaseFunctionsUrl, serviceRoleKey, bookingId, 'approved');
+};
+
+const handleReject = async (
+  bookingId: string,
+  supabase: ReturnType<typeof createClient>,
+  token: string,
+  callbackQuery: TelegramCallbackQuery,
+  supabaseFunctionsUrl: string,
+  serviceRoleKey: string,
+): Promise<void> => {
+  const defaultNote = 'Ditolak via Telegram oleh admin.';
+
+  // 1. Update booking status
+  const { data: booking, error } = await supabase
+    .from('bookings')
+    .update({
+      status: 'rejected',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', bookingId)
+    .select('nama_lengkap, email')
+    .single();
+
+  if (error || !booking) {
+    await answerCallback(token, callbackQuery.id, '⚠️ Gagal: booking tidak ditemukan.', true);
+    return;
+  }
+
+  // 2. Answer callback & remove buttons
+  await Promise.all([
+    answerCallback(token, callbackQuery.id, '❌ Booking telah ditolak.'),
+    callbackQuery.message
+      ? removeButtons(token, callbackQuery.message.chat.id, callbackQuery.message.message_id)
+      : Promise.resolve(),
+  ]);
+
+  // 3. Notify in chat
+  if (callbackQuery.message) {
+    await sendMessage(
+      token,
+      callbackQuery.message.chat.id,
+      [
+        `❌ <b>BOOKING DITOLAK</b>`,
+        ``,
+        `👤 Nama: <b>${String(booking.nama_lengkap || bookingId)}</b>`,
+        `📧 Email: ${String(booking.email || '-')}`,
+        ``,
+        `📝 Keterangan: ${defaultNote}`,
+        `📨 Email notifikasi telah dikirim ke pemohon.`,
+        ``,
+        `<i>💡 Untuk penolakan dengan alasan kustom, gunakan dashboard admin.</i>`,
+      ].join('\n'),
+      'HTML',
+    );
+  }
+
+  // 4. Trigger email
+  await triggerStatusChange(
+    supabaseFunctionsUrl,
+    serviceRoleKey,
+    bookingId,
+    'rejected',
+    defaultNote,
+  );
+};
+
+const handleReschedule = async (
+  bookingId: string,
+  token: string,
+  callbackQuery: TelegramCallbackQuery,
+  siteUrl: string,
+): Promise<void> => {
+  // Jadwal ulang tidak bisa dilakukan sepenuhnya via bot karena butuh input tanggal baru.
+  // Arahkan admin ke dashboard.
+  await answerCallback(
+    token,
+    callbackQuery.id,
+    '📅 Gunakan dashboard admin untuk menjadwal ulang.',
+    true,
+  );
+
+  if (callbackQuery.message) {
+    await sendMessage(
+      token,
+      callbackQuery.message.chat.id,
+      [
+        `📅 <b>JADWAL ULANG</b>`,
+        ``,
+        `Untuk mengusulkan jadwal baru, silakan gunakan dashboard admin:`,
+        `🔗 <a href="${siteUrl}/admin/bookings">${siteUrl}/admin/bookings</a>`,
+        ``,
+        `<i>ID Booking: ${bookingId.slice(0, 8)}</i>`,
+      ].join('\n'),
+      'HTML',
+    );
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Main handler
+// ---------------------------------------------------------------------------
+Deno.serve(async (req) => {
+  // Only accept POST from Telegram
+  if (req.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  // --- env ---
+  const telegramToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
+  const webhookSecret = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://disipusda.purwakartakab.go.id';
+
+  if (!telegramToken || !supabaseUrl || !serviceRoleKey) {
+    console.error('Missing env vars: TELEGRAM_BOT_TOKEN | SUPABASE_URL | SUPABASE_SERVICE_ROLE_KEY');
+    return new Response('Internal configuration error', { status: 500 });
+  }
+
+  // --- verify secret token ---
+  if (webhookSecret) {
+    const providedSecret = req.headers.get('X-Telegram-Bot-Api-Secret-Token');
+    if (providedSecret !== webhookSecret) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+  }
+
+  // --- parse update ---
+  const update = await req.json().catch(() => null) as TelegramUpdate | null;
+  if (!update) {
+    return new Response('Bad Request: invalid JSON', { status: 400 });
+  }
+
+  // Build supabase functions URL from SUPABASE_URL
+  // Typically: https://{project-ref}.supabase.co → https://{project-ref}.functions.supabase.co
+  // But the recommended approach is to use the /functions/v1/ path on the same URL.
+  const supabaseFunctionsUrl = `${supabaseUrl}/functions/v1`;
+
+  // --- init supabase admin client ---
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  // --- handle callback_query ---
+  if (update.callback_query) {
+    const cq = update.callback_query;
+    const data = cq.data || '';
+
+    // Parse action and booking ID
+    // Expected format: approve_{uuid} | reject_{uuid} | reschedule_{uuid}
+    const approveMatch = data.match(/^approve_(.+)$/);
+    const rejectMatch = data.match(/^reject_(.+)$/);
+    const rescheduleMatch = data.match(/^reschedule_(.+)$/);
+
+    if (approveMatch) {
+      const bookingId = approveMatch[1];
+      await handleApprove(
+        bookingId,
+        supabase,
+        telegramToken,
+        cq,
+        supabaseFunctionsUrl,
+        serviceRoleKey,
+        siteUrl,
+      );
+    } else if (rejectMatch) {
+      const bookingId = rejectMatch[1];
+      await handleReject(bookingId, supabase, telegramToken, cq, supabaseFunctionsUrl, serviceRoleKey);
+    } else if (rescheduleMatch) {
+      const bookingId = rescheduleMatch[1];
+      await handleReschedule(bookingId, telegramToken, cq, siteUrl);
+    } else {
+      // Unknown callback — just answer to clear spinner
+      await answerCallback(telegramToken, cq.id, '⚠️ Aksi tidak dikenal.');
+    }
+
+    // Always return 200 to Telegram to acknowledge receipt
+    return new Response('OK', { status: 200 });
+  }
+
+  // --- handle regular messages (optional: command routing) ---
+  if (update.message?.text) {
+    const chatId = update.message.chat.id;
+    const text = update.message.text;
+
+    if (text === '/start' || text === '/help') {
+      await sendMessage(
+        telegramToken,
+        chatId,
+        [
+          `🤖 <b>Bot Disipusda Purwakarta</b>`,
+          ``,
+          `Bot ini mengirimkan notifikasi booking enkapsulasi arsip.`,
+          ``,
+          `Perintah tersedia:`,
+          `• /start - Tampilkan pesan ini`,
+          `• /status - Cek koneksi bot`,
+          ``,
+          `🔗 <a href="${siteUrl}/admin/bookings">Buka Dashboard Admin</a>`,
+        ].join('\n'),
+        'HTML',
+      );
+    } else if (text === '/status') {
+      await sendMessage(
+        telegramToken,
+        chatId,
+        '✅ Bot aktif dan berjalan dengan normal.',
+        'HTML',
+      );
+    }
+  }
+
+  return new Response('OK', { status: 200 });
+});
