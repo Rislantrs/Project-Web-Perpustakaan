@@ -1,7 +1,7 @@
 import { User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
-import { getStructure, type StructureNode } from '../services/settingsService';
+import { getStructure, syncStructure, type StructureNode } from '../services/settingsService';
 import { getInitials } from '../services/authService';
 
 // Catatan maintenance:
@@ -48,6 +48,13 @@ export default function StrukturOrganisasi() {
     // Bootstrap data struktur dari cache/service.
     const data = getStructure();
     setNodes(data);
+
+    // Sinkronisasi data dari Supabase di latar belakang
+    syncStructure().then((cloudData) => {
+      if (cloudData && cloudData.length > 0) {
+        setNodes(cloudData);
+      }
+    });
   }, []);
 
   const getByCategory = (cat: string) => {

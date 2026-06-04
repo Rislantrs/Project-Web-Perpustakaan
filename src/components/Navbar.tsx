@@ -62,7 +62,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" />
+            <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" width="167" height="56" />
           </Link>
 
           {/* Desktop Menu */}

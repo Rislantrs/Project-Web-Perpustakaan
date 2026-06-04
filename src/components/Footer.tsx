@@ -24,7 +24,7 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="col-span-1">
             <div className="mb-6">
-              <img src={logo} alt="Logo Disipusda" className="h-16 w-auto object-contain" />
+              <img src={logo} alt="Logo Disipusda" className="h-16 w-auto object-contain" width="191" height="64" />
             </div>
             <h3 className="font-serif text-2xl font-bold text-brand-accent mb-4">{settings.namaInstansi}</h3>
             <p className="text-gray-400 text-sm leading-relaxed mb-8">

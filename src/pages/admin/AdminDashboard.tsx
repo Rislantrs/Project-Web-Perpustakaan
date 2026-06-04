@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getArticles, Article } from '../../services/dataService';
-import { getBooks, getAllBorrows, BorrowRecord } from '../../services/bookService';
+import { getArticles, Article, migrateLegacyArticleImages } from '../../services/dataService';
+import { getBooks, getAllBorrows, BorrowRecord, migrateLegacyBookCovers } from '../../services/bookService';
 import { getMembers } from '../../services/authService';
 import { refreshMembersFromSupabase } from '../../services/supabaseAuthService';
 import { FileText, TrendingUp, Users, BookOpen, Clock, History as LucideHistory } from 'lucide-react';
@@ -28,6 +28,10 @@ export default function AdminDashboard() {
       setMembersCount((members || getMembers()).length);
       // Catatan: sorting by id diasumsikan mengikuti urutan waktu pembuatan record.
       setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
+
+      // Jalankan migrasi legacy (base64 -> Supabase Storage URL) di latar belakang hanya untuk admin
+      void migrateLegacyArticleImages();
+      void migrateLegacyBookCovers();
     };
     void run();
   }, []);

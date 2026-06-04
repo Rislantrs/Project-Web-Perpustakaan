@@ -5,7 +5,7 @@ import libIndoor from '../assets/image/lib-indoor.webp';
 
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
-import { getAchievements, type Achievement } from '../services/settingsService';
+import { getAchievements, syncAchievements, type Achievement } from '../services/settingsService';
 
 
 // HARDCODE FALLBACK DATA:
@@ -41,6 +41,13 @@ export default function Prestasi() {
   useEffect(() => {
     const data = getAchievements();
     setItems(data);
+
+    // Sinkronisasi data dari Supabase di latar belakang
+    syncAchievements().then((cloudData) => {
+      if (cloudData && cloudData.length > 0) {
+        setItems(cloudData);
+      }
+    });
   }, []);
 
   const displayList = items.length > 0 ? items : prestasiList.map((d, i) => ({

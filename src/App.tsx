@@ -60,9 +60,9 @@ const BookingPage = lazy(() => import('./modules/booking/pages/BookingPage'));
 const RescheduleConfirm = lazy(() => import('./modules/booking/pages/RescheduleConfirm'));
 const AdminBookings = lazy(() => import('./modules/booking/pages/admin/AdminBookings'));
 
-import { refreshHomeArticles, migrateLegacyArticleImages, refreshCategories } from './services/dataService';
+import { refreshHomeArticles, refreshCategories } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
-import { refreshBooks, migrateLegacyBookCovers } from './services/bookService';
+import { refreshBooks } from './services/bookService';
 import { refreshMembersFromSupabase } from './services/supabaseAuthService';
 
 // Otomatis menggulirkan halaman ke atas saat rute berpindah
@@ -88,14 +88,14 @@ function App() {
     }
     hasInitialized.current = true;
 
-    // 1. Sinkronisasi awal di latar belakang
-    refreshHomeArticles();
-    refreshCategories();
-    refreshSettings();
-    refreshBooks();
-    void refreshMembersFromSupabase();
-    migrateLegacyArticleImages();
-    migrateLegacyBookCovers();
+    // 1. Sinkronisasi awal di latar belakang (diberi jeda agar tidak mengganggu rendering awal)
+    const timer = setTimeout(() => {
+      refreshHomeArticles();
+      refreshCategories();
+      refreshSettings();
+      refreshBooks();
+      void refreshMembersFromSupabase();
+    }, 200);
     
     // 2. Mengaktifkan fitur real-time untuk mendengarkan perubahan data di Supabase
     const channel = realtimeEnabled
@@ -123,6 +123,7 @@ function App() {
       : null;
 
     return () => {
+      clearTimeout(timer);
       if (channel) {
         supabase.removeChannel(channel);
       }

@@ -64,11 +64,9 @@ export interface StructureNode {
   img?: string;
 }
 
-// --- SYNC ENGINE ---
 export const refreshSettings = async () => {
-  // Sinkronisasi semua domain settings secara paralel.
+  // Sinkronisasi domain settings umum secara paralel.
   // Pakai allSettled agar satu domain gagal tidak memblok domain lain.
-  // Jalankan semua sync secara paralel agar tidak saling menunggu (waterfall)
   await Promise.allSettled([
     // 1. Sync Settings
     (async () => {
@@ -83,20 +81,35 @@ export const refreshSettings = async () => {
     (async () => {
       const { data } = await supabase.from('schedules').select('*');
       if (data && data.length > 0) dbSave(DB_KEYS.SCHEDULES, data);
-    })(),
-
-    // 3. Sync Achievements
-    (async () => {
-      const { data } = await supabase.from('achievements').select('*');
-      if (data && data.length > 0) dbSave(DB_KEYS.ACHIEVEMENTS, data);
-    })(),
-
-    // 4. Sync Structure
-    (async () => {
-      const { data } = await supabase.from('structure').select('*');
-      if (data && data.length > 0) dbSave(DB_KEYS.STRUCTURE, data);
     })()
   ]);
+};
+
+// Standalone sync functions called on-demand on their respective pages
+export const syncAchievements = async (): Promise<Achievement[]> => {
+  try {
+    const { data } = await supabase.from('achievements').select('*');
+    if (data && data.length > 0) {
+      dbSave(DB_KEYS.ACHIEVEMENTS, data);
+      return data;
+    }
+  } catch (err) {
+    console.error('Failed to sync achievements:', err);
+  }
+  return getAchievements();
+};
+
+export const syncStructure = async (): Promise<StructureNode[]> => {
+  try {
+    const { data } = await supabase.from('structure').select('*');
+    if (data && data.length > 0) {
+      dbSave(DB_KEYS.STRUCTURE, data);
+      return data;
+    }
+  } catch (err) {
+    console.error('Failed to sync structure:', err);
+  }
+  return getStructure();
 };
 
 // Helper to filter object keys
