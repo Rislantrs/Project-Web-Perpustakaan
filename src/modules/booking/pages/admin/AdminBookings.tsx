@@ -280,6 +280,7 @@ export default function AdminBookings() {
 
   // ── Modal form state ──────────────────────────────────────────────────────
   const [modalNote,    setModalNote]    = useState('');
+  const [approvedDocs, setApprovedDocs] = useState<number>(0);
   const [rejectReason, setRejectReason] = useState('');
   const [reschedDate,  setReschedDate]  = useState('');
   const [reschedNote,  setReschedNote]  = useState('');
@@ -346,6 +347,7 @@ export default function AdminBookings() {
     setRejectReason('');
     setReschedDate('');
     setReschedNote('');
+    setApprovedDocs(booking.jumlah_dokumen);
   };
 
   const closeModal = () => {
@@ -364,8 +366,15 @@ export default function AdminBookings() {
 
   const handleApprove = async () => {
     if (!modal.booking) return;
+    if (approvedDocs <= 0) {
+      toast.error('Jumlah dokumen yang disetujui harus lebih dari 0.');
+      return;
+    }
     setIsSubmitting(true);
-    const res = await bookingService.updateBookingStatus(modal.booking.id, 'approved', { note: modalNote || undefined });
+    const res = await bookingService.updateBookingStatus(modal.booking.id, 'approved', {
+      note: modalNote || undefined,
+      jumlah_dokumen: approvedDocs !== modal.booking.jumlah_dokumen ? approvedDocs : undefined,
+    });
     setIsSubmitting(false);
     if (res.success) {
       toast.success('Booking berhasil disetujui.');
@@ -915,6 +924,25 @@ export default function AdminBookings() {
                 </button>
               </div>
               <BookingSummary booking={modal.booking} />
+              
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Jumlah Dokumen yang Disetujui
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={approvedDocs}
+                  onChange={(e) => setApprovedDocs(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 outline-none"
+                />
+                {approvedDocs !== modal.booking.jumlah_dokumen && (
+                  <p className="mt-1.5 text-xs text-amber-600 font-medium">
+                    ⚠️ Jumlah dokumen disesuaikan dari <strong>{modal.booking.jumlah_dokumen}</strong> menjadi <strong>{approvedDocs}</strong>.
+                  </p>
+                )}
+              </div>
+
               <div className="mt-4">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   Catatan / Keterangan <span className="text-gray-400 font-normal">(opsional)</span>
