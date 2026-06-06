@@ -1,4 +1,4 @@
-import { ChevronRight, Award, Star, Trophy } from 'lucide-react';
+import { ChevronRight, Award, Star, Trophy, Search, X } from 'lucide-react';
 import libHero from '../assets/image/lib-hero.webp';
 import libTeam from '../assets/image/lib-team.webp';
 import libIndoor from '../assets/image/lib-indoor.webp';
@@ -37,6 +37,9 @@ const prestasiList = [
 
 export default function Prestasi() {
   const [items, setItems] = useState<Achievement[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedYear, setSelectedYear] = useState('Semua');
+  const [selectedItem, setSelectedItem] = useState<Achievement | null>(null);
   
   useEffect(() => {
     const data = getAchievements();
@@ -58,6 +61,17 @@ export default function Prestasi() {
     img: d.img
   }));
 
+  // Ambil daftar tahun unik dari data prestasi secara dinamis
+  const years = ['Semua', ...Array.from(new Set(displayList.map(item => item.year))).sort((a, b) => b.localeCompare(a))];
+
+  // Filter berdasarkan tahun dan pencarian
+  const filteredItems = displayList.filter(item => {
+    const matchesYear = selectedYear === 'Semua' || item.year === selectedYear;
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesYear && matchesSearch;
+  });
+
   return (
     <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,45 +86,147 @@ export default function Prestasi() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-16">
-          <Award size={48} className="mx-auto text-[#d6a54a] mb-6" />
+        <div className="text-center mb-12">
+          <Award size={48} className="mx-auto text-[#d6a54a] mb-6 animate-pulse" />
           <h1 className="font-serif text-4xl lg:text-5xl font-bold text-[#0c2f3d] mb-4">Prestasi & Penghargaan</h1>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg pt-4 border-t border-gray-200 font-medium">
             Bukti nyata dedikasi kami dalam mewujudkan pelayanan kearsipan dan perpustakaan terbaik bagi masyarakat Purwakarta dan Indonesia.
           </p>
         </div>
 
-        {/* List of Awards */}
-        <div className="space-y-12">
-          {displayList.map((item, index) => (
-            <div key={item.id} className="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100 flex flex-col md:flex-row group transition-all hover:shadow-2xl hover:border-[#d6a54a]/30">
-              {/* Image side */}
-              <div className="w-full md:w-2/5 h-64 md:h-auto overflow-hidden relative bg-gray-50 flex items-center justify-center">
-                 {item.img ? (
-                    <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                 ) : (
-                    <Trophy size={64} className="text-gray-200" />
-                 )}
-                 <div className="absolute top-6 left-6 bg-[#0c2f3d] text-[#d6a54a] px-5 py-2 rounded-2xl font-black text-sm flex items-center gap-2 shadow-2xl z-10 border border-white/10">
-                   <Star size={16} fill="currentColor" /> {item.year}
-                 </div>
-              </div>
-              
-              {/* Text side */}
-              <div className="w-full md:w-3/5 p-8 md:p-16 flex flex-col justify-center">
-                 <p className="text-[10px] font-black text-[#d6a54a] uppercase tracking-[0.3em] mb-4">Disipusda Achievement</p>
-                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-[#0c2f3d] mb-6 leading-tight group-hover:text-[#d6a54a] transition-colors">
-                   {item.title}
-                 </h2>
-                 <p className="text-gray-500 leading-relaxed text-lg font-medium">
-                   {item.description}
-                 </p>
-              </div>
-            </div>
-          ))}
+        {/* Search & Filter Section */}
+        <div className="mb-12">
+          {/* Search Input */}
+          <div className="max-w-md mx-auto mb-6 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Cari prestasi..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white border border-gray-200 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0c2f3d]/15 focus:border-[#0c2f3d] transition-all font-medium shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Year Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
+            {years.map(year => (
+              <button
+                key={year}
+                onClick={() => setSelectedYear(year)}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+                  selectedYear === year
+                    ? 'bg-[#0c2f3d] text-[#d6a54a] shadow-md shadow-[#0c2f3d]/15 scale-105'
+                    : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200 hover:text-gray-800'
+                }`}
+              >
+                {year === 'Semua' ? 'Semua Tahun' : year}
+              </button>
+            ))}
+          </div>
         </div>
 
+        {/* List of Awards Grid */}
+        {filteredItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredItems.map((item) => (
+              <div 
+                key={item.id} 
+                onClick={() => setSelectedItem(item)}
+                className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100/80 flex flex-col group transition-all duration-300 hover:shadow-2xl hover:border-[#d6a54a]/30 hover:-translate-y-2 cursor-pointer"
+              >
+                {/* Image side */}
+                <div className="w-full aspect-[4/3] overflow-hidden relative bg-gray-50 flex items-center justify-center">
+                  {item.img ? (
+                    <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                      <Trophy size={48} className="transition-transform duration-500 group-hover:scale-110" />
+                    </div>
+                  )}
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-[#0c2f3d] px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm border border-gray-100">
+                    <Star size={12} fill="#d6a54a" className="text-[#d6a54a]" /> {item.year}
+                  </div>
+                </div>
+                
+                {/* Text side */}
+                <div className="p-6 flex flex-col flex-grow">
+                  <p className="text-[9px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2">Disipusda Achievement</p>
+                  <h2 className="font-serif text-lg font-bold text-[#0c2f3d] mb-3 leading-snug line-clamp-2 group-hover:text-[#d6a54a] transition-colors">
+                    {item.title}
+                  </h2>
+                  <p className="text-gray-500 leading-relaxed text-xs font-medium line-clamp-3 mb-4 flex-grow">
+                    {item.description}
+                  </p>
+                  <div className="flex items-center text-xs font-bold text-[#0c2f3d] group-hover:text-[#d6a54a] transition-colors mt-auto pt-2 border-t border-gray-50">
+                    Lihat Detail <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Empty State */
+          <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-md mx-auto">
+            <Trophy size={48} className="mx-auto text-gray-300 mb-4" />
+            <h3 className="text-lg font-bold text-[#0c2f3d] mb-1">Tidak Ada Hasil</h3>
+            <p className="text-gray-500 text-sm px-6">
+              Tidak ada prestasi yang cocok dengan kata kunci pencarian atau filter tahun Anda.
+            </p>
+          </div>
+        )}
+
       </div>
+
+      {/* Modal Lightbox Detail */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+          {/* Backdrop click to close */}
+          <div className="absolute inset-0" onClick={() => setSelectedItem(null)} />
+
+          {/* Modal Container */}
+          <div className="relative bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] z-10 animate-in fade-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedItem(null)}
+              className="absolute top-4 right-4 p-2 bg-white/90 hover:bg-white text-gray-500 hover:text-gray-800 rounded-full shadow-md z-20 transition-all border border-gray-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Image section */}
+            <div className="w-full aspect-video bg-gray-900 relative flex items-center justify-center overflow-hidden">
+              {selectedItem.img ? (
+                <img src={selectedItem.img} alt={selectedItem.title} className="w-full h-full object-contain" />
+              ) : (
+                <Trophy size={80} className="text-white/20" />
+              )}
+              <div className="absolute bottom-4 left-4 bg-[#0c2f3d] text-[#d6a54a] px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/10">
+                <Star size={12} fill="currentColor" /> {selectedItem.year}
+              </div>
+            </div>
+
+            {/* Description content */}
+            <div className="p-6 md:p-8 overflow-y-auto flex-grow">
+              <p className="text-[10px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2">Disipusda Achievement</p>
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#0c2f3d] mb-4 leading-tight">
+                {selectedItem.title}
+              </h2>
+              <p className="text-gray-600 leading-relaxed text-sm md:text-base font-medium whitespace-pre-line">
+                {selectedItem.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
