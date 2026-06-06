@@ -438,6 +438,7 @@ Deno.serve(async (req) => {
   const resendApiKey = Deno.env.get('RESEND_API_KEY');
   const emailDomain = Deno.env.get('EMAIL_DOMAIN') || 'lann.codes';
   const siteUrl = Deno.env.get('SITE_URL') || 'https://lann.codes';
+  const resendFromEmail = Deno.env.get('RESEND_FROM_EMAIL');
 
   if (!supabaseUrl || !serviceRoleKey || !resendApiKey) {
     return json(500, { success: false, message: 'Environment variables belum lengkap.' }, origin);
@@ -515,7 +516,7 @@ Deno.serve(async (req) => {
   try {
     await sendResendEmail({
       apiKey: resendApiKey,
-      from: `Disipusda Purwakarta <noreply@${emailDomain}>`,
+      from: resendFromEmail || `Disipusda Purwakarta <noreply@${emailDomain}>`,
       to: recipientEmail,
       subject: STATUS_SUBJECTS[status],
       html,

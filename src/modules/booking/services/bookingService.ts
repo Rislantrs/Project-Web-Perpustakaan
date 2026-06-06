@@ -32,6 +32,7 @@ import {
   MIN_BOOKING_DAYS_AHEAD,
   MAX_BOOKING_DAYS_AHEAD,
 } from '../constants/jenisLayanan';
+import { notifyStatusChange, notifyNewBooking } from './notificationService';
 
 // Repository singleton instance
 const repo = getBookingRepository();
@@ -228,27 +229,46 @@ export const findAll = (filters: BookingFilters): Promise<PaginatedResponse<Book
   repo.findAll(filters);
 
 /** Update status booking (admin) */
-export const updateStatus = (
+export async function updateStatus(
   id: string,
   status: BookingStatus,
   options?: { note?: string; changedBy?: string }
-): Promise<ServiceResponse<Booking>> =>
-  repo.updateStatus(id, status, options);
+): Promise<ServiceResponse<Booking>> {
+  const res = await repo.updateStatus(id, status, options);
+  if (res.success && res.data) {
+    notifyStatusChange(id, status, options?.note).catch(console.warn);
+  }
+  return res;
+}
 
 /** Ajukan jadwal ulang (admin) */
-export const proposeReschedule = (
+export async function proposeReschedule(
   id: string,
   data: ProposeRescheduleDTO,
   changedBy?: string
-): Promise<ServiceResponse<Booking>> =>
-  repo.proposeReschedule(id, data, changedBy);
+): Promise<ServiceResponse<Booking>> {
+  const res = await repo.proposeReschedule(id, data, changedBy);
+  if (res.success && res.data) {
+    notifyStatusChange(id, 'rescheduled', data.reschedule_note).catch(console.warn);
+  }
+  return res;
+}
 
 /** Konfirmasi jadwal ulang oleh pemohon via token */
-export const confirmReschedule = (
+export async function confirmReschedule(
   token: string,
   action: 'accept' | 'decline'
-): Promise<ServiceResponse<Booking>> =>
-  repo.confirmReschedule(token, action);
+): Promise<ServiceResponse<Booking>> {
+  const res = await repo.confirmReschedule(token, action);
+  if (res.success && res.data) {
+    if (action === 'accept') {
+      notifyNewBooking(res.data.id).catch(console.warn);
+    } else {
+      notifyStatusChange(res.data.id, 'cancelled').catch(console.warn);
+    }
+  }
+  return res;
+}
 
 /** Ambil statistik ringkasan */
 export const getStats = (): Promise<BookingStats> =>

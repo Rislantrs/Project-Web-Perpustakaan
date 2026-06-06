@@ -62,11 +62,12 @@ export async function notifyNewBooking(bookingId: string): Promise<ServiceRespon
  */
 export async function notifyStatusChange(
   bookingId: string,
-  status: string
+  status: string,
+  note?: string
 ): Promise<ServiceResponse> {
   try {
     const { error } = await supabase.functions.invoke('booking-status-change', {
-      body: { booking_id: bookingId, status },
+      body: { booking_id: bookingId, status, note },
     });
 
     if (error) {
