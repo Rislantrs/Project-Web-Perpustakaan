@@ -34,10 +34,14 @@ BEGIN
   LOOP
     EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I', r.policyname, r.schemaname, r.tablename);
   END LOOP;
+
+  -- Drop triggers jika tabel bookings sudah ada
+  IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'bookings') THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS trigger_update_bookings_updated_at ON public.bookings';
+    EXECUTE 'DROP TRIGGER IF EXISTS trigger_sync_booking_lock_status ON public.bookings';
+  END IF;
 END $$;
 
-DROP TRIGGER IF EXISTS trigger_update_bookings_updated_at ON public.bookings;
-DROP TRIGGER IF EXISTS trigger_sync_booking_lock_status ON public.bookings;
 DROP FUNCTION IF EXISTS public.update_bookings_updated_at() CASCADE;
 DROP FUNCTION IF EXISTS public.sync_booking_lock_status() CASCADE;
 
