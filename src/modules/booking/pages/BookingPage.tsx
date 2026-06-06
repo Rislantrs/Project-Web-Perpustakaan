@@ -505,150 +505,145 @@ export default function BookingPage() {
         fontFamily: BK_FONTS.sans,
       }}
     >
-      {/* ── Hero Section (Premium UI Redesign) ── */}
-      <div
-        style={{
-          background: `linear-gradient(180deg, #f8fafc 0%, ${BK_COLORS.surface} 100%)`,
-          borderBottom: `1px solid ${BK_COLORS.border}50`,
-          padding: '4rem 1.5rem 3.5rem',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
+      {/* ── Hero Section (Premium Split Redesign) ── */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-slate-100/50 to-slate-50 border-b border-slate-200/60 py-16 lg:py-24">
         {/* Subtle decorative glow circles */}
-        <div style={{ position: 'absolute', top: '-10%', left: '5%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)', filter: 'blur(40px)', pointerEvents: 'none' }}></div>
-        <div style={{ position: 'absolute', bottom: '0', right: '5%', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(45, 106, 159, 0.04) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none' }}></div>
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div
-          style={{
-            maxWidth: '1100px',
-            margin: '0 auto',
-            textAlign: 'center',
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
-          {/* Icon (Premium Glassmorphic shadow layout) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '24px',
-              background: `linear-gradient(135deg, ${BK_COLORS.primary} 0%, ${BK_COLORS.secondary} 100%)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.75rem',
-              boxShadow: '0 20px 25px -5px rgba(30, 58, 95, 0.2), 0 8px 10px -6px rgba(30, 58, 95, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-            }}
-          >
-            <Archive size={36} color="#ffffff" />
-          </motion.div>
-
-          {/* Badge (Pill Style) */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 16px',
-              borderRadius: '9999px',
-              backgroundColor: 'rgba(30, 58, 95, 0.05)',
-              border: '1px solid rgba(30, 58, 95, 0.08)',
-              color: BK_COLORS.primary,
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              marginBottom: '1.25rem',
-            }}
-          >
-            <Shield size={13} style={{ color: BK_COLORS.secondary }} /> Disipusda Purwakarta · Layanan Digital
-          </motion.div>
-
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.5 }}
-            style={{
-              fontFamily: BK_FONTS.display,
-              fontWeight: 800,
-              fontSize: 'clamp(1.75rem, 5vw, 2.5rem)',
-              color: '#0f172a', // slate-900
-              letterSpacing: '-0.03em',
-              margin: '0 0 1rem',
-              lineHeight: 1.2,
-            }}
-          >
-            Booking Layanan Enkapsulasi Arsip
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            style={{
-              fontSize: 'clamp(0.88rem, 2vw, 1.02rem)',
-              color: '#475569', // slate-600
-              maxWidth: '620px',
-              margin: '0 auto 2.25rem',
-              lineHeight: 1.7,
-              fontWeight: 500,
-            }}
-          >
-            Layanan pelindungan arsip menggunakan bahan bebas asam berkualitas tinggi untuk menjaga
-            keutuhan dokumen berharga Anda. Pilih tanggal, isi data, dan tim kami akan menghubungi
-            Anda.
-          </motion.p>
-
-          {/* Info badges (Tailwind CSS styled premium pills) */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.28, duration: 0.5 }}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '12px',
-              justifyContent: 'center',
-            }}
-          >
-            {[
-              { icon: <CalendarCheck size={14} style={{ color: BK_COLORS.secondary }} />, text: '1 Slot Per Hari' },
-              { icon: <Mail size={14} style={{ color: BK_COLORS.secondary }} />, text: 'Konfirmasi via Email' },
-              { icon: <Phone size={14} style={{ color: BK_COLORS.secondary }} />, text: 'Notifikasi WhatsApp' },
-            ].map(({ icon, text }) => (
-              <span
-                key={text}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 18px',
-                  borderRadius: '9999px',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  color: '#334155', // slate-700
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.02)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                }}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            {/* Left Column: Title & Text */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 text-[#1e3a5f] text-xs font-bold tracking-wider uppercase"
               >
-                {icon}
-                {text}
-              </span>
-            ))}
-          </motion.div>
+                <Shield size={13} className="text-[#2d6a9f]" /> Disipusda Purwakarta · Layanan Digital
+              </motion.div>
+
+              {/* Title */}
+              <motion.h1
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+                className="font-serif text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight"
+              >
+                Booking Layanan <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1e3a5f] to-[#2d6a9f]">
+                  Enkapsulasi Arsip
+                </span>
+              </motion.h1>
+
+              {/* Description */}
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.5 }}
+                className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium max-w-2xl"
+              >
+                Layanan pelindungan arsip menggunakan bahan bebas asam berkualitas tinggi untuk menjaga keutuhan dokumen berharga Anda. Pilih tanggal, isi data, dan tim kami akan menghubungi Anda.
+              </motion.p>
+
+              {/* Key Features List */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="flex flex-wrap gap-4 pt-2"
+              >
+                {[
+                  { icon: <CalendarCheck size={16} className="text-[#1e3a5f]" />, text: '1 Slot Per Hari' },
+                  { icon: <Mail size={16} className="text-[#1e3a5f]" />, text: 'Konfirmasi via Email' },
+                  { icon: <Phone size={16} className="text-[#1e3a5f]" />, text: 'Notifikasi WhatsApp' },
+                ].map(({ icon, text }) => (
+                  <div
+                    key={text}
+                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200/60 text-slate-700 text-sm font-semibold shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    {icon}
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Right Column: Visual Mockup / Feature Showcase Card */}
+            <div className="lg:col-span-5 flex justify-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.25, duration: 0.6 }}
+                className="relative bg-white rounded-3xl border border-slate-200/80 shadow-2xl p-6 sm:p-8 w-full max-w-md overflow-hidden"
+              >
+                {/* Accent bar */}
+                <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-[#1e3a5f] to-[#2d6a9f]"></div>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#1e3a5f]/10 flex items-center justify-center text-[#1e3a5f]">
+                        <Archive size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-800 text-sm">Metode Enkapsulasi</h4>
+                        <p className="text-slate-400 text-xs">Standardisasi ANRI</p>
+                      </div>
+                    </div>
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                      Bebas Asam
+                    </span>
+                  </div>
+
+                  <hr className="border-slate-100" />
+
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      </div>
+                      <div>
+                        <h5 className="text-xs font-bold text-slate-700">Perlindungan Fisik Total</h5>
+                        <p className="text-xs text-slate-500 leading-relaxed mt-0.5">
+                          Melapisi dokumen dengan polyester film bebas asam (acid-free) berkekuatan tinggi di kedua sisi.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      </div>
+                      <div>
+                        <h5 className="text-xs font-bold text-slate-700">Mencegah Kerapuhan & Serangga</h5>
+                        <p className="text-xs text-slate-500 leading-relaxed mt-0.5">
+                          Melindungi dari kelembapan udara, jamur, serta gigitan rayap dan serangga perusak kertas.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      </div>
+                      <div>
+                        <h5 className="text-xs font-bold text-slate-700">Dapat Dikembalikan (Reversibel)</h5>
+                        <p className="text-xs text-slate-500 leading-relaxed mt-0.5">
+                          Proses aman dan tidak merusak dokumen asli. Kertas dapat dilepas kembali kapan saja tanpa cacat.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+          </div>
         </div>
       </div>
 
