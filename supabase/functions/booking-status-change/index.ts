@@ -528,6 +528,20 @@ Deno.serve(async (req) => {
     }, origin);
   }
 
+  /*
+  // [Rencana Masa Depan] Kirim WhatsApp Status Change ke Pemohon
+  // Panduan lengkap implementasi silakan lihat di: docs/panduan_integrasi_whatsapp.md
+  try {
+    const waNumber = String(booking.whatsapp || '');
+    const waToken = Deno.env.get('WA_GATEWAY_TOKEN');
+    if (waNumber && waToken) {
+      // Panggil fungsi kirim WhatsApp di sini (misal ke Fonnte/Wablas API)
+    }
+  } catch (waErr) {
+    console.warn('Gagal mengirim WhatsApp:', waErr);
+  }
+  */
+
   return json(200, {
     success: true,
     message: `Email notifikasi status "${status}" berhasil dikirim.`,

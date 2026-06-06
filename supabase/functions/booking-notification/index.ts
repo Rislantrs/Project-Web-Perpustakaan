@@ -272,6 +272,19 @@ Deno.serve(async (req) => {
         html,
       });
     })(),
+
+    /*
+    // (C) [Rencana Masa Depan] Kirim WhatsApp ke Pemohon
+    // Panduan lengkap implementasi silakan lihat di: docs/panduan_integrasi_whatsapp.md
+    (async () => {
+      const waNumber = String(booking.whatsapp || '');
+      if (!waNumber) return;
+      
+      // Kirim HTTP POST ke API WhatsApp Gateway pilihan Anda (misal Fonnte/Wablas)
+      // const waToken = Deno.env.get('WA_GATEWAY_TOKEN');
+      // await sendWhatsAppNotification(waNumber, 'Pesan booking diterima...', waToken);
+    })(),
+    */
   ]);
 
   const telegramResult = results[0];
