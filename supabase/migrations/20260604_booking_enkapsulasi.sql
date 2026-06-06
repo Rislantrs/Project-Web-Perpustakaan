@@ -23,6 +23,7 @@ BEGIN;
 -- CLEANUP: Drop existing policies & tables jika re-run migration
 -- ============================================================================
 DO $$
+DECLARE r record;
 BEGIN
   -- Drop policies jika ada
   FOR r IN
