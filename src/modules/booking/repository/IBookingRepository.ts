@@ -9,6 +9,7 @@ import type {
   ProposeRescheduleDTO,
   ServiceResponse,
   BookingStats,
+  BookingAuditLog,
 } from '../types/booking.types';
 
 /**
@@ -99,4 +100,9 @@ export interface IBookingRepository {
    * Ambil semua booking tanpa pagination (untuk export Excel/PDF).
    */
   findAllForExport(filters: Omit<BookingFilters, 'page' | 'limit'>): Promise<Booking[]>;
+
+  /**
+   * Ambil riwayat audit log untuk satu booking.
+   */
+  getAuditLogs(bookingId: string): Promise<BookingAuditLog[]>;
 }

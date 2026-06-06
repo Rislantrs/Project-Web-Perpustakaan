@@ -2,7 +2,7 @@
 // Dijalankan saat status booking berubah. Mengirim email sesuai status baru.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { buildEmailWrapper, buildBookingDetailsTable } from '../_shared/emailTemplates.ts';
+import { buildEmailWrapper, buildBookingDetailsTable } from 'shared/emailTemplates.ts';
 
 // ---------------------------------------------------------------------------
 // CORS

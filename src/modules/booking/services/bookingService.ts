@@ -23,6 +23,7 @@ import type {
   ProposeRescheduleDTO,
   ServiceResponse,
   BookingDateLock,
+  BookingAuditLog,
 } from '../types/booking.types';
 import {
   JENIS_LAYANAN,
@@ -258,3 +259,13 @@ export const findAllForExport = (
   filters: Omit<BookingFilters, 'page' | 'limit'>
 ): Promise<Booking[]> =>
   repo.findAllForExport(filters);
+
+/** Ambil riwayat audit log untuk satu booking */
+export const getAuditLogs = (bookingId: string): Promise<BookingAuditLog[]> =>
+  repo.getAuditLogs(bookingId);
+
+// ── Aliases for AdminBookings.tsx ─────────────────────────────────────────────
+export const getBookings = findAll;
+export const getBookingStats = getStats;
+export const updateBookingStatus = updateStatus;
+export const getAllBookingsForExport = findAllForExport;

@@ -1,4 +1,6 @@
 {
+  "tasks": {},
+  "importMap": "./import_map.json",
   "compilerOptions": {
     "allowJs": true,
     "lib": ["esnext", "deno.ns"],

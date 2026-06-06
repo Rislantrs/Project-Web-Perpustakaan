@@ -4,7 +4,7 @@
 //   (B) Kirim email konfirmasi ke pemohon
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { buildEmailWrapper, buildBookingDetailsTable } from '../_shared/emailTemplates.ts';
+import { buildEmailWrapper, buildBookingDetailsTable } from 'shared/emailTemplates.ts';
 
 // ---------------------------------------------------------------------------
 // CORS

@@ -23,6 +23,7 @@ import type {
   PaginatedResponse,
   ProposeRescheduleDTO,
   ServiceResponse,
+  BookingAuditLog,
 } from '../types/booking.types';
 
 // Nama tabel di Supabase
@@ -611,5 +612,23 @@ export class SupabaseBookingRepo implements IBookingRepository {
     }
 
     return (data ?? []) as Booking[];
+  }
+
+  /**
+   * Ambil riwayat audit log untuk satu booking.
+   */
+  async getAuditLogs(bookingId: string): Promise<BookingAuditLog[]> {
+    const { data, error } = await supabase
+      .from(TABLE_AUDIT_LOGS)
+      .select('*')
+      .eq('booking_id', bookingId)
+      .order('changed_at', { ascending: false });
+
+    if (error) {
+      console.error('[SupabaseBookingRepo] getAuditLogs() error:', error);
+      return [];
+    }
+
+    return (data ?? []) as BookingAuditLog[];
   }
 }
