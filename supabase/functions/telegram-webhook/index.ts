@@ -277,115 +277,140 @@ const handleReschedule = async (
 // Main handler
 // ---------------------------------------------------------------------------
 Deno.serve(async (req) => {
-  // Only accept POST from Telegram
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
-
-  // --- env ---
   const telegramToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
-  const webhookSecret = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
-  const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://disipusda.purwakartakab.go.id';
+  const adminChatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID');
 
-  if (!telegramToken || !supabaseUrl || !serviceRoleKey) {
-    console.error('Missing env vars: TELEGRAM_BOT_TOKEN | SUPABASE_URL | SUPABASE_SERVICE_ROLE_KEY');
-    return new Response('Internal configuration error', { status: 500 });
-  }
+  // We need to clone the request because we might parse the JSON body in both the try and catch blocks
+  const reqClone = req.clone();
 
-  // --- verify secret token ---
-  if (webhookSecret) {
-    const providedSecret = req.headers.get('X-Telegram-Bot-Api-Secret-Token');
-    if (providedSecret !== webhookSecret) {
-      return new Response('Unauthorized', { status: 401 });
-    }
-  }
-
-  // --- parse update ---
-  const update = await req.json().catch(() => null) as TelegramUpdate | null;
-  if (!update) {
-    return new Response('Bad Request: invalid JSON', { status: 400 });
-  }
-
-  // Build supabase functions URL from SUPABASE_URL
-  // Typically: https://{project-ref}.supabase.co → https://{project-ref}.functions.supabase.co
-  // But the recommended approach is to use the /functions/v1/ path on the same URL.
-  const supabaseFunctionsUrl = `${supabaseUrl}/functions/v1`;
-
-  // --- init supabase admin client ---
-  const supabase = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  // --- handle callback_query ---
-  if (update.callback_query) {
-    const cq = update.callback_query;
-    const data = cq.data || '';
-
-    // Parse action and booking ID
-    // Expected format: approve_{uuid} | reject_{uuid} | reschedule_{uuid}
-    const approveMatch = data.match(/^approve_(.+)$/);
-    const rejectMatch = data.match(/^reject_(.+)$/);
-    const rescheduleMatch = data.match(/^reschedule_(.+)$/);
-
-    if (approveMatch) {
-      const bookingId = approveMatch[1];
-      await handleApprove(
-        bookingId,
-        supabase,
-        telegramToken,
-        cq,
-        supabaseFunctionsUrl,
-        serviceRoleKey,
-        siteUrl,
-      );
-    } else if (rejectMatch) {
-      const bookingId = rejectMatch[1];
-      await handleReject(bookingId, supabase, telegramToken, cq, supabaseFunctionsUrl, serviceRoleKey);
-    } else if (rescheduleMatch) {
-      const bookingId = rescheduleMatch[1];
-      await handleReschedule(bookingId, telegramToken, cq, siteUrl);
-    } else {
-      // Unknown callback — just answer to clear spinner
-      await answerCallback(telegramToken, cq.id, '⚠️ Aksi tidak dikenal.');
+  try {
+    // Only accept POST from Telegram
+    if (req.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 });
     }
 
-    // Always return 200 to Telegram to acknowledge receipt
+    const webhookSecret = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://disipusda.purwakartakab.go.id';
+
+    if (!telegramToken || !supabaseUrl || !serviceRoleKey) {
+      console.error('Missing env vars: TELEGRAM_BOT_TOKEN | SUPABASE_URL | SUPABASE_SERVICE_ROLE_KEY');
+      return new Response('Internal configuration error', { status: 500 });
+    }
+
+    // --- verify secret token ---
+    if (webhookSecret) {
+      const providedSecret = req.headers.get('X-Telegram-Bot-Api-Secret-Token');
+      if (providedSecret !== webhookSecret) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+    }
+
+    // --- parse update ---
+    const update = await req.json().catch(() => null) as TelegramUpdate | null;
+    if (!update) {
+      return new Response('Bad Request: invalid JSON', { status: 400 });
+    }
+
+    // Build supabase functions URL from SUPABASE_URL
+    const supabaseFunctionsUrl = `${supabaseUrl}/functions/v1`;
+
+    // --- init supabase admin client ---
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    // --- handle callback_query ---
+    if (update.callback_query) {
+      const cq = update.callback_query;
+      const data = cq.data || '';
+
+      const approveMatch = data.match(/^approve_(.+)$/);
+      const rejectMatch = data.match(/^reject_(.+)$/);
+      const rescheduleMatch = data.match(/^reschedule_(.+)$/);
+
+      if (approveMatch) {
+        const bookingId = approveMatch[1];
+        await handleApprove(
+          bookingId,
+          supabase,
+          telegramToken,
+          cq,
+          supabaseFunctionsUrl,
+          serviceRoleKey,
+          siteUrl,
+        );
+      } else if (rejectMatch) {
+        const bookingId = rejectMatch[1];
+        await handleReject(bookingId, supabase, telegramToken, cq, supabaseFunctionsUrl, serviceRoleKey);
+      } else if (rescheduleMatch) {
+        const bookingId = rescheduleMatch[1];
+        await handleReschedule(bookingId, telegramToken, cq, siteUrl);
+      } else {
+        await answerCallback(telegramToken, cq.id, '⚠️ Aksi tidak dikenal.');
+      }
+
+      return new Response('OK', { status: 200 });
+    }
+
+    // --- handle regular messages ---
+    if (update.message?.text) {
+      const chatId = update.message.chat.id;
+      const text = update.message.text;
+
+      if (text === '/start' || text === '/help') {
+        await sendMessage(
+          telegramToken,
+          chatId,
+          [
+            `🤖 <b>Bot Disipusda Purwakarta</b>`,
+            ``,
+            `Bot ini mengirimkan notifikasi booking enkapsulasi arsip.`,
+            ``,
+            `Perintah tersedia:`,
+            `• /start - Tampilkan pesan ini`,
+            `• /status - Cek koneksi bot`,
+            ``,
+            `🔗 <a href="${siteUrl}/admin/bookings">Buka Dashboard Admin</a>`,
+          ].join('\n'),
+          'HTML',
+        );
+      } else if (text === '/status') {
+        await sendMessage(
+          telegramToken,
+          chatId,
+          '✅ Bot aktif dan berjalan dengan normal.',
+          'HTML',
+        );
+      }
+    }
+
     return new Response('OK', { status: 200 });
-  }
-
-  // --- handle regular messages (optional: command routing) ---
-  if (update.message?.text) {
-    const chatId = update.message.chat.id;
-    const text = update.message.text;
-
-    if (text === '/start' || text === '/help') {
+  } catch (err) {
+    console.error('Webhook error:', err);
+    
+    // Send error details to admin Telegram
+    if (telegramToken && adminChatId) {
+      const errMsg = err instanceof Error ? err.stack || err.message : String(err);
       await sendMessage(
         telegramToken,
-        chatId,
-        [
-          `🤖 <b>Bot Disipusda Purwakarta</b>`,
-          ``,
-          `Bot ini mengirimkan notifikasi booking enkapsulasi arsip.`,
-          ``,
-          `Perintah tersedia:`,
-          `• /start - Tampilkan pesan ini`,
-          `• /status - Cek koneksi bot`,
-          ``,
-          `🔗 <a href="${siteUrl}/admin/bookings">Buka Dashboard Admin</a>`,
-        ].join('\n'),
+        Number(adminChatId),
+        `⚠️ <b>Webhook Error:</b>\n<pre>${escMd(errMsg)}</pre>`,
         'HTML',
-      );
-    } else if (text === '/status') {
-      await sendMessage(
-        telegramToken,
-        chatId,
-        '✅ Bot aktif dan berjalan dengan normal.',
-        'HTML',
-      );
+      ).catch((e) => console.error('Failed to notify admin of error:', e));
     }
-  }
 
-  return new Response('OK', { status: 200 });
+    // Always attempt to answer the callback query to clear the spinner
+    try {
+      const update = await reqClone.json().catch(() => null) as TelegramUpdate | null;
+      if (update?.callback_query && telegramToken) {
+        await answerCallback(telegramToken, update.callback_query.id, '⚠️ Gagal memproses permintaan (internal error).', true).catch(() => undefined);
+      }
+    } catch (e) {
+      console.error('Failed to answer callback query in catch block:', e);
+    }
+
+    return new Response('Internal Server Error', { status: 500 });
+  }
 });
