@@ -29,6 +29,16 @@ export default function ArticleEditor() {
   const [imgPosition, setImgPosition] = useState('center');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toIndoDate = (isoStr: string) => {
     // Konversi tanggal input HTML (YYYY-MM-DD) ke format display lokal.
@@ -252,6 +262,26 @@ export default function ArticleEditor() {
       }
     }
   };
+
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-6 text-center font-sans">
+        <div className="max-w-md space-y-5">
+          <h2 className="text-2xl font-bold text-gray-900">Gunakan Komputer</h2>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Halaman untuk membuat atau mengedit artikel ini memerlukan layar yang lebih lebar. 
+            Silakan buka kembali halaman ini menggunakan komputer atau laptop untuk kenyamanan Anda.
+          </p>
+          <button
+            onClick={() => navigate('/admin')}
+            className="w-full py-3 bg-[#1e3a5f] text-white font-semibold rounded-xl hover:bg-[#16304f] transition-all text-sm shadow-sm"
+          >
+            Kembali ke Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!editor) return null;
 
