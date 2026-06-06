@@ -911,22 +911,6 @@ export default function BookingPage() {
           )}
         </div>
       </div>
-
-      {/* ── Responsive override for mobile ── */}
-      <style>{`
-        /* Tailwind responsive helpers used in step labels */
-        .hidden { display: none; }
-        .sm\\:inline { display: none; }
-        @media (min-width: 640px) {
-          .hidden { display: none; }
-          .sm\\:inline { display: inline; }
-          .sm\\:hidden { display: none; }
-        }
-        @media (max-width: 639px) {
-          .hidden { display: inline; }
-          .sm\\:hidden { display: inline; }
-        }
-      `}</style>
     </div>
   );
 }
