@@ -240,38 +240,40 @@ export default function Prestasi() {
 
                   {/* Horizontal Scroll Rail */}
                   <div className="flex gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-3 scroll-smooth">
-                    {yearItems.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => setSelectedItem(item)}
-                        className="w-[260px] sm:w-[280px] shrink-0 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100/60 flex flex-col snap-start cursor-pointer transition-all duration-300 hover:-translate-y-1"
-                      >
-                        {/* Image Frame */}
-                        <div className="w-full aspect-[16/10] overflow-hidden relative bg-gray-50 flex items-center justify-center">
-                          {item.img ? (
-                            <img 
-                              src={item.img} 
-                              alt={item.title} 
-                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
-                              <Trophy size={32} />
-                            </div>
-                          )}
-                        </div>
+                    <div className="flex gap-5 mx-auto px-4">
+                      {yearItems.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => setSelectedItem(item)}
+                          className="w-[260px] sm:w-[280px] shrink-0 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100/60 flex flex-col snap-start cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                        >
+                          {/* Image Frame */}
+                          <div className="w-full aspect-[16/10] overflow-hidden relative bg-gray-50 flex items-center justify-center">
+                            {item.img ? (
+                              <img 
+                                src={item.img} 
+                                alt={item.title} 
+                                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                                <Trophy size={32} />
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Title & Desc */}
-                        <div className="p-4 flex flex-col flex-grow">
-                          <h4 className="font-serif text-sm font-bold text-[#0c2f3d] line-clamp-2 leading-snug mb-2 hover:text-[#d6a54a] transition-colors">
-                            {item.title}
-                          </h4>
-                          <p className="text-gray-400 text-[11px] leading-relaxed font-medium line-clamp-2">
-                            {item.description}
-                          </p>
+                          {/* Title & Desc */}
+                          <div className="p-4 flex flex-col flex-grow">
+                            <h4 className="font-serif text-sm font-bold text-[#0c2f3d] line-clamp-2 leading-snug mb-2 hover:text-[#d6a54a] transition-colors">
+                              {item.title}
+                            </h4>
+                            <p className="text-gray-400 text-[11px] leading-relaxed font-medium line-clamp-2">
+                              {item.description}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               );
