@@ -5,7 +5,7 @@ import { getSchedules, type Schedule } from '../services/settingsService';
 
 function ScheduleCard({ schedule }: { schedule: Schedule }) {
   return (
-    <div className="flex flex-col group w-full bg-brand-secondary rounded-2xl shadow-lg border border-brand-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-brand-accent-10 p-8 relative overflow-hidden h-full">
+    <div className="flex flex-col group w-full bg-brand-secondary rounded-2xl shadow-lg border border-brand-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-brand-accent-10 p-5 sm:p-8 relative overflow-hidden h-full">
       {/* Header Card: Day & Icon */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 text-brand-accent font-bold text-xs uppercase tracking-widest">
@@ -16,7 +16,7 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
       </div>
       
       {/* Title / Note */}
-      <h3 className="font-serif text-3xl font-bold text-white mb-8 leading-tight">
+      <h3 className="font-serif text-xl sm:text-3xl font-bold text-white mb-6 sm:mb-8 leading-tight">
         {schedule.note || 'Layanan Disipusda'}
       </h3>
       
@@ -56,7 +56,7 @@ export default function JadwalLayanan() {
 
         {/* Header - Consistent with Structure Page */}
         <div className="text-center mb-24">
-          <h1 className="font-serif text-6xl lg:text-7xl font-bold text-brand-primary tracking-tighter mb-6">Waktu Layanan</h1>
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-brand-primary tracking-tighter mb-6">Waktu Layanan</h1>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">"Pintu Literasi Selalu Terbuka Menanti Kehadiran Anda."</p>
           <div className="w-24 h-1 bg-brand-accent mx-auto mt-10 rounded-full"></div>
         </div>
@@ -69,8 +69,8 @@ export default function JadwalLayanan() {
         </div>
 
         {/* Footer Info Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-24 border-t border-gray-200">
-          <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100">
+        <div className="grid grid-cols-1 gap-6 sm:gap-12 pt-24 border-t border-gray-200">
+          <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-serif text-3xl font-bold text-[#0c2f3d] mb-8">Lokasi Fisik</h2>
             <div className="flex gap-4 mb-8">
               <div className="w-12 h-12 bg-[#f8f9fa] rounded-2xl flex items-center justify-center text-[#d6a54a] shrink-0 border border-gray-100">

@@ -181,37 +181,37 @@ export default function RiwayatPinjaman() {
 
       {/* Stats Cards */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 mb-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#0c2f3d]">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="bg-white p-3 sm:p-6 rounded-xl shadow-lg border-l-4 border-[#0c2f3d]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Pinjaman</p>
-                <p className="text-3xl font-bold text-[#0c2f3d] mt-1">{borrows.length}</p>
+                <p className="text-[9px] sm:text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Pinjaman</p>
+                <p className="text-xl sm:text-3xl font-bold text-[#0c2f3d] mt-0.5 sm:mt-1">{borrows.length}</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-[#0c2f3d]/10 flex items-center justify-center">
-                <BookMarked className="text-[#0c2f3d]" size={22} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-[#0c2f3d]/10 flex items-center justify-center">
+                <BookMarked className="text-[#0c2f3d]" size={16} />
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-amber-500">
+          <div className="bg-white p-3 sm:p-6 rounded-xl shadow-lg border-l-4 border-amber-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Sedang Dipinjam</p>
-                <p className="text-3xl font-bold text-amber-600 mt-1">{activeBorrows}</p>
+                <p className="text-[9px] sm:text-xs text-gray-500 uppercase tracking-wider font-semibold">Dipinjam</p>
+                <p className="text-xl sm:text-3xl font-bold text-amber-600 mt-0.5 sm:mt-1">{activeBorrows}</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
-                <BookOpen className="text-amber-500" size={22} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                <BookOpen className="text-amber-500" size={16} />
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-emerald-500">
+          <div className="bg-white p-3 sm:p-6 rounded-xl shadow-lg border-l-4 border-emerald-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Dikembalikan</p>
-                <p className="text-3xl font-bold text-emerald-600 mt-1">{returnedBorrows}</p>
+                <p className="text-[9px] sm:text-xs text-gray-500 uppercase tracking-wider font-semibold">Kembali</p>
+                <p className="text-xl sm:text-3xl font-bold text-emerald-600 mt-0.5 sm:mt-1">{returnedBorrows}</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
-                <CheckCircle className="text-emerald-500" size={22} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <CheckCircle className="text-emerald-500" size={16} />
               </div>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function RiwayatPinjaman() {
 
       {/* Filter Tabs & Content */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex gap-2 mb-8">
+        <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
           {(['semua', 'dipinjam', 'dikembalikan'] as const).map((status) => (
             <button
               key={status}

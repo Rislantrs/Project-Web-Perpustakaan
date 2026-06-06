@@ -197,11 +197,11 @@ export default function Login() {
       </div>
 
       {/* Right Form Panel */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 sm:p-6 lg:p-12">
         <div className="max-w-md w-full">
           <div className="mb-8">
             <Link to="/" className="font-serif text-3xl font-bold text-[#0c2f3d] hover:text-[#8b1c24] transition-colors">Disipusda</Link>
-            <h1 className="text-2xl font-bold text-[#1a1a1a] mt-4">Masuk ke Akun Anda</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#1a1a1a] mt-4">Masuk ke Akun Anda</h1>
             <p className="text-gray-500 mt-1">Akses layanan Perpustakaan & Kearsipan Online</p>
           </div>
 

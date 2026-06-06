@@ -64,7 +64,7 @@ export default function StrukturOrganisasi() {
       .sort((a, b) => (a.level || 3) - (b.level || 3));
   };
 
-  const Section = ({ title, cat, gridCols = "grid-cols-2 md:grid-cols-3 lg:grid-cols-5" }: { title: string, cat: string, gridCols?: string }) => {
+  const Section = ({ title, cat, gridCols = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5" }: { title: string, cat: string, gridCols?: string }) => {
     // Reusable block untuk semua seksi organisasi selain pimpinan utama.
     const allMembers = getByCategory(cat);
     if (allMembers.length === 0) return null;
@@ -73,7 +73,7 @@ export default function StrukturOrganisasi() {
       <div className="pt-16 border-t border-gray-100">
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#0c2f3d] mb-12 text-center tracking-tight">{title}</h2>
         
-        <div className={`grid gap-8 lg:gap-12 ${gridCols}`}>
+        <div className={`grid gap-6 sm:gap-8 lg:gap-12 ${gridCols}`}>
           {allMembers.map((m, i) => (
             <ProfileCard 
               key={m.id} 
@@ -98,13 +98,13 @@ export default function StrukturOrganisasi() {
         </div>
 
         <div className="text-center mb-16">
-          <h1 className="font-serif text-6xl lg:text-8xl font-bold text-[#0c2f3d] tracking-tighter mb-6">Kepengurusan</h1>
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-8xl font-bold text-[#0c2f3d] tracking-tighter mb-6">Kepengurusan</h1>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">"Melayani dengan Hati, Menjaga Warisan Literasi."</p>
           <div className="w-32 h-1 bg-[#d6a54a] mx-auto mt-12 rounded-full opacity-40"></div>
         </div>
 
         <div className="space-y-24">
-          <div className="flex flex-col md:flex-row justify-center gap-12 lg:gap-24 max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12 lg:gap-24 max-w-6xl mx-auto">
             {getByCategory('pimpinan').map((m) => (
               <div key={m.id} className="w-full max-w-[340px]">
                 <ProfileCard data={{ name: m.name, role: m.position, img: m.img }} size="lg" isLeader={true} />

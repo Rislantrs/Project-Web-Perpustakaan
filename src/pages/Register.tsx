@@ -146,7 +146,7 @@ export default function Register() {
       </div>
 
       {/* Right Form Panel */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 sm:p-6 lg:p-12">
         <div className="max-w-lg w-full">
           <div className="mb-8">
             <Link to="/" className="font-serif text-3xl font-bold text-[#0c2f3d] hover:text-[#8b1c24] transition-colors">Disipusda</Link>

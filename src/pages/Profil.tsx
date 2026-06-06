@@ -392,17 +392,19 @@ export default function Profil() {
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="flex border-b border-gray-100">
             {([
-              { key: 'statistik', label: 'Info Pribadi', icon: User },
-              { key: 'riwayat', label: 'Riwayat Pinjam', icon: BookOpen },
-              { key: 'antrian', label: 'Antrian', icon: Users },
-              { key: 'wishlist', label: 'Wishlist', icon: Heart },
+              { key: 'statistik', label: 'Info', fullLabel: 'Info Pribadi', icon: User },
+              { key: 'riwayat', label: 'Riwayat', fullLabel: 'Riwayat Pinjam', icon: BookOpen },
+              { key: 'antrian', label: 'Antrian', fullLabel: 'Antrian', icon: Users },
+              { key: 'wishlist', label: 'Wishlist', fullLabel: 'Wishlist', icon: Heart },
             ] as const).map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-medium transition-colors ${activeTab === tab.key ? 'text-[#0c2f3d] border-b-2 border-[#0c2f3d]' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 text-xs sm:text-sm font-medium transition-colors ${activeTab === tab.key ? 'text-[#0c2f3d] border-b-2 border-[#0c2f3d]' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                <tab.icon size={15} /> {tab.label}
+                <tab.icon size={14} />
+                <span className="hidden sm:inline">{tab.fullLabel}</span>
+                <span className="sm:hidden">{tab.label}</span>
               </button>
             ))}
           </div>
