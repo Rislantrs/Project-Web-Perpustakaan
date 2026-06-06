@@ -11,6 +11,7 @@ import { BK_COLORS, BK_STATUS_COLORS, BK_FONTS, BK_RADIUS, BK_SHADOW } from '../
 import type { CalendarDay } from '../types/booking.types';
 
 import { getCalendarData } from '../services/bookingService';
+import { MAX_BOOKING_DAYS_AHEAD } from '../constants/jenisLayanan';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface BookingCalendarProps {
@@ -127,6 +128,12 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
     currentYear < today.getFullYear() ||
     (currentYear === today.getFullYear() && currentMonth <= today.getMonth());
 
+  // Limit next month navigation to max booking days window
+  const maxBookingDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + MAX_BOOKING_DAYS_AHEAD);
+  const isMaxMonthOrFuture =
+    currentYear > maxBookingDate.getFullYear() ||
+    (currentYear === maxBookingDate.getFullYear() && currentMonth >= maxBookingDate.getMonth());
+
   // Build calendar grid
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfWeek = getFirstDayOfWeek(currentYear, currentMonth);
@@ -146,13 +153,18 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
     const isToday = dateStr === toYMD(today.getFullYear(), today.getMonth(), today.getDate());
     const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
     const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // Check if date exceeds the max booking window
+    const maxDateLimit = new Date(today.getFullYear(), today.getMonth(), today.getDate() + MAX_BOOKING_DAYS_AHEAD);
+    const isFutureExceeded = cellDate > maxDateLimit;
+    
     const isSelected = dateStr === selectedDate;
 
     // Determine status
     let status = statusMap.get(dateStr) ?? 'available';
-    if (isPast || isWeekend) status = 'disabled';
+    if (isPast || isWeekend || isFutureExceeded) status = 'disabled';
 
-    const isClickable = status === 'available' && !isPast && !isWeekend;
+    const isClickable = status === 'available' && !isPast && !isWeekend && !isFutureExceeded;
 
     // ─── Style calculation (Premium, Modern UI) ────────────────────────
     let cellBg = '#ffffff';
@@ -439,20 +451,21 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
           <motion.button
             type="button"
             className="calendar-nav-btn"
-            whileHover={{ scale: 1.05, backgroundColor: 'rgba(30, 58, 95, 0.08)' }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={!isMaxMonthOrFuture ? { scale: 1.05, backgroundColor: 'rgba(30, 58, 95, 0.08)' } : {}}
+            whileTap={!isMaxMonthOrFuture ? { scale: 0.95 } : {}}
             onClick={goToNextMonth}
+            disabled={isMaxMonthOrFuture}
             style={{
               width: '36px',
               height: '36px',
               borderRadius: '12px',
               backgroundColor: 'rgba(30, 58, 95, 0.04)',
               border: 'none',
-              cursor: 'pointer',
+              cursor: isMaxMonthOrFuture ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: BK_COLORS.primary,
+              color: isMaxMonthOrFuture ? '#cbd5e1' : BK_COLORS.primary,
               transition: 'all 0.2s',
             }}
             aria-label="Bulan berikutnya"
