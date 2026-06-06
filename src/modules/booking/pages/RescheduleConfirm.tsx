@@ -274,7 +274,7 @@ export default function RescheduleConfirm() {
               }}
             >
               {decided && booking?.status === 'pending' ? (
-                <CheckCircle size={52} color="#16a34a" style={{ margin: '0 auto 16px' }} />
+                <CheckCircle size={52} color={BK_COLORS.secondary} style={{ margin: '0 auto 16px' }} />
               ) : (
                 <XCircle size={52} color="#dc2626" style={{ margin: '0 auto 16px' }} />
               )}
@@ -282,7 +282,7 @@ export default function RescheduleConfirm() {
                 style={{
                   fontWeight: 700,
                   fontSize: '1.1rem',
-                  color: decided && booking?.status === 'pending' ? '#16a34a' : '#dc2626',
+                  color: decided && booking?.status === 'pending' ? BK_COLORS.secondary : '#dc2626',
                   margin: '0 0 10px',
                 }}
               >
@@ -379,15 +379,15 @@ export default function RescheduleConfirm() {
                 <div
                   style={{
                     padding: '12px',
-                    backgroundColor: '#f0fdf4',
+                    backgroundColor: '#eff6ff',
                     borderRadius: BK_RADIUS.md,
-                    border: '1px solid #bbf7d0',
+                    border: '1px solid #bfdbfe',
                   }}
                 >
-                  <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, color: BK_COLORS.secondary, textTransform: 'uppercase' }}>
                     Usulan Jadwal Baru
                   </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', color: '#15803d' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', color: BK_COLORS.primary }}>
                     <Calendar size={14} />
                     <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>
                       {formatIndoDate(booking.reschedule_date || '')}
@@ -477,7 +477,7 @@ export default function RescheduleConfirm() {
                     padding: '12px',
                     borderRadius: BK_RADIUS.md,
                     border: 'none',
-                    backgroundColor: '#16a34a',
+                    backgroundColor: BK_COLORS.primary,
                     color: '#ffffff',
                     fontWeight: 700,
                     fontSize: '0.8rem',
@@ -485,8 +485,8 @@ export default function RescheduleConfirm() {
                     boxShadow: BK_SHADOW.sm,
                     transition: 'background 0.2s',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = BK_COLORS.secondary)}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BK_COLORS.primary)}
                 >
                   {isSubmitting ? 'Memproses...' : 'Setujui Jadwal Baru'}
                 </button>

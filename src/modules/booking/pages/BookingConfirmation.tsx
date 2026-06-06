@@ -58,12 +58,10 @@ function formatCreatedAt(isoStr: string): string {
 
 // ─── Sub-component: Detail Row ────────────────────────────────────────────────
 function DetailRow({
-  icon,
   label,
   value,
   highlight,
 }: {
-  icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   highlight?: boolean;
@@ -72,53 +70,33 @@ function DetailRow({
     <div
       style={{
         display: 'flex',
-        alignItems: 'flex-start',
-        gap: '12px',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
         padding: '12px 0',
         borderBottom: `1px solid ${BK_COLORS.border}`,
+        gap: '16px',
       }}
     >
-      <div
+      <span
         style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: BK_RADIUS.sm,
-          backgroundColor: highlight ? `${BK_COLORS.primary}15` : BK_COLORS.surface,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          color: highlight ? BK_COLORS.primary : BK_COLORS.textMuted,
+          fontSize: '0.8rem',
+          fontWeight: 500,
+          color: BK_COLORS.textMuted,
         }}
       >
-        {icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p
-          style={{
-            fontSize: '0.68rem',
-            fontWeight: 700,
-            letterSpacing: '0.07em',
-            textTransform: 'uppercase',
-            color: BK_COLORS.textMuted,
-            margin: '0 0 2px',
-          }}
-        >
-          {label}
-        </p>
-        <p
-          style={{
-            fontSize: '0.875rem',
-            fontWeight: highlight ? 700 : 500,
-            color: highlight ? BK_COLORS.primary : BK_COLORS.text,
-            margin: 0,
-            wordBreak: 'break-word',
-            lineHeight: 1.4,
-          }}
-        >
-          {value}
-        </p>
-      </div>
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: '0.875rem',
+          fontWeight: highlight ? 700 : 600,
+          color: highlight ? BK_COLORS.primary : BK_COLORS.text,
+          textAlign: 'right',
+          wordBreak: 'break-word',
+        }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -190,12 +168,12 @@ export default function BookingConfirmation({ booking }: BookingConfirmationProp
             width: '80px',
             height: '80px',
             borderRadius: '50%',
-            backgroundColor: '#dcfce7',
+            backgroundColor: '#eff6ff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.25rem',
-            boxShadow: `0 0 0 12px #dcfce740`,
+            boxShadow: `0 0 0 12px rgba(59, 130, 246, 0.12)`,
           }}
         >
           <CheckCircle2 size={42} color={BK_STATUS_COLORS.available.dot} />
@@ -324,26 +302,24 @@ export default function BookingConfirmation({ booking }: BookingConfirmationProp
         </div>
 
         <div style={{ padding: '0 1.25rem' }}>
-          <DetailRow icon={<User size={15} />} label="Nama Lengkap" value={booking.nama_lengkap} highlight />
-          <DetailRow icon={<Mail size={15} />} label="Email" value={booking.email} />
-          <DetailRow icon={<Phone size={15} />} label="WhatsApp" value={booking.whatsapp} />
+          <DetailRow label="Nama Lengkap" value={booking.nama_lengkap} highlight />
+          <DetailRow label="Email" value={booking.email} />
+          <DetailRow label="WhatsApp" value={booking.whatsapp} />
           {booking.instansi && (
-            <DetailRow icon={<Building2 size={15} />} label="Instansi / Organisasi" value={booking.instansi} />
+            <DetailRow label="Instansi / Organisasi" value={booking.instansi} />
           )}
-          <DetailRow icon={<FileStack size={15} />} label="Jenis Layanan" value={booking.jenis_layanan} highlight />
+          <DetailRow label="Jenis Layanan" value={booking.jenis_layanan} highlight />
           <DetailRow
-            icon={<Files size={15} />}
             label="Jumlah Dokumen / Arsip"
             value={`${booking.jumlah_dokumen.toLocaleString('id-ID')} dokumen`}
           />
           <DetailRow
-            icon={<Calendar size={15} />}
             label="Tanggal Booking"
             value={formatTanggal(booking.tanggal_booking)}
             highlight
           />
           {booking.catatan && (
-            <DetailRow icon={<MessageSquare size={15} />} label="Catatan" value={booking.catatan} />
+            <DetailRow label="Catatan" value={booking.catatan} />
           )}
 
           {/* Status badge */}

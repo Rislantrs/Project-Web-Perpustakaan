@@ -115,10 +115,10 @@ export const BK_COLORS = {
  */
 export const BK_STATUS_COLORS = {
   available: {
-    bg:     '#dcfce7',   // hijau muda
-    text:   '#15803d',   // hijau tua
-    dot:    '#16a34a',   // dot kalender
-    border: '#86efac',
+    bg:     '#eff6ff',   // biru sangat muda
+    text:   '#1e3a5f',   // navy (BK_COLORS.primary)
+    dot:    '#3b82f6',   // biru terang (BK_COLORS.accent)
+    border: '#bfdbfe',   // border biru muda
     label:  'Tersedia',
   },
   pending: {

@@ -72,7 +72,7 @@ interface FormState {
 // ─── Field wrapper component ──────────────────────────────────────────────────
 interface FieldProps {
   label: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   required?: boolean;
   optional?: boolean;
   error?: string;
@@ -95,7 +95,7 @@ function Field({ label, icon, required, optional, error, children }: FieldProps)
           fontFamily: BK_FONTS.sans,
         }}
       >
-        <span style={{ color: BK_COLORS.primary, flexShrink: 0 }}>{icon}</span>
+        {icon && <span style={{ color: BK_COLORS.primary, flexShrink: 0 }}>{icon}</span>}
         {label}
         {required && (
           <span style={{ color: '#dc2626', marginLeft: '1px', fontSize: '0.8rem' }}>*</span>
@@ -324,14 +324,12 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
     >
       {/* ── Tanggal Header ── */}
       <div
+        className="flex flex-col sm:flex-row sm:items-center gap-4"
         style={{
           backgroundColor: BK_COLORS.primary,
           borderRadius: BK_RADIUS.xl,
           padding: '1.25rem 1.5rem',
           marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
           boxShadow: BK_SHADOW.sm,
           border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
@@ -350,7 +348,7 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
         >
           <Calendar size={22} color="#ffffff" />
         </div>
-        <div>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <p
             style={{
               color: 'rgba(255,255,255,0.7)',
@@ -379,8 +377,8 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
         <button
           type="button"
           onClick={onBack}
+          className="sm:ml-auto w-full sm:w-auto justify-center"
           style={{
-            marginLeft: 'auto',
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
@@ -388,7 +386,7 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
             color: '#ffffff',
             border: '1px solid rgba(255,255,255,0.25)',
             borderRadius: BK_RADIUS.md,
-            padding: '6px 12px',
+            padding: '8px 16px',
             fontSize: '0.78rem',
             fontWeight: 600,
             cursor: 'pointer',
@@ -492,7 +490,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
               {/* Nama Lengkap */}
               <Field
                 label="Nama Lengkap"
-                icon={<User size={13} />}
                 required
                 error={errors.nama_lengkap}
               >
@@ -514,7 +511,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
               {/* Nomor WhatsApp */}
               <Field
                 label="Nomor WhatsApp"
-                icon={<Phone size={13} />}
                 required
                 error={errors.whatsapp}
               >
@@ -545,7 +541,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
               {/* Email */}
               <Field
                 label="Email Aktif"
-                icon={<Mail size={13} />}
                 required
                 error={errors.email}
               >
@@ -567,7 +562,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
               {/* Instansi */}
               <Field
                 label="Instansi / Organisasi"
-                icon={<Building2 size={13} />}
                 optional
               >
                 <input
@@ -596,7 +590,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
               {/* Jenis Layanan */}
               <Field
                 label="Jenis Layanan"
-                icon={<FileStack size={13} />}
                 required
                 error={errors.jenis_layanan}
               >
@@ -641,7 +634,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
               {/* Jumlah Dokumen */}
               <Field
                 label="Jumlah Dokumen / Arsip"
-                icon={<Files size={13} />}
                 required
                 error={errors.jumlah_dokumen}
               >
@@ -666,7 +658,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
             {/* Tanggal Booking (read-only) */}
             <Field
               label="Tanggal Booking"
-              icon={<Calendar size={13} />}
             >
               <div style={{ position: 'relative' }}>
                 <input
@@ -691,7 +682,6 @@ export default function BookingForm({ selectedDate, onBack, onSuccess }: Booking
             {/* Catatan Tambahan */}
             <Field
               label="Catatan Tambahan"
-              icon={<MessageSquare size={13} />}
               optional
             >
               <textarea

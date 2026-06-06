@@ -190,7 +190,7 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
     } else if (status === 'available') {
       cellBg = '#ffffff';
       cellTextColor = '#1e293b'; // slate-800
-      dotColor = '#16a34a'; // clean green dot
+      dotColor = BK_STATUS_COLORS.available.dot; // brand blue dot
       cursor = 'pointer';
       fontWeight = 600;
       cellBorder = '1px solid #e2e8f0'; // slate-200 subtle outline
@@ -214,6 +214,7 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
       >
         <motion.button
           type="button"
+          className="calendar-day-btn"
           whileHover={
             isClickable
               ? {
@@ -299,6 +300,21 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
           from { opacity: 0; transform: translateY(-4px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @media (max-width: 640px) {
+          .calendar-day-btn {
+            aspect-ratio: 1 / 1 !important;
+            min-height: 0 !important;
+            padding: 2px !important;
+            border-radius: 8px !important;
+          }
+          .calendar-grid-container {
+            padding: 4px 8px 8px !important;
+          }
+          .calendar-nav-btn {
+            width: 42px !important;
+            height: 42px !important;
+          }
+        }
       `}</style>
 
       {/* Global tooltip rendered via portal-like fixed div */}
@@ -361,6 +377,7 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
         >
           <motion.button
             type="button"
+            className="calendar-nav-btn"
             whileHover={!isCurrentOrPast ? { scale: 1.05, backgroundColor: 'rgba(30, 58, 95, 0.08)' } : {}}
             whileTap={!isCurrentOrPast ? { scale: 0.95 } : {}}
             onClick={goToPrevMonth}
@@ -404,7 +421,6 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
                   justifyContent: 'center',
                 }}
               >
-                <Calendar size={16} style={{ color: BK_COLORS.primary, opacity: 0.9 }} />
                 <span
                   style={{
                     fontFamily: BK_FONTS.display,
@@ -422,6 +438,7 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
 
           <motion.button
             type="button"
+            className="calendar-nav-btn"
             whileHover={{ scale: 1.05, backgroundColor: 'rgba(30, 58, 95, 0.08)' }}
             whileTap={{ scale: 0.95 }}
             onClick={goToNextMonth}
@@ -472,7 +489,7 @@ export default function BookingCalendar({ onSelectDate, selectedDate }: BookingC
         </div>
 
         {/* ── Calendar grid ── */}
-        <div style={{ padding: '4px 16px 16px' }}>
+        <div className="calendar-grid-container" style={{ padding: '4px 16px 16px' }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={`grid-${currentYear}-${currentMonth}`}
