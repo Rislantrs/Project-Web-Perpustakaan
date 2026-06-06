@@ -628,7 +628,6 @@ export default function BookingPage() {
         minHeight: '100vh',
         backgroundColor: BK_COLORS.surface,
         fontFamily: BK_FONTS.sans,
-        paddingTop: '80px', // offset for sticky fixed navbar
       }}
     >
       {/* ── Hero Section (Premium Split Redesign) ── */}
