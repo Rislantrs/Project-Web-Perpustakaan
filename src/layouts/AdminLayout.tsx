@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, Navigate, useNavigate } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags, ChevronDown, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags, ChevronDown, CalendarCheck, Menu, X } from 'lucide-react';
 import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     utama: true,
     konten: true,
@@ -70,12 +71,32 @@ export default function AdminLayout() {
   const handleLogout = () => { logoutAdmin(); navigate('/'); };
 
   return (
-    <div className="flex h-screen bg-brand-light overflow-hidden font-sans">
+    <div className="flex h-screen bg-brand-light overflow-hidden font-sans relative">
       
+      {/* Backdrop overlay di mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar navigasi panel admin */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col hide-scrollbar">
-        <div className="h-16 flex items-center px-6 border-b border-gray-100">
+      <aside 
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col hide-scrollbar transition-transform duration-300 ease-in-out md:static md:translate-x-0 shrink-0 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100">
           <h1 className="font-bold text-xl text-brand-primary">Perpus<span className="text-brand-accent">Admin</span></h1>
+          <button 
+            type="button" 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-1 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
+            aria-label="Tutup sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
         
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
@@ -106,6 +127,7 @@ export default function AdminLayout() {
                         <Link
                           key={item.path}
                           to={item.path}
+                          onClick={() => setIsSidebarOpen(false)} // Tutup sidebar setelah mengklik rute di mobile
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                               isActive
                                 ? 'bg-brand-primary-5 text-brand-primary'
@@ -140,9 +162,28 @@ export default function AdminLayout() {
       </aside>
 
       {/* Konten utama halaman dashboard admin */}
-      <main className="flex-1 overflow-y-auto bg-brand-light">
-        <div className="p-8 max-w-5xl mx-auto">
-          <Outlet />
+      <main className="flex-1 flex flex-col overflow-hidden bg-brand-light">
+        {/* Header mobile khusus */}
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:hidden z-10 shrink-0">
+          <button 
+            type="button" 
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+            aria-label="Buka sidebar"
+          >
+            <Menu size={24} />
+          </button>
+          <span className="font-bold text-lg text-brand-primary">Perpus<span className="text-brand-accent">Admin</span></span>
+          <div className="w-8 h-8 flex items-center justify-center rounded-full bg-brand-primary-5 text-brand-primary font-bold text-xs">
+            ADM
+          </div>
+        </header>
+
+        {/* Area scrollable untuk halaman */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-8 max-w-5xl mx-auto">
+            <Outlet />
+          </div>
         </div>
       </main>
 

@@ -196,7 +196,7 @@ export class ApiBookingRepo implements IBookingRepository {
   async updateStatus(
     id: string,
     status: BookingStatus,
-    options?: { note?: string; changedBy?: string }
+    options?: { note?: string; changedBy?: string; jumlah_dokumen?: number }
   ): Promise<ServiceResponse<Booking>> {
     try {
       const result = await apiFetch<ServiceResponse<Booking>>(
@@ -207,6 +207,7 @@ export class ApiBookingRepo implements IBookingRepository {
             status,
             note:      options?.note,
             changedBy: options?.changedBy,
+            jumlah_dokumen: options?.jumlah_dokumen,
           }),
         }
       );

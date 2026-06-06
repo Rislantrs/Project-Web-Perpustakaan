@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         <p className="text-gray-500 mt-1">Selamat datang di Panel Admin Disipusda.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat, i) => (
           <div key={i} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
             <div className={`p-3 rounded-xl ${stat.bg} shrink-0`}>

@@ -148,6 +148,206 @@ function StatCard({ label, count, icon, bg, text, border }: StatCardProps) {
   );
 }
 
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 animate-pulse space-y-3">
+      <div className="flex justify-between items-start">
+        <div className="space-y-1.5 flex-1 pr-6">
+          <div className="h-3 bg-gray-100 rounded w-12" />
+          <div className="h-4 bg-gray-100 rounded w-2/3" />
+          <div className="h-3 bg-gray-100 rounded w-1/3" />
+        </div>
+        <div className="h-5 bg-gray-100 rounded w-16" />
+      </div>
+      <div className="grid grid-cols-2 gap-2 border-t border-b border-gray-50 py-3 my-3">
+        <div className="space-y-1">
+          <div className="h-2 bg-gray-100 rounded w-12" />
+          <div className="h-3 bg-gray-100 rounded w-16" />
+        </div>
+        <div className="space-y-1">
+          <div className="h-2 bg-gray-100 rounded w-12" />
+          <div className="h-3 bg-gray-100 rounded w-16" />
+        </div>
+      </div>
+      <div className="flex justify-between items-center pt-1">
+        <div className="flex gap-2">
+          <div className="h-7 bg-gray-100 rounded-lg w-16" />
+          <div className="h-7 bg-gray-100 rounded-lg w-16" />
+        </div>
+        <div className="h-8 bg-gray-100 rounded-lg w-20" />
+      </div>
+    </div>
+  );
+}
+
+function BookingCard({ 
+  booking, 
+  idx, 
+  currentPage, 
+  onOpenModal, 
+  onOpenDetailModal,
+  expandedRow,
+  setExpandedRow
+}: { 
+  booking: Booking; 
+  idx: number; 
+  currentPage: number; 
+  onOpenModal: (type: ModalType, b: Booking) => void;
+  onOpenDetailModal: (b: Booking) => void;
+  expandedRow: string | null;
+  setExpandedRow: (id: string | null) => void;
+}) {
+  const isExpanded = expandedRow === booking.id;
+
+  return (
+    <div 
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:border-gray-200 transition-all cursor-pointer"
+      onClick={() => setExpandedRow(isExpanded ? null : booking.id)}
+    >
+      {/* Header Card: No & Tanggal Booking */}
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <span className="text-[10px] text-gray-400 font-mono">#{((currentPage - 1) * PAGE_SIZE + idx + 1)}</span>
+          <h4 className="font-bold text-gray-900 mt-0.5">{booking.nama_lengkap}</h4>
+          <p className="text-xs text-gray-500">{booking.instansi || 'Perorangan'}</p>
+        </div>
+        <StatusBadge status={booking.status} />
+      </div>
+
+      {/* Detail Ringkas */}
+      <div className="grid grid-cols-2 gap-2 text-xs border-t border-b border-gray-50 py-3 my-3">
+        <div>
+          <p className="text-gray-400 font-medium">Tgl Booking</p>
+          <p className="font-semibold text-gray-700 mt-0.5">{fmtDate(booking.tanggal_booking)}</p>
+        </div>
+        <div>
+          <p className="text-gray-400 font-medium">Jumlah Dokumen</p>
+          <p className="font-semibold text-gray-700 mt-0.5">{booking.jumlah_dokumen.toLocaleString('id-ID')} Lembar</p>
+        </div>
+        <div className="col-span-2">
+          <p className="text-gray-400 font-medium">Jenis Layanan</p>
+          <p className="text-gray-700 mt-0.5 line-clamp-1">{booking.jenis_layanan}</p>
+        </div>
+      </div>
+
+      {/* Hubungi & Aksi */}
+      <div className="flex items-center justify-between gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-2">
+          <a 
+            href={`https://wa.me/${booking.whatsapp.replace(/[^0-9]/g, '')}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors"
+          >
+            WhatsApp
+          </a>
+          <button
+            onClick={() => void onOpenDetailModal(booking)}
+            className="text-[11px] font-bold text-gray-600 bg-gray-50 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1"
+          >
+            <Eye size={12} /> Detail
+          </button>
+        </div>
+
+        {/* Tombol Tindakan Cepat */}
+        <div className="flex items-center gap-1">
+          {/* Setujui */}
+          {ALLOWED_TRANSITIONS[booking.status].includes('approved') && (
+            <button
+              onClick={() => onOpenModal('approve', booking)}
+              className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors"
+              title="Setujui"
+            >
+              <CheckCircle size={16} />
+            </button>
+          )}
+          {/* Tolak */}
+          {ALLOWED_TRANSITIONS[booking.status].includes('rejected') && (
+            <button
+              onClick={() => onOpenModal('reject', booking)}
+              className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
+              title="Tolak"
+            >
+              <X size={16} />
+            </button>
+          )}
+          {/* Jadwal Ulang */}
+          {ALLOWED_TRANSITIONS[booking.status].includes('rescheduled') && (
+            <button
+              onClick={() => onOpenModal('reschedule', booking)}
+              className="p-2 bg-violet-50 text-violet-600 rounded-lg hover:bg-violet-100 transition-colors"
+              title="Jadwal Ulang"
+            >
+              <Calendar size={16} />
+            </button>
+          )}
+          {/* Selesai */}
+          {ALLOWED_TRANSITIONS[booking.status].includes('completed') && (
+            <button
+              onClick={() => onOpenModal('complete', booking)}
+              className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+              title="Selesai"
+            >
+              <Shield size={16} />
+            </button>
+          )}
+          {/* Batalkan */}
+          {ALLOWED_TRANSITIONS[booking.status].includes('cancelled') && (
+            <button
+              onClick={() => onOpenModal('cancel', booking)}
+              className="p-2 bg-gray-50 text-gray-400 rounded-lg hover:bg-gray-100 transition-colors"
+              title="Batalkan"
+            >
+              <XCircle size={16} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Expanded Info */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-3 mt-3 border-t border-gray-50 space-y-3 text-xs">
+              <div>
+                <p className="text-gray-400 font-medium">Email</p>
+                <p className="text-gray-700 font-semibold">{booking.email}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 font-medium">Tanggal Pengajuan</p>
+                <p className="text-gray-700 font-semibold">{fmtDateTime(booking.created_at)}</p>
+              </div>
+              {booking.catatan && (
+                <div>
+                  <p className="text-gray-400 font-medium">Catatan Pemohon</p>
+                  <p className="text-gray-700 bg-gray-50 rounded-xl p-3 border border-gray-100 mt-1">
+                    {booking.catatan}
+                  </p>
+                </div>
+              )}
+              {booking.status === 'rescheduled' && booking.reschedule_date && (
+                <div className="bg-violet-50 rounded-xl p-3 border border-violet-100">
+                  <p className="font-semibold text-violet-800">
+                    Tanggal Baru: {fmtDate(booking.reschedule_date)}
+                  </p>
+                  {booking.reschedule_note && (
+                    <p className="text-violet-600 mt-1">{booking.reschedule_note}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ── Skeleton Row ──────────────────────────────────────────────────────────────
 
 function SkeletonRow() {
@@ -556,12 +756,12 @@ export default function AdminBookings() {
         <div className="flex flex-col md:flex-row gap-3 flex-wrap">
 
           {/* Status dropdown */}
-          <div className="relative">
+          <div className="relative w-full md:w-auto">
             <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <select
               value={filterStatus ?? 'all'}
               onChange={(e) => setFilterStatus(e.target.value as BookingFilters['status'])}
-              className="pl-8 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] outline-none appearance-none cursor-pointer"
+              className="w-full pl-8 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] outline-none appearance-none cursor-pointer"
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value ?? 'all'}>{opt.label}</option>
@@ -571,32 +771,35 @@ export default function AdminBookings() {
           </div>
 
           {/* Date range */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+            <div className="relative flex-1">
               <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               <input
                 type="date"
                 value={filterDateFrom}
                 onChange={(e) => setFilterDateFrom(e.target.value)}
                 max={filterDateTo || undefined}
-                className="pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] outline-none"
+                className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] outline-none"
                 title="Dari Tanggal"
                 placeholder="Dari Tanggal"
               />
             </div>
-            <span className="text-gray-400 text-sm">s/d</span>
-            <input
-              type="date"
-              value={filterDateTo}
-              onChange={(e) => setFilterDateTo(e.target.value)}
-              min={filterDateFrom || undefined}
-              className="px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] outline-none"
-              title="Sampai Tanggal"
-            />
+            <span className="text-gray-400 text-sm text-center shrink-0">s/d</span>
+            <div className="relative flex-1">
+              <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                type="date"
+                value={filterDateTo}
+                onChange={(e) => setFilterDateTo(e.target.value)}
+                min={filterDateFrom || undefined}
+                className="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] outline-none"
+                title="Sampai Tanggal"
+              />
+            </div>
           </div>
 
           {/* Search */}
-          <div className="relative flex-1 min-w-[200px]">
+          <div className="relative flex-1 min-w-[200px] w-full">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -608,10 +811,10 @@ export default function AdminBookings() {
           </div>
 
           {/* Export dropdown */}
-          <div className="relative">
+          <div className="relative w-full md:w-auto">
             <button
               onClick={() => setShowExport((v) => !v)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#1e3a5f] text-white text-sm font-semibold rounded-xl hover:bg-[#16304f] transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1e3a5f] text-white text-sm font-semibold rounded-xl hover:bg-[#16304f] transition-colors"
             >
               <Download size={15} />
               Ekspor
@@ -623,7 +826,7 @@ export default function AdminBookings() {
                   initial={{ opacity: 0, y: 8, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                  className="absolute right-0 mt-2 w-44 bg-white border border-gray-100 rounded-xl shadow-xl z-20 overflow-hidden"
+                  className="absolute right-0 md:right-0 left-0 md:left-auto mt-2 w-full md:w-44 bg-white border border-gray-100 rounded-xl shadow-xl z-20 overflow-hidden"
                 >
                   <button
                     onClick={() => void handleExport('excel')}
@@ -648,7 +851,7 @@ export default function AdminBookings() {
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              className="w-full md:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
             >
               <RotateCcw size={14} />
               Reset Filter
@@ -666,8 +869,39 @@ export default function AdminBookings() {
         </div>
       </div>
 
-      {/* ── Data Table ────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* ── Data Table & Cards ────────────────────────────────────────────── */}
+      
+      {/* Mobile Card List (Visible only on mobile/tablet) */}
+      <div className="block md:hidden space-y-4">
+        {isLoading
+          ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+          : bookings.length === 0
+            ? (
+              <div className="bg-white rounded-3xl border border-gray-100 p-8 text-center">
+                <Clock size={48} className="mx-auto text-gray-200 mb-4" />
+                <p className="text-gray-400 font-medium">Belum ada booking</p>
+                <p className="text-xs text-gray-300 mt-1">
+                  {hasActiveFilters ? 'Coba ubah filter pencarian' : 'Booking akan muncul di sini setelah ada permohonan masuk'}
+                </p>
+              </div>
+            )
+            : bookings.map((booking, idx) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                idx={idx}
+                currentPage={currentPage}
+                onOpenModal={openModal}
+                onOpenDetailModal={openDetailModal}
+                expandedRow={expandedRow}
+                setExpandedRow={setExpandedRow}
+              />
+            ))
+        }
+      </div>
+
+      {/* Desktop Table View (Visible only on desktop) */}
+      <div className="hidden md:block bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -677,8 +911,8 @@ export default function AdminBookings() {
                   'Instansi', 'Jenis Layanan', 'Jml Dok', 'Tanggal Booking', 'Status', 'Aksi',
                 ].map((col) => (
                   <th
-                    key={col}
-                    className="px-4 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                     key={col}
+                     className="px-4 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap"
                   >
                     {col}
                   </th>

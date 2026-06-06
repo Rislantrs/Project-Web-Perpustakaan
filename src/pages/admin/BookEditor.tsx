@@ -105,7 +105,7 @@ export default function BookEditor() {
         {/* Cover Preview */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><ImageIcon size={18} /> Cover Buku</h2>
-          <div className="flex gap-6 items-start">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
             <div className="w-24 h-32 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-200 flex items-center justify-center">
               {form.cover ? (
                 <SafeImage src={form.cover} alt="preview" className="w-full h-full object-cover" />
@@ -113,7 +113,7 @@ export default function BookEditor() {
                 <BookOpen size={24} className="text-gray-300" />
               )}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <label className={labelCls}>URL Gambar Cover</label>
               <input className={inputCls} placeholder="https://..." value={form.cover} onChange={e => update('cover', e.target.value)} />
               <p className="text-xs text-gray-400 mt-1.5">Gunakan URL dari Unsplash atau layanan gambar lainnya</p>
@@ -207,11 +207,11 @@ export default function BookEditor() {
         )}
 
         {/* Submit */}
-        <div className="flex gap-3 pb-8">
-          <button type="button" onClick={() => navigate('/admin/books')} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+        <div className="flex flex-col sm:flex-row gap-3 pb-8">
+          <button type="button" onClick={() => navigate('/admin/books')} className="w-full sm:flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
             Batal
           </button>
-          <button type="submit" disabled={loading} className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-dark transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-60">
+          <button type="submit" disabled={loading} className="w-full sm:flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-dark transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-60">
             <Save size={16} />
             {loading ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambah Buku'}
           </button>

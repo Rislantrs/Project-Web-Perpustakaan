@@ -70,7 +70,7 @@ export interface IBookingRepository {
   updateStatus(
     id: string,
     status: BookingStatus,
-    options?: { note?: string; changedBy?: string }
+    options?: { note?: string; changedBy?: string; jumlah_dokumen?: number }
   ): Promise<ServiceResponse<Booking>>;
 
   /**

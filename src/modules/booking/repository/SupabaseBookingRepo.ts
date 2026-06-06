@@ -308,7 +308,7 @@ export class SupabaseBookingRepo implements IBookingRepository {
   async updateStatus(
     id: string,
     status: BookingStatus,
-    options?: { note?: string; changedBy?: string }
+    options?: { note?: string; changedBy?: string; jumlah_dokumen?: number }
   ): Promise<ServiceResponse<Booking>> {
     // Ambil status lama untuk audit log
     const existing = await this.findById(id);
@@ -317,9 +317,14 @@ export class SupabaseBookingRepo implements IBookingRepository {
     }
 
     // Update status booking
+    const updateData: Record<string, any> = { status, updated_at: new Date().toISOString() };
+    if (options?.jumlah_dokumen !== undefined) {
+      updateData.jumlah_dokumen = options.jumlah_dokumen;
+    }
+
     const { data: updated, error: updateError } = await supabase
       .from(TABLE_BOOKINGS)
-      .update({ status, updated_at: new Date().toISOString() })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
@@ -335,13 +340,20 @@ export class SupabaseBookingRepo implements IBookingRepository {
       .update({ status })
       .eq('booking_id', id);
 
+    // Otomatis catat penyesuaian dokumen di audit log
+    let auditNote = options?.note ?? null;
+    if (options?.jumlah_dokumen !== undefined && options.jumlah_dokumen !== existing.jumlah_dokumen) {
+      const adjustmentMsg = `Penyesuaian jumlah dokumen: ${existing.jumlah_dokumen} -> ${options.jumlah_dokumen}`;
+      auditNote = auditNote ? `${adjustmentMsg}. Catatan: ${auditNote}` : adjustmentMsg;
+    }
+
     // Insert audit log (non-critical, jangan block)
     const { error: auditError } = await supabase.from(TABLE_AUDIT_LOGS).insert({
       booking_id:  id,
       old_status:  existing.status,
       new_status:  status,
       changed_by:  options?.changedBy ?? null,
-      note:        options?.note ?? null,
+      note:        auditNote,
     });
 
     if (auditError) {

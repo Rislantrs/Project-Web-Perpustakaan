@@ -232,7 +232,7 @@ export const findAll = (filters: BookingFilters): Promise<PaginatedResponse<Book
 export async function updateStatus(
   id: string,
   status: BookingStatus,
-  options?: { note?: string; changedBy?: string }
+  options?: { note?: string; changedBy?: string; jumlah_dokumen?: number }
 ): Promise<ServiceResponse<Booking>> {
   const res = await repo.updateStatus(id, status, options);
   if (res.success && res.data) {
