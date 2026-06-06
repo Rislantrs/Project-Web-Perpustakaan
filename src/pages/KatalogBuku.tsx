@@ -332,15 +332,15 @@ export default function KatalogBuku() {
             </div>
           </div>
 
-          <div ref={recScrollRef} className="flex gap-6 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory pr-4">
+          <div ref={recScrollRef} className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory pr-4">
             {recommendedBooks.map((book) => (
               <motion.div
                 key={book.id}
                 whileHover={{ y: -8 }}
                 onClick={() => setSelectedBook(book)}
-                className="min-w-[240px] max-w-[240px] bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer group snap-start hover:shadow-xl transition-shadow"
+                className="min-w-[140px] max-w-[140px] sm:min-w-[220px] sm:max-w-[220px] bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer group snap-start hover:shadow-xl transition-shadow"
               >
-                <div className="h-64 relative overflow-hidden bg-gray-100">
+                <div className="h-40 sm:h-60 relative overflow-hidden bg-gray-100">
                   <SafeImage
                     src={book.cover}
                     alt={book.judul}
@@ -460,7 +460,7 @@ export default function KatalogBuku() {
 
         {/* Books Grid */}
         {isLoadingCatalog ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {Array.from({ length: 12 }).map((_, idx) => (
               <div key={idx} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
                 <div className="aspect-[2/3] bg-gray-100" />
@@ -473,7 +473,7 @@ export default function KatalogBuku() {
             ))}
           </div>
         ) : paginatedBooks.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {paginatedBooks.map((book) => (
               <motion.div
                 key={book.id}

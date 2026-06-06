@@ -45,7 +45,7 @@ export default function Galendo() {
           
           {/* Section 1 */}
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl h-80">
+            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-[16/10] md:h-80 md:aspect-auto">
               <img src={galendo1} alt="Pelestarian Naskah" className="w-full h-full object-cover" />
             </div>
             <div className="w-full md:w-1/2">
@@ -63,7 +63,7 @@ export default function Galendo() {
 
           {/* Section 2 */}
           <div className="flex flex-col md:flex-row-reverse items-center gap-12">
-            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl h-80">
+            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-[16/10] md:h-80 md:aspect-auto">
               <img src={galendo2} alt="Manfaat GALENDO" className="w-full h-full object-cover" />
             </div>
             <div className="w-full md:w-1/2">
@@ -76,7 +76,7 @@ export default function Galendo() {
 
           {/* Section 3 */}
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl h-[400px]">
+            <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-[16/10] md:h-[400px] md:aspect-auto">
               <img src={galendo3} alt="Alur Kegiatan" className="w-full h-full object-cover" />
             </div>
             <div className="w-full md:w-1/2">
@@ -134,7 +134,7 @@ export default function Galendo() {
 
             {/* Visual Image - Made SLIMMER */}
             <div className="w-full lg:w-1/2 flex justify-center">
-              <div className="relative w-full max-w-[420px] h-[550px] md:h-[650px] rounded-[30px] overflow-hidden flex items-center justify-center border border-white/5 bg-white/5 backdrop-blur-sm p-4">
+              <div className="relative w-full max-w-[420px] aspect-[3/4] max-h-[450px] md:max-h-none md:h-[650px] md:aspect-auto rounded-[30px] overflow-hidden flex items-center justify-center border border-white/5 bg-white/5 backdrop-blur-sm p-4">
                  <img 
                   src={naskahKuno} 
                   alt="Manuskrip Ranca Darah" 
