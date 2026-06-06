@@ -292,7 +292,7 @@ Deno.serve(async (req) => {
     const webhookSecret = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://disipusda.purwakartakab.go.id';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://lann.codes';
 
     if (!telegramToken || !supabaseUrl || !serviceRoleKey) {
       console.error('Missing env vars: TELEGRAM_BOT_TOKEN | SUPABASE_URL | SUPABASE_SERVICE_ROLE_KEY');

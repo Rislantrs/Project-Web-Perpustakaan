@@ -196,8 +196,8 @@ Deno.serve(async (req) => {
   const resendApiKey = Deno.env.get('RESEND_API_KEY');
   const telegramToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
   const adminChatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID');
-  const siteUrl = Deno.env.get('SITE_URL') || 'https://disipusda.purwakartakab.go.id';
-  const emailDomain = Deno.env.get('EMAIL_DOMAIN') || 'disipusda.purwakartakab.go.id';
+  const siteUrl = Deno.env.get('SITE_URL') || 'https://lann.codes';
+  const emailDomain = Deno.env.get('EMAIL_DOMAIN') || 'lann.codes';
 
   if (!supabaseUrl || !serviceRoleKey || !resendApiKey || !telegramToken || !adminChatId) {
     return json(500, {
