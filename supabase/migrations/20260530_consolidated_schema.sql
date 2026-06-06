@@ -441,6 +441,14 @@ CREATE POLICY "members_read_owner_or_admin"
     OR public.is_admin_from_admins()
   );
 
+CREATE POLICY "members_insert_owner_or_admin"
+  ON public.members
+  FOR INSERT
+  WITH CHECK (
+    id = auth.uid()::text
+    OR public.is_admin_from_admins()
+  );
+
 CREATE POLICY "members_update_owner_or_admin"
   ON public.members
   FOR UPDATE
