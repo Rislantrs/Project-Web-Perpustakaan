@@ -460,7 +460,7 @@ export default function KatalogBuku() {
 
         {/* Books Grid */}
         {isLoadingCatalog ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {Array.from({ length: 12 }).map((_, idx) => (
               <div key={idx} className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse">
                 <div className="aspect-[2/3] bg-gray-100" />
@@ -473,7 +473,7 @@ export default function KatalogBuku() {
             ))}
           </div>
         ) : paginatedBooks.length > 0 ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {paginatedBooks.map((book) => (
               <motion.div
                 key={book.id}
