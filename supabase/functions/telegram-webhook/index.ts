@@ -357,7 +357,18 @@ Deno.serve(async (req) => {
     // --- handle regular messages ---
     if (update.message?.text) {
       const chatId = update.message.chat.id;
-      const text = update.message.text;
+      const text = update.message.text.trim();
+
+      // Security check: Only respond to the configured admin
+      if (String(chatId) !== String(adminChatId)) {
+        await sendMessage(
+          telegramToken,
+          chatId,
+          '🔒 <b>Akses Ditolak:</b> Anda bukan administrator yang terdaftar.',
+          'HTML',
+        );
+        return new Response('OK', { status: 200 });
+      }
 
       if (text === '/start' || text === '/help') {
         await sendMessage(
@@ -366,11 +377,12 @@ Deno.serve(async (req) => {
           [
             `🤖 <b>Bot Disipusda Purwakarta</b>`,
             ``,
-            `Bot ini mengirimkan notifikasi booking enkapsulasi arsip.`,
-            ``,
-            `Perintah tersedia:`,
-            `• /start - Tampilkan pesan ini`,
-            `• /status - Cek koneksi bot`,
+            `Perintah Bot Admin:`,
+            `• /hari_ini - Menampilkan daftar kunjungan hari ini`,
+            `• /cari [nama/ID] - Mencari data booking`,
+            `• /statistik - Statistik booking bulan ini`,
+            `• /status - Cek status keaktifan bot`,
+            `• /help - Tampilkan panduan ini`,
             ``,
             `🔗 <a href="${siteUrl}/admin/bookings">Buka Dashboard Admin</a>`,
           ].join('\n'),
@@ -383,6 +395,143 @@ Deno.serve(async (req) => {
           '✅ Bot aktif dan berjalan dengan normal.',
           'HTML',
         );
+      } else if (text === '/hari_ini') {
+        const formatter = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Jakarta',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+        const todayJakartaYMD = formatter.format(new Date());
+
+        const { data: bookings, error } = await supabase
+          .from('bookings')
+          .select('nama_lengkap, jumlah_dokumen, jenis_layanan, status')
+          .eq('tanggal_booking', todayJakartaYMD)
+          .order('created_at', { ascending: true });
+
+        if (error || !bookings) {
+          await sendMessage(telegramToken, chatId, '⚠️ Gagal memuat data dari database.', 'HTML');
+        } else if (bookings.length === 0) {
+          await sendMessage(
+            telegramToken,
+            chatId,
+            `📅 <b>Jadwal Hari Ini:</b>\nTidak ada jadwal pelayanan enkapsulasi hari ini.`,
+            'HTML'
+          );
+        } else {
+          const listSchedules = bookings.map((b: any, index: number) => {
+            const statusIcon = b.status === 'approved' ? '✅' : b.status === 'pending' ? '⏳' : '•';
+            return `${index + 1}. ${statusIcon} <b>${b.nama_lengkap}</b> (${b.jumlah_dokumen} arsip - ${b.jenis_layanan})`;
+          }).join('\n');
+          
+          await sendMessage(
+            telegramToken,
+            chatId,
+            `📅 <b>Jadwal Hari Ini:</b>\n\n${listSchedules}\n\n🔗 <a href="${siteUrl}/admin/bookings">Buka Dashboard</a>`,
+            'HTML'
+          );
+        }
+      } else if (text.startsWith('/cari')) {
+        const query = text.slice(5).trim();
+        if (!query) {
+          await sendMessage(
+            telegramToken,
+            chatId,
+            'ℹ️ <b>Format Salah:</b> Gunakan perintah <code>/cari [Nama, WA, atau ID]</code>.',
+            'HTML'
+          );
+        } else {
+          let selectQuery = supabase.from('bookings').select('id, nama_lengkap, jumlah_dokumen, tanggal_booking, status');
+          
+          if (query.length === 8 && /^[0-9a-fA-F]{8}$/.test(query)) {
+            selectQuery = selectQuery.or(`id.like.${query.toLowerCase()}%,nama_lengkap.ilike.%${query}%,email.ilike.%${query}%`);
+          } else {
+            selectQuery = selectQuery.or(`nama_lengkap.ilike.%${query}%,email.ilike.%${query}%,whatsapp.ilike.%${query}%`);
+          }
+          
+          const { data: results, error } = await selectQuery.limit(5);
+          
+          if (error || !results) {
+            await sendMessage(telegramToken, chatId, '⚠️ Gagal mencari data.', 'HTML');
+          } else if (results.length === 0) {
+            await sendMessage(
+              telegramToken,
+              chatId,
+              `🔍 <b>Hasil Pencarian untuk "${query}":</b>\nTidak ada data booking yang cocok.`,
+              'HTML'
+            );
+          } else {
+            const listResults = results.map((b: any) => {
+              const shortId = b.id.slice(0, 8);
+              const tanggal = new Date(b.tanggal_booking).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+              const statusMap: Record<string, string> = {
+                pending: '⏳ Pending',
+                approved: '✅ Disetujui',
+                rejected: '❌ Ditolak',
+                rescheduled: '📅 Reschedule',
+                cancelled: '🚫 Batal',
+                completed: '✔️ Selesai',
+              };
+              return `• <b>#${shortId}</b> - <b>${b.nama_lengkap}</b>\n  Tanggal: ${tanggal} | ${b.jumlah_dokumen} arsip\n  Status: ${statusMap[b.status] || b.status}`;
+            }).join('\n\n');
+            
+            await sendMessage(
+              telegramToken,
+              chatId,
+              `🔍 <b>Hasil Pencarian untuk "${query}":</b>\n\n${listResults}`,
+              'HTML'
+            );
+          }
+        }
+      } else if (text === '/statistik') {
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        
+        const { data: stats, error } = await supabase
+          .from('bookings')
+          .select('status')
+          .gte('tanggal_booking', firstDayOfMonth);
+          
+        if (error || !stats) {
+          await sendMessage(telegramToken, chatId, '⚠️ Gagal mengambil statistik.', 'HTML');
+        } else {
+          const counts = {
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+            rescheduled: 0,
+            cancelled: 0,
+            completed: 0,
+          };
+          
+          stats.forEach((b: any) => {
+            if (b.status in counts) {
+              counts[b.status as keyof typeof counts]++;
+            }
+          });
+          
+          const total = stats.length;
+          const monthName = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+          
+          await sendMessage(
+            telegramToken,
+            chatId,
+            [
+              `📊 <b>Statistik Booking - ${monthName}</b>`,
+              `━━━━━━━━━━━━━━━━━━━━`,
+              `⏳ Pending       : <b>${counts.pending}</b>`,
+              `✅ Disetujui     : <b>${counts.approved}</b>`,
+              `📅 Rescheduled   : <b>${counts.rescheduled}</b>`,
+              `✔️ Selesai       : <b>${counts.completed}</b>`,
+              `❌ Ditolak       : <b>${counts.rejected}</b>`,
+              `🚫 Dibatalkan    : <b>${counts.cancelled}</b>`,
+              `━━━━━━━━━━━━━━━━━━━━`,
+              `📈 Total Booking : <b>${total}</b>`,
+            ].join('\n'),
+            'HTML'
+          );
+        }
       }
     }
 
