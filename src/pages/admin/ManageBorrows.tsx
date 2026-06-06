@@ -122,12 +122,12 @@ export default function ManageBorrows() {
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white"
           />
         </div>
-        <div className="flex bg-gray-100 p-1 rounded-xl">
+        <div className="flex bg-gray-100 p-1 rounded-xl overflow-x-auto hide-scrollbar whitespace-nowrap max-w-full shrink-0">
           {(['semua', 'menunggu_diambil', 'dipinjam', 'dikembalikan'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filter === tab ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shrink-0 ${filter === tab ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
               {tab.replace('_', ' ')}
             </button>
@@ -135,19 +135,19 @@ export default function ManageBorrows() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
-        <p className="text-xs text-gray-500 font-semibold">Menampilkan {paginated.length} dari {filtered.length} data</p>
-        <div className="lg:ml-auto flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <p className="text-xs text-gray-500 font-semibold shrink-0">Menampilkan {paginated.length} dari {filtered.length} data</p>
+        <div className="sm:ml-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <input
             type="month"
             value={archiveMonth}
             onChange={e => setArchiveMonth(e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white"
+            className="w-full sm:w-auto px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white"
           />
 
           <button
             onClick={handleExportMonthlyCsv}
-            className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
           >
             <Download size={14} /> Ekspor CSV Bulanan
           </button>
@@ -160,15 +160,15 @@ export default function ManageBorrows() {
           <motion.div 
             layout 
             key={b.id}
-            className="bg-white rounded-xl border border-gray-100 px-4 py-3 shadow-sm hover:shadow transition-all"
+            className="bg-white rounded-xl border border-gray-100 px-4 py-4 shadow-sm hover:shadow transition-all"
           >
-            <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_auto_auto] gap-3 items-center">
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto_auto] gap-4 items-center">
               {/* Book Info */}
               <div className="min-w-0">
                 <div>
-                  <h3 className="font-bold text-gray-900 mb-1 line-clamp-1 flex items-center gap-2">
+                  <h3 className="font-bold text-gray-900 mb-1 line-clamp-2 flex items-center gap-2">
                     <BookOpen size={14} className="text-gray-400 shrink-0" />
-                    <span className="truncate">{b.bookTitle}</span>
+                    <span>{b.bookTitle}</span>
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-brand-accent font-bold truncate">
                     <User size={12} /> {b.memberName} ({b.memberId})
@@ -177,7 +177,7 @@ export default function ManageBorrows() {
               </div>
 
               {/* Status & Dates */}
-              <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-xs shrink-0">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs shrink-0 w-full sm:w-auto">
                 <div>
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Pinjam</p>
                   <p className="text-xs font-semibold text-gray-700">{b.tanggalPinjam}</p>
@@ -198,11 +198,11 @@ export default function ManageBorrows() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 w-full xl:w-auto mt-2 xl:mt-0">
                 {b.status === 'menunggu_diambil' && (
                   <button 
                     onClick={() => handleConfirm(b.id)}
-                    className="px-3 py-2 bg-brand-primary text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-brand-primary-dark transition-colors shadow-sm flex items-center justify-center gap-1"
+                    className="w-full xl:w-auto px-3 py-2 bg-brand-primary text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-brand-primary-dark transition-colors shadow-sm flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle size={14} /> Konfirmasi Pengambilan
                   </button>
@@ -210,13 +210,13 @@ export default function ManageBorrows() {
                 {b.status === 'dipinjam' && (
                   <button 
                     onClick={() => handleReturn(b.id)}
-                    className="px-3 py-2 bg-emerald-600 text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-1"
+                    className="w-full xl:w-auto px-3 py-2 bg-emerald-600 text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-1.5"
                   >
                     <History size={14} /> Konfirmasi Kembali
                   </button>
                 )}
                 {b.status === 'dikembalikan' && (
-                  <span className="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <span className="w-full xl:w-auto px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
                     <CheckCircle size={14} /> Sudah Kembali pada {b.tanggalDikembalikan}
                   </span>
                 )}
