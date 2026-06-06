@@ -1,4 +1,4 @@
-import { ChevronRight, Award, Star, Trophy, Search, X } from 'lucide-react';
+import { ChevronRight, Award, Star, Trophy, ChevronLeft, X } from 'lucide-react';
 import libHero from '../assets/image/lib-hero.webp';
 import libTeam from '../assets/image/lib-team.webp';
 import libIndoor from '../assets/image/lib-indoor.webp';
@@ -7,10 +7,8 @@ import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
 import { getAchievements, syncAchievements, type Achievement } from '../services/settingsService';
 
-
 // HARDCODE FALLBACK DATA:
 // dipakai jika data prestasi dari settings belum tersedia.
-// Beberapa item memakai gambar lokal.
 const prestasiList = [
   {
     id: 1,
@@ -37,8 +35,7 @@ const prestasiList = [
 
 export default function Prestasi() {
   const [items, setItems] = useState<Achievement[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedYear, setSelectedYear] = useState('Semua');
+  const [activeFeaturedIndex, setActiveFeaturedIndex] = useState(0);
   const [selectedItem, setSelectedItem] = useState<Achievement | null>(null);
   
   useEffect(() => {
@@ -61,19 +58,65 @@ export default function Prestasi() {
     img: d.img
   }));
 
-  // Ambil daftar tahun unik dari data prestasi secara dinamis
-  const years = ['Semua', ...Array.from(new Set(displayList.map(item => item.year))).sort((a, b) => b.localeCompare(a))];
+  // 3 prestasi teratas untuk 3D Spotlight Carousel
+  const featuredItems = displayList.slice(0, 3);
 
-  // Filter berdasarkan tahun dan pencarian
-  const filteredItems = displayList.filter(item => {
-    const matchesYear = selectedYear === 'Semua' || item.year === selectedYear;
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesYear && matchesSearch;
+  // Kelompokkan semua prestasi berdasarkan tahun untuk bagian bawah
+  const achievementsByYear: { [year: string]: Achievement[] } = {};
+  displayList.forEach(item => {
+    if (!achievementsByYear[item.year]) {
+      achievementsByYear[item.year] = [];
+    }
+    achievementsByYear[item.year].push(item);
   });
+  const sortedYears = Object.keys(achievementsByYear).sort((a, b) => b.localeCompare(a));
+
+  const handleNextFeatured = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveFeaturedIndex((prev) => (prev + 1) % featuredItems.length);
+  };
+
+  const handlePrevFeatured = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveFeaturedIndex((prev) => (prev - 1 + featuredItems.length) % featuredItems.length);
+  };
+
+  // Logika posisi kartu 3D
+  const get3DCardStyle = (index: number) => {
+    const total = featuredItems.length;
+    if (total === 0) return {};
+    
+    const diff = index - activeFeaturedIndex;
+    let position = diff;
+    if (diff === -2) position = 1;
+    if (diff === 2) position = -1;
+
+    if (position === 0) {
+      return {
+        transform: 'translateX(0) scale(1)',
+        zIndex: 30,
+        opacity: 1,
+        pointerEvents: 'auto' as const
+      };
+    } else if (position === 1 || (position === -2 && total === 3)) {
+      return {
+        transform: 'translateX(28%) scale(0.88) rotate(2deg)',
+        zIndex: 20,
+        opacity: 0.5,
+        pointerEvents: 'auto' as const
+      };
+    } else {
+      return {
+        transform: 'translateX(-28%) scale(0.88) rotate(-2deg)',
+        zIndex: 20,
+        opacity: 0.5,
+        pointerEvents: 'auto' as const
+      };
+    }
+  };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-24">
+    <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-24 overflow-x-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb */}
@@ -86,120 +129,170 @@ export default function Prestasi() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-12">
-          <Award size={48} className="mx-auto text-[#d6a54a] mb-6 animate-pulse" />
-          <h1 className="font-serif text-4xl lg:text-5xl font-bold text-[#0c2f3d] mb-4">Prestasi & Penghargaan</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg pt-4 border-t border-gray-200 font-medium">
-            Bukti nyata dedikasi kami dalam mewujudkan pelayanan kearsipan dan perpustakaan terbaik bagi masyarakat Purwakarta dan Indonesia.
+        <div className="text-center mb-10">
+          <Award size={44} className="mx-auto text-[#d6a54a] mb-4" />
+          <h1 className="font-serif text-3xl lg:text-4xl font-bold text-[#0c2f3d] mb-3">Prestasi & Penghargaan</h1>
+          <p className="text-gray-500 max-w-xl mx-auto text-sm md:text-base font-medium">
+            Dedikasi berkelanjutan untuk pelayanan kearsipan dan perpustakaan daerah di Purwakarta.
           </p>
         </div>
 
-        {/* Search & Filter Section */}
-        <div className="mb-12">
-          {/* Search Input */}
-          <div className="max-w-md mx-auto mb-6 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Cari prestasi..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white border border-gray-200 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0c2f3d]/15 focus:border-[#0c2f3d] transition-all font-medium shadow-sm"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+        {/* 3D Spotlight Stack Section */}
+        {featuredItems.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-center text-xs font-bold text-[#d6a54a] uppercase tracking-[0.25em] mb-6">
+              Sorotan Utama
+            </h2>
+            <div className="relative h-[420px] sm:h-[340px] md:h-[360px] w-full max-w-3xl mx-auto flex items-center justify-center overflow-visible">
+              
+              {/* Navigation buttons */}
+              {featuredItems.length > 1 && (
+                <>
+                  <button 
+                    onClick={handlePrevFeatured}
+                    className="absolute left-1 sm:left-4 z-40 p-3 bg-white/95 hover:bg-white text-gray-700 hover:text-black rounded-full shadow-lg transition-all border border-gray-100 hover:scale-105 active:scale-95"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button 
+                    onClick={handleNextFeatured}
+                    className="absolute right-1 sm:right-4 z-40 p-3 bg-white/95 hover:bg-white text-gray-700 hover:text-black rounded-full shadow-lg transition-all border border-gray-100 hover:scale-105 active:scale-95"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
 
-          {/* Year Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
-            {years.map(year => (
-              <button
-                key={year}
-                onClick={() => setSelectedYear(year)}
-                className={`px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                  selectedYear === year
-                    ? 'bg-[#0c2f3d] text-[#d6a54a] shadow-md shadow-[#0c2f3d]/15 scale-105'
-                    : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200 hover:text-gray-800'
-                }`}
-              >
-                {year === 'Semua' ? 'Semua Tahun' : year}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* List of Awards Grid */}
-        {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredItems.map((item) => (
-              <div 
-                key={item.id} 
-                onClick={() => setSelectedItem(item)}
-                className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100/80 flex flex-col group transition-all duration-300 hover:shadow-2xl hover:border-[#d6a54a]/30 hover:-translate-y-2 cursor-pointer"
-              >
-                {/* Image side */}
-                <div className="w-full aspect-[4/3] overflow-hidden relative bg-gray-50 flex items-center justify-center">
-                  {item.img ? (
-                    <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
-                      <Trophy size={48} className="transition-transform duration-500 group-hover:scale-110" />
+              {/* Cards stack */}
+              {featuredItems.map((item, index) => {
+                const isActive = index === activeFeaturedIndex;
+                return (
+                  <div
+                    key={item.id}
+                    style={get3DCardStyle(index)}
+                    onClick={() => isActive ? setSelectedItem(item) : setActiveFeaturedIndex(index)}
+                    className="absolute w-[82%] sm:w-[70%] h-full bg-white rounded-3xl shadow-xl border border-gray-100/80 overflow-hidden transition-all duration-500 flex flex-col sm:flex-row cursor-pointer"
+                  >
+                    {/* Image / Trophy left side */}
+                    <div className="w-full sm:w-[45%] h-[42%] sm:h-full overflow-hidden relative bg-gray-50 flex items-center justify-center shrink-0">
+                      {item.img ? (
+                        <img 
+                          src={item.img} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                          <Trophy size={48} />
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-[#0c2f3d] px-3 py-1 rounded-xl font-bold text-[10px] flex items-center gap-1 shadow-sm border border-gray-100">
+                        <Star size={10} fill="#d6a54a" className="text-[#d6a54a]" /> {item.year}
+                      </div>
                     </div>
-                  )}
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-[#0c2f3d] px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm border border-gray-100">
-                    <Star size={12} fill="#d6a54a" className="text-[#d6a54a]" /> {item.year}
+
+                    {/* Content right side */}
+                    <div className="w-full sm:w-[55%] p-5 sm:p-7 flex flex-col justify-center overflow-hidden">
+                      <span className="text-[8px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2 block">
+                        Featured Highlight
+                      </span>
+                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#0c2f3d] mb-3 leading-snug line-clamp-3">
+                        {item.title}
+                      </h3>
+                      <p className="text-gray-500 text-xs leading-relaxed font-medium line-clamp-3 sm:line-clamp-4">
+                        {item.description}
+                      </p>
+                      {isActive && (
+                        <div className="mt-4 pt-3 border-t border-gray-50 flex items-center text-xs font-bold text-[#0c2f3d] group hover:text-[#d6a54a] transition-colors">
+                          Lihat Selengkapnya <ChevronRight size={14} className="ml-1" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                
-                {/* Text side */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <p className="text-[9px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2">Disipusda Achievement</p>
-                  <h2 className="font-serif text-lg font-bold text-[#0c2f3d] mb-3 leading-snug line-clamp-2 group-hover:text-[#d6a54a] transition-colors">
-                    {item.title}
-                  </h2>
-                  <p className="text-gray-500 leading-relaxed text-xs font-medium line-clamp-3 mb-4 flex-grow">
-                    {item.description}
-                  </p>
-                  <div className="flex items-center text-xs font-bold text-[#0c2f3d] group-hover:text-[#d6a54a] transition-colors mt-auto pt-2 border-t border-gray-50">
-                    Lihat Detail <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* Empty State */
-          <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-md mx-auto">
-            <Trophy size={48} className="mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-bold text-[#0c2f3d] mb-1">Tidak Ada Hasil</h3>
-            <p className="text-gray-500 text-sm px-6">
-              Tidak ada prestasi yang cocok dengan kata kunci pencarian atau filter tahun Anda.
-            </p>
+                );
+              })}
+            </div>
           </div>
         )}
+
+        {/* Divider */}
+        <div className="h-[1px] bg-gray-200/80 w-full mb-12"></div>
+
+        {/* Yearly Horizontal Rails */}
+        <div>
+          <h2 className="text-xs font-bold text-[#d6a54a] uppercase tracking-[0.25em] mb-8 text-center sm:text-left">
+            Arsip Penghargaan per Tahun
+          </h2>
+          
+          <div className="space-y-12">
+            {sortedYears.map((year) => {
+              const yearItems = achievementsByYear[year];
+              return (
+                <div key={year} className="relative">
+                  {/* Section Title */}
+                  <div className="flex items-center gap-2 mb-4 px-1">
+                    <div className="h-5 w-1 bg-[#d6a54a] rounded-full"></div>
+                    <h3 className="text-lg font-serif font-bold text-[#0c2f3d]">{year}</h3>
+                    <span className="text-[10px] text-gray-400 font-bold bg-gray-100 px-2 py-0.5 rounded-full">
+                      {yearItems.length}
+                    </span>
+                  </div>
+
+                  {/* Horizontal Scroll Rail */}
+                  <div className="flex gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-3 scroll-smooth">
+                    {yearItems.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => setSelectedItem(item)}
+                        className="w-[260px] sm:w-[280px] shrink-0 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100/60 flex flex-col snap-start cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                      >
+                        {/* Image Frame */}
+                        <div className="w-full aspect-[16/10] overflow-hidden relative bg-gray-50 flex items-center justify-center">
+                          {item.img ? (
+                            <img 
+                              src={item.img} 
+                              alt={item.title} 
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                              <Trophy size={32} />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Title & Desc */}
+                        <div className="p-4 flex flex-col flex-grow">
+                          <h4 className="font-serif text-sm font-bold text-[#0c2f3d] line-clamp-2 leading-snug mb-2 hover:text-[#d6a54a] transition-colors">
+                            {item.title}
+                          </h4>
+                          <p className="text-gray-400 text-[11px] leading-relaxed font-medium line-clamp-2">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
       </div>
 
       {/* Modal Lightbox Detail */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-          {/* Backdrop click to close */}
           <div className="absolute inset-0" onClick={() => setSelectedItem(null)} />
 
-          {/* Modal Container */}
-          <div className="relative bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] z-10 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative bg-white w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] z-10 animate-in fade-in zoom-in-95 duration-200">
             {/* Close Button */}
             <button
               onClick={() => setSelectedItem(null)}
-              className="absolute top-4 right-4 p-2 bg-white/90 hover:bg-white text-gray-500 hover:text-gray-800 rounded-full shadow-md z-20 transition-all border border-gray-100"
+              className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white text-gray-500 hover:text-gray-800 rounded-full shadow-md z-20 transition-all border border-gray-100"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
             {/* Image section */}
@@ -207,20 +300,22 @@ export default function Prestasi() {
               {selectedItem.img ? (
                 <img src={selectedItem.img} alt={selectedItem.title} className="w-full h-full object-contain" />
               ) : (
-                <Trophy size={80} className="text-white/20" />
+                <Trophy size={64} className="text-white/20" />
               )}
-              <div className="absolute bottom-4 left-4 bg-[#0c2f3d] text-[#d6a54a] px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/10">
-                <Star size={12} fill="currentColor" /> {selectedItem.year}
+              <div className="absolute bottom-3 left-3 bg-[#0c2f3d] text-[#d6a54a] px-3.5 py-1 rounded-xl font-bold text-[10px] flex items-center gap-1 shadow-md border border-white/10">
+                <Star size={10} fill="currentColor" /> {selectedItem.year}
               </div>
             </div>
 
             {/* Description content */}
-            <div className="p-6 md:p-8 overflow-y-auto flex-grow">
-              <p className="text-[10px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2">Disipusda Achievement</p>
-              <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#0c2f3d] mb-4 leading-tight">
+            <div className="p-5 md:p-6 overflow-y-auto flex-grow">
+              <p className="text-[9px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-1.5">
+                Disipusda Achievement
+              </p>
+              <h2 className="font-serif text-xl md:text-2xl font-bold text-[#0c2f3d] mb-3 leading-snug">
                 {selectedItem.title}
               </h2>
-              <p className="text-gray-600 leading-relaxed text-sm md:text-base font-medium whitespace-pre-line">
+              <p className="text-gray-500 leading-relaxed text-xs sm:text-sm font-medium whitespace-pre-line">
                 {selectedItem.description}
               </p>
             </div>
