@@ -593,21 +593,32 @@ export default function BookingPage() {
     }
   }, []);
 
+  const scrollToFlowContainer = () => {
+    setTimeout(() => {
+      const el = document.getElementById('booking-flow-container');
+      if (el) {
+        const yOffset = -90; 
+        const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     setStep(2);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToFlowContainer();
   };
 
   const handleBack = () => {
     setStep(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToFlowContainer();
   };
 
   const handleSuccess = (booking: Booking) => {
     setCompletedBooking(booking);
     setStep(3);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToFlowContainer();
   };
 
   // ─── Render ──────────────────────────────────────────────────────────────
@@ -758,6 +769,7 @@ export default function BookingPage() {
 
       {/* ── Main Content ── */}
       <div
+        id="booking-flow-container"
         style={{
           maxWidth: '1100px',
           margin: '0 auto',
