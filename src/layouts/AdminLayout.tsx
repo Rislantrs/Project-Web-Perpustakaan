@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, Navigate, useNavigate } from 'react-router';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus, ChevronLeft, Image as ImageIcon, BookOpen, Shield, History as LucideHistory, Users, MessageSquare, Clock, Network, Tags, ChevronDown, CalendarCheck } from 'lucide-react';
 import { logoutAdmin, isAdminLoggedIn } from '../services/authService';
 import { SITE_CONFIG } from '../config/siteConfig';
 
@@ -46,6 +46,9 @@ export default function AdminLayout() {
         ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [
           { name: 'Konfirmasi Ambil', path: '/admin/borrows', icon: <LucideHistory size={20} /> },
           { name: 'Kelola Member', path: '/admin/members', icon: <Users size={20} /> },
+        ] : []),
+        ...(SITE_CONFIG.FEATURES.ENABLE_BOOKING ? [
+          { name: 'Booking Enkapsulasi', path: '/admin/bookings', icon: <CalendarCheck size={20} /> },
         ] : []),
         { name: 'Jadwal Layanan', path: '/admin/schedules', icon: <Clock size={20} /> },
         { name: 'Kelola PPID', path: '/admin/ppid', icon: <FileText size={20} /> },
