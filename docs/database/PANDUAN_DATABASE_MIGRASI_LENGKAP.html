@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan Komprehensif: Basis Data, Storage, dan Migrasi - Disipusda Purwakarta</title>
+    <style>
+        /* Modern Reset and CSS Variables */
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #b45309;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #f8f8f2;
+            --alert-tip: #0f766e;
+            --alert-note: #1d4ed8;
+            --alert-warning: #b45309;
+            --alert-caution: #be123c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout Architecture */
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Left Sidebar (Navigation) - Hidden in Print */
+        .sidebar {
+            width: 320px;
+            background-color: var(--primary);
+            color: #f8fafc;
+            padding: 2.5rem 1.5rem;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            border-right: 1px solid var(--primary-light);
+            z-index: 100;
+        }
+
+        .sidebar h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        .sidebar p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.75rem;
+        }
+
+        .sidebar a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.35rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar a:hover {
+            color: #ffffff;
+            background-color: var(--primary-light);
+            padding-left: 0.75rem;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            flex: 1;
+            margin-left: 320px;
+            padding: 3rem 4rem;
+            max-width: 1100px;
+        }
+
+        /* Header Document Info */
+        .doc-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-header h1 {
+            font-size: 2.25rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .doc-header p {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+
+        /* Typography Styles */
+        h1, h2, h3, h4 {
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+        }
+
+        /* Alert Box Styles */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-left: 5px solid transparent;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-note {
+            background-color: #eff6ff;
+            border-left-color: var(--alert-note);
+            color: #1e3a8a;
+        }
+
+        .alert-tip {
+            background-color: #f0fdf4;
+            border-left-color: var(--alert-tip);
+            color: #115e59;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-left-color: var(--alert-warning);
+            color: #78350f;
+        }
+
+        .alert-caution {
+            background-color: #fff5f5;
+            border-left-color: var(--alert-caution);
+            color: #9b1c1c;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Database Tables Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks & Coding Styling */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* SQL Syntax Highlight Colors (Simplified CSS) */
+        .token-keyword { color: #f92672; font-weight: bold; }
+        .token-string { color: #e6db74; }
+        .token-comment { color: #75715e; font-style: italic; }
+        .token-number { color: #ae81ff; }
+        .token-type { color: #66d9ef; font-style: italic; }
+
+        /* Diagrams with Mermaid styling fallback */
+        .flow-diagram {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+            color: #334155;
+        }
+
+        /* Divider and spacing helpers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        .chapter-break {
+            margin-top: 5rem;
+        }
+
+        /* Dynamic Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent);
+            color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background-color: #92400e;
+        }
+
+        /* ---------------------------------------------------- */
+        /* PRINT STYLING - Optimize for PDF Generation          */
+        /* ---------------------------------------------------- */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+                font-size: 14px;
+            }
+
+            .sidebar, .back-to-top {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            .doc-header {
+                border: 2px solid #000000;
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0;
+                padding: 2rem;
+            }
+
+            .doc-header h1 {
+                color: #000000 !important;
+            }
+
+            .doc-header p {
+                color: #333333 !important;
+            }
+
+            h1, h2, h3 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                border-bottom: 2px solid #000000;
+                margin-top: 2rem;
+            }
+
+            pre, table, blockquote, .alert {
+                page-break-inside: avoid;
+            }
+
+            pre {
+                border: 1px solid #94a3b8;
+                box-shadow: none !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            pre code {
+                color: #000000 !important;
+            }
+
+            code {
+                background-color: #f1f5f9;
+                border: 1px solid #cbd5e1;
+            }
+
+            .alert {
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            .alert-title {
+                color: #000000 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
+
+    <div class="wrapper">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <h2>Pusat Panduan</h2>
+            <p>Disipusda Purwakarta</p>
+            <ul>
+                <li><a href="#cover">🔖 Halaman Sampul</a></li>
+                <li><a href="#ch1">📖 Bab 1: Migrasi Database</a></li>
+                <li><a href="#ch1-1">└ Perbandingan DB</a></li>
+                <li><a href="#ch1-3">└ Impor CSV & CLI</a></li>
+                <li><a href="#ch1-5">└ Skema Tabel MySQL</a></li>
+                <li><a href="#ch1-6">└ Backend Jembatan</a></li>
+                <li><a href="#ch2">🔌 Bab 2: Database Lokal</a></li>
+                <li><a href="#ch2-1">└ Arsitektur API</a></li>
+                <li><a href="#ch2-4">└ Script Jembatan API</a></li>
+                <li><a href="#ch2-6">└ SPA Fallback Rules</a></li>
+                <li><a href="#ch3">📑 Bab 3: Skema & Storage</a></li>
+                <li><a href="#ch3-3">└ Kebijakan RLS</a></li>
+                <li><a href="#ch3-5">└ Skrip Upload Aman</a></li>
+                <li><a href="#ch3-6">└ Backup Storage</a></li>
+                <li><a href="#ch4">⏰ Bab 4: Setup Cron & Token</a></li>
+                <li><a href="#ch4-1">└ Konsep Cron Secret</a></li>
+                <li><a href="#ch4-3">└ SQL pg_net / pg_cron</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Cover / Header Section -->
+            <div class="doc-header" id="cover">
+                <h1>Buku Panduan Komprehensif:<br>Basis Data, Storage, dan Migrasi</h1>
+                <p>Panduan teknis lengkap integrasi React frontend dengan database lokal (MySQL) atau Cloud (Supabase/PostgreSQL) beserta penanganan file storage dan cron job.</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #94a3b8;">Diperbarui: Juni 2026 | Tim IT Disipusda Purwakarta</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 1: MIGRASI DATABASE                -->
+            <!-- ========================================== -->
+            <div id="ch1" class="chapter-break">
+                <h1>Bab 1: Panduan Migrasi Database Kustom</h1>
+                <p>Bab ini disusun khusus sebagai acuan utama dalam memindahkan, mengadaptasi, dan mengoperasikan sistem basis data website Disipusda dari infrastruktur cloud <strong>Supabase (PostgreSQL)</strong> ke basis data relasional <strong>MySQL tradisional</strong> di lingkungan hosting umum (seperti cPanel, VPS, Hostinger, atau server dinas lokal).</p>
+
+                <h2 id="ch1-1">1. Perbandingan Paradigma Fundamental: PostgreSQL vs MySQL</h2>
+                <p>Sebelum memulai migrasi, Anda wajib memahami perbedaan arsitektur di bawah ini agar tidak terjadi kesalahan logika saat query database dijalankan:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fitur / Karakteristik</th>
+                            <th>Supabase (PostgreSQL)</th>
+                            <th>MySQL (cPanel / Hosting Umum)</th>
+                            <th>Solusi Transisi / Migrasi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>UUID (Universally Unique ID)</strong></td>
+                            <td>Didukung secara natif (<code>uuid</code>). Nilai acak 36 karakter.</td>
+                            <td>Tipe data <code>UUID</code> tidak didukung secara natif (sebelum MySQL 8.0).</td>
+                            <td>Gunakan tipe <code>VARCHAR(36)</code> di MySQL. Ini aman karena UUID dapat disimpan sebagai string.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Row Level Security (RLS)</strong></td>
+                            <td>Keamanan baris data dikontrol di tingkat DB lewat SQL Policies.</td>
+                            <td>Tidak mendukung RLS di tingkat database.</td>
+                            <td>Pindahkan validasi otorisasi penuh ke tingkat aplikasi backend (skrip PHP/Node.js).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data Dokumen JSON</strong></td>
+                            <td>Tipe data <code>JSONB</code> yang mendukung indexing b-tree cepat.</td>
+                            <td>Tipe <code>JSON</code> (MySQL 5.7.8+) atau fallback ke tipe <code>TEXT</code>.</td>
+                            <td>Gunakan kolom <code>TEXT</code> di MySQL, dan parse string JSON menjadi object di backend.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Timestamp & Zona Waktu</strong></td>
+                            <td>Tipe <code>TIMESTAMPTZ</code> yang menyimpan zona waktu akurat (UTC).</td>
+                            <td>Tipe <code>DATETIME</code> atau <code>TIMESTAMP</code> lokal.</td>
+                            <td>Simpan data waktu dalam format UTC atau set database timezone secara global ke GMT+7 (<code>SET time_zone = '+07:00'</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bahasa Pemrograman DB</strong></td>
+                            <td>Prosedur tersimpan menggunakan <code>PL/pgSQL</code>.</td>
+                            <td>Prosedur tersimpan menggunakan standard <code>SQL/PSM</code>.</td>
+                            <td>Tulis ulang fungsi/prosedur database (seperti RPC) menjadi query native di backend.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>2. Pemetaan Tipe Data & Kompatibilitas Sistem</h2>
+                <p>Gunkan pemetaan (mapping) tipe data berikut saat mengkonversi struktur tabel dari PostgreSQL ke MySQL:</p>
+                <ul>
+                    <li><code>UUID</code> ➡️ <code>VARCHAR(36)</code></li>
+                    <li><code>TIMESTAMPTZ</code> ➡️ <code>DATETIME</code> (atau <code>TIMESTAMP</code> dengan default <code>CURRENT_TIMESTAMP</code>)</li>
+                    <li><code>TEXT</code> (panjang tak terbatas) ➡️ <code>TEXT</code> atau <code>LONGTEXT</code></li>
+                    <li><code>JSONB</code> ➡️ <code>JSON</code> (atau <code>TEXT</code> jika MySQL di bawah versi 5.7)</li>
+                    <li><code>BOOLEAN</code> ➡️ <code>TINYINT(1)</code> (di mana <code>1</code> = <code>true</code> dan <code>0</code> = <code>false</code>)</li>
+                    <li><code>BIGSERIAL</code> (Auto-Increment) ➡️ <code>BIGINT UNSIGNED AUTO_INCREMENT</code></li>
+                </ul>
+
+                <h2 id="ch1-3">3. Opsi Migrasi A: Ekspor/Impor CSV Secara Manual (phpMyAdmin & CLI)</h2>
+                <p>Opsi ini sangat cocok jika Anda ingin melakukan migrasi satu kali (one-time migration) untuk memindahkan data statis/historis seperti buku (<code>books</code>), kategori (<code>categories</code>), atau portal berita (<code>articles</code>) dari Supabase ke server hosting MySQL baru Anda.</p>
+
+                <h3>Langkah 1: Ekspor Data dari Supabase</h3>
+                <ol>
+                    <li>Masuk ke <strong>Dashboard Supabase</strong> > pilih proyek Anda.</li>
+                    <li>Buka menu <strong>Table Editor</strong> di bilah navigasi kiri.</li>
+                    <li>Pilih tabel yang ingin diekspor (contoh: <code>books</code>).</li>
+                    <li>Klik tombol <strong>Export to CSV</strong> di pojok kanan atas tabel. File CSV akan diunduh ke komputer Anda.</li>
+                </ol>
+
+                <h3>Langkah 2: Persiapkan File CSV & Pembersihan Data</h3>
+                <p>Beberapa kolom timestamp di Supabase berformat ISO 8601 dengan zona waktu UTC (contoh: <code>2026-06-07T15:30:00Z</code>). MySQL tidak dapat mendeteksi huruf <code>T</code> dan <code>Z</code> secara default.</p>
+                <ol>
+                    <li>Buka file CSV menggunakan program text editor modern (seperti <strong>Notepad++</strong> atau <strong>VS Code</strong>).</li>
+                    <li><strong>Format Tanggal:</strong> Lakukan <em>Find and Replace</em>: ganti huruf <code>T</code> pada tanggal menjadi satu karakter spasi kosong, dan hapus huruf <code>Z</code> di bagian akhir (ganti dengan string kosong). Format tanggal kini menjadi: <code>YYYY-MM-DD HH:MM:SS</code>.</li>
+                    <li><strong>Konversi UUID ke String:</strong> Jika tabel Anda menggunakan UUID (seperti <code>id</code> buku atau member), pastikan kolom tersebut terisi string 36-karakter acak. MySQL akan menyimpannya sebagai <code>VARCHAR(36)</code>.</li>
+                    <li><strong>Encoding File:</strong> Simpan kembali berkas dengan format <code>.csv</code> menggunakan encoding <strong>UTF-8</strong> agar karakter khusus tidak rusak.</li>
+                </ol>
+
+                <h3>Langkah 3: Impor ke MySQL</h3>
+                <h4>Metode 1: Melalui phpMyAdmin (Untuk Ukuran File < 10MB)</h4>
+                <ol>
+                    <li>Masuk ke cPanel/hPanel > buka **phpMyAdmin**.</li>
+                    <li>Pilih database tujuan Anda di bilah sisi kiri, dan pastikan struktur tabel sudah dibuat terlebih dahulu.</li>
+                    <li>Klik pada tabel tujuan (contoh: <code>books</code>), kemudian masuk ke tab <strong>Import</strong> di bagian menu atas.</li>
+                    <li>Klik <strong>Choose File</strong> dan pilih file CSV hasil edit Anda.</li>
+                    <li>Pada opsi konfigurasi format:
+                        <ul>
+                            <li>Pilih format: <strong>CSV</strong> (atau <strong>CSV using LOAD DATA</strong> jika server mendukung).</li>
+                            <li>Setel <strong>Fields terminated by</strong> menjadi <code>,</code> (koma).</li>
+                            <li>Setel <strong>Fields enclosed by</strong> menjadi <code>"</code> (tanda kutip ganda).</li>
+                            <li>Centang opsi <strong>Partial Import</strong> (mengizinkan pemisahan query jika script mendekati batas limit waktu eksekusi PHP).</li>
+                        </ul>
+                    </li>
+                    <li>Klik tombol <strong>Import</strong> di bagian paling bawah.</li>
+                </ol>
+
+                <h4>Metode 2: Melalui Command Line / CLI (Untuk File Besar > 10MB)</h4>
+                <p>Jika file CSV berukuran sangat besar, gunakan perintah SQL <code>LOAD DATA INFILE</code> langsung dari client database (MySQL CLI) atau terminal SSH:</p>
+
+                <pre><span class="token-comment">-- Masuk ke MySQL CLI lalu jalankan perintah berikut:</span>
+<span class="token-keyword">LOAD DATA LOCAL INFILE</span> <span class="token-string">'/path/ke/file/books.csv'</span>
+<span class="token-keyword">INTO TABLE</span> disipusda_library.books
+<span class="token-keyword">FIELDS TERMINATED BY</span> <span class="token-string">','</span>
+<span class="token-keyword">ENCLOSED BY</span> <span class="token-string">'"'</span>
+<span class="token-keyword">LINES TERMINATED BY</span> <span class="token-string">'\n'</span>
+<span class="token-keyword">IGNORE</span> <span class="token-number">1</span> <span class="token-keyword">LINES</span>
+(id, judul, penulis, penerbit, sinopsis, stok, rak, sampulUrl, rating, created_at, updated_at);</pre>
+
+                <div class="alert alert-warning">
+                    <div class="alert-title">Peringatan Keamanan Local Infile</div>
+                    Secara default, fitur <code>LOCAL INFILE</code> dinonaktifkan di MySQL untuk alasan keamanan. Anda harus mengaktifkannya terlebih dahulu di sisi client dan server:
+                    <br>- Di server: setel <code>local_infile = ON</code> pada konfigurasi <code>my.cnf</code>.
+                    <br>- Di client: hubungkan dengan perintah <code>mysql --local-infile=1 -u username -p</code>.
+                </div>
+
+                <h2>4. Opsi Migrasi B: Arsitektur API Bridge (Jembatan Sinkronisasi API)</h2>
+                <p>Jika Anda ingin mempertahankan sistem database lokal milik instansi dan menggunakan website React sebagai tampilan (frontend) saja, Anda wajib menggunakan <strong>API Bridge</strong> (Jembatan API).</p>
+                
+                <div class="flow-diagram">
+[ React Frontend (Vite) ]
+       │
+       ▼ (Mengirim Request API HTTP Aman + Bearer Token)
+[ Backend API Bridge (Hostinger/cPanel) ]
+       │
+       ▼ (Query Lokal via localhost / 127.0.0.1)
+[ MySQL Database Lokal (Instansi) ]
+                </div>
+
+                <h2 id="ch1-5">5. Opsi Migrasi C: DDL Skema MySQL Lengkap (Produksi Siap Pakai)</h2>
+                <p>Eksekusi perintah DDL SQL di bawah ini di tab <strong>SQL phpMyAdmin</strong> atau client database Anda untuk membuat skema basis data perpustakaan yang kompatibel dengan program frontend:</p>
+
+                <pre><span class="token-keyword">CREATE DATABASE IF NOT EXISTS</span> `disipusda_library` <span class="token-keyword">CHARACTER SET</span> utf8mb4 <span class="token-keyword">COLLATE</span> utf8mb4_unicode_ci;
+<span class="token-keyword">USE</span> `disipusda_library`;
+
+<span class="token-comment">-- 1. TABEL ADMIN (admins)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `admins` (
+  `id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `email` <span class="token-type">VARCHAR(191)</span> <span class="token-keyword">NOT NULL</span>,
+  `nama_lengkap` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NOT NULL</span>,
+  `password_hash` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NOT NULL</span>,
+  `role` <span class="token-keyword">ENUM</span>(<span class="token-string">'admin'</span>, <span class="token-string">'super_admin'</span>) <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'admin'</span>,
+  `tanggal_dibuat` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL</span>,
+  `avatar_color` <span class="token-type">VARCHAR(10)</span> <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'#8b1c24'</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`),
+  <span class="token-keyword">UNIQUE KEY</span> `uq_admin_email` (`email`)
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 2. TABEL ANGGOTA PERPUSTAKAAN (members)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `members` (
+  `id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `nomor_anggota` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL</span>,
+  `nik_masked` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL</span>,
+  `nama_lengkap` <span class="token-type">VARCHAR(150)</span> <span class="token-keyword">NOT NULL</span>,
+  `email` <span class="token-type">VARCHAR(191)</span> <span class="token-keyword">NOT NULL</span>,
+  `password` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NOT NULL</span>,
+  `alamat` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `telepon` <span class="token-type">VARCHAR(20)</span> <span class="token-keyword">NULL</span>,
+  `jenis_kelamin` <span class="token-keyword">ENUM</span>(<span class="token-string">'L'</span>, <span class="token-string">'P'</span>) <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'L'</span>,
+  `tanggal_lahir` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NULL</span>,
+  `tanggal_daftar` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL</span>,
+  `avatar_color` <span class="token-type">VARCHAR(10)</span> <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'#0c2f3d'</span>,
+  `avatar_url` <span class="token-type">VARCHAR(2048)</span> <span class="token-keyword">NULL</span>,
+  `bio` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `is_active` <span class="token-type">TINYINT(1)</span> <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-number">1</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`),
+  <span class="token-keyword">UNIQUE KEY</span> `uq_member_email` (`email`),
+  <span class="token-keyword">UNIQUE KEY</span> `uq_nomor_anggota` (`nomor_anggota`)
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 3. TABEL KATEGORI BUKU & PORTAL (categories)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `categories` (
+  `id` <span class="token-type">BIGINT UNSIGNED AUTO_INCREMENT</span> <span class="token-keyword">PRIMARY KEY</span>,
+  `type` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL</span> <span class="token-keyword">COMMENT</span> <span class="token-string">'book atau article'</span>,
+  `name` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NOT NULL</span>,
+  `slug` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NOT NULL</span>,
+  <span class="token-keyword">UNIQUE KEY</span> `uq_categories_type_slug` (`type`, `slug`)
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 4. TABEL KATALOG BUKU (books)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `books` (
+  `id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `judul` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NOT NULL</span>,
+  `penulis` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NOT NULL</span>,
+  `penerbit` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NOT NULL</span>,
+  `sinopsis` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `stok` <span class="token-type">INT</span> <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-number">0</span>,
+  `rak` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NULL</span>,
+  `sampulUrl` <span class="token-type">VARCHAR(2048)</span> <span class="token-keyword">NULL</span>,
+  `rating` <span class="token-type">DECIMAL(3,2)</span> <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-number">0.00</span>,
+  `created_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP</span>,
+  `updated_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`)
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 5. TABEL TRANSAKSI PEMINJAMAN (borrows)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `borrows` (
+  `id` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL</span>,
+  `memberId` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `bookId` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `status` <span class="token-keyword">ENUM</span>(<span class="token-string">'menunggu_diambil'</span>, <span class="token-string">'dipinjam'</span>, <span class="token-string">'kembali'</span>, <span class="token-string">'batal'</span>) <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'menunggu_diambil'</span>,
+  `tanggalPinjam` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NOT NULL</span>,
+  `batasAmbil` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NOT NULL</span>,
+  `tanggalKembali` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NULL</span>,
+  `created_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP</span>,
+  `updated_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`),
+  <span class="token-keyword">KEY</span> `idx_borrow_member` (`memberId`),
+  <span class="token-keyword">KEY</span> `idx_borrow_book` (`bookId`),
+  <span class="token-keyword">CONSTRAINT</span> `fk_borrows_member` <span class="token-keyword">FOREIGN KEY</span> (`memberId`) <span class="token-keyword">REFERENCES</span> `members` (`id`) <span class="token-keyword">ON DELETE CASCADE</span>,
+  <span class="token-keyword">CONSTRAINT</span> `fk_borrows_book` <span class="token-keyword">FOREIGN KEY</span> (`bookId`) <span class="token-keyword">REFERENCES</span> `books` (`id`) <span class="token-keyword">ON DELETE CASCADE</span>
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 9. TABEL LAYANAN BOOKING ENKAPSULASI ARSIP (bookings)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `bookings` (
+  `id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `nama_lengkap` <span class="token-type">VARCHAR(150)</span> <span class="token-keyword">NOT NULL</span>,
+  `whatsapp` <span class="token-type">VARCHAR(20)</span> <span class="token-keyword">NOT NULL</span>,
+  `email` <span class="token-type">VARCHAR(191)</span> <span class="token-keyword">NOT NULL</span>,
+  `instansi` <span class="token-type">VARCHAR(150)</span> <span class="token-keyword">NULL</span>,
+  `jenis_layanan` <span class="token-type">VARCHAR(100)</span> <span class="token-keyword">NOT NULL</span>,
+  `jumlah_dokumen` <span class="token-type">INT</span> <span class="token-keyword">NOT NULL</span>,
+  `tanggal_booking` <span class="token-type">DATE</span> <span class="token-keyword">NOT NULL</span>,
+  `catatan` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `status` <span class="token-keyword">ENUM</span>(<span class="token-string">'pending'</span>, <span class="token-string">'approved'</span>, <span class="token-string">'rejected'</span>, <span class="token-string">'rescheduled'</span>, <span class="token-string">'cancelled'</span>, <span class="token-string">'completed'</span>) <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'pending'</span>,
+  `reschedule_date` <span class="token-type">DATE</span> <span class="token-keyword">NULL</span>,
+  `reschedule_note` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `reschedule_token` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NULL</span>,
+  `reschedule_token_expires_at` <span class="token-type">DATETIME</span> <span class="token-keyword">NULL</span>,
+  `created_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP</span>,
+  `updated_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`),
+  <span class="token-keyword">KEY</span> `idx_bookings_status` (`status`),
+  <span class="token-keyword">KEY</span> `idx_bookings_tanggal` (`tanggal_booking`),
+  <span class="token-keyword">KEY</span> `idx_bookings_email` (`email`),
+  <span class="token-keyword">KEY</span> `idx_bookings_created_at` (`created_at` <span class="token-keyword">DESC</span>)
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 10. TABEL KUNCI TANGGAL BOOKING (booking_date_locks)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `booking_date_locks` (
+  `id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `tanggal` <span class="token-type">DATE</span> <span class="token-keyword">NOT NULL</span>,
+  `booking_id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `status` <span class="token-type">VARCHAR(50)</span> <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'pending'</span>,
+  `locked_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`),
+  <span class="token-keyword">UNIQUE KEY</span> `uq_booking_date_locks_tanggal` (`tanggal`),
+  <span class="token-keyword">KEY</span> `idx_booking_date_locks_tanggal` (`tanggal`),
+  <span class="token-keyword">CONSTRAINT</span> `fk_booking_date_locks_booking` <span class="token-keyword">FOREIGN KEY</span> (`booking_id`) <span class="token-keyword">REFERENCES</span> `bookings` (`id`) <span class="token-keyword">ON DELETE CASCADE</span>
+) <span class="token-keyword">ENGINE</span>=InnoDB;
+
+<span class="token-comment">-- 12. TABEL PORTAL BERITA / ARTIKEL (articles)</span>
+<span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `articles` (
+  `id` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `title` <span class="token-type">VARCHAR(255)</span> <span class="token-keyword">NOT NULL</span>,
+  `content` <span class="token-type">LONGTEXT</span> <span class="token-keyword">NOT NULL</span>,
+  `created_at` <span class="token-type">DATETIME</span> <span class="token-keyword">NOT NULL DEFAULT CURRENT_TIMESTAMP</span>,
+  `created_by` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NOT NULL</span>,
+  `status` <span class="token-keyword">ENUM</span>(<span class="token-string">'draft'</span>, <span class="token-string">'published'</span>, <span class="token-string">'archived'</span>) <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'draft'</span>,
+  `published_at` <span class="token-type">DATETIME</span> <span class="token-keyword">NULL</span>,
+  `updated_at` <span class="token-type">DATETIME</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</span>,
+  `updated_by` <span class="token-type">VARCHAR(36)</span> <span class="token-keyword">NULL</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`),
+  <span class="token-keyword">KEY</span> `idx_articles_status` (`status`),
+  <span class="token-keyword">KEY</span> `idx_articles_created_at` (`created_at` <span class="token-keyword">DESC</span>)
+) <span class="token-keyword">ENGINE</span>=InnoDB;</pre>
+
+                <h2 id="ch1-6">6. Skrip Backend Jembatan (PHP & Node.js Express Mandiri)</h2>
+                <p>Di bawah ini adalah kode jembatan API (<em>production-ready</em>) yang tangguh, aman, dan siap dipasang di server Anda.</p>
+
+                <h3>Opsi A: Skrip API PHP menggunakan PDO (cPanel Shared Hosting)</h3>
+                <p>Simpan berkas ini sebagai <code>api.php</code> di dalam direktori <code>public_html/api/</code> server hosting Anda:</p>
+
+                <pre>&lt;?php
+<span class="token-comment">// 1. Konfigurasi Header CORS & Keamanan</span>
+header(<span class="token-string">"Access-Control-Allow-Origin: *"</span>);
+header(<span class="token-string">"Content-Type: application/json; charset=UTF-8"</span>);
+header(<span class="token-string">"Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"</span>);
+header(<span class="token-string">"Access-Control-Max-Age: 3600"</span>);
+header(<span class="token-string">"Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"</span>);
+
+<span class="token-keyword">if</span> ($_SERVER[<span class="token-string">'REQUEST_METHOD'</span>] === <span class="token-string">'OPTIONS'</span>) {
+    http_response_code(<span class="token-number">200</span>);
+    <span class="token-keyword">exit</span>();
+}
+
+<span class="token-comment">// 2. Autentikasi Token Bearer</span>
+$headers = getallheaders();
+$authToken = isset($headers[<span class="token-string">'Authorization'</span>]) ? str_replace(<span class="token-string">'Bearer '</span>, <span class="token-string">''</span>, $headers[<span class="token-string">'Authorization'</span>]) : <span class="token-string">''</span>;
+$expectedToken = <span class="token-string">"GANTI_DENGAN_TOKEN_KEAMANAN_RAHASIA_ANDA"</span>;
+
+<span class="token-keyword">if</span> (empty($authToken) || $authToken !== $expectedToken) {
+    http_response_code(<span class="token-number">401</span>);
+    echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">false</span>, <span class="token-string">"message" => "Akses Ditolak: Token tidak sah."</span>]);
+    <span class="token-keyword">exit</span>();
+}
+
+<span class="token-comment">// 3. Konfigurasi Database MySQL (PDO)</span>
+$db_host = <span class="token-string">"localhost"</span>;
+$db_user = <span class="token-string">"u12345_pusdauser"</span>;
+$db_pass = <span class="token-string">"Password_Kuat_Anda_Di_Sini"</span>;
+$db_name = <span class="token-string">"u12345_disipusda"</span>;
+
+<span class="token-keyword">try</span> {
+    $dsn = <span class="token-string">"mysql:host=$db_host;dbname=$db_name;charset=utf8mb4"</span>;
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => <span class="token-keyword">false</span>,
+    ];
+    $pdo = <span class="token-keyword">new</span> PDO($dsn, $db_user, $db_pass, $options);
+} <span class="token-keyword">catch</span> (\PDOException $e) {
+    http_response_code(<span class="token-number">500</span>);
+    echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">false</span>, <span class="token-string">"message"</span> => $e->getMessage()]);
+    <span class="token-keyword">exit</span>();
+}
+
+<span class="token-comment">// 4. Routing logic</span>
+$request_uri = $_SERVER[<span class="token-string">'REQUEST_URI'</span>];
+$method = $_SERVER[<span class="token-string">'REQUEST_METHOD'</span>];
+$path = parse_url($request_uri, PHP_URL_PATH);
+$path_parts = explode(<span class="token-string">'/api.php'</span>, $path);
+$route = end($path_parts);
+
+<span class="token-keyword">try</span> {
+    <span class="token-keyword">if</span> ($route === <span class="token-string">'/books'</span>) {
+        <span class="token-keyword">if</span> ($method === <span class="token-string">'GET'</span>) {
+            $stmt = $pdo->query(<span class="token-string">"SELECT * FROM books ORDER BY created_at DESC"</span>);
+            echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">true</span>, <span class="token-string">"data"</span> => $stmt->fetchAll()]);
+        }
+    }
+} <span class="token-keyword">catch</span> (\Exception $e) {
+    http_response_code(<span class="token-number">500</span>);
+    echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">false</span>, <span class="token-string">"message"</span> => $e->getMessage()]);
+}
+?&gt;</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 2: DATABASE LOKAL HOSTING          -->
+            <!-- ========================================== -->
+            <div id="ch2" class="chapter-break">
+                <h1>Bab 2: Panduan Database Lokal Hosting</h1>
+                <p>Menghubungkan React frontend ke database lokal (MySQL/PostgreSQL) yang berada pada hosting yang sama menggunakan perantara server backend jembatan.</p>
+
+                <h2 id="ch2-1">1. Konsep Utama: React Sisi Klien vs Sisi Server</h2>
+                <div class="alert alert-caution">
+                    <div class="alert-title">ATURAN MUTLAK KEAMANAN</div>
+                    Jangan pernah menulis atau menyimpan kredensial database (Host, Port, Username, Password) di dalam file proyek React/Vite Anda. Semua kode React diunduh secara utuh ke browser pengguna saat mereka mengunjungi situs Anda, sehingga kredensial tersebut dapat dengan mudah dicuri via <strong>F12 Developer Tools</strong>.
+                </div>
+
+                <h2>2. Alur Integrasi & Isolasi Kredensial</h2>
+                <p>Semua request dari browser akan dikirim ke API jembatan di server web. Server web bertugas mencocokkan token keamanan, mengambil data dari database lokal menggunakan kredensial rahasia yang terisolasi di server, dan mengirimkan datanya kembali ke browser dalam format JSON.</p>
+
+                <h2>3. Setup Database Baru di cPanel / hPanel</h2>
+                <ol>
+                    <li>Masuk ke **Control Panel Hosting** Anda.</li>
+                    <li>Cari menu **MySQL Databases** atau **MySQL Database Wizard**.</li>
+                    <li>Buat database baru (contoh: <code>u12345_disipusda</code>).</li>
+                    <li>Buat user database baru dan password yang kuat, lalu hubungkan user tersebut ke database dengan mencentang **ALL PRIVILEGES**.</li>
+                    <li>Buka menu **phpMyAdmin** dan impor skema tabel yang dibutuhkan ke dalam database tersebut.</li>
+                </ol>
+
+                <h2 id="ch2-4">4. Skrip Jembatan API PHP PDO</h2>
+                <p>Buat file baru bernama <code>booking_api.php</code> di dalam folder <code>public_html/api/</code>:</p>
+                <pre>&lt;?php
+header(<span class="token-string">"Access-Control-Allow-Origin: *"</span>);
+header(<span class="token-string">"Content-Type: application/json; charset=UTF-8"</span>);
+header(<span class="token-string">"Access-Control-Allow-Methods: GET, POST, OPTIONS"</span>);
+header(<span class="token-string">"Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"</span>);
+
+<span class="token-keyword">if</span> ($_SERVER[<span class="token-string">'REQUEST_METHOD'</span>] === <span class="token-string">'OPTIONS'</span>) {
+    http_response_code(<span class="token-number">200</span>);
+    <span class="token-keyword">exit</span>();
+}
+
+$headers = getallheaders();
+$authToken = isset($headers[<span class="token-string">'Authorization'</span>]) ? str_replace(<span class="token-string">'Bearer '</span>, <span class="token-string">''</span>, $headers[<span class="token-string">'Authorization'</span>]) : <span class="token-string">''</span>;
+$secureToken = <span class="token-string">"TOKEN_KEAMANAN_RAHASIA_ANDA"</span>;
+
+<span class="token-keyword">if</span> (empty($authToken) || $authToken !== $secureToken) {
+    http_response_code(<span class="token-number">403</span>);
+    echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">false</span>, <span class="token-string">"message"</span> => <span class="token-string">"Akses Ditolak!"</span>]);
+    <span class="token-keyword">exit</span>();
+}
+
+<span class="token-comment">// Database Connection</span>
+$db_host = <span class="token-string">"localhost"</span>;
+$db_user = <span class="token-string">"u12345_pusdauser"</span>;
+$db_pass = <span class="token-string">"Password_Kuat_Anda"</span>;
+$db_name = <span class="token-string">"u12345_disipusda"</span>;
+
+<span class="token-keyword">try</span> {
+    $pdo = <span class="token-keyword">new</span> PDO(<span class="token-string">"mysql:host=$db_host;dbname=$db_name;charset=utf8mb4"</span>, $db_user, $db_pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
+} <span class="token-keyword">catch</span> (\PDOException $e) {
+    http_response_code(<span class="token-number">500</span>);
+    echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">false</span>, <span class="token-string">"message"</span> => <span class="token-string">"Database Offline"</span>]);
+    <span class="token-keyword">exit</span>();
+}
+
+$method = $_SERVER[<span class="token-string">'REQUEST_METHOD'</span>];
+
+<span class="token-keyword">if</span> ($method === <span class="token-string">'POST'</span>) {
+    $input = json_decode(file_get_contents(<span class="token-string">"php://input"</span>), <span class="token-keyword">true</span>);
+    <span class="token-comment">// Proses simpan booking ke database</span>
+    $stmt = $pdo->prepare(<span class="token-string">"INSERT INTO booking_enkapsulasi (id, nama_lengkap, email, whatsapp, tanggal_booking) VALUES (:id, :nama, :email, :wa, :tgl)"</span>);
+    $stmt->execute([
+        <span class="token-string">':id'</span> => uniqid(<span class="token-string">'BK-'</span>),
+        <span class="token-string">':nama'</span> => $input[<span class="token-string">'nama_lengkap'</span>],
+        <span class="token-string">':email'</span> => $input[<span class="token-string">'email'</span>],
+        <span class="token-string">':wa' => $input['whatsapp'</span>],
+        <span class="token-string">':tgl'</span> => $input[<span class="token-string">'tanggal_booking'</span>]
+    ]);
+    echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">true</span>, <span class="token-string">"message"</span> => <span class="token-string">"Booking tersimpan!"</span>]);
+}
+?&gt;</pre>
+
+                <h2 id="ch2-6">5. Konfigurasi Rute React Router Fallback (.htaccess cPanel)</h2>
+                <p>Ketika Anda menggunakan rute virtual client-side (seperti <code>/login</code> atau <code>/admin</code>), Apache web server akan mengira alamat tersebut adalah folder fisik di server Anda dan mengembalikan error <strong>404 Not Found</strong> saat di-refresh.</p>
+                
+                <p>Buat berkas bernama <code>.htaccess</code> di folder utama website Anda (<code>public_html/</code>) untuk memaksa semua rute diarahkan ke berkas utama <code>index.html</code> React:</p>
+
+                <pre>&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+  RewriteBase /
+  
+  # Jangan rute ulang jika berkas atau folder fisik benar-benar ada di server
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  
+  # Alirkan sisa rute ke file index.html utama React Router
+  RewriteRule ^ index.html [L]
+&lt;/IfModule&gt;</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 3: SKEMA DAN STORAGE               -->
+            <!-- ========================================== -->
+            <div id="ch3" class="chapter-break">
+                <h1>Bab 3: Panduan Skema dan Storage Bucket</h1>
+                <p>Pembagian database per modul fitur serta cara setup penyimpanan file static (storage) yang terhindar dari hardcoding.</p>
+
+                <h2>1. Pemisahan Skema SQL per Fitur</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Modul Fitur</th>
+                            <th>Tabel SQL Terkait</th>
+                            <th>Fungsi Utama</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Portal & Artikel</strong></td>
+                            <td><code>articles</code>, <code>categories</code>, <code>audit_logs</code></td>
+                            <td>Pengelolaan postingan berita, pengumuman, dan kategori berita.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Katalog Perpustakaan</strong></td>
+                            <td><code>books</code>, <code>borrows</code>, <code>queue</code>, <code>members</code>, <code>admins</code></td>
+                            <td>Pengelolaan buku fisik, peminjaman buku, antrean, data member, dan hak akses admin.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Booking Layanan</strong></td>
+                            <td><code>bookings</code>, <code>booking_date_locks</code>, <code>booking_audit_logs</code></td>
+                            <td>Pemesanan kuota layanan harian enkapsulasi arsip dan lock tanggal penuh.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2 id="ch3-3">2. Kebijakan RLS (Row Level Security) Supabase Storage</h2>
+                <p>Terapkan kebijakan RLS berikut di dashboard SQL Editor Supabase untuk mengamankan bucket asset gambar:</p>
+
+                <pre><span class="token-comment">-- 1. Buat bucket asset jika belum ada</span>
+<span class="token-keyword">INSERT INTO</span> storage.buckets (id, name, public) 
+<span class="token-keyword">VALUES</span> (<span class="token-string">'articles'</span>, <span class="token-string">'articles'</span>, <span class="token-keyword">true</span>), (<span class="token-string">'book-covers'</span>, <span class="token-string">'book-covers'</span>, <span class="token-keyword">true</span>)
+<span class="token-keyword">ON CONFLICT</span> (id) <span class="token-keyword">DO NOTHING</span>;
+
+<span class="token-comment">-- 2. Aktifkan RLS</span>
+<span class="token-keyword">ALTER TABLE</span> storage.objects <span class="token-keyword">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="token-comment">-- 3. Kebijakan Baca Publik</span>
+<span class="token-keyword">CREATE POLICY</span> "Akses_Publik_Baca" <span class="token-keyword">ON</span> storage.objects <span class="token-keyword">FOR SELECT TO public</span>
+  <span class="token-keyword">USING</span> (bucket_id <span class="token-keyword">IN</span> (<span class="token-string">'articles'</span>, <span class="token-string">'book-covers'</span>));
+
+<span class="token-comment">-- 4. Kebijakan Tulis Hanya Admin</span>
+<span class="token-keyword">CREATE POLICY</span> "Admin_Bisa_Upload" <span class="token-keyword">ON</span> storage.objects <span class="token-keyword">FOR INSERT TO authenticated</span>
+  <span class="token-keyword">WITH CHECK</span> (bucket_id <span class="token-keyword">IN</span> (<span class="token-string">'articles'</span>, <span class="token-string">'book-covers'</span>) <span class="token-keyword">AND</span> public.is_admin());</pre>
+
+                <h2>3. Konfigurasi Dynamic Storage Bucket (React)</h2>
+                <p>Ubah file <code>src/services/storageService.ts</code> agar membaca nama bucket secara dinamis dari file environment <code>.env</code>:</p>
+                <pre><span class="token-comment">// Sebelum (Hardcoded):</span>
+<span class="token-keyword">const</span> DEFAULT_BUCKET = <span class="token-string">'articles'</span>;
+
+<span class="token-comment">// Sesudah (Dinamis):</span>
+<span class="token-keyword">const</span> DEFAULT_BUCKET = (<span class="token-keyword">import</span>.meta.env.VITE_SUPABASE_BUCKET_NAME <span class="token-keyword">as</span> <span class="token-type">string</span>) || <span class="token-string">'articles'</span>;</pre>
+
+                <h2 id="ch3-5">4. Skrip PHP Upload File Aman (Anti-RCE Shell Upload)</h2>
+                <p>Gunakan script ini di server PHP lokal untuk menerima unggahan gambar tanpa resiko serangan shell injector hacker:</p>
+                
+                <pre>&lt;?php
+header(<span class="token-string">"Content-Type: application/json"</span>);
+$authToken = isset(getallheaders()[<span class="token-string">'Authorization'</span>]) ? str_replace(<span class="token-string">'Bearer '</span>, <span class="token-string">''</span>, getallheaders()[<span class="token-string">'Authorization'</span>]) : <span class="token-string">''</span>;
+
+<span class="token-keyword">if</span> ($authToken !== <span class="token-string">"TOKEN_KEAMANAN_RAHASIA"</span>) {
+    http_response_code(<span class="token-number">403</span>);
+    <span class="token-keyword">exit</span>(json_encode([<span class="token-string">"message" => "Unauthorized"</span>]));
+}
+
+<span class="token-keyword">if</span> (isset($_FILES[<span class="token-string">'file'</span>])) {
+    $file = $_FILES[<span class="token-string">'file'</span>];
+    $allowedExt = [<span class="token-string">'jpg'</span>, <span class="token-string">'jpeg'</span>, <span class="token-string">'png'</span>, <span class="token-string">'webp'</span>];
+    $ext = strtolower(pathinfo($file[<span class="token-string">'name'</span>], PATHINFO_EXTENSION));
+    
+    <span class="token-comment">// Verifikasi mime type asli</span>
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $realMime = finfo_file($finfo, $file[<span class="token-string">'tmp_name'</span>]);
+    
+    <span class="token-keyword">if</span> (!in_array($ext, $allowedExt) || strpos($realMime, <span class="token-string">'image/'</span>) !== <span class="token-number">0</span>) {
+        http_response_code(<span class="token-number">400</span>);
+        <span class="token-keyword">exit</span>(json_encode([<span class="token-string">"message" => "Hanya file gambar yang diperbolehkan!"</span>]));
+    }
+    
+    $newName = uniqid(<span class="token-string">'IMG-'</span>, <span class="token-keyword">true</span>) . <span class="token-string">'.'</span> . $ext;
+    $uploadDir = <span class="token-string">'uploads/'</span>;
+    
+    <span class="token-keyword">if</span> (move_uploaded_file($file[<span class="token-string">'tmp_name'</span>], $uploadDir . $newName)) {
+        echo json_encode([<span class="token-string">"success"</span> => <span class="token-keyword">true</span>, <span class="token-string">"url" => "https://domain.com/api/uploads/"</span> . $newName]);
+    }
+}
+?&gt;</pre>
+
+                <h2 id="ch3-6">5. Skrip Otomatisasi Unduh Backup Supabase Storage</h2>
+                <p>Gunakan script Node.js berikut di komputer lokal Anda untuk mendownload secara massal seluruh file aset gambar dari Supabase Storage:</p>
+
+                <pre><span class="token-keyword">const</span> { createClient } <span class="token-keyword">=</span> <span class="token-keyword">require</span>(<span class="token-string">'@supabase/supabase-js'</span>);
+<span class="token-keyword">const</span> fs <span class="token-keyword">=</span> <span class="token-keyword">require</span>(<span class="token-string">'fs'</span>);
+<span class="token-keyword">const</span> path <span class="token-keyword">=</span> <span class="token-keyword">require</span>(<span class="token-string">'path'</span>);
+
+<span class="token-keyword">const</span> supabase <span class="token-keyword">=</span> createClient(<span class="token-string">'https://anqopdxzdkpsmtxuultp.supabase.co'</span>, <span class="token-string">'SERVICE_ROLE_KEY'</span>);
+<span class="token-keyword">const</span> BUCKETS <span class="token-keyword">=</span> [<span class="token-string">'articles'</span>, <span class="token-string">'book-covers'</span>];
+
+<span class="token-keyword">async</span> <span class="token-keyword">function</span> downloadFile(bucket, filePath) {
+  <span class="token-keyword">const</span> { data, error } <span class="token-keyword">=</span> <span class="token-keyword">await</span> supabase.storage.from(bucket).download(filePath);
+  <span class="token-keyword">if</span> (error) <span class="token-keyword">return</span> console.error(error);
+  
+  <span class="token-keyword">const</span> dest <span class="token-keyword">=</span> path.join(<span class="token-string">'./downloaded_assets'</span>, bucket, filePath);
+  fs.mkdirSync(path.dirname(dest), { recursive: <span class="token-keyword">true</span> });
+  fs.writeFileSync(dest, Buffer.from(<span class="token-keyword">await</span> data.arrayBuffer()));
+  console.log(<span class="token-string">`Unduh: ${bucket}/${filePath}`</span>);
+}</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 4: SETUP CRON & TOKEN              -->
+            <!-- ========================================== -->
+            <div id="ch4" class="chapter-break">
+                <h1>Bab 4: Setup Cron Job & Rotasi Cron Secret</h1>
+                <p>Panduan langkah demi langkah mengamankan eksekusi tugas terjadwal (Cron Job) harian.</p>
+
+                <h2 id="ch4-1">1. Hubungan CRON_SECRET: Booking & Peminjaman Buku</h2>
+                <p>Kedua modul fitur berada di dalam satu proyek Supabase yang sama, sehingga mereka menggunakan variabel lingkungan (environment variable) keamanan yang sama yaitu <strong><code>CRON_SECRET</code></strong>.</p>
+                <ul>
+                    <li><strong>Layanan A (Pengingat Buku Pinjaman):</strong> Dipicu secara berkala oleh GitHub Actions, mengirim request HTTP ke Supabase Edge Function dengan melampirkan header <code>x-cron-secret</code>.</li>
+                    <li><strong>Layanan B (Laporan Booking Harian):</strong> Dipicu secara internal oleh ekstensi database <code>pg_cron</code>, mengirim request HTTP internal dengan header <code>x-cron-secret</code>.</li>
+                </ul>
+
+                <h2>2. Panduan Langkah demi Langkah Rotasi Token Keamanan</h2>
+                <ol>
+                    <li>Jalankan perintah ini di terminal Anda untuk menghasilkan string acak baru:
+                        <pre>openssl rand -base64 32</pre>
+                    </li>
+                    <li>Buka dashboard Supabase > **Settings** > **API** > **Secrets**.</li>
+                    <li>Perbarui nilai **<code>CRON_SECRET</code>** dengan string baru tersebut dan simpan.</li>
+                    <li>Buka repo GitHub proyek Anda > **Settings** > **Secrets and variables** > **Actions** > edit secret **`CRON_SECRET`** dengan nilai baru tersebut.</li>
+                </ol>
+
+                <h2 id="ch4-3">3. Skrip SQL pg_cron untuk Laporan Booking Harian</h2>
+                <p>Buka <strong>SQL Editor</strong> di dashboard Supabase Anda, lalu jalankan query berikut (ganti <code>TOKEN_BARU_ANDA</code> dengan token baru Anda):</p>
+
+                <pre><span class="token-keyword">CREATE EXTENSION IF NOT EXISTS</span> pg_cron;
+<span class="token-keyword">CREATE EXTENSION IF NOT EXISTS</span> pg_net;
+
+<span class="token-comment">-- Hapus jadwal lama</span>
+<span class="token-keyword">SELECT</span> cron.unschedule(jobid) 
+<span class="token-keyword">FROM</span> cron.job 
+<span class="token-keyword">WHERE</span> jobname <span class="token-keyword">=</span> <span class="token-string">'send-daily-booking-digest'</span>;
+
+<span class="token-comment">-- Jadwalkan ulang dengan token baru</span>
+<span class="token-keyword">SELECT</span> cron.schedule(
+  <span class="token-string">'send-daily-booking-digest'</span>,
+  <span class="token-string">'0 1 * * *'</span>, <span class="token-comment">-- Jam 08.00 WIB (01.00 UTC)</span>
+  $$
+  <span class="token-keyword">SELECT</span> net.http_post(
+    url := <span class="token-string">'https://anqopdxzdkpsmtxuultp.supabase.co/functions/v1/send-booking-digest'</span>,
+    headers := <span class="token-string">'{"Content-Type": "application/json", "x-cron-secret": "TOKEN_BARU_ANDA"}'</span>::jsonb,
+    body := <span class="token-string">'{}'</span>::jsonb
+  );
+  $$
+);</pre>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>
