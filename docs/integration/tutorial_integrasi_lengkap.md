@@ -52,13 +52,13 @@ Opsi ini memungkinkan pengguna untuk login atau mendaftar menggunakan akun Googl
 
 ---
 
-## 📧 BAGIAN 2: INTEGRASI RESEND SMTP KE DALAM SUPABASE
+## 📧 BAGIAN 2: INTEGRASI RESEND SMTP & EDGE FUNCTIONS KE SUPABASE
 
-Secara default, Supabase membatasi pengiriman email konfirmasi (maksimal 3 email per jam). Untuk produksi, Anda harus mengalihkan lalu lintas email tersebut ke server **Resend SMTP** agar pengiriman email konfirmasi pendaftaran tidak dibatasi dan terhindar dari folder spam.
+Secara default, Supabase membatasi pengiriman email konfirmasi (maksimal 3 email per jam). Untuk produksi, Anda wajib mengaktifkan custom SMTP menggunakan **Resend SMTP** dan mengonfigurasi **Supabase Edge Functions Secrets** agar pengiriman email dari website Anda tidak dibatasi dan langsung masuk Inbox penerima.
 
 ### Langkah A: Mendapatkan Kredensial SMTP di Resend
 1. Buka **[Resend.com](https://resend.com)** dan masuk ke akun Anda.
-2. Pastikan domain Anda telah terdaftar dan berstatus **"Verified"** (baca panduan verifikasi domain di `docs/panduan_setup_resend.md`).
+2. Pastikan domain Anda telah terdaftar dan berstatus **"Verified"** (baca panduan verifikasi domain di `docs/integration/panduan_setup_resend.md`).
 3. Masuk ke menu **API Keys** di sidebar kiri.
 4. Klik **Create API Key**:
    * **Name:** `Supabase SMTP Integration`
@@ -66,17 +66,53 @@ Secara default, Supabase membatasi pengiriman email konfirmasi (maksimal 3 email
    * **Domain:** Pilih domain terverifikasi Anda.
 5. Klik **Add**, lalu **salin API Key** yang muncul (berawalan `re_xxxxxxxx`).
 
-### Langkah B: Konfigurasi Custom SMTP di Supabase
-1. Masuk ke **Supabase Dashboard** > **Auth** (sidebar kiri) > **SMTP Settings**.
+### Langkah B: Konfigurasi Custom SMTP di Supabase Auth
+1. Masuk ke **Supabase Dashboard** > **Auth** > **SMTP Settings**.
 2. Aktifkan sakelar **"Enable Custom SMTP"**.
 3. Isi kolom konfigurasi SMTP secara persis seperti berikut:
    * **Sender Email:** Masukkan email dengan domain Anda yang sudah diverifikasi di Resend (contoh: `no-reply@lann.codes` atau `admin@perpustakaandaerah.com`).
-   * **Sender Name:** `Disipusda Purwakarta` (nama pengirim yang akan muncul di inbox penerima).
+   * **Sender Name:** `Disipusda Purwakarta` (Nama pengirim yang muncul di email).
    * **SMTP Host:** **`smtp.resend.com`**
    * **Port:** **`465`** (menggunakan SSL) atau **`587`** (menggunakan TLS). *Direkomendasikan menggunakan `465`*.
    * **SMTP Username:** **`resend`** (tulis huruf kecil semua, jangan gunakan nama email Anda).
    * **SMTP Password:** Masukkan **API Key** Resend yang Anda buat di Langkah A (contoh: `re_123456789...`).
 4. Klik **Save Changes**.
+
+### Langkah C: Menyetel Secrets (Environment Variables) di Supabase Edge Functions
+Supabase Edge Functions memerlukan API keys rahasia untuk mengirim email kustom (via Resend API) dan notifikasi bot admin (via Telegram API). 
+
+Daftarkan variabel rahasia ini di dashboard Supabase:
+1. Buka **Supabase Dashboard** > **Settings** (ikon roda gigi) > pilih **Edge Functions**.
+2. Di bagian **Custom Secrets**, tambahkan variabel berikut satu per satu:
+   * **`RESEND_API_KEY`**: API Key Resend Anda (contoh: `re_123456...`).
+   * **`RESEND_FROM_EMAIL`**: Email resmi pengirim di Resend (contoh: `Disipusda <no-reply@lann.codes>`).
+   * **`TELEGRAM_BOT_TOKEN`**: Token bot Telegram Anda dari `@BotFather`.
+   * **`TELEGRAM_ADMIN_CHAT_ID`**: ID chat Telegram admin penerima notifikasi.
+   * **`SITE_URL`**: URL web frontend Anda (contoh: `https://lann.codes`).
+   * **`CRON_SECRET`**: Kunci rahasia acak untuk pengamanan tugas otomatis (Cron).
+3. Anda juga dapat menggunakan perintah terminal Supabase CLI jika ingin melakukan set secara bersamaan:
+   ```bash
+   supabase secrets set RESEND_API_KEY="re_key_anda" RESEND_FROM_EMAIL="Disipusda <no-reply@lann.codes>" TELEGRAM_BOT_TOKEN="token_bot" TELEGRAM_ADMIN_CHAT_ID="id_chat" SITE_URL="https://lann.codes" CRON_SECRET="kunci_cron"
+   ```
+
+### Langkah D: Mendeploy 6 Edge Functions ke Cloud Supabase
+Pastikan Anda mengunggah berkas fungsi yang ada di folder `supabase/functions/` ke server Supabase agar backend notifikasi aktif:
+1. Jalankan terminal di folder proyek lokal Anda.
+2. Login dan tautkan proyek:
+   ```bash
+   supabase login
+   supabase link --project-ref <PROJECT_REF_ID>
+   ```
+3. Deploy seluruh fungsi dengan perintah berikut:
+   ```bash
+   supabase functions deploy booking-notification
+   supabase functions deploy booking-status-change
+   supabase functions deploy send-booking-digest
+   supabase functions deploy send-borrow-notification
+   supabase functions deploy send-borrow-reminders
+   supabase functions deploy telegram-webhook
+   ```
+4. Pastikan keenam fungsi di atas sudah berstatus **Active** di dashboard Supabase Anda.
 
 ---
 

@@ -75,18 +75,88 @@ Menghubungkan sistem pendaftaran dan masuk satu klik (*one-click login*) menggun
 
 ## 3. Layanan Email Transaksional (Custom SMTP & Resend)
 
-Untuk skala produksi, Anda wajib mengaktifkan SMTP Kustom agar link aktivasi pendaftaran dan token reset password dapat dikirimkan secara instan ke email pengguna perpustakaan.
+Untuk skala produksi, Anda wajib mengaktifkan SMTP Kustom agar link aktivasi pendaftaran dan token reset password dapat dikirimkan secara instan ke email pengguna perpustakaan tanpa batasan limit email gratisan Supabase (maksimal 3 email per jam).
 
-### Cara Konfigurasi SMTP di Supabase:
-1. Buka **Supabase Dashboard** > **Auth** > **SMTP Settings**.
-2. Aktifkan **Enable Custom SMTP**.
-3. Isi kolom pengaturan SMTP sesuai dengan penyedia email Anda:
-   * **Sender Email**: Email resmi (misal: `no-reply@disipusda.purwakartakab.go.id`).
-   * **Sender Name**: `Disipusda Purwakarta`.
-   * **SMTP Provider / Host**: Host server email Anda (misal: `smtp.gmail.com` atau server SMTP instansi).
-   * **Port**: `587` (STARTTLS) atau `465` (SSL).
-   * **SMTP Username** & **SMTP Password**: Kredensial autentikasi akun email Anda.
-4. Klik **Save Changes**.
+### A. Cara Konfigurasi Resend SMTP di Supabase Auth
+1. Dapatkan **SMTP API Key** di Resend.com (buka **Resend > API Keys** > buat Key baru dengan akses *Sending*).
+2. Masuk ke **Supabase Dashboard > Auth > SMTP Settings**.
+3. Aktifkan sakelar **"Enable Custom SMTP"**.
+4. Isi kolom konfigurasi SMTP secara persis seperti berikut:
+   * **Sender Email**: Email resmi berdomain Anda yang sudah diverifikasi di Resend (contoh: `no-reply@lann.codes` atau `admin@perpustakaandaerah.com`).
+   * **Sender Name**: `Disipusda Purwakarta` (Nama pengirim di Inbox).
+   * **SMTP Host**: **`smtp.resend.com`**
+   * **Port**: **`465`** (SSL/TLS) atau **`587`** (STARTTLS). *Disarankan menggunakan `465`*.
+   * **SMTP Username**: **`resend`** (tulis huruf kecil semua, jangan gunakan nama email Anda).
+   * **SMTP Password**: Masukkan **API Key** Resend yang diperoleh di langkah 1 (berawalan `re_...`).
+5. Klik **Save Changes**.
+
+---
+
+## 3.1. Pengaturan Custom Secrets di Supabase
+Untuk mendukung alur notifikasi email kustom, integrasi Telegram Admin, dan penjadwalan otomatis yang dijalankan oleh **Supabase Edge Functions**, Anda wajib mendaftarkan variabel rahasia (*Custom Secrets*) di dashboard Supabase.
+
+### A. Daftar Secrets yang Wajib Dikonfigurasi:
+Berdasarkan kebutuhan backend perpustakaan, berikut adalah secrets yang harus Anda daftarkan:
+
+* **`RESEND_API_KEY`**: API Key dari dashboard Resend Anda (contoh: `re_123456...`). Digunakan oleh Edge Function untuk mengirim email transaksi.
+* **`RESEND_FROM_EMAIL`**: Alamat email pengirim transaksi yang valid dan terverifikasi di Resend (contoh: `Disipusda <no-reply@lann.codes>`).
+* **`TELEGRAM_BOT_TOKEN`**: Token rahasia dari bot Telegram Anda yang dibuat via `@BotFather`.
+* **`TELEGRAM_ADMIN_CHAT_ID`**: ID chat penerima notifikasi admin Telegram (dapat berupa ID chat pribadi Anda atau ID grup admin).
+* **`SITE_URL`**: URL utama website frontend Anda (contoh: `https://lann.codes` atau `https://project-web-perpustakaan.pages.dev`). Digunakan untuk menyusun tautan reschedule/konfirmasi dalam email.
+* **`CRON_SECRET`**: Token keamanan acak panjang untuk memverifikasi request cron job terjadwal (mencegah pihak asing memicu cron Anda secara sembarangan).
+
+### B. Cara Memasukkan Secrets ke Supabase:
+
+#### Cara 1: Lewat Dashboard Supabase (Visual)
+1. Buka **Supabase Dashboard** > pilih Proyek Anda.
+2. Buka menu **Settings** (ikon roda gigi di kiri bawah) > pilih menu **Edge Functions** (atau menu **API** pada versi dashboard tertentu).
+3. Gulir ke bawah hingga menemukan bagian **Custom Secrets**.
+4. Klik **Add a Secret** (atau **Edit**), masukkan kolom **Name** (misal: `RESEND_API_KEY`) dan **Value** (kunci rahasianya), lalu klik Save. Ulangi untuk semua secrets di atas.
+
+#### Cara 2: Lewat Supabase CLI (Terminal)
+Jika Anda mengelola proyek menggunakan komputer lokal, jalankan perintah berikut di folder proyek Anda:
+```bash
+supabase secrets set RESEND_API_KEY="re_key_anda" RESEND_FROM_EMAIL="Disipusda <no-reply@lann.codes>" TELEGRAM_BOT_TOKEN="token_bot_anda" TELEGRAM_ADMIN_CHAT_ID="id_chat_admin" SITE_URL="https://lann.codes" CRON_SECRET="kunci_cron_acak_anda"
+```
+
+---
+
+## 3.2. Deploy & Manajemen Supabase Edge Functions
+Seluruh logika backend perantara perpustakaan (pengiriman email notifikasi booking, perubahan status, pengingat denda peminjaman, dan webhook bot Telegram) dideploy di serverless platform **Supabase Edge Functions**.
+
+Ada **6 Edge Functions** utama yang harus Anda deploy dari folder `supabase/functions/` ke cloud Supabase:
+
+1. **`booking-notification`**: Mengirim notifikasi email dan Telegram ketika ada pemohon baru yang membuat reservasi arsip/buku.
+2. **`booking-status-change`**: Mengirim email pemberitahuan ke pemohon ketika admin menyetujui, menolak, atau menjadwal ulang (reschedule) waktu booking mereka.
+3. **`send-booking-digest`**: Cron harian yang memproses dan mengirim rangkuman (digest) booking masuk ke admin.
+4. **`send-borrow-notification`**: Mengirim email konfirmasi ke peminjam ketika proses peminjaman buku perpustakaan berhasil dicatat oleh admin.
+5. **`send-borrow-reminders`**: Cron harian yang memindai database untuk mendeteksi buku yang mendekati masa jatuh tempo dan otomatis mengirim email pengingat pengembalian ke peminjam.
+6. **`telegram-webhook`**: Endpoint penerima pesan balik dari Telegram Bot agar admin dapat merespons notifikasi secara langsung via aplikasi Telegram.
+
+### Langkah Mendeploy Edge Functions ke Supabase:
+1. Pastikan **Supabase CLI** sudah terinstal secara global:
+   ```bash
+   npm install -g supabase
+   ```
+2. Hubungkan terminal lokal Anda dengan akun Supabase:
+   ```bash
+   supabase login
+   ```
+3. Hubungkan folder proyek lokal ke proyek Supabase cloud Anda:
+   ```bash
+   supabase link --project-ref <PROJECT_REF_ID>
+   ```
+   *(PROJECT_REF_ID dapat Anda lihat pada URL dashboard Supabase Anda, contoh: `https://supabase.com/dashboard/project/anqopdxzdkpsmtxuultp` -> REF ID nya adalah `anqopdxzdkpsmtxuultp`).*
+4. Jalankan perintah deploy untuk masing-masing fungsi secara bergantian:
+   ```bash
+   supabase functions deploy booking-notification
+   supabase functions deploy booking-status-change
+   supabase functions deploy send-booking-digest
+   supabase functions deploy send-borrow-notification
+   supabase functions deploy send-borrow-reminders
+   supabase functions deploy telegram-webhook
+   ```
+5. Periksa status fungsi di dashboard Supabase pada tab **Edge Functions** di bilah navigasi kiri. Pastikan keenam fungsi di atas sudah berstatus **Active** dan memiliki URL endpoint masing-masing.
 
 ---
 
