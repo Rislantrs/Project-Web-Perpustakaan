@@ -88,6 +88,8 @@ Library Website Design/
     ├── components/            # Komponen UI global yang digunakan berulang kali
     ├── config/                # Konfigurasi parameter, warna, dan navigasi
     ├── layouts/               # Struktur tata letak halaman (publik/admin)
+    ├── modules/               # Folder berisi modul-modul modular mandiri
+    │   └── booking/           # Modul Enkapsulasi Booking (Pages, Repo, Types)
     ├── pages/                 # File halaman web untuk pengunjung
     │   └── admin/             # File halaman khusus admin
     ├── security/              # Modul pemantauan keamanan dan audit
@@ -185,6 +187,16 @@ Berikut adalah rincian seluruh file yang berada di dalam folder src/:
 *   **reportService.ts**: Menghitung data statistik peminjaman terpopuler dan rekap laporan bulanan admin.
 *   **memberSession.ts**: Penyimpanan sesi aktif lokal dari akun anggota perpustakaan yang sedang masuk.
 *   **backendConfig.ts**: Penentu mode database (apakah menggunakan mode mock lokal atau Supabase cloud).
+
+### 7b. Modul Modular Booking Enkapsulasi (`src/modules/booking/`)
+*   **pages/BookingPage.tsx**: Halaman pendaftaran booking utama untuk masyarakat umum.
+*   **pages/BookingCalendar.tsx**: Komponen kalender interaktif untuk menampilkan slot tanggal yang penuh/libur.
+*   **pages/BookingForm.tsx**: Formulir pengaduan isian pendaftaran layanan enkapsulasi dokumen.
+*   **pages/RescheduleConfirm.tsx**: Halaman konfirmasi reschedule bagi pemohon via link WhatsApp/Email.
+*   **pages/admin/AdminBookings.tsx**: Panel kelola pesanan booking masuk, setuju, tolak, dan reschedule bagi petugas.
+*   **repository/SupabaseBookingRepo.ts**: Penghubung database Supabase jika menggunakan mode `'supabase'`.
+*   **repository/ApiBookingRepo.ts**: Penghubung database backend kustom via REST API jika menggunakan mode `'api'`.
+*   **services/bookingService.ts**: Pengontrol logika bisnis status dan kuota peminjaman.
 
 ### 8. Security dan Monitoring (`src/security/`)
 *   **monitoring.ts**: Melacak performa rendering halaman web dan mencatat kesalahan JavaScript untuk dianalisis demi kelancaran aplikasi.
