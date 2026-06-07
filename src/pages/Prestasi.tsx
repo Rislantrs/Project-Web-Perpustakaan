@@ -96,42 +96,44 @@ export default function Prestasi() {
         </div>
 
         {/* Bagian pencarian dan filter */}
-        <div className="mb-12">
-          {/* Input pencarian */}
-          <div className="max-w-md mx-auto mb-6 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Cari prestasi..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white border border-gray-200 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0c2f3d]/15 focus:border-[#0c2f3d] transition-all font-medium shadow-sm"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="bg-white p-4 rounded-3xl shadow-md border border-gray-100 flex flex-col sm:flex-row gap-3">
+            
+            {/* Input pencarian */}
+            <div className="relative flex-grow">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Cari prestasi..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-10 py-3 rounded-2xl bg-gray-50 border border-gray-100 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0c2f3d]/15 focus:border-[#0c2f3d] transition-all font-semibold text-sm"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
 
-          {/* Opsi filter tahun */}
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
-            {years.map(year => (
-              <button
-                key={year}
-                onClick={() => setSelectedYear(year)}
-                className={`px-5 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                  selectedYear === year
-                    ? 'bg-[#0c2f3d] text-[#d6a54a] shadow-md shadow-[#0c2f3d]/15 scale-105'
-                    : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200 hover:text-gray-800'
-                }`}
+            {/* Selector Filter Tahun */}
+            <div className="sm:w-48">
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 text-gray-700 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#0c2f3d]/15 focus:border-[#0c2f3d] transition-all cursor-pointer"
               >
-                {year === 'Semua' ? 'Semua Tahun' : year}
-              </button>
-            ))}
+                {years.map(year => (
+                  <option key={year} value={year}>
+                    {year === 'Semua' ? 'Semua Tahun' : year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
           </div>
         </div>
 
