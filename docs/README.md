@@ -44,6 +44,7 @@ Panduan fungsionalitas aplikasi, manajemen administrator, sakelar fitur, dan daf
 
 ### 5. 🎨 Desain, Responsivitas & Media (`docs/design/`)
 Panduan visual, perbaikan tata letak layar HP, serta optimasi ukuran aset gambar:
+* [PANDUAN_DESAIN_OPTIMASI_LENGKAP.html](design/PANDUAN_DESAIN_OPTIMASI_LENGKAP.html) - 🌟 **[HTML/PDF] Buku panduan gabungan dari ketiga berkas di bawah ini, didesain khusus agar rapi saat diekspor ke PDF via browser (Ctrl + P).**
 * [ANDROID_RESPONSIVENESS_TODO.md](design/ANDROID_RESPONSIVENESS_TODO.md) - Daftar perbaikan responsivitas tata letak khusus untuk browser perangkat Android/HP.
 * [PANDUAN_RESPONSIVITAS_ADMIN.md](design/PANDUAN_RESPONSIVITAS_ADMIN.md) - Dokumentasi perbaikan tampilan grid dan dashboard admin agar nyaman dibuka di layar HP.
 * [IMAGE_OPTIMIZATION_GUIDE.md](design/IMAGE_OPTIMIZATION_GUIDE.md) - Cara memperkecil dan mengonversi format gambar ke WebP guna mempercepat loading website.

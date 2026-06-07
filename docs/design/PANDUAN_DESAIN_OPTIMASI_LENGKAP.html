@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan Komprehensif: Desain UI/UX, Responsivitas & Optimasi Media - Disipusda Purwakarta</title>
+    <style>
+        /* Modern Reset and CSS Variables */
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0d9488; /* Teal accent for Design and UX guides */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #f8f8f2;
+            --alert-tip: #0f766e;
+            --alert-note: #1d4ed8;
+            --alert-warning: #b45309;
+            --alert-caution: #be123c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout Architecture */
+        .wrapper {
+            width: 100%;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin: 2rem auto;
+            padding: 4rem 5rem;
+            max-width: 900px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Header Document Info */
+        .doc-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff !important;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-header h1 {
+            font-size: 2.25rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: #ffffff !important;
+        }
+
+        .doc-header p {
+            color: #cbd5e1 !important;
+            font-size: 1.1rem;
+        }
+
+        /* Typography Styles */
+        h1, h2, h3, h4 {
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alert Box Styles */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-left: 5px solid transparent;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-note {
+            background-color: #eff6ff;
+            border-left-color: var(--alert-note);
+            color: #1e3a8a;
+        }
+
+        .alert-tip {
+            background-color: #f0fdf4;
+            border-left-color: var(--alert-tip);
+            color: #115e59;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-left-color: var(--alert-warning);
+            color: #78350f;
+        }
+
+        .alert-caution {
+            background-color: #fff5f5;
+            border-left-color: var(--alert-caution);
+            color: #9b1c1c;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tables Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks & Coding Styling */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Syntax Highlight Colors */
+        .token-keyword { color: #f92672; font-weight: bold; }
+        .token-string { color: #e6db74; }
+        .token-comment { color: #75715e; font-style: italic; }
+        .token-number { color: #ae81ff; }
+        .token-type { color: #66d9ef; font-style: italic; }
+
+        /* Divider and spacing helpers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        .chapter-break {
+            margin-top: 5rem;
+        }
+
+        /* Dynamic Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent);
+            color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background-color: #0f766e;
+        }
+
+        /* PRINT STYLING - Optimize for PDF Generation */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+                font-size: 14px;
+            }
+
+            .back-to-top {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .doc-header {
+                border: 2px solid #000000;
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0;
+                padding: 2rem;
+            }
+
+            .doc-header h1 {
+                color: #000000 !important;
+            }
+
+            .doc-header p {
+                color: #333333 !important;
+            }
+
+            h1, h2, h3 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                border-bottom: 2px solid #000000;
+                margin-top: 2rem;
+            }
+
+            pre, table, blockquote, .alert {
+                page-break-inside: avoid;
+            }
+
+            pre {
+                border: 1px solid #94a3b8;
+                box-shadow: none !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            pre code {
+                color: #000000 !important;
+            }
+
+            code {
+                background-color: #f1f5f9;
+                border: 1px solid #cbd5e1;
+            }
+
+            .alert {
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            .alert-title {
+                color: #000000 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
+
+    <div class="wrapper">
+        <div class="main-content">
+            <!-- Cover Section -->
+            <div class="doc-header" id="cover">
+                <h1>Buku Panduan Komprehensif:<br>Desain UI/UX, Responsivitas & Optimasi Media</h1>
+                <p>Panduan teknis dan daftar perbaikan untuk meningkatkan responsivitas layout mobile (Android), penyelarasan panel admin ramah mobile, serta strategi optimasi aset gambar/media.</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #cbd5e1 !important; font-weight: 500;">Diperbarui: Juni 2026 | Disusun oleh: M. Rislan Tristansyah (Mahasiswa Sistem Telekomunikasi)</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 1: GLOBAL RESPONSIVENESS               -->
+            <!-- ========================================== -->
+            <div id="ch1" class="chapter-break">
+                <h1>Bab 1: Responsivitas UI Global & Layout Utama (Mobile)</h1>
+                <p>Meningkatkan pengalaman pengguna pada resolusi layar handphone yang sempit (seperti Android 360px - 412px) dengan menghindari meluapnya layout ke kanan (horizontal scroll) dan memastikan konten tidak terpotong.</p>
+
+                <h2>1. Batasan Tinggi Menu Mobile pada Navbar.tsx</h2>
+                <div class="alert alert-note">
+                    <div class="alert-title">Masalah: Menu Mobile Terpotong</div>
+                    Pada perangkat Android dengan layar pendek, daftar navigasi menu mobile yang terbuka (`AnimatePresence`) dapat meluap dan terpotong di bagian bawah, membuat tombol menu bawah tidak dapat di-klik.
+                </div>
+                <p><strong>Solusi:</strong></p>
+                <ul>
+                    <li>Tambahkan kelas Tailwind <code>overflow-y-auto max-h-[calc(100vh-80px)]</code> pada panel pembungkus menu mobile. Ini memaksa menu di dalam navbar menjadi scrollable secara vertikal secara mandiri jika melebihi tinggi layar fisik.</li>
+                    <li>Pastikan lebar elemen logo di navbar mengecil secara dinamis menggunakan responsive width pada lebar layar sangat sempit (&lt; 320px) agar tombol hamburger menu tidak terdorong keluar kontainer.</li>
+                </ul>
+
+                <h2>2. Penyusunan Kolom di Footer.tsx</h2>
+                <p>Di layar mobile, kolom footer statis berdampingan dipaksa bertumpuk menjadi 1 kolom menggunakan kelas responsive:</p>
+                <pre><span class="token-keyword">className</span>=<span class="token-string">"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"</span></pre>
+                <p>Ini mencegah baris tautan teks menjadi sangat sempit, bertumpuk, atau tidak dapat dibaca di layar HP.</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 2: HALAMAN PUBLIK RESPONSIVE           -->
+            <!-- ========================================== -->
+            <div id="ch2" class="chapter-break">
+                <h1>Bab 2: Panduan Responsivitas Halaman Publik (Frontend)</h1>
+                <p>Penyelarasan layout pada halaman yang diakses publik agar ramah mobile menggunakan penulisan utility class Tailwind CSS secara proporsional.</p>
+
+                <h2>1. Judul Utama & Grid Berita (Home.tsx)</h2>
+                <ul>
+                    <li><strong>Responsive Text size:</strong> Judul pahlawan utama "Disipusda Purwakarta" diatur menggunakan skala adaptif:
+                        <pre>className="text-3xl sm:text-5xl lg:text-6xl"</pre>
+                    </li>
+                    <li><strong>Jarak Antara Kolom Berita:</strong> Di mobile, grid berita utama (<code>lg:col-span-7</code>) dan berita pendukung (<code>lg:col-span-5</code>) ditumpuk dengan jarak gap vertikal (<code>gap-6</code>) yang cukup agar tidak saling bertabrakan.</li>
+                </ul>
+
+                <h2>2. Tab Switcher & Segmen Grid (Diorama.tsx)</h2>
+                <ul>
+                    <li><strong>Tab Switcher Padding:</strong> Tombol toggle tab (Diorama Purwakarta / Nusantara) menggunakan padding responsif:
+                        <pre>className="px-4 py-2 sm:px-8 sm:py-3"</pre>
+                        Ini mencegah tombol toggle melampaui lebar layar kontainer di HP Android 360px yang menyebabkan scroll kesamping yang tidak diinginkan.
+                    </li>
+                    <li><strong>9 & 12 Segmen Grid:</strong> Diatur responsif agar beralih menjadi 1 kolom penuh di layar mobile:
+                        <pre>className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"</pre>
+                    </li>
+                </ul>
+
+                <h2>3. Grid Kartu Anggota (StrukturOrganisasi.tsx)</h2>
+                <p>Layout card profile seksi diatur menggunakan kolom adaptif berikut:</p>
+                <pre><span class="token-keyword">className</span>=<span class="token-string">"grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"</span></pre>
+                <p>Ini mencegah card anggota menyempit ekstrem di bawah 360px yang membuat teks peran/nama menumpuk tidak terbaca.</p>
+
+                <h2>4. Kategori Tab & Detail Buku (KatalogBuku.tsx)</h2>
+                <ul>
+                    <li><strong>Horizontal Kategori Scroll:</strong> Baris pilihan kategori menggunakan horizontal scroll (<code>overflow-x-auto</code>) dengan tambahan efek gradasi bayangan transparan (gradient fade) di sisi kiri/kanan sebagai petunjuk visual bahwa daftar tersebut dapat digeser.</li>
+                    <li><strong>Panel Detail Buku:</strong> Samping panel detail buku (<code>max-w-md</code>) beralih menjadi lebar penuh (<code>w-full</code>) saat diakses dari HP agar sinopsis dan tombol peminjaman memiliki ruang klik yang nyaman.</li>
+                </ul>
+
+                <h2>5. Overflow Tabel Jadwal (JadwalLayanan.tsx)</h2>
+                <p>Tabel jadwal layanan dibungkus menggunakan kontainer responsive scroll:</p>
+                <pre>&lt;<span class="token-keyword">div</span> <span class="token-keyword">className</span>=<span class="token-string">"w-full overflow-x-auto rounded-lg border"</span>&gt;
+  &lt;<span class="token-keyword">table</span> ...&gt;
+&lt;/<span class="token-keyword">div</span>&gt;</pre>
+                <p>Ini membiarkan tabel tetap berukuran aslinya tetapi dapat di-scroll ke kanan di mobile tanpa merusak lebar layout halaman utama.</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 3: RESPONSIVITAS MODUL BOOKING         -->
+            <!-- ========================================== -->
+            <div id="ch3" class="chapter-break">
+                <h1>Bab 3: Responsivitas Modul Booking Enkapsulasi</h1>
+                <p>Penyelarasan modul formulir booking enkapsulasi agar mudah diisi oleh pengguna menggunakan jari di HP Android.</p>
+
+                <h2>1. Menghilangkan CSS Inline Hack (BookingPage.tsx)</h2>
+                <div class="alert alert-caution">
+                    <div class="alert-title">Masalah: CSS Selector Hack Statis</div>
+                    Halaman booking sebelumnya menggunakan modifikasi CSS override paksa:
+                    <pre>div[style*="grid-template-columns: minmax(0, 1fr) minmax(0, 300px)"] { ... }</pre>
+                    Metode ini sangat rapuh. Sedikit perubahan markup akan membatalkan aturan ini.
+                </div>
+                <p><strong>Solusi:</strong></p>
+                <p>Ganti baris grid statis menggunakan kelas responsif Tailwind CSS bawaan React:</p>
+                <pre><span class="token-keyword">className</span>=<span class="token-string">"grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8"</span></pre>
+
+                <h2>2. Ukuran Cell Kalender (BookingCalendar.tsx)</h2>
+                <p>Pada layar Android di bawah 360px, cell kalender berukuran statis dengan padding tebal akan berdempetan dan teks angka tanggal akan bertumpuk.</p>
+                <p><strong>Solusi:</strong></p>
+                <ul>
+                    <li>Gunakan unit ukuran relatif (<code>aspect-square</code>) pada elemen cell hari.</li>
+                    <li>Gunakan padding kecil di mobile pada container kalender (<code>p-2 sm:p-4</code>) agar kalender melebar maksimal mengikuti lebar HP.</li>
+                </ul>
+
+                <h2>3. Pill Date Header & Tombol Ganti (BookingForm.tsx)</h2>
+                <p>Di mobile, baris header tanggal terpilih dan tombol "Ganti Tanggal" diatur bertumpuk vertikal (flex-col) agar tombol ganti tidak menabrak teks tanggal terpilih yang panjang.</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 4: RESPONSIVITAS PANEL ADMIN           -->
+            <!-- ========================================== -->
+            <div id="ch4" class="chapter-break">
+                <h1>Bab 4: Penyesuaian Responsivitas UI Panel Admin</h1>
+                <p>Meskipun dashboard admin lebih sering diakses melalui desktop, penyesuaian mobile-friendly sangat penting agar admin dapat menyetujui booking secara cepat via notifikasi Telegram di HP.</p>
+
+                <h2>1. Collapsible Sidebar (AdminLayout.tsx)</h2>
+                <p>Sidebar admin diatur dengan laci (drawer) yang dapat dibuka/tutup menggunakan tombol hamburger:</p>
+                <pre>&lt;<span class="token-keyword">aside</span> <span class="token-keyword">className</span>=<span class="token-string">"fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out"</span>&gt;</pre>
+                <ul>
+                    <li>Tambahkan overlay bayangan hitam (backdrop) di belakang sidebar ketika aktif di mobile.</li>
+                    <li>Sediakan tombol hamburger (hamburger menu icon) di header bagian atas yang hanya muncul di perangkat mobile (<code>md:hidden</code>).</li>
+                </ul>
+
+                <h2>2. Statistik & Chart Responsif (AdminDashboard.tsx)</h2>
+                <ul>
+                    <li><strong>Grid Statistik:</strong> Kartu jumlah anggota, buku, dan peminjaman diset responsif:
+                        <pre>className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"</pre>
+                    </li>
+                    <li><strong>Chart:</strong> Grafik aktivitas wajib dibungkus dengan komponen <code>&lt;ResponsiveContainer width="100%" height={300}&gt;</code> jika menggunakan Recharts agar grafik tidak keluar layar.</li>
+                </ul>
+
+                <h2>3. List-Card Pengganti Tabel di Mobile (AdminBookings.tsx)</h2>
+                <p>Menampilkan data pemesanan di mobile menggunakan susunan kartu (card-based list) vertikal, bukan memaksakan tabel lebar:</p>
+                <div class="alert alert-tip">
+                    <div class="alert-title">Format Tampilan Mobile AdminBookings</div>
+                    Setiap data booking dibungkus dalam card yang memuat: Nama Pemesan, Tanggal Booking, Jumlah Dokumen, Status Badge, dan Tombol Aksi (Terima/Tolak/Reschedule) berukuran minimal 44px (touch target aman) agar mudah ditekan jari.
+                </div>
+
+                <h2>4. Pengelolaan Tabel Data & Formulir</h2>
+                <ul>
+                    <li><strong>Bungkus Overflow:</strong> Seluruh halaman pengelolaan (buku, anggota, dll.) wajib membungkus tabelnya di dalam kontainer scroll horizontal.</li>
+                    <li><strong>Formulir Input:</strong> Grid formulir diubah dari 2 kolom berdampingan menjadi 1 kolom penuh di mobile (<code>grid-cols-1 md:grid-cols-2</code>).</li>
+                    <li><strong>Fixed Bottom Bar:</strong> Berikan padding bawah (<code>pb-24</code>) pada formulir agar tombol simpan tidak tertutup oleh keyboard virtual Android.</li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 5: OPTIMASI GAMBAR & MEDIA             -->
+            <!-- ========================================== -->
+            <div id="ch5" class="chapter-break">
+                <h1>Bab 5: Strategi Optimasi Gambar & Media</h1>
+                <p>Optimasi gambar sangat krusial untuk menjaga agar First Contentful Paint (FCP) website di browser Android tetap di bawah 2 detik.</p>
+
+                <h2>1. Apakah Komentar Kode Mempengaruhi Kecepatan Load?</h2>
+                <div class="alert alert-note">
+                    <div class="alert-title">Penjelasan: Proses Minification</div>
+                    <strong>TIDAK BERPENGARUH.</strong> Saat Anda menjalankan perintah <code>npm run build</code>, compiler Vite/Rollup akan melakukan proses Minification. Semua komentar, spasi berlebih, dan baris kosong akan dibuang dari file Javascript/CSS akhir. Menulis komentar dokumentasi sangat direkomendasikan dan tidak menambah ukuran loading.
+                </div>
+
+                <h2>2. Konversi Format & Kompresi</h2>
+                <ul>
+                    <li><strong>Gunakan WebP:</strong> Format WebP memiliki ukuran rata-rata 30% lebih kecil dibandingkan JPG atau PNG dengan kualitas visual yang sama.</li>
+                    <li><strong>Dimensi Tepat:</strong> Jangan mengunggah gambar resolusi asli 3000px jika hanya akan ditampilkan di kotak 300px. Selalu resize gambar sebelum diunggah.</li>
+                    <li><strong>Alat Bantu:</strong> Gunakan Squoosh.app atau TinyPNG untuk kompresi manual sebelum diunggah ke folder aset.</li>
+                </ul>
+
+                <h2>3. Optimasi Awan (Supabase Storage Transformation)</h2>
+                <p>Jika aset disimpan di Supabase Storage, Anda dapat memanfaatkan rendering server untuk memperkecil gambar secara otomatis melalui parameter URL:</p>
+                <pre><span class="token-keyword">const</span> getOptimizedUrl <span class="token-keyword">=</span> (path, width <span class="token-keyword">=</span> <span class="token-number">300</span>) <span class="token-keyword">=></span> {
+  <span class="token-keyword">const</span> baseUrl <span class="token-keyword">=</span> <span class="token-string">'https://anqopdxzdkpsmtxuultp.supabase.co/storage/v1/render/image/public'</span>;
+  <span class="token-keyword">return</span> <span class="token-string">`${baseUrl}/${path}?width=${width}&quality=80&format=webp`</span>;
+}</pre>
+
+                <h2>4. Image Proxying & Lazy Loading</h2>
+                <ul>
+                    <li><strong>Image Proxy:</strong> Untuk gambar eksternal, gunakan CDN proxy seperti Cloudimage.io atau Cloudinary untuk memproses kompresi otomatis di server awan terdekat.</li>
+                    <li><strong>Atribut Lazy Loading:</strong> Tambahkan tag <code>loading="lazy"</code> pada semua gambar di bawah lipatan layar (below the fold) agar browser menunda unduhan sebelum di-scroll pengguna:
+                        <pre>&lt;img src={bookCover} alt="Cover Buku" loading="lazy" className="..." /&gt;</pre>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
