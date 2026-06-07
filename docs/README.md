@@ -8,10 +8,12 @@ Selamat datang di pusat dokumentasi teknis website **Perpustakaan Digital & Book
 
 ### 1. 🗄️ Database & Migrasi (`docs/database/`)
 Panduan pemetaan, skema database, dan migrasi basis data dari PostgreSQL/Supabase ke basis data lokal MySQL:
+* [PANDUAN_DATABASE_MIGRASI_LENGKAP.html](database/PANDUAN_DATABASE_MIGRASI_LENGKAP.html) - 🌟 **[HTML/PDF] Buku panduan gabungan dari keempat berkas di bawah ini, didesain khusus agar rapi saat diekspor ke PDF via browser (Ctrl + P).**
 * [PANDUAN_MIGRASI_DATABASE.md](database/PANDUAN_MIGRASI_DATABASE.md) - Panduan lengkap migrasi database kustom (PostgreSQL ke MySQL), CSV, dan DDL skema MySQL.
 * [panduan_database_lokal_hosting.md](database/panduan_database_lokal_hosting.md) - Cara menghubungkan React dengan database MySQL lokal di cPanel/hosting Anda via backend API.
 * [panduan_skema_dan_storage.md](database/panduan_skema_dan_storage.md) - Penjelasan pemisahan skema SQL, RLS storage bucket, dan skrip otomatisasi unduh file Supabase.
 * [panduan_setup_cron_digest.md](database/panduan_setup_cron_digest.md) - Konfigurasi cron digest email harian dan trigger database.
+
 
 ### 2. 📦 Hosting & Deployment (`docs/hosting/`)
 Panduan mengunggah kode web ke hosting umum, VPS, serta konfigurasi domain dan SSL:
