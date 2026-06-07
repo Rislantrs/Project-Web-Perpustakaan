@@ -2,6 +2,7 @@ import { dbGet, dbSave, DB_KEYS, initializeDB, Member as MemberType, Admin as Ad
 import bcrypt from 'bcryptjs';
 import { clearCurrentMember, getSavedCurrentMember, saveCurrentMember } from './memberSession';
 import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
 import { AVATAR_COLORS } from '../config/colorPalette';
 
 export type Member = MemberType;
@@ -22,6 +23,18 @@ const ADMIN_SESSION_TTL = 12 * 60 * 60 * 1000; // 12 hours
 
 // Initialize DB on first import
 initializeDB();
+
+// Sync Supabase auth state with admin sessionStorage to prevent 401/expired states
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT' || !session) {
+    if (sessionStorage.getItem(CURRENT_ADMIN_KEY)) {
+      sessionStorage.removeItem(CURRENT_ADMIN_KEY);
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.href = '/login-admin';
+      }
+    }
+  }
+});
 
 const avatarColors = AVATAR_COLORS;
 
@@ -260,8 +273,34 @@ export const addAdmin = async (data: { namaLengkap: string; email: string; passw
   if (admins.find(a => a.email === data.email))
     return { success: false, message: 'Email admin sudah terdaftar.' };
 
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  // Buat client terpisah tanpa persistent session agar admin yang sedang login tidak keluar
+  const tempClient = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+
+  const { data: authData, error: authError } = await tempClient.auth.signUp({
+    email: data.email.toLowerCase().trim(),
+    password: data.password,
+  });
+
+  if (authError) {
+    return { success: false, message: `Gagal mendaftarkan akun di Supabase Auth: ${authError.message}` };
+  }
+
+  const userId = authData.user?.id;
+  if (!userId) {
+    return { success: false, message: 'Gagal mendapatkan User ID dari Supabase Auth.' };
+  }
+
   const payload = {
-    id: generateId(),
+    id: userId, // Gunakan UUID dari hasil signUp di auth.users!
     nama_lengkap: data.namaLengkap,
     email: data.email.toLowerCase().trim(),
     password_hash: bcrypt.hashSync(data.password, 10),
@@ -272,7 +311,7 @@ export const addAdmin = async (data: { namaLengkap: string; email: string; passw
 
   const { error } = await supabase.from(ADMINS_TABLE).insert(payload);
   if (error) {
-    return { success: false, message: `Gagal menambah admin: ${error.message}` };
+    return { success: false, message: `Gagal menyimpan admin ke database: ${error.message}` };
   }
 
   const refreshed = await getAdmins();
