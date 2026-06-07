@@ -39,76 +39,24 @@
 
         /* Layout Architecture */
         .wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Left Sidebar (Navigation) - Hidden in Print */
-        .sidebar {
-            width: 320px;
-            background-color: var(--primary);
-            color: #f8fafc;
-            padding: 2.5rem 1.5rem;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            overflow-y: auto;
-            border-right: 1px solid var(--primary-light);
-            z-index: 100;
-        }
-
-        .sidebar h2 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: #ffffff;
-            font-weight: 700;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 0.5rem;
-        }
-
-        .sidebar p {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-bottom: 1.5rem;
-        }
-
-        .sidebar ul {
-            list-style: none;
-        }
-
-        .sidebar li {
-            margin-bottom: 0.75rem;
-        }
-
-        .sidebar a {
-            color: #cbd5e1;
-            text-decoration: none;
-            font-size: 0.9rem;
-            display: block;
-            padding: 0.35rem 0.5rem;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .sidebar a:hover {
-            color: #ffffff;
-            background-color: var(--primary-light);
-            padding-left: 0.75rem;
+            width: 100%;
         }
 
         /* Main Content Container */
         .main-content {
-            flex: 1;
-            margin-left: 320px;
-            padding: 3rem 4rem;
-            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 4rem 5rem;
+            max-width: 900px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
         }
 
         /* Header Document Info */
         .doc-header {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #ffffff;
+            color: #ffffff !important;
             padding: 3rem;
             border-radius: 12px;
             margin-bottom: 3rem;
@@ -120,10 +68,11 @@
             line-height: 1.25;
             margin-bottom: 1rem;
             font-weight: 800;
+            color: #ffffff !important;
         }
 
         .doc-header p {
-            color: #cbd5e1;
+            color: #cbd5e1 !important;
             font-size: 1.1rem;
         }
 
@@ -399,33 +348,7 @@
 </head>
 <body>
 
-    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
-
     <div class="wrapper">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <h2>Pusat Panduan</h2>
-            <p>Disipusda Purwakarta</p>
-            <ul>
-                <li><a href="#cover">🔖 Halaman Sampul</a></li>
-                <li><a href="#ch1">📖 Bab 1: Migrasi Database</a></li>
-                <li><a href="#ch1-1">└ Perbandingan DB</a></li>
-                <li><a href="#ch1-3">└ Impor CSV & CLI</a></li>
-                <li><a href="#ch1-5">└ Skema Tabel MySQL</a></li>
-                <li><a href="#ch1-6">└ Backend Jembatan</a></li>
-                <li><a href="#ch2">🔌 Bab 2: Database Lokal</a></li>
-                <li><a href="#ch2-1">└ Arsitektur API</a></li>
-                <li><a href="#ch2-4">└ Script Jembatan API</a></li>
-                <li><a href="#ch2-6">└ SPA Fallback Rules</a></li>
-                <li><a href="#ch3">📑 Bab 3: Skema & Storage</a></li>
-                <li><a href="#ch3-3">└ Kebijakan RLS</a></li>
-                <li><a href="#ch3-5">└ Skrip Upload Aman</a></li>
-                <li><a href="#ch3-6">└ Backup Storage</a></li>
-                <li><a href="#ch4">⏰ Bab 4: Setup Cron & Token</a></li>
-                <li><a href="#ch4-1">└ Konsep Cron Secret</a></li>
-                <li><a href="#ch4-3">└ SQL pg_net / pg_cron</a></li>
-            </ul>
-        </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -433,7 +356,7 @@
             <div class="doc-header" id="cover">
                 <h1>Buku Panduan Komprehensif:<br>Basis Data, Storage, dan Migrasi</h1>
                 <p>Panduan teknis lengkap integrasi React frontend dengan database lokal (MySQL) atau Cloud (Supabase/PostgreSQL) beserta penanganan file storage dan cron job.</p>
-                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #94a3b8;">Diperbarui: Juni 2026 | Tim IT Disipusda Purwakarta</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #cbd5e1 !important; font-weight: 500;">Diperbarui: Juni 2026 | Disusun oleh: M. Rislan Tristansyah (Mahasiswa Sistem Telekomunikasi)</p>
             </div>
 
             <!-- ========================================== -->
