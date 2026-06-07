@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getArticles, deleteArticle, refreshArticles, Article, ARTICLE_EDITOR_CATEGORIES } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { Link } from 'react-router';
-import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ManageArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(15);
 
   useEffect(() => {
     loadArticles();
@@ -17,6 +21,11 @@ export default function ManageArticles() {
     window.addEventListener('dbChange', loadArticles);
     return () => window.removeEventListener('dbChange', loadArticles);
   }, []);
+
+  // Reset ke halaman 1 ketika pencarian atau filter berubah
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filterCategory, filterStatus, itemsPerPage]);
 
   const parseIndoDate = (dateStr: string) => {
     // Konversi tanggal format Indonesia (contoh: 25 April 2026) ke objek Date.
@@ -48,18 +57,41 @@ export default function ManageArticles() {
     }
   };
 
-  const filteredArticles = articles.filter(a => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    const articleDate = parseIndoDate(a.date);
-    const isFuture = articleDate > now;
+  const filteredArticles = useMemo(() => {
+    return articles.filter(a => {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const articleDate = parseIndoDate(a.date);
+      const isFuture = articleDate > now;
 
-    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = filterCategory ? a.category === filterCategory : true;
-    const matchStatus = filterStatus ? (filterStatus === 'Scheduled' ? isFuture : !isFuture) : true;
+      const matchSearch = a.title.toLowerCase().includes(search.toLowerCase());
+      const matchCategory = filterCategory ? a.category === filterCategory : true;
+      const matchStatus = filterStatus ? (filterStatus === 'Scheduled' ? isFuture : !isFuture) : true;
 
-    return matchSearch && matchCategory && matchStatus;
-  });
+      return matchSearch && matchCategory && matchStatus;
+    });
+  }, [articles, search, filterCategory, filterStatus]);
+
+  // Pagination calculations
+  const totalItems = filteredArticles.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const paginatedArticles = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredArticles.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredArticles, currentPage, itemsPerPage]);
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const pages: Array<number | '...'> = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    if (start > 2) pages.push('...');
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (end < totalPages - 1) pages.push('...');
+    pages.push(totalPages);
+    return pages;
+  }, [currentPage, totalPages]);
 
   return (
     <div>
@@ -70,30 +102,30 @@ export default function ManageArticles() {
         </div>
         <Link
           to="/admin/articles/new"
-          className="flex items-center gap-2 bg-brand-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-primary-dark transition-colors"
+          className="flex items-center gap-2 bg-brand-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-brand-primary-dark transition-colors shrink-0"
         >
           <Plus size={18} /> Tulis Baru
         </Link>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row gap-4">
-          <div className="relative flex-grow max-w-sm">
+        <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="relative w-full md:max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Cari judul artikel..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent"
+              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent bg-white"
             />
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent min-w-[130px]"
             >
               <option value="">Semua Kategori</option>
               {ARTICLE_EDITOR_CATEGORIES.map((cat) => (
@@ -106,11 +138,23 @@ export default function ManageArticles() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent min-w-[130px]"
             >
               <option value="">Semua Status</option>
               <option value="Published">Terbit</option>
               <option value="Scheduled">Terjadwal</option>
+            </select>
+
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brand-accent min-w-[110px]"
+              title="Jumlah artikel per halaman"
+            >
+              <option value={10}>10 per hal</option>
+              <option value={15}>15 per hal</option>
+              <option value={30}>30 per hal</option>
+              <option value={50}>50 per hal</option>
             </select>
           </div>
         </div>
@@ -127,7 +171,7 @@ export default function ManageArticles() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredArticles.map(article => {
+              {paginatedArticles.map(article => {
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);
                 const isFuture = parseIndoDate(article.date) > now;
@@ -175,6 +219,49 @@ export default function ManageArticles() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-gray-500">
+              Menampilkan <span className="font-semibold">{(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, totalItems)}</span> dari{' '}
+              <span className="font-semibold">{totalItems}</span> artikel
+            </p>
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2 border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors bg-white"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              {visiblePages.map((page, idx) =>
+                page === '...' ? (
+                  <span key={`dots-${idx}`} className="px-2 text-gray-400 select-none">...</span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors border ${
+                      currentPage === page
+                        ? 'bg-brand-primary border-brand-primary text-white shadow-sm'
+                        : 'border-gray-200 text-gray-600 hover:bg-gray-50 bg-white'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors bg-white"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

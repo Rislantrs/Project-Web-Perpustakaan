@@ -233,6 +233,7 @@ END $$;
 -- GRANTS & PERMISSIONS
 -- ============================================================================
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+GRANT INSERT ON public.warga_reports TO anon;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
 
 COMMIT;

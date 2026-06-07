@@ -560,6 +560,14 @@ export const incrementArticleViews = async (id: string) => {
   const article = memoryCache.find(a => a.id === id);
   if (article) {
     article.views = (article.views || 0) + 1;
+    
+    // Simpan ke local storage
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryCache.map(a => ({ ...a, content: undefined }))));
+    } catch (e) {
+      console.warn('Failed to update local cache views', e);
+    }
+
     // Debounce/Throttling dispatch agar tidak terlalu boros render
     window.dispatchEvent(new CustomEvent('dbChange', { detail: { key: STORAGE_KEY } }));
 

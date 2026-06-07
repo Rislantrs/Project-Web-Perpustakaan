@@ -154,18 +154,16 @@ export const createReport = async (input: ReportInput): Promise<{ success: boole
   };
 
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from(REPORTS_TABLE)
-      .insert(report)
-      .select('*')
-      .single();
+      .insert(report);
 
     if (error) throw error;
 
     return {
       success: true,
       message: 'Laporan berhasil dikirim dan tersimpan di database.',
-      report: normalizeReport(data as Report),
+      report,
     };
   } catch (error) {
     const legacyReports = readLegacyReports();

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { getArticles, Article, migrateLegacyArticleImages } from '../../services/dataService';
+import { useEffect, useState, useMemo } from 'react';
+import { getArticles, Article, migrateLegacyArticleImages, refreshArticles } from '../../services/dataService';
 import { getBooks, getAllBorrows, BorrowRecord, migrateLegacyBookCovers } from '../../services/bookService';
 import { getMembers } from '../../services/authService';
 import { refreshMembersFromSupabase } from '../../services/supabaseAuthService';
@@ -27,14 +27,46 @@ export default function AdminDashboard() {
       const members = await refreshMembersFromSupabase();
       setMembersCount((members || getMembers()).length);
       // Catatan: pengurutan berdasarkan id diasumsikan mengikuti urutan waktu pembuatan data.
-      setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
+      setRecentBorrows([...borrows].sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
 
       // Jalankan migrasi legacy (base64 ke URL Supabase Storage) di latar belakang hanya untuk admin.
       void migrateLegacyArticleImages();
       void migrateLegacyBookCovers();
+
+      // Sinkronisasi data cloud untuk artikel (menghapus yang sudah didelete, mengupdate views)
+      try {
+        const fresh = await refreshArticles();
+        setArticles(fresh);
+      } catch (err) {
+        console.error('Failed to sync articles in dashboard:', err);
+      }
     };
     void run();
   }, []);
+
+  // Sinkronisasi instan jika ada perubahan data artikel di halaman admin lain
+  useEffect(() => {
+    const handleDbChange = (e: any) => {
+      if (e.detail?.key === 'disipusda_articles') {
+        setArticles(getArticles());
+      }
+    };
+    window.addEventListener('dbChange', handleDbChange);
+    return () => window.removeEventListener('dbChange', handleDbChange);
+  }, []);
+
+  const recentArticles = useMemo(() => {
+    return [...articles]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 5);
+  }, [articles]);
+
+  const popularArticles = useMemo(() => {
+    return [...articles]
+      .filter(a => (a.views || 0) > 0)
+      .sort((a, b) => (b.views || 0) - (a.views || 0))
+      .slice(0, 5);
+  }, [articles]);
 
   const stats = [
     { title: 'Total Artikel', value: articles.length, icon: <FileText size={24} className="text-blue-500" />, bg: 'bg-blue-50' },
@@ -67,14 +99,14 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Daftar artikel terbaru */}
+        {/* Daftar artikel terbaru */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><FileText size={20} className="text-gray-400" /> Artikel Terbaru</h2>
             <Link to="/admin/articles" className="text-sm text-blue-600 font-medium hover:underline">Lihat Semua</Link>
           </div>
           <div className="divide-y divide-gray-100 flex-1">
-            {articles.slice(0, 5).map(article => (
+            {recentArticles.map(article => (
               <div key={article.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1 line-clamp-1">{article.title}</h4>
@@ -86,20 +118,20 @@ export default function AdminDashboard() {
                 <Link to={`/admin/articles/edit/${article.id}`} className="text-xs font-bold text-gray-300 hover:text-brand-primary uppercase tracking-wider">Edit</Link>
               </div>
             ))}
-            {articles.length === 0 && (
+            {recentArticles.length === 0 && (
               <div className="px-6 py-8 text-center text-gray-500 text-sm italic">Belum ada artikel.</div>
             )}
           </div>
         </div>
 
-          {/* Daftar artikel terpopuler */}
+        {/* Daftar artikel terpopuler */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><TrendingUp size={20} className="text-orange-400" /> Artikel Terpopuler</h2>
             <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">Berdasarkan Views</span>
           </div>
           <div className="divide-y divide-gray-100 flex-1">
-            {articles.sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0, 5).map(article => (
+            {popularArticles.map(article => (
               <div key={article.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div className="flex-1 min-w-0 pr-4">
                   <h4 className="font-medium text-gray-900 mb-1 line-clamp-1">{article.title}</h4>
@@ -111,8 +143,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
-            {articles.length === 0 && (
-              <div className="px-6 py-8 text-center text-gray-500 text-sm italic">Belum ada statistik tersedia.</div>
+            {popularArticles.length === 0 && (
+              <div className="px-6 py-8 text-center text-gray-500 text-sm italic">Belum ada data kunjungan artikel.</div>
             )}
           </div>
         </div>

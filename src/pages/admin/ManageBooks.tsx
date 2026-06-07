@@ -1,14 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import { Plus, Search, Edit2, Trash2, BookOpen, AlertCircle, CheckCircle, X, Package } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, BookOpen, AlertCircle, CheckCircle, X, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getBooks, deleteBook, type Book } from '../../services/bookService';
 import { getCategories, refreshCategories } from '../../services/dataService';
 import { getCurrentAdmin } from '../../services/authService';
 import { motion, AnimatePresence } from 'motion/react';
 import SafeImage from '../../components/SafeImage';
-
-// HARDCODE: jumlah buku per halaman di tabel admin.
-const BOOKS_PER_PAGE = 10;
 
 export default function ManageBooks() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -17,6 +14,12 @@ export default function ManageBooks() {
   const [currentPage, setCurrentPage] = useState(1);
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [confirmDelete, setConfirmDelete] = useState<Book | null>(null);
+
+  // Filter states
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterYear, setFilterYear] = useState('');
+  const [filterStock, setFilterStock] = useState(''); // '', 'tersedia', 'habis'
+  const [itemsPerPage, setItemsPerPage] = useState(15);
 
   useEffect(() => {
     const loadCloudBooks = () => {
@@ -31,9 +34,10 @@ export default function ManageBooks() {
     return () => window.removeEventListener('dbChange', loadCloudBooks);
   }, []);
 
+  // Reset ke halaman 1 ketika query, filter, atau limit berubah
   useEffect(() => {
     setCurrentPage(1);
-  }, [query]);
+  }, [query, filterCategory, filterYear, filterStock, itemsPerPage]);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ show: true, message, type });
@@ -49,15 +53,42 @@ export default function ManageBooks() {
     if (result.success) { setBooks(getBooks()); setConfirmDelete(null); }
   };
 
-  // Search/filter dilakukan client-side setelah data tabel tersedia.
-  const filtered = books.filter(b =>
-    b.judul.toLowerCase().includes(query.toLowerCase()) ||
-    b.penulis.toLowerCase().includes(query.toLowerCase()) ||
-    b.kategori.toLowerCase().includes(query.toLowerCase())
-  );
+  // Ekstrak daftar tahun terbit unik secara dinamis dari data buku
+  const uniqueYears = useMemo(() => {
+    const years = books.map(b => b.tahun).filter(Boolean);
+    return Array.from(new Set(years)).sort((a, b) => b - a);
+  }, [books]);
 
-  const totalPages = Math.ceil(filtered.length / BOOKS_PER_PAGE);
-  const paginated = filtered.slice((currentPage - 1) * BOOKS_PER_PAGE, currentPage * BOOKS_PER_PAGE);
+  // Search & Filters dilakukan client-side
+  const filtered = useMemo(() => {
+    return books.filter(b => {
+      const q = query.toLowerCase().trim();
+      const matchQuery = q ? (
+        b.judul.toLowerCase().includes(q) ||
+        b.penulis.toLowerCase().includes(q) ||
+        b.kategori.toLowerCase().includes(q) ||
+        (b.isbn && b.isbn.toLowerCase().includes(q))
+      ) : true;
+
+      const matchCategory = filterCategory ? b.kategori === filterCategory : true;
+      const matchYear = filterYear ? b.tahun.toString() === filterYear : true;
+      
+      let matchStock = true;
+      if (filterStock === 'tersedia') {
+        matchStock = b.stok > 0;
+      } else if (filterStock === 'habis') {
+        matchStock = b.stok === 0;
+      }
+
+      return matchQuery && matchCategory && matchYear && matchStock;
+    });
+  }, [books, query, filterCategory, filterYear, filterStock]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginated = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(startIndex, startIndex + itemsPerPage);
+  }, [filtered, currentPage, itemsPerPage]);
 
   const visiblePages = useMemo(() => {
     if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -143,16 +174,72 @@ export default function ManageBooks() {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Cari buku berdasarkan judul, penulis, atau kategori..."
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white"
-        />
-        {query && <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2"><X size={14} className="text-gray-400" /></button>}
+      {/* Search & Filters */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm mb-6 flex flex-col gap-4">
+        <div className="relative w-full">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Cari buku berdasarkan judul, penulis, ISBN, atau kategori..."
+            className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-primary-10 focus:border-brand-primary outline-none transition-all bg-white"
+          />
+          {query && <button onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2"><X size={14} className="text-gray-400" /></button>}
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {/* Filter Kategori */}
+          <select
+            value={filterCategory}
+            onChange={e => setFilterCategory(e.target.value)}
+            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-brand-primary min-w-[140px] flex-grow sm:flex-grow-0"
+          >
+            <option value="">Semua Kategori</option>
+            {getCategories('books').map(cat => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Filter Tahun Terbit */}
+          <select
+            value={filterYear}
+            onChange={e => setFilterYear(e.target.value)}
+            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-brand-primary min-w-[140px] flex-grow sm:flex-grow-0"
+          >
+            <option value="">Semua Tahun</option>
+            {uniqueYears.map(year => (
+              <option key={year} value={year.toString()}>
+                {year}
+              </option>
+            ))}
+          </select>
+
+          {/* Filter Status Stok */}
+          <select
+            value={filterStock}
+            onChange={e => setFilterStock(e.target.value)}
+            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-brand-primary min-w-[140px] flex-grow sm:flex-grow-0"
+          >
+            <option value="">Semua Status Stok</option>
+            <option value="tersedia">Tersedia (Stok &gt; 0)</option>
+            <option value="habis">Stok Habis</option>
+          </select>
+
+          {/* Limit per Halaman */}
+          <select
+            value={itemsPerPage}
+            onChange={e => setItemsPerPage(Number(e.target.value))}
+            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-brand-primary min-w-[120px] ml-auto flex-grow sm:flex-grow-0"
+            title="Jumlah buku per halaman"
+          >
+            <option value={10}>10 per hal</option>
+            <option value={15}>15 per hal</option>
+            <option value={30}>30 per hal</option>
+            <option value={50}>50 per hal</option>
+          </select>
+        </div>
       </div>
 
       {/* Book Table */}
@@ -199,7 +286,8 @@ export default function ManageBooks() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 leading-tight">{book.judul}</p>
-                          <p className="text-xs text-gray-400 mt-0.5">{book.tahun} · {book.halaman} hal</p>
+                          <p className="text-[11px] text-gray-500 mt-0.5 font-mono">{book.isbn ? `ISBN: ${book.isbn}` : 'ISBN: -'}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">{book.tahun} · {book.halaman} hal</p>
                         </div>
                       </div>
                     </td>
@@ -240,7 +328,7 @@ export default function ManageBooks() {
           <div className="text-center py-16">
             <BookOpen size={36} className="mx-auto text-gray-300 mb-3" />
             <p className="text-gray-500 font-medium">Tidak ada buku ditemukan</p>
-            <p className="text-sm text-gray-400 mt-1">Coba ubah kata kunci pencarian</p>
+            <p className="text-sm text-gray-400 mt-1">Coba ubah kata kunci pencarian atau filter</p>
           </div>
         )}
       </div>
@@ -249,24 +337,24 @@ export default function ManageBooks() {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
           <p className="text-xs text-gray-500">
-            Menampilkan <span className="font-bold text-gray-900">{paginated.length}</span> dari <span className="font-bold text-gray-900">{filtered.length}</span> buku
+            Menampilkan <span className="font-semibold text-gray-900">{(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filtered.length)}</span> dari <span className="font-bold text-gray-900">{filtered.length}</span> buku
           </p>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors bg-white"
             >
               <ChevronLeft size={16} />
             </button>
             {visiblePages.map((p, i) => (
               p === '...' ? (
-                <span key={`dots-${i}`} className="px-2 text-gray-400">...</span>
+                <span key={`dots-${i}`} className="px-2 text-gray-400 select-none">...</span>
               ) : (
                 <button
                   key={`page-${p}`}
                   onClick={() => setCurrentPage(p as number)}
-                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all ${currentPage === p ? 'bg-brand-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border border-transparent'}`}
+                  className={`min-w-[36px] h-9 rounded-lg text-xs font-bold transition-all border ${currentPage === p ? 'bg-brand-primary border-brand-primary text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 border-gray-200 bg-white'}`}
                 >
                   {p}
                 </button>
@@ -275,7 +363,7 @@ export default function ManageBooks() {
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+              className="p-2 rounded-lg border border-gray-200 text-gray-400 disabled:opacity-30 hover:bg-gray-50 transition-colors bg-white"
             >
               <ChevronRight size={16} />
             </button>
