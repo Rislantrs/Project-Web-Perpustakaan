@@ -13,7 +13,7 @@ export default function Galendo() {
     <div className="bg-white min-h-screen pt-12 pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb */}
+        {/* Navigasi jejak halaman */}
         <div className="flex items-center text-sm text-gray-500 mb-12">
           <Link to="/" className="hover:text-brand-primary">Beranda</Link>
           <ChevronRight size={14} className="mx-2" />
@@ -22,7 +22,7 @@ export default function Galendo() {
           <span className="text-brand-primary font-medium">GALENDO</span>
         </div>
 
-        {/* Header Section */}
+        {/* Bagian pembuka halaman */}
         <div className="text-center mb-20 max-w-4xl mx-auto">
           <h1 className="font-serif text-4xl lg:text-5xl font-bold text-brand-primary mb-6 leading-tight">
             Gerakan Literasi Masyarakat Peduli Naskah Kuno
@@ -40,10 +40,10 @@ export default function Galendo() {
           </a>
         </div>
 
-        {/* Content Alternating */}
+        {/* Blok konten selang-seling */}
         <div className="space-y-24">
           
-          {/* Section 1 */}
+          {/* Blok konten pertama */}
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-[16/10] md:h-80 md:aspect-auto">
               <img src={galendo1} alt="Pelestarian Naskah" className="w-full h-full object-cover" />
@@ -61,7 +61,7 @@ export default function Galendo() {
             </div>
           </div>
 
-          {/* Section 2 */}
+          {/* Blok konten kedua */}
           <div className="flex flex-col md:flex-row-reverse items-center gap-12">
             <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-[16/10] md:h-80 md:aspect-auto">
               <img src={galendo2} alt="Manfaat GALENDO" className="w-full h-full object-cover" />
@@ -74,7 +74,7 @@ export default function Galendo() {
             </div>
           </div>
 
-          {/* Section 3 */}
+          {/* Blok konten ketiga */}
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-xl aspect-[16/10] md:h-[400px] md:aspect-auto">
               <img src={galendo3} alt="Alur Kegiatan" className="w-full h-full object-cover" />
@@ -94,15 +94,15 @@ export default function Galendo() {
         </div>
       </div>
 
-      {/* Hasil GALENDO Section */}
+      {/* Bagian hasil program GALENDO */}
       <section className="py-24 bg-brand-primary relative overflow-hidden mt-32">
-        {/* Subtle decorative elements restored */}
+        {/* Elemen dekoratif latar */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-accent-10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-16">
-            {/* Text Content */}
+            {/* Konten teks utama */}
             <div className="w-full lg:w-1/2 text-white">
               <p className="text-brand-accent font-bold text-sm tracking-[0.3em] uppercase mb-6">Hasil Digitalisasi</p>
               <h2 className="font-serif text-5xl md:text-6xl font-bold mb-8 leading-tight text-white border-l-4 border-brand-accent pl-8">
@@ -132,7 +132,7 @@ export default function Galendo() {
               </div>
             </div>
 
-            {/* Visual Image - Made SLIMMER */}
+            {/* Konten visual naskah */}
             <div className="w-full lg:w-1/2 flex justify-center">
               <div className="relative w-full max-w-[420px] aspect-[3/4] max-h-[450px] md:max-h-none md:h-[650px] md:aspect-auto rounded-[30px] overflow-hidden flex items-center justify-center border border-white/5 bg-white/5 backdrop-blur-sm p-4">
                  <img 
@@ -144,7 +144,7 @@ export default function Galendo() {
                     NASKAH ASLI
                  </div>
                  
-                 {/* Decorative tight corners */}
+                 {/* Aksen sudut dekoratif */}
                  <div className="absolute top-2 left-2 w-6 h-6 border-t border-l border-white/20 rounded-tl-lg"></div>
                  <div className="absolute bottom-2 right-2 w-6 h-6 border-b border-r border-white/20 rounded-br-lg"></div>
               </div>

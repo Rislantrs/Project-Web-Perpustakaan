@@ -2,23 +2,23 @@ import { ChevronRight, ShieldCheck, ThumbsUp, HeartHandshake, AlertOctagon } fro
 import { Link } from 'react-router';
 import zonaImg from '../assets/lainLain/zonaIntegritas/zonaIntegritas.webp';
 
-// Catatan maintenance:
-// halaman ini dominan kampanye visual + teks statis komitmen integritas.
-// pastikan wording slogan/banner selaras dengan kebijakan resmi instansi.
+// Catatan pemeliharaan:
+// Halaman ini didominasi kampanye visual dan teks statis komitmen integritas.
+// Pastikan redaksi slogan dan banner selaras dengan kebijakan resmi instansi.
 
 export default function ZonaIntegritas() {
   return (
     <div className="bg-white min-h-screen pb-24">
       
-      {/* Hero Section */}
+      {/* Bagian hero halaman */}
       <section className="relative bg-[#0c2f3d] py-24 pb-32 border-b-8 border-[#d6a54a] overflow-hidden">
-        {/* Background Pattern/Image */}
+        {/* Pola atau gambar latar */}
         <div className="absolute inset-0">
            <img src={zonaImg} className="w-full h-full object-cover opacity-20" alt="Background" />
         </div>
         
         <div className="max-w-5xl mx-auto px-4 relative z-10 text-center md:text-left">
-          {/* Breadcrumb */}
+          {/* Navigasi jejak halaman */}
           <div className="flex items-center justify-center md:justify-start text-sm text-gray-300 mb-10">
             <Link to="/" className="hover:text-white">Home</Link>
             <ChevronRight size={14} className="mx-2" />
@@ -40,10 +40,10 @@ export default function ZonaIntegritas() {
         </div>
       </section>
 
-      {/* Commitments Section */}
+      {/* Bagian komitmen integritas */}
       <section className="max-w-5xl mx-auto px-4 -mt-16 relative z-20">
         
-        {/* Cards Row */}
+        {/* Baris kartu komitmen */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
            
            <div className="bg-white p-8 rounded-2xl shadow-xl flex flex-col items-center text-center border-t-4 border-[#0c2f3d]">
@@ -78,7 +78,7 @@ export default function ZonaIntegritas() {
 
         </div>
 
-        {/* Big Banner Statement */}
+        {/* Pernyataan utama pada banner */}
         <div className="bg-gradient-to-r from-[#d6a54a] to-[#c09440] rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>

@@ -16,7 +16,7 @@ import n10 from '../assets/layanan/dioramaNusantara/image-10.webp';
 import n11 from '../assets/layanan/dioramaNusantara/image-11.webp';
 import n12 from '../assets/layanan/dioramaNusantara/image-12.webp';
 
-// Import Images for Purwakarta
+// Impor gambar segmen Diorama Purwakarta.
 import p1 from '../assets/layanan/dioramaPurwakarta/image-1.webp';
 import p2 from '../assets/layanan/dioramaPurwakarta/image-2.webp';
 import p3 from '../assets/layanan/dioramaPurwakarta/image-3.webp';
@@ -27,15 +27,15 @@ import p7 from '../assets/layanan/dioramaPurwakarta/image-7.webp';
 import p8 from '../assets/layanan/dioramaPurwakarta/image-8.webp';
 import p9 from '../assets/layanan/dioramaPurwakarta/image-9.webp';
 
-// Import Hero Images
+// Impor gambar utama untuk hero tiap tab.
 import heroPurwakarta from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
 import heroNusantara from '../assets/layanan/dioramaNusantara/diorama-nusantara.webp';
 import libHero from '../assets/image/lib-hero.webp';
 import libRoom from '../assets/image/lib-room.webp';
 
-// Catatan maintenance:
-// file ini berisi banyak konten statis + beberapa tautan eksternal layanan.
-// Saat mengganti kontak/CTA, cari href dengan domain eksternal.
+// Catatan pemeliharaan:
+// Halaman ini memuat konten statis dan beberapa tautan layanan eksternal.
+// Saat memperbarui kontak atau CTA, verifikasi semua href eksternal.
 
 const purwakartaSegments = [
   {
@@ -153,7 +153,7 @@ export default function Diorama() {
 
   return (
     <div className="bg-white min-h-screen pt-20 pb-24">
-      {/* Tab Switcher / Toggle */}
+      {/* Pengalih tab konten diorama */}
       <div className="flex justify-center mt-8 mb-12">
         <div className="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
           <button
@@ -169,7 +169,7 @@ export default function Diorama() {
             Diorama Nusantara
           </button>
 
-          {/* Animated Background Indicator */}
+          {/* Indikator tab aktif dengan animasi */}
           <div
             className="absolute top-1.5 bottom-1.5 w-1/2 bg-brand-primary rounded-full shadow-md transition-transform duration-300 ease-in-out"
             style={{ transform: activeTab === 'purwakarta' ? 'translateX(0)' : 'translateX(100%)' }}
@@ -190,7 +190,7 @@ export default function Diorama() {
                KONTEN DIORAMA PURWAKARTA
                ========================================================= */
             <div>
-              {/* Hero Section */}
+              {/* Bagian hero Diorama Purwakarta */}
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20 mb-20">
                 <div className="lg:w-1/2">
                   <h1 className="font-serif text-4xl lg:text-5xl font-bold text-brand-primary mb-4">
@@ -216,7 +216,7 @@ export default function Diorama() {
                 </div>
               </section>
 
-              {/* Video Section (Commented out until link is ready)
+              {/* Bagian video dinonaktifkan sampai tautan siap digunakan.
               <section className="bg-[#0c2f3d] relative py-24 mb-20 overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute top-0 -left-40 w-96 h-96 bg-white rounded-full blur-3xl"></div>
@@ -241,7 +241,7 @@ export default function Diorama() {
               </section>
               */}
 
-              {/* 9 Segmen Diorama Grid */}
+              {/* Grid 9 segmen Diorama Purwakarta */}
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-24">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-primary mb-4">9 Segmen Diorama</h2>
@@ -293,7 +293,7 @@ export default function Diorama() {
                 </div>
               </section>
 
-              {/* 12 Segmen Diorama Nusantara Grid */}
+              {/* Grid 12 segmen Diorama Nusantara */}
               <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-24">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-primary mb-4">12 Segmen Diorama Nusantara</h2>
@@ -318,7 +318,7 @@ export default function Diorama() {
                 </div>
               </section>
 
-              {/* Video Section (Commented out until link is ready)
+              {/* Bagian video dinonaktifkan sampai tautan siap digunakan.
               <section className="bg-[#0c2f3d] relative py-24 mb-20 overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute top-0 -left-40 w-96 h-96 bg-white rounded-full blur-3xl"></div>
@@ -354,7 +354,7 @@ export default function Diorama() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
 
-            {/* Ramah Kelompok Rentan */}
+            {/* Informasi layanan prioritas untuk kelompok rentan */}
             <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
               <div className="absolute -right-10 -top-10 text-red-50 opacity-50">
                 <Heart size={180} />
@@ -377,7 +377,7 @@ export default function Diorama() {
               </div>
             </div>
 
-            {/* Layanan Pengaduan */}
+            {/* Kanal pengaduan layanan yang tersedia */}
             <div className="bg-brand-primary text-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden">
               <div className="absolute -right-10 -bottom-10 text-white/5">
                 <MessageCircle size={180} />

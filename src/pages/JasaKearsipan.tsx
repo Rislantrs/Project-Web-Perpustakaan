@@ -12,9 +12,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-// HARDCODE CONTENT:
-// daftar layanan, prosedur, dan materi pemeliharaan disusun statis.
-// update array di file ini ketika ada perubahan SOP resmi kearsipan.
+// Konten layanan disusun statis agar konsisten dengan SOP yang berlaku.
+// Perbarui array pada file ini jika ada perubahan SOP resmi kearsipan.
 
 const jasaKearsipan = [
   {
@@ -63,7 +62,7 @@ export default function JasaKearsipan() {
   return (
     <div className="min-h-screen bg-white pt-0 pb-20">
       
-      {/* Hero Header */}
+      {/* Header hero halaman layanan */}
       <section className="relative py-20 bg-brand-primary overflow-hidden text-center">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-accent-10 -skew-x-12 translate-x-1/2"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -82,7 +81,7 @@ export default function JasaKearsipan() {
         </div>
       </section>
 
-      {/* Jasa Kearsipan Timeline */}
+      {/* Linimasa jenis jasa kearsipan */}
       <section className="py-24 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
           <h2 className="font-serif text-3xl font-bold text-brand-primary mb-4">Layanan Jasa Kearsipan</h2>
@@ -90,7 +89,7 @@ export default function JasaKearsipan() {
         </div>
 
         <div className="relative">
-          {/* Vertical Line */}
+          {/* Garis sumbu linimasa */}
           <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gray-100 md:-translate-x-1/2 pointer-events-none"></div>
 
           <div className="space-y-12">
@@ -102,7 +101,7 @@ export default function JasaKearsipan() {
                 viewport={{ once: true }}
                 className={`relative flex flex-col md:flex-row items-center gap-8 ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
               >
-                {/* Connector Dot */}
+                {/* Penanda titik tiap item linimasa */}
                 <div className="absolute left-0 md:left-1/2 w-4 h-4 rounded-full bg-brand-accent md:-translate-x-1/2 border-4 border-white shadow-sm z-20"></div>
                 
                 <div className="w-full md:w-1/2">
@@ -123,7 +122,7 @@ export default function JasaKearsipan() {
         </div>
       </section>
 
-      {/* Prosedur Peminjaman */}
+      {/* Bagian prosedur peminjaman arsip */}
       <section className="bg-gray-50 py-24 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -187,7 +186,7 @@ export default function JasaKearsipan() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Bagian ajakan tindak lanjut */}
       <section className="pt-24 max-w-3xl mx-auto px-4 text-center">
         <h3 className="font-serif text-2xl font-bold text-[#0c2f3d] mb-4">Informasi Lebih Lanjut?</h3>
         <p className="text-gray-500 mb-8">Kunjungi kantor kami untuk konsultasi langsung terkait manajemen kearsipan instansi Anda.</p>

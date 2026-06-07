@@ -3,13 +3,13 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { SITE_CONFIG } from '../config/siteConfig';
 
-// Assets
+// Impor aset visual halaman.
 import heroImg from '../assets/layanan/perpustakaan/diorama-purwakarta-02.webp';
 import perpusImg from '../assets/layanan/perpustakaan/Perpustakaan-Purwakarta-02.webp';
 
-// Catatan maintenance:
-// konten sejarah/pernyataan media di halaman ini bersifat editorial statis.
-// cek validitas kutipan/tahun jika ada pembaruan profil instansi.
+// Catatan pemeliharaan:
+// Konten sejarah dan kutipan media bersifat editorial statis.
+// Verifikasi kutipan dan tahun saat profil instansi diperbarui.
 
 export default function Perpustakaan() {
   return (

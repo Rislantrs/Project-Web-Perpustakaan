@@ -5,14 +5,14 @@ import aaiImg from '../assets/layanan/kearsipan/AAI-Cabang-Purwakarta-1024x575.w
 import depoImg from '../assets/layanan/kearsipan/Ruang-Depo-Arsip-Disipusda-Purwakarta-1024x575.webp';
 import libTeam from '../assets/image/lib-team.webp';
 
-// Catatan maintenance:
-// konten halaman ini dominan statis; cek tautan eksternal (mis. JIKN) saat update kebijakan layanan.
+// Catatan pemeliharaan:
+// Konten halaman ini dominan statis; verifikasi tautan eksternal saat kebijakan layanan berubah.
 
 export default function Kearsipan() {
   return (
     <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24">
 
-      {/* 1. Hero Section: Terwujudnya Tertib Arsip */}
+      {/* Bagian hero pengantar layanan kearsipan */}
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-20 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -29,7 +29,7 @@ export default function Kearsipan() {
         </motion.div>
       </section>
 
-      {/* 2. Kantor Arsip (Image Right) */}
+      {/* Informasi kantor arsip dengan visual sisi kanan */}
       <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -57,7 +57,7 @@ export default function Kearsipan() {
         </div>
       </section>
 
-      {/* 3. Depo Arsip (Image Left) */}
+      {/* Informasi depo arsip dengan visual sisi kiri */}
       <section className="py-20 bg-gray-50 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
@@ -103,7 +103,7 @@ export default function Kearsipan() {
         </div>
       </section>
 
-      {/* 4. Asosiasi Arsiparis (Image Right) */}
+      {/* Informasi Asosiasi Arsiparis Indonesia */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -130,7 +130,7 @@ export default function Kearsipan() {
         </div>
       </section>
 
-      {/* 5. SDM dan Pengembangan (Image Left) */}
+      {/* Ringkasan SDM dan program pengembangan */}
       <section className="py-20 bg-[#f8f9fa] border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
@@ -169,7 +169,7 @@ export default function Kearsipan() {
         </div>
       </section>
 
-      {/* 6. Tata Cara Pengajuan Arsip untuk Masyarakat */}
+      {/* Tata cara pengajuan arsip untuk masyarakat */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -181,7 +181,7 @@ export default function Kearsipan() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-            {/* Desktop Connector Line */}
+            {/* Garis penghubung langkah pada tampilan desktop */}
             <div className="hidden lg:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
 
             {[

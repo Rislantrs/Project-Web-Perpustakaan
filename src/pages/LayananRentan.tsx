@@ -12,9 +12,9 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-// HARDCODE SOP CONTENT:
-// langkah prosedur kelompok rentan disimpan statis untuk konsistensi tampilan.
-// update list ini jika SOP pelayanan resmi berubah.
+// Konten SOP disusun statis untuk menjaga konsistensi layanan.
+// Langkah layanan kelompok rentan disimpan statis agar alur tetap seragam.
+// Perbarui daftar ini jika SOP pelayanan resmi berubah.
 
 const prosedurRentan = [
   {
@@ -59,7 +59,7 @@ export default function LayananRentan() {
   return (
     <div className="min-h-screen bg-[#f8fafc] pt-0 pb-20">
       
-      {/* Hero Header */}
+      {/* Header hero halaman */}
       <section className="relative py-16 bg-[#0c2f3d] overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-[#d6a54a] rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
@@ -85,7 +85,7 @@ export default function LayananRentan() {
         </div>
       </section>
 
-      {/* Mekanisme Section */}
+      {/* Bagian mekanisme layanan */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-16 items-start">
           
@@ -131,12 +131,12 @@ export default function LayananRentan() {
         </div>
       </section>
 
-      {/* Info Grid */}
+      {/* Grid informasi layanan */}
       <section className="bg-white py-24 border-y border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             
-            {/* Prioritas */}
+            {/* Informasi prioritas layanan */}
             <div className="bg-[#f8fafc] p-10 rounded-3xl border border-gray-200 group hover:border-[#d6a54a] transition-all">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#d6a54a] mb-8 shadow-sm group-hover:bg-[#0c2f3d] group-hover:text-[#d6a54a] transition-all">
                 <Clock size={28} />
@@ -147,7 +147,7 @@ export default function LayananRentan() {
               </p>
             </div>
 
-            {/* Produk Layanan */}
+            {/* Jenis produk layanan */}
             <div className="bg-[#f8fafc] p-10 rounded-3xl border border-gray-200 group hover:border-[#d6a54a] transition-all">
               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#d6a54a] mb-8 shadow-sm group-hover:bg-[#0c2f3d] group-hover:text-[#d6a54a] transition-all">
                 <Award size={28} />
@@ -158,7 +158,7 @@ export default function LayananRentan() {
               </p>
             </div>
 
-            {/* Biaya */}
+            {/* Informasi biaya layanan */}
             <div className="bg-[#0c2f3d] p-10 rounded-3xl border border-[#d6a54a]/30 group hover:border-[#d6a54a] transition-all text-white">
               <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-[#d6a54a] mb-8 shadow-sm group-hover:bg-[#d6a54a] group-hover:text-[#0c2f3d] transition-all">
                 <span className="font-bold text-lg">Rp</span>
@@ -173,7 +173,7 @@ export default function LayananRentan() {
         </div>
       </section>
 
-      {/* Call to Action */}
+      {/* Ajakan tindakan lanjutan */}
       <section className="py-20 max-w-4xl mx-auto px-4 text-center">
         <div className="bg-white p-12 rounded-[3rem] border border-gray-100 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4">

@@ -24,7 +24,7 @@ export default function ForgotPassword() {
       setMsg(res.message);
       if (res.success) {
         setStatus('success');
-        // HARDCODE UX: pindah otomatis ke login setelah 2 detik.
+        // Pengalihan otomatis ke login setelah 2 detik untuk menyederhanakan alur pengguna.
         setTimeout(() => navigate('/login'), 2000);
       } else {
         setStatus('error');

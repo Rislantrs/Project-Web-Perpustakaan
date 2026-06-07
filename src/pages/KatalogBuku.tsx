@@ -13,7 +13,7 @@ import libBooks from '../assets/image/lib-books.webp';
 
 
 
-// Ukuran halaman katalog diambil terpusat dari APP_LIMITS.
+// Ukuran halaman katalog dikendalikan terpusat dari APP_LIMITS.
 const BOOKS_PER_PAGE = APP_LIMITS.ITEMS_PER_PAGE;
 
 export default function KatalogBuku() {
@@ -89,7 +89,7 @@ export default function KatalogBuku() {
       const book = getBooks().find(b => b.id === bookId);
       if (book) {
         openBookDetail(book);
-        // Clear param to avoid re-opening if user closes it
+        // Hapus parameter agar panel tidak terbuka kembali setelah ditutup.
         setSearchParams({}, { replace: true });
       }
     }
@@ -167,7 +167,7 @@ export default function KatalogBuku() {
     const result = toggleWishlist(bookId, user.id);
     showToast(result.message, result.success ? 'success' : 'error');
     if (selectedBook) {
-      setSelectedBook({ ...selectedBook }); // Force re-render
+      setSelectedBook({ ...selectedBook }); // Paksa render ulang agar status wishlist langsung diperbarui.
     }
   };
 
@@ -201,7 +201,7 @@ export default function KatalogBuku() {
   return (
     <div className="bg-[#f8f9fa] min-h-screen">
 
-      {/* Toast Notification */}
+      {/* Notifikasi hasil aksi pengguna */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -221,12 +221,12 @@ export default function KatalogBuku() {
         )}
       </AnimatePresence>
 
-      {/* Hero Header */}
+      {/* Header hero katalog */}
       <section className="relative bg-gradient-to-br from-[#8b1c24] via-[#7a1820] to-[#5a1018] py-24 text-center overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <img src={libBooks} className="w-full h-full object-cover" alt="bg" />
         </div>
-        {/* Decorative circles */}
+        {/* Elemen dekoratif latar */}
         <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#d6a54a]/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/5 rounded-full blur-2xl"></div>
 
@@ -240,7 +240,7 @@ export default function KatalogBuku() {
               Temukan ribuan buku dari berbagai kategori. Cari, jelajahi, dan pinjam buku secara online.
             </p>
 
-            {/* Search Bar */}
+            {/* Kolom pencarian katalog */}
             <div className="max-w-2xl mx-auto relative">
               <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -261,7 +261,7 @@ export default function KatalogBuku() {
         </div>
       </section>
 
-      {/* Quick Action Cards */}
+      {/* Kartu aksi cepat */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 mb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
@@ -311,7 +311,7 @@ export default function KatalogBuku() {
         </div>
       </section>
 
-      {/* Recommended Section */}
+      {/* Bagian rekomendasi buku */}
       {!searchQuery && selectedCategory === 'Semua' && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
           <div className="flex justify-between items-center mb-8">
@@ -362,9 +362,9 @@ export default function KatalogBuku() {
         </section>
       )}
 
-      {/* Main Catalog */}
+      {/* Bagian katalog utama */}
       <section ref={catalogRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        {/* Catalog Header */}
+        {/* Header katalog */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h2 className="font-serif text-3xl font-bold text-[#1a1a1a]">
@@ -382,7 +382,7 @@ export default function KatalogBuku() {
           </button>
         </div>
 
-        {/* Filter Bar */}
+        {/* Panel filter katalog */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -428,7 +428,7 @@ export default function KatalogBuku() {
           )}
         </AnimatePresence>
 
-        {/* Category Tabs */}
+        {/* Tab kategori */}
         <div className="relative flex items-center gap-2 mb-8">
           <button
             onClick={() => scrollCat('left')}
@@ -458,7 +458,7 @@ export default function KatalogBuku() {
           </button>
         </div>
 
-        {/* Books Grid */}
+        {/* Grid daftar buku */}
         {isLoadingCatalog ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {Array.from({ length: 12 }).map((_, idx) => (
@@ -492,14 +492,14 @@ export default function KatalogBuku() {
                     loading="lazy"
                     className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${book.stok <= 0 ? 'brightness-75' : ''}`}
                   />
-                  {/* Out of stock full overlay */}
+                  {/* Overlay status saat stok habis */}
                   {book.stok <= 0 && (
                     <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1 z-10">
                       <div className="bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full">STOK HABIS</div>
                       <span className="text-white/80 text-[9px]">Daftar antrian →</span>
                     </div>
                   )}
-                  {/* Hover Overlay (only if in stock) */}
+                  {/* Overlay hover hanya saat stok tersedia */}
                   {book.stok > 0 && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
                       <span className="text-white text-xs font-semibold flex items-center gap-1">
@@ -507,7 +507,7 @@ export default function KatalogBuku() {
                       </span>
                     </div>
                   )}
-                  {/* Stock badge */}
+                  {/* Lencana sisa stok */}
                   {book.stok > 0 && book.stok <= 2 && (
                     <div className="absolute top-2 left-2 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded">SISA {book.stok}</div>
                   )}
@@ -532,7 +532,7 @@ export default function KatalogBuku() {
           </div>
         )}
 
-        {/* Pagination */}
+        {/* Navigasi halaman katalog */}
         {totalPages > 1 && (
           <div className="mt-12 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur px-4 py-4 sm:px-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -583,11 +583,11 @@ export default function KatalogBuku() {
 
 
 
-      {/* Book Detail Side Panel */}
+      {/* Panel samping detail buku */}
       <AnimatePresence>
         {selectedBook && (
           <>
-            {/* Backdrop */}
+            {/* Latar belakang panel detail */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -595,7 +595,7 @@ export default function KatalogBuku() {
               onClick={() => setSelectedBook(null)}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
             />
-            {/* Panel */}
+            {/* Kontainer panel detail */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -603,7 +603,7 @@ export default function KatalogBuku() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[70] shadow-2xl overflow-y-auto"
             >
-              {/* Close button */}
+              {/* Tombol tutup panel */}
               <button
                 onClick={() => setSelectedBook(null)}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/10 flex items-center justify-center text-gray-600 hover:bg-black/20 z-10"
@@ -611,7 +611,7 @@ export default function KatalogBuku() {
                 <X size={20} />
               </button>
 
-              {/* Cover */}
+              {/* Area sampul buku */}
               <div className="relative h-80 bg-gradient-to-b from-[#f0ebe5] to-white flex items-center justify-center p-8">
                 <SafeImage
                   src={selectedBook.cover}
@@ -620,13 +620,13 @@ export default function KatalogBuku() {
                 />
               </div>
 
-              {/* Info */}
+              {/* Informasi utama buku */}
               <div className="p-6">
                 <p className="text-xs text-[#8b1c24] font-bold tracking-wider uppercase mb-2">{selectedBook.kategori}</p>
                 <h2 className="font-serif text-2xl font-bold text-[#1a1a1a] mb-1">{selectedBook.judul}</h2>
                 <p className="text-gray-500 mb-4">{selectedBook.penulis}</p>
 
-                {/* Rating & Wishlist */}
+                {/* Ringkasan rating dan aksi wishlist */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
                     <div className="flex">{renderStars(selectedBook.rating)}</div>
@@ -643,7 +643,7 @@ export default function KatalogBuku() {
                   </button>
                 </div>
 
-                {/* Stats */}
+                {/* Statistik singkat buku */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   <div className="text-center bg-[#f8f9fa] p-3 rounded-xl">
                     <p className="font-bold text-[#0c2f3d] text-lg">{selectedBook.halaman}</p>
@@ -659,7 +659,7 @@ export default function KatalogBuku() {
                   </div>
                 </div>
 
-                {/* Details */}
+                {/* Detail metadata buku */}
                 <div className="space-y-3 mb-6 bg-[#f8f9fa] rounded-xl p-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Penerbit</span>
@@ -675,7 +675,7 @@ export default function KatalogBuku() {
                   </div>
                 </div>
 
-                {/* Synopsis */}
+                {/* Sinopsis buku */}
                 <div className="mb-6">
                   <h4 className="font-bold text-sm text-[#1a1a1a] mb-2">Sinopsis</h4>
                   {isLoadingBookDetail ? (
@@ -689,7 +689,7 @@ export default function KatalogBuku() {
                   )}
                 </div>
 
-                {/* Borrowing Info */}
+                {/* Ketentuan peminjaman */}
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
                   <div className="flex items-start gap-2">
                     <Clock size={16} className="text-blue-500 mt-0.5 shrink-0" />
@@ -702,7 +702,7 @@ export default function KatalogBuku() {
                   </div>
                 </div>
 
-                {/* Queue Info (if out of stock) */}
+                {/* Informasi antrian saat stok habis */}
                 {selectedBook.stok <= 0 && (() => {
                   const queue = getBookQueue(selectedBook.id);
                   const userPos = isLoggedIn() ? getQueuePosition(selectedBook.id, getCurrentUser()!.id) : null;
@@ -724,7 +724,7 @@ export default function KatalogBuku() {
                   );
                 })()}
 
-                {/* Borrow / Queue Button */}
+                {/* Tombol pinjam atau daftar antrian */}
                 {isLoggedIn() ? (
                   selectedBook.stok > 0 ? (
                     <button

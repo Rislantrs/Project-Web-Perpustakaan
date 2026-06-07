@@ -1,9 +1,9 @@
 import { motion } from 'motion/react';
 import { Book, CheckCircle2, Info, ChevronRight } from 'lucide-react';
 
-// HARDCODE REFERENCE DATA:
-// glosarium regulasi disimpan statis agar halaman cepat diakses.
-// saat ada perubahan regulasi resmi, perbarui object ini.
+// Data referensi disusun statis untuk menjaga akses cepat halaman.
+// Glosarium regulasi disimpan statis agar halaman tetap ringan.
+// Saat ada perubahan regulasi resmi, perbarui objek ini.
 const referensiData = {
   pengertian: [
     {
@@ -59,7 +59,7 @@ const referensiData = {
 export default function Referensi() {
   return (
     <div className="min-h-screen bg-[#fcfafc] pt-0 pb-20">
-      {/* Header Section */}
+      {/* Bagian header halaman */}
       <section className="relative py-12 bg-[#0c2f3d] overflow-hidden -mt-0 mb-16">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-[#d6a54a]/10 skew-x-12 translate-x-1/2"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -84,7 +84,7 @@ export default function Referensi() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Pengertian Arsip Section */}
+        {/* Bagian pengertian arsip */}
         <div className="mb-20">
           <div className="flex items-center gap-4 mb-10">
             <div className="h-px flex-1 bg-gray-200"></div>
@@ -114,7 +114,7 @@ export default function Referensi() {
           </div>
         </div>
 
-        {/* Process Sections */}
+        {/* Bagian proses pengelolaan */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
           {/* Dinamis */}
@@ -169,7 +169,7 @@ export default function Referensi() {
 
         </div>
 
-        {/* Note Footer */}
+        {/* Catatan penutup */}
         <div className="mt-20 p-8 bg-white rounded-2xl border-2 border-dashed border-gray-100 text-center">
           <p className="text-gray-500 text-sm italic">
             Sumber: Undang-Undang Republik Indonesia Nomor 43 Tahun 2009 tentang Kearsipan.

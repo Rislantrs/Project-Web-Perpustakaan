@@ -59,7 +59,7 @@ export default function RiwayatPinjaman() {
   };
 
   const handleRateSubmit = async (rating: number) => {
-    // Submit rating per buku + member untuk agregasi skor katalog.
+    // Simpan rating per buku dan per anggota untuk agregasi skor katalog.
     const u = getCurrentUser();
     if (ratingModal && u) {
       try {
@@ -81,7 +81,7 @@ export default function RiwayatPinjaman() {
   return (
     <div className="bg-[#f8f9fa] min-h-screen pb-20">
 
-      {/* Toast */}
+      {/* Notifikasi status aksi */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -101,7 +101,7 @@ export default function RiwayatPinjaman() {
         )}
       </AnimatePresence>
 
-      {/* Rating Modal */}
+      {/* Modal pemberian rating */}
       <AnimatePresence>
         {ratingModal && ratingModal.show && (
           <motion.div
@@ -164,7 +164,7 @@ export default function RiwayatPinjaman() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
+      {/* Bagian header halaman */}
       <section className="relative bg-gradient-to-br from-[#0c2f3d] via-[#15465c] to-[#1a5570] py-16 overflow-hidden">
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-[#d6a54a]/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
@@ -179,7 +179,7 @@ export default function RiwayatPinjaman() {
         </div>
       </section>
 
-      {/* Stats Cards */}
+      {/* Kartu statistik peminjaman */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 mb-10">
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <div className="bg-white p-3 sm:p-6 rounded-xl shadow-lg border-l-4 border-[#0c2f3d]">
@@ -218,7 +218,7 @@ export default function RiwayatPinjaman() {
         </div>
       </section>
 
-      {/* Filter Tabs & Content */}
+      {/* Tab filter dan konten riwayat */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
           {(['semua', 'dipinjam', 'dikembalikan'] as const).map((status) => (
@@ -236,7 +236,7 @@ export default function RiwayatPinjaman() {
           ))}
         </div>
 
-        {/* Records */}
+        {/* Daftar riwayat */}
         {filteredBorrows.length > 0 ? (
           <div className="space-y-4">
             {filteredBorrows.map((record) => {
@@ -248,14 +248,14 @@ export default function RiwayatPinjaman() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col md:flex-row gap-5 hover:shadow-md transition-shadow"
                 >
-                  {/* Book Cover */}
+                  {/* Sampul buku */}
                   <div className="w-20 h-28 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                     {book && (
                       <img src={book.cover} alt={book.judul} className="w-full h-full object-cover" loading="lazy" />
                     )}
                   </div>
 
-                  {/* Info */}
+                  {/* Informasi peminjaman */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -291,7 +291,7 @@ export default function RiwayatPinjaman() {
                       )}
                     </div>
 
-                    {/* Pickup Deadline */}
+                    {/* Batas waktu pengambilan */}
                     {record.status === 'menunggu_diambil' && record.batasAmbil && (
                       <div className="mt-2 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 flex items-center gap-2">
                         <Timer size={14} className="text-orange-500 shrink-0" />
@@ -301,7 +301,7 @@ export default function RiwayatPinjaman() {
                       </div>
                     )}
 
-                    {/* Return Button */}
+                    {/* Tombol pengembalian buku */}
                     {record.status === 'dipinjam' && (
                       <button
                         onClick={() => handleReturn(record.id, record.bookId, record.bookTitle)}
@@ -334,7 +334,7 @@ export default function RiwayatPinjaman() {
         )}
       </section>
 
-      {/* Queue Section */}
+      {/* Bagian status antrian */}
       {queues.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
           <div className="flex items-center gap-2 mb-6">

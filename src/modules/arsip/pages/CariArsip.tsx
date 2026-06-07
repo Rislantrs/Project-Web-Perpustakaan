@@ -17,19 +17,39 @@ export default function CariArsip() {
   const [filterInstansi, setFilterInstansi] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastKeyword, setToastKeyword] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSearch = (kw?: string) => {
+  const handleSearch = async (kw?: string) => {
     const q = (kw ?? keyword).trim();
     if (!q) {
       inputRef.current?.focus();
       return;
     }
     setIsSearching(true);
+
+    // Salin kata kunci ke clipboard
+    try {
+      await navigator.clipboard.writeText(q);
+      setToastKeyword(q);
+      setShowToast(true);
+    } catch (err) {
+      console.error('Gagal menyalin kata kunci:', err);
+    }
+
     const url = buildJiknSearchUrl(q, filterInstansi);
     // Buka di tab baru agar pengguna tidak kehilangan halaman ini
     window.open(url, '_blank', 'noopener,noreferrer');
-    setTimeout(() => setIsSearching(false), 1200);
+    
+    setTimeout(() => {
+      setIsSearching(false);
+    }, 1200);
+
+    // Hilangkan toast setelah 7 detik
+    setTimeout(() => {
+      setShowToast(false);
+    }, 7000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -208,15 +228,15 @@ export default function CariArsip() {
               {
                 step: '02',
                 title: 'Klik "Cari di JIKN"',
-                desc: 'Website kami merangkai URL pencarian yang langsung mengarahkan ke portal resmi JIKN dengan filter Purwakarta.',
+                desc: 'Website kami akan membuka portal JIKN di tab baru dan otomatis menyalin kata kunci pencarian Anda ke clipboard.',
                 color: 'bg-[#d6a54a]/10 text-[#d6a54a]',
                 border: 'border-[#d6a54a]/20',
                 icon: <ExternalLink size={28} />,
               },
               {
                 step: '03',
-                title: 'Lihat Hasil di JIKN',
-                desc: 'Portal JIKN akan menampilkan daftar arsip yang relevan. Klik arsip untuk membaca detail atau mengunduh.',
+                title: 'Tempel & Lihat Hasil',
+                desc: 'Tempel kata kunci Anda (Ctrl+V) di kolom pencarian JIKN untuk menampilkan arsip yang relevan.',
                 color: 'bg-[#0c2f3d]/10 text-[#0c2f3d]',
                 border: 'border-[#0c2f3d]/20',
                 icon: <Archive size={28} />,
@@ -397,6 +417,40 @@ export default function CariArsip() {
           </div>
         </div>
       </section>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-6 right-6 z-50 max-w-sm bg-white border border-[#d6a54a]/30 rounded-2xl shadow-2xl p-5 flex gap-4 backdrop-blur-md"
+          >
+            <div className="bg-[#d6a54a]/10 text-[#d6a54a] w-12 h-12 rounded-xl flex items-center justify-center shrink-0">
+              <Archive size={24} />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-bold text-[#0c2f3d] text-sm mb-1">Halaman JIKN Dibuka!</h4>
+              <p className="text-gray-600 text-xs leading-relaxed mb-2">
+                Kata kunci <strong className="text-[#0c2f3d]">"{toastKeyword}"</strong> telah disalin ke clipboard Anda.
+              </p>
+              <div className="bg-gray-50 border border-gray-100 rounded-lg p-2.5 text-[11px] text-gray-500 font-medium flex items-center gap-1.5">
+                <kbd className="bg-white border border-gray-200 shadow-sm px-1.5 py-0.5 rounded text-[10px] text-gray-600 font-semibold font-sans">Ctrl + V</kbd>
+                <span>Tempel di kolom pencarian JIKN</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowToast(false)}
+              className="text-gray-400 hover:text-gray-600 self-start text-xs p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Tutup petunjuk"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -20,7 +20,7 @@ export default function Login() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileStatus, setTurnstileStatus] = useState<'loading' | 'success' | 'error'>('loading');
 
-  // Fail-safe: If turnstile doesn't load in 3 seconds, unblock the button
+  // Pengaman antarmuka: aktifkan kembali tombol jika Turnstile tidak termuat dalam 3 detik.
   useEffect(() => {
     const timer = setTimeout(() => {
       if (turnstileStatus === 'loading') {
@@ -31,7 +31,7 @@ export default function Login() {
     return () => clearTimeout(timer);
   }, [turnstileStatus]);
 
-  // Real-time stats from Supabase
+  // Ambil statistik ringkas secara real-time dari Supabase.
   const [liveStats, setLiveStats] = useState({ totalBooks: 0, totalCategories: 0 });
 
   useEffect(() => {
@@ -52,13 +52,13 @@ export default function Login() {
     fetchStats();
   }, []);
 
-  // Show registration success message if redirected from register
+  // Tampilkan pesan sukses pendaftaran saat pengguna dialihkan dari halaman register.
   useEffect(() => {
     const state = location.state as { registeredMessage?: string } | null;
     if (state?.registeredMessage) {
       setToast({ show: true, message: state.registeredMessage, type: 'success' });
       setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000);
-    // Clear the state
+    // Bersihkan state navigasi setelah pesan ditampilkan.
       window.history.replaceState({}, document.title);
     }
 
@@ -72,7 +72,7 @@ export default function Login() {
       setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000);
     }
 
-    // Check remembered email
+    // Muat email tersimpan untuk fitur Ingat Saya.
     const saved = localStorage.getItem('remembered_user_id');
     if (saved) {
       setEmailOrId(saved);
@@ -118,7 +118,7 @@ export default function Login() {
         if (rememberMe) localStorage.setItem('remembered_user_id', emailOrId);
         else localStorage.removeItem('remembered_user_id');
         
-        // Immediate redirection
+        // Lakukan pengalihan segera setelah autentikasi berhasil.
         window.location.href = '/katalog';
       } else {
         if (result.needsVerification && result.email) {
@@ -141,7 +141,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#f8f9fa] flex">
 
-      {/* Toast */}
+      {/* Notifikasi status aksi */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -160,7 +160,7 @@ export default function Login() {
         )}
       </AnimatePresence>
 
-      {/* Left Visual Panel */}
+      {/* Panel visual sisi kiri */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src={libIndoor}
@@ -196,7 +196,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Form Panel */}
+      {/* Panel formulir sisi kanan */}
       <div className="flex-1 flex items-center justify-center px-4 py-8 sm:p-6 lg:p-12">
         <div className="max-w-md w-full">
           <div className="mb-8">
@@ -251,7 +251,7 @@ export default function Login() {
               </label>
             </div>
 
-            {/* Cloudflare Turnstile Verification */}
+              {/* Verifikasi Cloudflare Turnstile */}
             <div className="flex justify-center py-2">
               <Turnstile 
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"} 

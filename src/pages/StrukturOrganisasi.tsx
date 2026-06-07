@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { getStructure, syncStructure, type StructureNode } from '../services/settingsService';
 import { getInitials } from '../services/authService';
 
-// Catatan maintenance:
-// halaman ini full data-driven dari struktur organisasi (settingsService).
-// urutan tampilan mengikuti field level lalu kategori.
+// Catatan pemeliharaan:
+// Halaman ini sepenuhnya berbasis data struktur organisasi dari settingsService.
+// Urutan tampilan mengikuti level jabatan lalu kategori.
 
 function ProfileCard({ data, size = "md", isLeader = false }: { data: any, size?: "lg" | "md" | "sm", isLeader?: boolean }) {
   const isLg = size === "lg";
@@ -45,11 +45,11 @@ export default function StrukturOrganisasi() {
   const [nodes, setNodes] = useState<StructureNode[]>([]);
   
   useEffect(() => {
-    // Bootstrap data struktur dari cache/service.
+    // Muat awal data struktur dari cache atau service.
     const data = getStructure();
     setNodes(data);
 
-    // Sinkronisasi data dari Supabase di latar belakang
+    // Sinkronisasi data dari Supabase dilakukan di latar belakang.
     syncStructure().then((cloudData) => {
       if (cloudData && cloudData.length > 0) {
         setNodes(cloudData);
@@ -58,14 +58,14 @@ export default function StrukturOrganisasi() {
   }, []);
 
   const getByCategory = (cat: string) => {
-    // Normalisasi urutan anggota per kategori untuk layout publik yang konsisten.
+    // Normalisasi urutan anggota per kategori agar tata letak publik konsisten.
     return nodes
       .filter(n => n.category === cat)
       .sort((a, b) => (a.level || 3) - (b.level || 3));
   };
 
   const Section = ({ title, cat, gridCols = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5" }: { title: string, cat: string, gridCols?: string }) => {
-    // Reusable block untuk semua seksi organisasi selain pimpinan utama.
+    // Blok reusable untuk seluruh seksi selain pimpinan utama.
     const allMembers = getByCategory(cat);
     if (allMembers.length === 0) return null;
 

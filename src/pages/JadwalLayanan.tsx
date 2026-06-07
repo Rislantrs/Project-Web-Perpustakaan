@@ -6,21 +6,21 @@ import { getSchedules, type Schedule } from '../services/settingsService';
 function ScheduleCard({ schedule }: { schedule: Schedule }) {
   return (
     <div className="flex flex-col group w-full bg-brand-secondary rounded-2xl shadow-lg border border-brand-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-brand-accent-10 p-5 sm:p-8 relative overflow-hidden h-full">
-      {/* Header Card: Day & Icon */}
+      {/* Header kartu berisi hari layanan */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 text-brand-accent font-bold text-xs uppercase tracking-widest">
           <Calendar size={16} />
           {schedule.day}
         </div>
-        {/* Optional: 'TERDEKAT' Tag if we want to add logic later, for now just matching UI look */}
+        {/* Slot label TERDEKAT disiapkan jika logika prioritas ditambahkan. */}
       </div>
       
-      {/* Title / Note */}
+      {/* Judul layanan atau catatan jadwal */}
       <h3 className="font-serif text-xl sm:text-3xl font-bold text-white mb-6 sm:mb-8 leading-tight">
         {schedule.note || 'Layanan Disipusda'}
       </h3>
       
-      {/* Time Capsule - Matching Image Style */}
+      {/* Penanda jam layanan */}
       <div className="mt-auto">
         <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2.5 rounded-xl text-white shadow-inner">
           <Clock size={16} className="text-brand-accent" />
@@ -28,7 +28,7 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
         </div>
       </div>
 
-      {/* Subtle Gold Decoration */}
+      {/* Aksen dekoratif latar */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent-10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-brand-accent-10 transition-colors"></div>
     </div>
   );
@@ -47,28 +47,28 @@ export default function JadwalLayanan() {
     <div className="bg-brand-light min-h-screen pt-12 pb-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb - Clean & Constant */}
+        {/* Navigasi jejak halaman */}
         <div className="flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-8 font-sans">
           <Link to="/" className="hover:text-brand-accent transition-colors">Beranda</Link>
           <span className="mx-4 text-gray-300">|</span>
           <span className="text-brand-accent">Jadwal Layanan</span>
         </div>
 
-        {/* Header - Consistent with Structure Page */}
+        {/* Bagian judul utama halaman */}
         <div className="text-center mb-24">
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-brand-primary tracking-tighter mb-6">Waktu Layanan</h1>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">"Pintu Literasi Selalu Terbuka Menanti Kehadiran Anda."</p>
           <div className="w-24 h-1 bg-brand-accent mx-auto mt-10 rounded-full"></div>
         </div>
 
-        {/* Schedule Grid - Dark Mode Cards (Consistent with Image) */}
+        {/* Grid jadwal layanan */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
           {schedules.map((s) => (
             <ScheduleCard key={s.id} schedule={s} />
           ))}
         </div>
 
-        {/* Footer Info Section */}
+        {/* Informasi tambahan layanan */}
         <div className="grid grid-cols-1 gap-6 sm:gap-12 pt-24 border-t border-gray-200">
           <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="font-serif text-3xl font-bold text-[#0c2f3d] mb-8">Lokasi Fisik</h2>
@@ -81,7 +81,7 @@ export default function JadwalLayanan() {
               </p>
             </div>
             <a 
-              // HARDCODE EXTERNAL URL: tautan Google Maps lokasi kantor terbaru.
+              // Tautan Google Maps disimpan statis sebagai referensi lokasi kantor.
               href="https://maps.app.goo.gl/ppLWBfSYNtSpingM9" 
               target="_blank" 
               rel="noopener noreferrer"

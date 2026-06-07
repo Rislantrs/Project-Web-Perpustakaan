@@ -26,10 +26,10 @@ export default function AdminDashboard() {
       // Prioritaskan data cloud; fallback ke cache lokal jika gagal.
       const members = await refreshMembersFromSupabase();
       setMembersCount((members || getMembers()).length);
-      // Catatan: sorting by id diasumsikan mengikuti urutan waktu pembuatan record.
+      // Catatan: pengurutan berdasarkan id diasumsikan mengikuti urutan waktu pembuatan data.
       setRecentBorrows(borrows.sort((a, b) => b.id.localeCompare(a.id)).slice(0, 5));
 
-      // Jalankan migrasi legacy (base64 -> Supabase Storage URL) di latar belakang hanya untuk admin
+      // Jalankan migrasi legacy (base64 ke URL Supabase Storage) di latar belakang hanya untuk admin.
       void migrateLegacyArticleImages();
       void migrateLegacyBookCovers();
     };
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Artikel Terbaru */}
+          {/* Daftar artikel terbaru */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><FileText size={20} className="text-gray-400" /> Artikel Terbaru</h2>
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Artikel Terpopuler */}
+          {/* Daftar artikel terpopuler */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2"><TrendingUp size={20} className="text-orange-400" /> Artikel Terpopuler</h2>

@@ -60,7 +60,7 @@ export default function LaporWarga() {
   return (
     <div className="bg-[#f8fafc] min-h-screen pt-28 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
+        {/* Bagian header halaman */}
         <div className="text-center mb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#0c2f3d]/5 text-[#0c2f3d] rounded-full text-xs font-bold uppercase tracking-wider mb-4 border border-[#0c2f3d]/10">
             <ShieldCheck size={14} /> Layanan Pengaduan Masyarakat
@@ -72,7 +72,7 @@ export default function LaporWarga() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Info Side */}
+          {/* Sisi informasi layanan */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-[#0c2f3d] text-white p-6 rounded-3xl">
               <h3 className="font-bold text-lg mb-4">Kenapa Lapor?</h3>
@@ -113,7 +113,7 @@ export default function LaporWarga() {
             </div>
           </div>
 
-          {/* Form Side */}
+          {/* Sisi formulir pengaduan */}
           <div className="lg:col-span-2">
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
               <form onSubmit={handleSubmit} className="space-y-6">

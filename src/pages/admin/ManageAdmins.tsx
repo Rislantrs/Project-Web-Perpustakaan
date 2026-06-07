@@ -80,7 +80,7 @@ export default function ManageAdmins() {
 
   return (
     <div>
-      {/* Toast */}
+      {/* Notifikasi status aksi */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -95,7 +95,7 @@ export default function ManageAdmins() {
         )}
       </AnimatePresence>
 
-      {/* Confirm Delete */}
+      {/* Modal konfirmasi hapus admin */}
       <AnimatePresence>
         {confirmDelete && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
@@ -112,7 +112,7 @@ export default function ManageAdmins() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
+      {/* Bagian header halaman */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manajemen Admin</h1>
@@ -127,7 +127,7 @@ export default function ManageAdmins() {
         </button>
       </div>
 
-      {/* Admin Form (Add/Edit) */}
+      {/* Form admin untuk tambah atau ubah data */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -179,7 +179,7 @@ export default function ManageAdmins() {
         )}
       </AnimatePresence>
 
-      {/* Admin List */}
+      {/* Daftar akun admin */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {admins.map(admin => (
           <motion.div

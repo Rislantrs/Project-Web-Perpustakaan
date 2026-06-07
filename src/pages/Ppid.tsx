@@ -13,7 +13,7 @@ export default function Ppid() {
     const fetchDocs = async () => {
       setIsLoading(true);
       try {
-        // HARDCODE RANGE: ambil 100 data awal karena halaman ini belum pakai pagination.
+        // Rentang data awal dibatasi 100 item karena halaman ini belum menggunakan paginasi.
         const data = await fetchArticlesPage({ from: 0, to: 99, category: 'Ppid' });
         setDocs(data);
       } catch (error) {
@@ -23,26 +23,26 @@ export default function Ppid() {
       }
     };
     fetchDocs();
-    // Re-sync saat cache artikel berubah (misal setelah admin update PPID).
+    // Lakukan sinkronisasi ulang saat cache artikel berubah, misalnya setelah pembaruan admin.
     window.addEventListener('dbChange', fetchDocs);
     return () => window.removeEventListener('dbChange', fetchDocs);
   }, []);
 
-  // Search ringan client-side berdasarkan judul dokumen.
+  // Pencarian ringan di sisi klien berdasarkan judul dokumen.
   const filteredDocs = docs.filter(doc => doc.title.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="bg-[#fcfdfd] min-h-screen pt-12 pb-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb */}
+        {/* Navigasi jejak halaman */}
         <div className="flex items-center justify-center text-sm text-gray-500 mb-6">
           <Link to="/" className="hover:text-[#0c2f3d]">Home</Link>
           <ChevronRight size={14} className="mx-2" />
           <span className="text-[#0c2f3d] font-medium">PPID</span>
         </div>
 
-        {/* Header */}
+        {/* Bagian header halaman */}
         <div className="text-center mb-16">
           <h1 className="font-serif text-4xl lg:text-5xl font-bold text-[#0c2f3d] mb-4">Pejabat Pengelola Informasi dan Dokumentasi</h1>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg mt-4">
@@ -50,7 +50,7 @@ export default function Ppid() {
           </p>
         </div>
 
-        {/* Search Bar */}
+        {/* Kolom pencarian dokumen */}
         <div className="relative max-w-xl mx-auto mb-10">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input 
@@ -62,7 +62,7 @@ export default function Ppid() {
           />
         </div>
 
-        {/* Documents List */}
+        {/* Daftar dokumen PPID */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="divide-y divide-gray-100">
             {isLoading ? Array.from({ length: 6 }).map((_, idx) => (
@@ -82,7 +82,7 @@ export default function Ppid() {
                   </div>
                 </div>
                 <a 
-                  // HARDCODE MAPPING: field img dipakai sebagai URL unduhan dokumen PPID.
+                  // Pemetaan statis: field img digunakan sebagai URL unduhan dokumen PPID.
                   href={doc.img || '#'} 
                   target="_blank" 
                   rel="noreferrer"

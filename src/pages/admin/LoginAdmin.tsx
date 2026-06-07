@@ -14,7 +14,7 @@ export default function AdminLogin() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    // If already logged in, go to dashboard
+    // Jika admin sudah login, langsung arahkan ke dashboard.
     if (isAdminLoggedIn()) {
       navigate('/admin');
     }
@@ -51,7 +51,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-brand-light flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
-        {/* Logo and Greeting */}
+        {/* Logo aplikasi dan salam pembuka */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-brand-primary rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-xl shadow-brand-primary-10">
             <Shield size={32} />

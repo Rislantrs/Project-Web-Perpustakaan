@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getArticles, Article } from '../services/dataService';
 import { getSchedules, Schedule } from '../services/settingsService';
 
-// Import Assets for Service Cards
+// Impor aset gambar untuk kartu layanan.
 import gedungArsip from '../assets/layanan/kearsipan/Gedung_Arsip.webp';
 import perpustakaanImg from '../assets/layanan/perpustakaan/mohHatta.webp';
 import dioramaImg from '../assets/layanan/dioramaPurwakarta/image-1.webp';
@@ -18,8 +18,7 @@ import libIndoor from '../assets/image/lib-indoor.webp';
 import libRoom from '../assets/image/lib-room.webp';
 import { SITE_CONFIG } from '../config/siteConfig';
 
-// HARDCODE ASSET FALLBACK:
-// dipakai untuk hero rotator jika konten dinamis tidak tersedia.
+// Aset fallback statis untuk rotator hero saat konten dinamis belum tersedia.
 const bgImages = [
   libHero,
   libIndoor,
@@ -43,7 +42,7 @@ export default function Home() {
       // Ambil data sinkron dari cache/service untuk render homepage cepat.
       const articles = getArticles();
 
-      // 1. BERITA TERKINI FILTER
+      // Filter artikel kategori Berita Terkini.
       const newsArticles = articles
         .filter(a => a.category === 'Berita Terkini')
         .sort((a, b) => b.createdAt - a.createdAt);
@@ -51,7 +50,7 @@ export default function Home() {
       setNews(newsArticles);
       currentNewsCount = Math.min(newsArticles.length, 5);
 
-      // 2. POJOK CARITA FILTER
+      // Filter artikel kategori Pojok Carita.
       const storyArticles = articles
         .filter(a => a.category === 'Pojok Carita')
         .sort((a, b) => b.createdAt - a.createdAt);
@@ -62,7 +61,7 @@ export default function Home() {
 
     fetchData();
 
-    // Sync Data changes from other tabs or same tab Admin
+    // Sinkronkan data saat ada perubahan dari tab lain atau panel admin.
     const handleStorageChange = () => fetchData();
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('dbChange', handleStorageChange);
@@ -122,9 +121,9 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
 
-      {/* Hero Section */}
+      {/* Bagian hero beranda */}
       <section className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center bg-white overflow-hidden pt-28 pb-16 sm:py-20 lg:py-0">
-        {/* Background Image - Right half */}
+        {/* Latar hero pada sisi kanan */}
         <div className="absolute right-0 top-0 w-full lg:w-3/5 h-full z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent lg:via-white/50 z-10"></div>
           <AnimatePresence mode="wait">
@@ -179,7 +178,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Berita Terkini Section */}
+      {/* Bagian Berita Terkini */}
       <section className="py-12 sm:py-24 bg-brand-light">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-6 sm:mb-10">
@@ -193,7 +192,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Main Featured Article (Auto Sliding) */}
+            {/* Artikel utama dengan perpindahan otomatis */}
             <div className="lg:col-span-7 group cursor-pointer relative rounded-2xl overflow-hidden shadow-lg h-[280px] sm:h-[400px] lg:h-[500px]">
               <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-20 pointer-events-none">
                 <button onClick={prevNews} aria-label="Berita sebelumnya" className="pointer-events-auto bg-black/30 hover:bg-brand-accent text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-brand-accent">
@@ -221,7 +220,7 @@ export default function Home() {
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       ) : (
-                        /* Premium Fallback Design - displayed only if truly no image */
+                        /* Fallback visual saat artikel tidak memiliki gambar */
                         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0c2f3d] via-[#1a4254] to-[#1f3e4e]">
                           <div className="flex flex-col items-center gap-4 text-white/10 group-hover:text-white/20 transition-colors">
                             <BookOpen size={160} strokeWidth={1} />
@@ -289,7 +288,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Akses Layanan Kami */}
+      {/* Bagian akses cepat layanan */}
       <section className="py-12 sm:py-24 bg-[#fcfafc] border-t border-gray-100">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -298,7 +297,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Layanan 1: Kearsipan */}
+            {/* Kartu layanan kearsipan */}
             <Link to="/kearsipan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-6 sm:p-8 flex flex-col group h-[320px] sm:h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Kearsipan</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
@@ -310,7 +309,7 @@ export default function Home() {
               <img src={gedungArsip} alt="Arsip" loading="lazy" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
 
-            {/* Layanan 2: Perpustakaan */}
+            {/* Kartu layanan perpustakaan */}
             <Link to="/perpustakaan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-6 sm:p-8 flex flex-col group h-[320px] sm:h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Urusan Perpustakaan</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
@@ -322,7 +321,7 @@ export default function Home() {
               <img src={perpustakaanImg} alt="Perpustakaan" loading="lazy" className="absolute -bottom-4 -right-4 w-72 h-44 object-cover object-top rounded-tl-[60px] opacity-100 group-hover:scale-110 group-hover:brightness-110 transition-all duration-500 shadow-inner" />
             </Link>
 
-            {/* Layanan 3: Diorama */}
+            {/* Kartu layanan diorama */}
             <Link to="/bale-panyawangan" className="bg-[#f3f5f8] border border-gray-200/50 rounded-2xl p-6 sm:p-8 flex flex-col group h-[320px] sm:h-[420px] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 shadow-sm">
               <h3 className="font-bold text-xl text-[#0c2f3d] mb-4">Bale Panyawangan Diorama</h3>
               <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow z-10 font-medium">
@@ -337,11 +336,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Quote & Events */}
+      {/* Bagian Pojok Carita dan jadwal kegiatan */}
       <section className="py-12 sm:py-24 bg-[#fcfafc] border-t border-gray-100 overflow-hidden">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* Section Headings Row */}
+          {/* Baris judul untuk dua blok konten */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-10 mb-6 lg:mb-8 items-end">
             <div className="lg:col-span-2 flex items-center justify-between group">
               <h3 className="font-serif text-3xl sm:text-4xl text-[#0c2f3d] font-bold">Pojok Carita</h3>
@@ -355,11 +354,11 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left Column: Story */}
+            {/* Kolom kiri untuk sorotan cerita */}
             <div className="lg:col-span-2 flex flex-col">
-              {/* Quote Block */}
+              {/* Kartu utama cerita */}
               <div className="card-elevated rounded-2xl overflow-hidden relative min-h-[360px] sm:min-h-[480px] flex group bg-[#0c2f3d] shadow-2xl">
-                {/* Navigation arrows - Only show if more than 1 story */}
+                {/* Navigasi cerita ditampilkan jika item lebih dari satu */}
                 {stories.length > 1 && (
                   <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button onClick={prevCulture} aria-label="Cerita sebelumnya" className="pointer-events-auto bg-black/40 hover:bg-[#d6a54a] text-white p-2 rounded-full backdrop-blur-sm transition-all shadow-md">
@@ -430,7 +429,7 @@ export default function Home() {
                   )}
                 </AnimatePresence>
 
-                {/* Slider indicators */}
+                {/* Indikator posisi cerita aktif */}
                 {stories.length > 1 && (
                   <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex gap-1.5 z-20 bg-black/20 px-2 py-1.5 rounded-full backdrop-blur-sm">
                     {stories.map((_, i) => (
@@ -441,7 +440,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Events Map/List (Dynamic - Restored Dark Theme) */}
+            {/* Daftar jadwal dinamis */}
             <div className="lg:col-span-1 flex flex-col h-full">
               <div className="space-y-4 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[420px]">
                 {schedules.length > 0 ? (
@@ -477,7 +476,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Modern Integrations: SIKN & Pameran Virtual */}
+      {/* Integrasi layanan eksternal SIKN dan pameran virtual */}
       <section className="py-12 sm:py-24 bg-[#fcfafc] border-t border-gray-100">
         <div className="max-w-7xl 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -489,7 +488,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Pameran Virtual Card */}
+            {/* Kartu akses pameran virtual */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[260px] sm:h-[400px]">
               <img src={virtualImg} alt="Pameran Virtual" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0c2f3d] via-[#0c2f3d]/60 to-transparent opacity-90 transition-opacity duration-300"></div>
@@ -508,7 +507,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* SIKN/JIKN Card */}
+            {/* Kartu akses SIKN/JIKN */}
             <div className="relative group rounded-3xl overflow-hidden shadow-2xl h-[260px] sm:h-[400px]">
               <img src={siknImg} alt="Arsip Nasional SIKN JIKN" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#5a3b21] via-[#5a3b21]/70 to-transparent opacity-90 transition-opacity duration-300"></div>

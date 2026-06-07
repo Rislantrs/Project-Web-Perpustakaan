@@ -44,7 +44,7 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simple validation
+    // Validasi dasar formulir sebelum dikirim.
     if (!formData.namaLengkap || !formData.email || !formData.password || (SITE_CONFIG.FEATURES.REQUIRE_NIK && !formData.nik)) {
       setToast({ show: true, message: 'Harap isi semua field yang wajib diisi.', type: 'error' });
       setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
@@ -67,8 +67,8 @@ export default function Register() {
       if (result.success) {
         setTimeout(() => {
           if (result.requiresEmailVerification && result.email) {
-            // Register sukses tapi email belum aktif:
-            // kirim user ke halaman verify manual dengan email pada query param.
+            // Jika registrasi berhasil namun email belum aktif:
+            // arahkan pengguna ke halaman verifikasi manual dengan email pada query parameter.
             sessionStorage.setItem('allow_auth_verify', '1');
             sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
             navigate(`/auth/verify?email=${encodeURIComponent(result.email)}`);
@@ -90,7 +90,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-[#f8f9fa] flex">
 
-      {/* Toast */}
+      {/* Notifikasi status aksi */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -109,9 +109,9 @@ export default function Register() {
         )}
       </AnimatePresence>
 
-      {/* Left Visual Panel */}
+      {/* Panel visual sisi kiri */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* HARDCODE ASSET: gambar hero eksternal dari Unsplash. */}
+        {/* Aset hero menggunakan URL eksternal Unsplash. */}
         <img
           src={libRoom}
           alt="Perpustakaan"
@@ -145,7 +145,7 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Right Form Panel */}
+      {/* Panel formulir sisi kanan */}
       <div className="flex-1 flex items-center justify-center px-4 py-8 sm:p-6 lg:p-12">
         <div className="max-w-lg w-full">
           <div className="mb-8">

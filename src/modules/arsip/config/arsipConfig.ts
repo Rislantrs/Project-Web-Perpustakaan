@@ -40,8 +40,10 @@ export const ARSIP_CONFIG = {
   // cukup ubah nilai di bagian ini saja tanpa menyentuh kode tampilan (UI).
   JIKN: {
     BASE_URL: 'https://jikn.anri.go.id',
-    // Path endpoint pencarian JIKN
-    SEARCH_PATH: '/pencarian',
+    // Path endpoint pencarian JIKN (kumpulan deskripsi arsip)
+    SEARCH_PATH: '/deskripsi-arsip',
+    // Path Simpul Jaringan khusus Purwakarta di JIKN
+    SJ_PATH: '/deskripsi-arsip/sj/dinas-kearsipan-perpustakaan-kabupaten-purwakarta',
     // Parameter nama keyword pencarian di URL JIKN
     QUERY_PARAM: 'q',
     // Parameter filter instansi di URL JIKN (untuk pre-filter ke Purwakarta)
@@ -95,27 +97,19 @@ export const ARSIP_CONFIG = {
  * @param keyword - Kata kunci yang dimasukkan pengguna
  * @param filterInstansi - Apakah harus difilter ke instansi Purwakarta (default: true)
  * @returns URL string yang siap dibuka di tab baru
- *
- * Contoh hasil:
- *   buildJiknSearchUrl('sejarah bupati') 
- *   => "https://jikn.anri.go.id/pencarian?q=sejarah+bupati&instansi=Dinas+Arsip..."
  */
 export function buildJiknSearchUrl(keyword: string, filterInstansi = true): string {
-  const { BASE_URL, SEARCH_PATH, QUERY_PARAM, INSTANSI_PARAM, INSTANSI_VALUE, FALLBACK_URL } =
-    ARSIP_CONFIG.JIKN;
+  const { BASE_URL, SEARCH_PATH, SJ_PATH, FALLBACK_URL } = ARSIP_CONFIG.JIKN;
 
   const trimmed = keyword.trim();
 
   if (!trimmed) {
-    return FALLBACK_URL;
+    return filterInstansi ? `${BASE_URL}${SJ_PATH}` : FALLBACK_URL;
   }
-
-  const params = new URLSearchParams();
-  params.set(QUERY_PARAM, trimmed);
 
   if (filterInstansi) {
-    params.set(INSTANSI_PARAM, INSTANSI_VALUE);
+    return `${BASE_URL}${SJ_PATH}`;
   }
 
-  return `${BASE_URL}${SEARCH_PATH}?${params.toString()}`;
+  return `${BASE_URL}${SEARCH_PATH}`;
 }

@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, updateMember, deleteMember, logout, getInitials, type Member } from '../services/authService';
 import { getMemberBorrows, getMemberQueues, getMemberWishlist, type BorrowRecord, type QueueRecord, type Book } from '../services/bookService';
 import { compressImage } from '../utils/imageUtils';
-// IMPORT KOMPONEN KARTU ANGGOTA QR CODE:
+// Impor komponen kartu anggota berbasis QR Code.
 import MemberCardQR from '../components/MemberCardQR';
 import { SITE_CONFIG } from '../config/siteConfig';
 
@@ -64,7 +64,7 @@ export default function Profil() {
     reader.onload = async (ev) => {
       const originalBase64 = ev.target?.result as string;
       try {
-        // Compress image to max 400x400 for profile picture
+        // Kompres gambar profil hingga maksimum 400x400 piksel.
         const compressedBase64 = await compressImage(originalBase64, 400, 400, 0.6);
         const result = await updateMember(user.id, { avatarUrl: compressedBase64 });
         if (result.success && result.member) {
@@ -86,7 +86,7 @@ export default function Profil() {
   };
 
   const handleDeleteAccount = async () => {
-    // Safety phrase sederhana sebelum self-delete akun (Case-insensitive)
+    // Gunakan frasa konfirmasi sederhana sebelum penghapusan akun mandiri (tidak peka huruf besar/kecil).
     if (deleteInput.trim().toLowerCase() !== 'konfirmasi') {
       showToast('Ketik kata "Konfirmasi" dengan benar.', 'error');
       return;
@@ -115,7 +115,7 @@ export default function Profil() {
 
   if (!user) return null;
 
-  // Stats
+  // Hitung statistik ringkas aktivitas anggota.
   const totalBorrow = borrows.length;
   const activeBorrow = borrows.filter(b => b.status === 'dipinjam').length;
   const returned = borrows.filter(b => b.status === 'dikembalikan').length;
@@ -131,7 +131,7 @@ export default function Profil() {
 
   return (
     <div className="bg-[#f0f2f5] min-h-screen pb-20">
-      {/* Toast */}
+      {/* Notifikasi status aksi */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -152,7 +152,7 @@ export default function Profil() {
         )}
       </AnimatePresence>
 
-      {/* Delete Account Modal */}
+      {/* Modal konfirmasi hapus akun */}
       <AnimatePresence>
         {showDeletePrompt && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 z-[150] flex items-center justify-center p-4">
@@ -192,10 +192,10 @@ export default function Profil() {
         )}
       </AnimatePresence>
 
-      {/* Hidden file input */}
+      {/* Input file tersembunyi untuk unggah avatar */}
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
-      {/* Cover / Banner */}
+      {/* Bagian sampul profil */}
       <div className="relative h-52 bg-gradient-to-br from-[#0c2f3d] via-[#1a4254] to-[#8b1c24] overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <img src={libHero} className="w-full h-full object-cover" alt="bg" />
@@ -208,7 +208,7 @@ export default function Profil() {
           </Link>
         </div>
 
-        {/* Actions */}
+        {/* Kumpulan aksi profil */}
         <div className="absolute top-4 right-4 flex gap-2">
           <button onClick={() => setShowDeletePrompt(true)} className="inline-flex items-center gap-2 text-white/80 hover:text-red-300 text-sm bg-black/20 backdrop-blur-sm px-3 py-2 rounded-xl transition-colors">
             <Trash2 size={14} /> Hapus Akun
@@ -228,11 +228,11 @@ export default function Profil() {
           </div>
         )}
 
-        {/* Profile Card */}
+        {/* Kartu profil pengguna */}
         <div className="relative -mt-16 mb-6">
           <div className="bg-white rounded-2xl shadow-xl p-6">
             <div className="flex flex-col sm:flex-row items-start gap-5">
-              {/* Avatar */}
+              {/* Area avatar pengguna */}
               <div className="relative group shrink-0">
                 <div
                   className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center text-white text-3xl font-bold shadow-lg"
@@ -251,7 +251,7 @@ export default function Profil() {
                 </button>
               </div>
 
-              {/* Info */}
+              {/* Informasi profil */}
               <div className="flex-1 min-w-0">
                 {editMode ? (
                   <input
@@ -283,7 +283,7 @@ export default function Profil() {
                 )}
               </div>
 
-              {/* Action buttons */}
+              {/* Tombol aksi profil */}
               <div className="flex gap-2 shrink-0">
                 {editMode ? (
                   <>
@@ -302,7 +302,7 @@ export default function Profil() {
               </div>
             </div>
 
-            {/* Edit fields */}
+            {/* Field edit profil */}
             <AnimatePresence>
               {editMode && (
                 <motion.div
@@ -325,7 +325,7 @@ export default function Profil() {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Grid statistik pengguna */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {stats.map(s => (
             <motion.div
@@ -344,7 +344,7 @@ export default function Profil() {
           ))}
         </div>
 
-        {/* Activity Meter */}
+        {/* Indikator tingkat aktivitas */}
         <div className="bg-white rounded-2xl shadow-sm p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 size={18} className="text-[#0c2f3d]" />
@@ -388,7 +388,7 @@ export default function Profil() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tab navigasi profil */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="flex border-b border-gray-100">
             {([
@@ -565,7 +565,7 @@ export default function Profil() {
           </div>
         </div>
 
-        {/* Quick Links */}
+        {/* Tautan cepat profil */}
         <div className="grid grid-cols-2 gap-3 mt-6">
           <Link to="/katalog" className="bg-[#0c2f3d] text-white rounded-2xl p-4 hover:bg-[#1a4254] transition-colors shadow-sm flex items-center gap-3">
             <BookOpen size={20} /> <span className="font-medium text-sm">Katalog Buku</span>

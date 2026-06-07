@@ -7,8 +7,8 @@ import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
 import { getAchievements, syncAchievements, type Achievement } from '../services/settingsService';
 
-// HARDCODE FALLBACK DATA:
-// dipakai jika data prestasi dari settings belum tersedia.
+// Data fallback disiapkan jika sumber data utama belum tersedia.
+// Digunakan saat data prestasi dari pengaturan belum tersedia.
 const prestasiList = [
   {
     id: 1,
@@ -43,7 +43,7 @@ export default function Prestasi() {
     const data = getAchievements();
     setItems(data);
 
-    // Sinkronisasi data dari Supabase di latar belakang
+    // Sinkronisasi data dari Supabase dilakukan di latar belakang.
     syncAchievements().then((cloudData) => {
       if (cloudData && cloudData.length > 0) {
         setItems(cloudData);
@@ -59,13 +59,13 @@ export default function Prestasi() {
     img: d.img
   }));
 
-  // Urutkan berdasarkan tahun descending secara default
+  // Urutkan data secara default berdasarkan tahun terbaru.
   const sortedDisplayList = [...displayList].sort((a, b) => b.year.localeCompare(a.year));
 
-  // Ambil daftar tahun unik dari data prestasi secara dinamis
+  // Bangun daftar tahun unik secara dinamis dari data prestasi.
   const years = ['Semua', ...Array.from(new Set(sortedDisplayList.map(item => item.year))).sort((a, b) => b.localeCompare(a))];
 
-  // Filter berdasarkan tahun dan pencarian
+  // Terapkan filter berdasarkan tahun dan kata kunci pencarian.
   const filteredItems = sortedDisplayList.filter(item => {
     const matchesYear = selectedYear === 'Semua' || item.year === selectedYear;
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -77,7 +77,7 @@ export default function Prestasi() {
     <div className="bg-[#f8f9fa] min-h-screen pt-12 pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb */}
+        {/* Navigasi jejak halaman */}
         <div className="flex items-center justify-center text-sm text-gray-500 mb-6">
           <Link to="/" className="hover:text-[#0c2f3d]">Home</Link>
           <ChevronRight size={14} className="mx-2" />
@@ -86,7 +86,7 @@ export default function Prestasi() {
           <span className="text-[#0c2f3d] font-medium">Prestasi</span>
         </div>
 
-        {/* Header */}
+        {/* Bagian header halaman */}
         <div className="text-center mb-12">
           <Award size={48} className="mx-auto text-[#d6a54a] mb-6 animate-pulse" />
           <h1 className="font-serif text-4xl lg:text-5xl font-bold text-[#0c2f3d] mb-4">Prestasi & Penghargaan</h1>
@@ -95,9 +95,9 @@ export default function Prestasi() {
           </p>
         </div>
 
-        {/* Search & Filter Section */}
+        {/* Bagian pencarian dan filter */}
         <div className="mb-12">
-          {/* Search Input */}
+          {/* Input pencarian */}
           <div className="max-w-md mx-auto mb-6 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -117,7 +117,7 @@ export default function Prestasi() {
             )}
           </div>
 
-          {/* Year Filter Pills */}
+          {/* Opsi filter tahun */}
           <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
             {years.map(year => (
               <button
@@ -135,7 +135,7 @@ export default function Prestasi() {
           </div>
         </div>
 
-        {/* List of Awards Grid */}
+        {/* Grid daftar prestasi */}
         {filteredItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredItems.map((item) => (
@@ -144,7 +144,7 @@ export default function Prestasi() {
                 onClick={() => setSelectedItem(item)}
                 className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100/80 flex flex-col group transition-all duration-300 hover:shadow-2xl hover:border-[#d6a54a]/30 hover:-translate-y-2 cursor-pointer"
               >
-                {/* Image side */}
+                {/* Sisi gambar prestasi */}
                 <div className="w-full aspect-[4/3] overflow-hidden relative bg-gray-50 flex items-center justify-center">
                   {item.img ? (
                     <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -158,7 +158,7 @@ export default function Prestasi() {
                   </div>
                 </div>
                 
-                {/* Text side */}
+                {/* Sisi teks prestasi */}
                 <div className="p-6 flex flex-col flex-grow">
                   <p className="text-[9px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2">Disipusda Achievement</p>
                   <h2 className="font-serif text-lg font-bold text-[#0c2f3d] mb-3 leading-snug line-clamp-2 group-hover:text-[#d6a54a] transition-colors">
@@ -175,7 +175,7 @@ export default function Prestasi() {
             ))}
           </div>
         ) : (
-          /* Empty State */
+          /* Tampilan saat data kosong */
           <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-md mx-auto">
             <Trophy size={48} className="mx-auto text-gray-300 mb-4" />
             <h3 className="text-lg font-bold text-[#0c2f3d] mb-1">Tidak Ada Hasil</h3>
@@ -187,15 +187,15 @@ export default function Prestasi() {
 
       </div>
 
-      {/* Modal Lightbox Detail */}
+      {/* Modal detail lightbox */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-          {/* Backdrop click to close */}
+          {/* Klik latar untuk menutup modal */}
           <div className="absolute inset-0" onClick={() => setSelectedItem(null)} />
 
-          {/* Modal Container */}
+          {/* Kontainer modal */}
           <div className="relative bg-white w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] z-10 animate-in fade-in zoom-in-95 duration-200">
-            {/* Close Button */}
+            {/* Tombol tutup modal */}
             <button
               onClick={() => setSelectedItem(null)}
               className="absolute top-4 right-4 p-2.5 bg-white/95 hover:bg-white text-gray-500 hover:text-gray-800 rounded-full shadow-md z-20 transition-all border border-gray-150"
@@ -203,7 +203,7 @@ export default function Prestasi() {
               <X className="w-4.5 h-4.5" />
             </button>
 
-            {/* Image section */}
+            {/* Bagian gambar */}
             <div className="w-full aspect-video bg-gray-900 relative flex items-center justify-center overflow-hidden">
               {selectedItem.img ? (
                 <img src={selectedItem.img} alt={selectedItem.title} className="w-full h-full object-contain" />
@@ -215,7 +215,7 @@ export default function Prestasi() {
               </div>
             </div>
 
-            {/* Description content */}
+            {/* Konten deskripsi */}
             <div className="p-6 md:p-8 overflow-y-auto flex-grow">
               <p className="text-[10px] font-bold text-[#d6a54a] uppercase tracking-[0.2em] mb-2">Disipusda Achievement</p>
               <h2 className="font-serif text-xl md:text-2xl font-bold text-[#0c2f3d] mb-4 leading-tight">

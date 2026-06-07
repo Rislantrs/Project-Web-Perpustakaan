@@ -90,7 +90,7 @@ export default function BookEditor() {
 
   return (
     <div className="max-w-3xl">
-      {/* Header */}
+      {/* Bagian header halaman */}
       <div className="flex items-center gap-4 mb-8">
         <button onClick={() => navigate('/admin/books')} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
           <ArrowLeft size={20} className="text-gray-600" />
@@ -102,7 +102,7 @@ export default function BookEditor() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Cover Preview */}
+        {/* Pratinjau gambar sampul */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><ImageIcon size={18} /> Cover Buku</h2>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
@@ -121,7 +121,7 @@ export default function BookEditor() {
           </div>
         </div>
 
-        {/* Info Utama */}
+        {/* Informasi utama buku */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="font-semibold text-gray-800 mb-4">Informasi Utama</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -148,7 +148,7 @@ export default function BookEditor() {
             <div>
               <label className={labelCls}>Bahasa</label>
               <select className={inputCls} value={form.bahasa} onChange={e => update('bahasa', e.target.value)}>
-                {/* HARDCODE OPTION LIST: daftar bahasa default untuk form buku. */}
+                {/* Daftar opsi bahasa default untuk form buku. */}
                 {['Indonesia', 'Inggris', 'Arab', 'Jepang', 'Sunda'].map(b => <option key={b} value={b}>{b}</option>)}
               </select>
             </div>
@@ -171,7 +171,7 @@ export default function BookEditor() {
           </div>
         </div>
 
-        {/* Sinopsis */}
+        {/* Input sinopsis buku */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="font-semibold text-gray-800 mb-4">Sinopsis</h2>
           <textarea
@@ -185,7 +185,7 @@ export default function BookEditor() {
           </div>
         </div>
 
-        {/* Rating */}
+        {/* Input rating awal buku */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="font-semibold text-gray-800 mb-4">Rating</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -206,7 +206,7 @@ export default function BookEditor() {
           </motion.div>
         )}
 
-        {/* Submit */}
+        {/* Tombol simpan data buku */}
         <div className="flex flex-col sm:flex-row gap-3 pb-8">
           <button type="button" onClick={() => navigate('/admin/books')} className="w-full sm:flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
             Batal

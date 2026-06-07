@@ -239,7 +239,7 @@ export default function ArticleEditor() {
 
   const addCaptionPlaceholder = () => {
     if (editor) {
-      // HARDCODE SNIPPET: template caption default setelah sisip gambar.
+      // Template caption default setelah gambar disisipkan.
       editor.chain().focus()
         .insertContent('<p style="text-align: center; font-size: 13px; color: #9ca3af; font-style: italic; margin-top: -12px;">Keterangan gambar di sini...</p>')
         .run();
@@ -288,7 +288,7 @@ export default function ArticleEditor() {
   return (
     <div className="max-w-4xl mx-auto pb-24">
       
-      {/* Top Action Bar - Sekarang Lengket (Sticky) */}
+      {/* Bilah aksi atas dengan posisi sticky */}
       <div className="sticky top-0 z-[60] -mx-4 px-4 py-4 bg-brand-light/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between mb-8">
         <button 
           disabled={isUploading}
@@ -320,7 +320,7 @@ export default function ArticleEditor() {
 
       <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100">
         
-        {/* Cover Image Section */}
+        {/* Bagian gambar sampul */}
         <div className="mb-8">
           <label className="block text-sm font-medium text-gray-500 mb-2">Gambar Sampul</label>
           {coverImg ? (
@@ -374,7 +374,7 @@ export default function ArticleEditor() {
           )}
         </div>
 
-        {/* Metadata Controls */}
+        {/* Kontrol metadata artikel */}
         <div className="space-y-6 mb-8">
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -421,7 +421,7 @@ export default function ArticleEditor() {
           </div>
         </div>
 
-        {/* Title Input */}
+        {/* Input judul artikel */}
         <input
           type="text"
           placeholder="Judul Artikel"
@@ -430,7 +430,7 @@ export default function ArticleEditor() {
           className="w-full text-4xl md:text-5xl font-serif font-bold text-gray-900 border-none focus:outline-none focus:ring-0 placeholder:text-gray-300 mb-8 p-0"
         />
 
-        {/* Tiptap Toolbar - Lengket di bawah Top Bar */}
+        {/* Toolbar Tiptap sticky di bawah bilah aksi atas */}
         <div className="sticky top-20 z-40 flex flex-wrap items-center gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 p-2 rounded-xl mb-6 shadow-sm">
           <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <Bold size={18} />
@@ -450,7 +450,7 @@ export default function ArticleEditor() {
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
-          {/* Alignment Controls */}
+          {/* Kontrol perataan teks */}
           <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <AlignLeft size={18} />
           </button>
@@ -477,7 +477,7 @@ export default function ArticleEditor() {
             <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={addImageToEditor} />
           </label>
 
-          {/* Caption Button */}
+          {/* Tombol sisip caption */}
           <button 
             onClick={addCaptionPlaceholder} 
             className="p-2 text-gray-600 hover:text-brand-primary hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
@@ -488,13 +488,13 @@ export default function ArticleEditor() {
           </button>
         </div>
 
-        {/* Editor Instance */}
+        {/* Area editor konten */}
         <div className="min-h-[500px]">
           <EditorContent editor={editor} />
         </div>
       </div>
 
-      {/* Elegant Toast Notification */}
+      {/* Notifikasi toast editor */}
       <AnimatePresence>
         {toast && (
           <motion.div 
