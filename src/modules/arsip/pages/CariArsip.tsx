@@ -235,8 +235,8 @@ export default function CariArsip() {
               },
               {
                 step: '03',
-                title: 'Tempel & Lihat Hasil',
-                desc: 'Tempel kata kunci Anda (Ctrl+V) di kolom pencarian JIKN untuk menampilkan arsip yang relevan.',
+                title: 'Tempel & Filter',
+                desc: 'Tempel kata kunci (Ctrl+V) di kolom pencarian JIKN. Jika opsi filter instansi aktif, centang instansi Purwakarta pada panel kiri JIKN.',
                 color: 'bg-[#0c2f3d]/10 text-[#0c2f3d]',
                 border: 'border-[#0c2f3d]/20',
                 icon: <Archive size={28} />,
@@ -436,9 +436,16 @@ export default function CariArsip() {
               <p className="text-gray-600 text-xs leading-relaxed mb-2">
                 Kata kunci <strong className="text-[#0c2f3d]">"{toastKeyword}"</strong> telah disalin ke clipboard Anda.
               </p>
-              <div className="bg-gray-50 border border-gray-100 rounded-lg p-2.5 text-[11px] text-gray-500 font-medium flex items-center gap-1.5">
-                <kbd className="bg-white border border-gray-200 shadow-sm px-1.5 py-0.5 rounded text-[10px] text-gray-600 font-semibold font-sans">Ctrl + V</kbd>
-                <span>Tempel di kolom pencarian JIKN</span>
+              <div className="bg-gray-50 border border-gray-100 rounded-lg p-2.5 text-[11px] text-gray-500 font-medium flex flex-col items-start gap-2">
+                <div className="flex items-center gap-1.5">
+                  <kbd className="bg-white border border-gray-200 shadow-sm px-1.5 py-0.5 rounded text-[10px] text-gray-600 font-semibold font-sans">Ctrl + V</kbd>
+                  <span>Tempel di kolom pencarian JIKN.</span>
+                </div>
+                {filterInstansi && (
+                  <div className="text-[10px] text-[#c49540] font-semibold leading-normal border-t border-gray-200/60 pt-1.5 w-full">
+                    💡 Centang filter "Dinas Kearsipan dan Perpustakaan Kabupaten Purwakarta" di panel kiri JIKN.
+                  </div>
+                )}
               </div>
             </div>
             <button

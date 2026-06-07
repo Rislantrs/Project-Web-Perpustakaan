@@ -99,16 +99,12 @@ export const ARSIP_CONFIG = {
  * @returns URL string yang siap dibuka di tab baru
  */
 export function buildJiknSearchUrl(keyword: string, filterInstansi = true): string {
-  const { BASE_URL, SEARCH_PATH, SJ_PATH, FALLBACK_URL } = ARSIP_CONFIG.JIKN;
+  const { BASE_URL, SEARCH_PATH, FALLBACK_URL } = ARSIP_CONFIG.JIKN;
 
   const trimmed = keyword.trim();
 
   if (!trimmed) {
-    return filterInstansi ? `${BASE_URL}${SJ_PATH}` : FALLBACK_URL;
-  }
-
-  if (filterInstansi) {
-    return `${BASE_URL}${SJ_PATH}`;
+    return FALLBACK_URL;
   }
 
   return `${BASE_URL}${SEARCH_PATH}`;
