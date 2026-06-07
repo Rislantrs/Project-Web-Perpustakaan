@@ -573,9 +573,13 @@ export const incrementArticleViews = async (id: string) => {
 
     // Update Cloud
     try {
-      await supabase.rpc('increment_article_views', { article_id: id });
+      const { error: rpcError } = await supabase.rpc('increment_article_views', { article_id: id });
+      if (rpcError) {
+        // Jika RPC belum terpasang atau error, coba update biasa sebagai fallback
+        await supabase.from('articles').update({ views: article.views }).eq('id', id);
+      }
     } catch (err) {
-      // Jika RPC belum terpasang, coba upsert biasa (kurang atomik tapi aman sebagai fallback)
+      // Fallback jika terjadi exception
       await supabase.from('articles').update({ views: article.views }).eq('id', id);
     }
   }
