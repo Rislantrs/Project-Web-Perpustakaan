@@ -2,7 +2,7 @@ import { Link, useSearchParams } from 'react-router';
 import { ChevronRight, Calendar, User, Search, Filter, X, Download, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { fetchArticlesPageWithCount, Article, ARTICLE_CATEGORIES } from '../services/dataService';
+import { fetchArticlesPageWithCount, Article, ARTICLE_CATEGORIES, getArticles } from '../services/dataService';
 import { APP_LIMITS } from '../config/appLimits';
 
 
@@ -91,12 +91,19 @@ export default function BlogList() {
   // Ambil daftar tahun unik dari semua artikel untuk filter
   const availableYears = useMemo(() => {
     const years = new Set<string>();
-    if (!articles) return [];
-    articles.forEach(a => {
-      if (a && a.year) years.add(a.year);
+    const allArticles = getArticles();
+    const activeCategoryName = selectedCategory || urlCategory;
+    
+    allArticles.forEach(a => {
+      if (a && a.year) {
+        // Filter tahun hanya berdasarkan kategori yang sedang aktif (jika ada)
+        if (!activeCategoryName || activeCategoryName === 'Semua Kategori' || a.category === activeCategoryName) {
+          years.add(a.year);
+        }
+      }
     });
     return Array.from(years).sort((a, b) => b.localeCompare(a));
-  }, [articles]);
+  }, [articles, selectedCategory, urlCategory]);
 
   const filteredArticles = articles;
   const totalPages = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE));
