@@ -6,6 +6,7 @@ import { supabase } from '../services/supabase';
 import { useState, useEffect, useMemo } from 'react';
 import SafeImage from '../components/SafeImage';
 import DOMPurify from 'dompurify';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 
 export default function ArticleDetail() {
@@ -307,15 +308,17 @@ export default function ArticleDetail() {
                  <span className="hidden md:inline">{shareStatus ? 'Link Disalin' : 'Share'}</span>
                </button>
                
-               <button 
-                 onClick={toggleBookmark}
-                 className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
-                   isBookmarked ? 'bg-brand-accent-10 text-brand-accent' : 'bg-gray-50 text-gray-400 hover:bg-brand-primary-5 hover:text-brand-primary'
-                 }`}
-               >
-                 <Bookmark size={18} className={isBookmarked ? 'fill-current' : ''} />
-                 <span className="hidden md:inline">{isBookmarked ? 'Tersimpan' : 'Simpan'}</span>
-               </button>
+               {SITE_CONFIG.FEATURES.ENABLE_CATALOG && SITE_CONFIG.FEATURES.ENABLE_ARTICLE_BOOKMARKS && (
+                 <button 
+                   onClick={toggleBookmark}
+                   className={`p-3 rounded-full transition-all flex items-center gap-2 text-sm font-bold ${
+                     isBookmarked ? 'bg-brand-accent-10 text-brand-accent' : 'bg-gray-50 text-gray-400 hover:bg-brand-primary-5 hover:text-brand-primary'
+                   }`}
+                 >
+                   <Bookmark size={18} className={isBookmarked ? 'fill-current' : ''} />
+                   <span className="hidden md:inline">{isBookmarked ? 'Tersimpan' : 'Simpan'}</span>
+                 </button>
+               )}
             </div>
           </div>
         </header>

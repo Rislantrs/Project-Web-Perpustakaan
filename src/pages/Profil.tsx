@@ -4,8 +4,9 @@ import {
   Camera, Edit3, Save, X, BookOpen, Clock, CheckCircle2,
   ArrowLeft, Star, Calendar, Users, Award, BarChart3,
   Mail, Phone, MapPin, User, AlertCircle, LogOut, Heart,
-  ShieldCheck, Eye, EyeOff, Trash2
+  ShieldCheck, Eye, EyeOff, Trash2, Bookmark
 } from 'lucide-react';
+import { getArticles } from '../services/dataService';
 import libHero from '../assets/image/lib-hero.webp';
 import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn, updateMember, deleteMember, logout, getInitials, type Member } from '../services/authService';
@@ -27,10 +28,11 @@ export default function Profil() {
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
   const [showDeletePrompt, setShowDeletePrompt] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
-  const [activeTab, setActiveTab] = useState<'statistik' | 'riwayat' | 'antrian' | 'wishlist'>('statistik');
+  const [activeTab, setActiveTab] = useState<'statistik' | 'riwayat' | 'antrian' | 'wishlist' | 'bookmarks'>('statistik');
   const [wishlist, setWishlist] = useState<Book[]>([]);
   const [showPrivateInfo, setShowPrivateInfo] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [savedArticles, setSavedArticles] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isLoggedIn()) { navigate('/login'); return; }
@@ -111,6 +113,23 @@ export default function Profil() {
       showToast('Terjadi kesalahan sistem saat menghapus akun.', 'error');
       setIsDeleting(false);
     }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'bookmarks' && SITE_CONFIG.FEATURES.ENABLE_ARTICLE_BOOKMARKS) {
+      const savedIds = JSON.parse(localStorage.getItem('disipusda_bookmarks') || '[]');
+      const allArticles = getArticles();
+      const filtered = allArticles.filter(a => savedIds.includes(a.id));
+      setSavedArticles(filtered);
+    }
+  }, [activeTab]);
+
+  const handleRemoveBookmark = (artId: string) => {
+    const savedIds = JSON.parse(localStorage.getItem('disipusda_bookmarks') || '[]');
+    const newList = savedIds.filter((id: string) => id !== artId);
+    localStorage.setItem('disipusda_bookmarks', JSON.stringify(newList));
+    setSavedArticles(prev => prev.filter(art => art.id !== artId));
+    showToast('Artikel berhasil dihapus dari daftar tersimpan.', 'success');
   };
 
   if (!user) return null;
@@ -396,7 +415,10 @@ export default function Profil() {
               { key: 'riwayat', label: 'Riwayat', fullLabel: 'Riwayat Pinjam', icon: BookOpen },
               { key: 'antrian', label: 'Antrian', fullLabel: 'Antrian', icon: Users },
               { key: 'wishlist', label: 'Wishlist', fullLabel: 'Wishlist', icon: Heart },
-            ] as const).map(tab => (
+              ...(SITE_CONFIG.FEATURES.ENABLE_ARTICLE_BOOKMARKS ? [
+                { key: 'bookmarks', label: 'Simpan', fullLabel: 'Artikel Tersimpan', icon: Bookmark }
+              ] : [])
+            ]).map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
@@ -558,6 +580,54 @@ export default function Profil() {
                         <p className="text-[10px] text-gray-500 truncate">{book.penulis}</p>
                       </div>
                     </Link>
+                  ))}
+                </div>
+              )
+            )}
+
+            {/* Artikel Tersimpan */}
+            {activeTab === 'bookmarks' && SITE_CONFIG.FEATURES.ENABLE_ARTICLE_BOOKMARKS && (
+              savedArticles.length === 0 ? (
+                <div className="text-center py-10">
+                  <Bookmark size={36} className="mx-auto text-gray-300 mb-3" />
+                  <p className="text-gray-500 font-medium">Belum ada artikel yang disimpan</p>
+                  <Link to="/artikel" className="mt-3 inline-flex items-center gap-2 text-sm text-[#0c2f3d] font-semibold hover:underline">
+                    Jelajahi Artikel →
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {savedArticles.map(art => (
+                    <div key={art.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-all border border-gray-100 bg-white shadow-sm relative">
+                      {/* Thumbnail */}
+                      <Link to={`/artikel/${art.slug}`} className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-gray-50 shrink-0 block">
+                        {art.img ? (
+                          <img src={art.img} alt={art.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                            <BookOpen size={20} />
+                          </div>
+                        )}
+                      </Link>
+
+                      {/* Teks Info */}
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[10px] font-bold text-[#d6a54a] uppercase tracking-wider block mb-1">{art.category}</span>
+                        <Link to={`/artikel/${art.slug}`} className="text-sm font-bold text-gray-900 hover:text-[#0c2f3d] transition-colors line-clamp-1 block mb-1">
+                          {art.title}
+                        </Link>
+                        <span className="text-xs text-gray-400 block">{art.date}</span>
+                      </div>
+
+                      {/* Tombol Hapus Bookmark */}
+                      <button
+                        onClick={() => handleRemoveBookmark(art.id)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        title="Hapus dari tersimpan"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )

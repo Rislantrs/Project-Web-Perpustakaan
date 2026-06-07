@@ -122,6 +122,10 @@ export const SITE_CONFIG = {
     // Jika true: Menampilkan Kartu Anggota Digital ber-QR Code di halaman Profil.
     SHOW_DIGITAL_CARD: false,
 
+    // Jika true: Mengaktifkan fitur simpan artikel/bookmark di detail artikel dan halaman profil.
+    // Fitur ini otomatis tidak aktif jika ENABLE_CATALOG bernilai false (karena tidak ada login/profil).
+    ENABLE_ARTICLE_BOOKMARKS: true,
+
     // Jika true: Mengaktifkan modul Booking Layanan Enkapsulasi Arsip.
     // Set false untuk menonaktifkan tanpa menghapus kode.
     // Dikontrol juga via env: VITE_ENABLE_BOOKING
