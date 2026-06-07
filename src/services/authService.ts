@@ -462,11 +462,15 @@ export const loginAdmin = async (email: string, password: string): Promise<{ suc
     localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(attempts));
 
     const remaining = 5 - count;
+    // Tampilkan pesan error asli jika bukan salah password (misal: "Email not confirmed")
+    const isCredentialsError = authError.message.includes('Invalid login credentials') || authError.message.includes('invalid_credentials');
+    const displayMsg = isCredentialsError
+      ? (remaining > 0 ? `Email atau password admin salah. Sisa percobaan: ${remaining}` : 'Akses dikunci selama 15 menit.')
+      : `Gagal login: ${authError.message}`;
+
     return {
       success: false,
-      message: remaining > 0
-        ? `Email atau password admin salah. Sisa percobaan: ${remaining}`
-        : 'Akses dikunci selama 15 menit.',
+      message: displayMsg,
     };
   }
 
