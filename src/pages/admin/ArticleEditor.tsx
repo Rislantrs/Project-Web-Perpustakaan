@@ -7,15 +7,49 @@ import { uploadImage } from '../../services/storageService';
 import { APP_LIMITS } from '../../config/appLimits';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import TiptapImage from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
 import { supabase } from '../../services/supabase';
+import { NodeSelection } from '@tiptap/pm/state';
 import { 
-  Bold, Italic, Strikethrough, Heading1, Heading2, 
-  List, ListOrdered, Quote, Image as ImageIcon, Save, ArrowLeft, Maximize2,
+  Bold, Italic, Heading1, Heading2, 
+  List, ListOrdered, ImageIcon, Save, ArrowLeft, Maximize2,
   AlignCenter, AlignLeft, AlignRight, Type, Loader2
 } from 'lucide-react';
+
+// Custom Tiptap Image node extension to support custom width and alignment styles
+const CustomImage = TiptapImage.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: '100%',
+        parseHTML: element => element.getAttribute('width') || element.style.width || '100%',
+        renderHTML: attributes => ({
+          width: attributes.width,
+        }),
+      },
+      alignment: {
+        default: 'center',
+        parseHTML: element => element.getAttribute('data-alignment') || 'center',
+        renderHTML: attributes => {
+          const align = attributes.alignment || 'center';
+          const w = attributes.width || '100%';
+          return {
+            'data-alignment': align,
+            class: 'rounded-xl shadow-md border border-gray-100 my-8 block max-w-full h-auto',
+            style: `width: ${w}; margin-left: ${
+              align === 'center' ? 'auto' : align === 'left' ? '0' : 'auto'
+            }; margin-right: ${
+              align === 'center' ? 'auto' : align === 'left' ? 'auto' : '0'
+            };`,
+          };
+        },
+      },
+    };
+  },
+});
 
 export default function ArticleEditor() {
   const { id } = useParams();
@@ -41,7 +75,6 @@ export default function ArticleEditor() {
   }, []);
 
   const toIndoDate = (isoStr: string) => {
-    // Konversi tanggal input HTML (YYYY-MM-DD) ke format display lokal.
     const months = [
       'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -51,7 +84,6 @@ export default function ArticleEditor() {
   };
 
   const fromIndoDate = (indoStr: string) => {
-    // Kebalikan dari toIndoDate, dipakai saat mode edit artikel lama.
     if (!indoStr || typeof indoStr !== 'string') return new Date().toISOString().split('T')[0];
     const months: {[key: string]: string} = {
       'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
@@ -68,11 +100,8 @@ export default function ArticleEditor() {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({
+      CustomImage.configure({
         allowBase64: false,
-        HTMLAttributes: {
-          class: 'rounded-xl shadow-md mx-auto max-w-full h-auto border border-gray-100 my-8 block',
-        },
       }),
       Placeholder.configure({
         placeholder: 'Mulai menulis kisah Anda di sini...',
@@ -84,10 +113,19 @@ export default function ArticleEditor() {
     content: '',
     editorProps: {
       attributes: {
-        class: 'prose prose-lg prose-slate focus:outline-none max-w-none min-h-[400px] prose-img:mx-auto prose-img:rounded-2xl',
+        class: 'prose prose-lg prose-slate focus:outline-none max-w-none min-h-[400px] prose-img:rounded-2xl',
+      },
+      handleClickOn: (view, pos, node, nodePos, event, direct) => {
+        if (node.type.name === 'image') {
+          const { state, dispatch } = view;
+          const selection = NodeSelection.create(state.doc, nodePos);
+          const transaction = state.tr.setSelection(selection);
+          dispatch(transaction);
+          return true;
+        }
+        return false;
       },
       handlePaste: (view, event) => {
-        // UX helper: paste gambar langsung upload ke storage lalu disisipkan sebagai URL.
         const items = Array.from(event.clipboardData?.items || []);
         const images = items.filter(item => item.type.startsWith('image'));
         
@@ -121,7 +159,6 @@ export default function ArticleEditor() {
     if (id) {
       const fetchFullForEdit = async () => {
         try {
-          // Prioritas data cloud agar konten rich text paling update.
           const { data, error } = await supabase
             .from('articles')
             .select('*')
@@ -140,7 +177,6 @@ export default function ArticleEditor() {
               editor.commands.setContent(data.content);
             }
           } else {
-            // Fallback ke cache lokal jika cloud gagal dijangkau.
             const article = getArticles().find(item => item.id === id);
             if (article) {
               setTitle(article.title);
@@ -186,7 +222,6 @@ export default function ArticleEditor() {
 
       const content = editor?.getHTML() || '';
       
-      // Guard: cegah konten base64 agar ukuran artikel tidak meledak di DB.
       if (content.includes('data:image/')) {
         showToast("⚠️ Konten masih berisi gambar Base64. Mohon upload ulang ke Storage.", "error");
         setIsUploading(false);
@@ -239,7 +274,6 @@ export default function ArticleEditor() {
 
   const addCaptionPlaceholder = () => {
     if (editor) {
-      // Template caption default setelah gambar disisipkan.
       editor.chain().focus()
         .insertContent('<p style="text-align: center; font-size: 13px; color: #9ca3af; font-style: italic; margin-top: -12px;">Keterangan gambar di sini...</p>')
         .run();
@@ -288,7 +322,7 @@ export default function ArticleEditor() {
   return (
     <div className="max-w-4xl mx-auto pb-24">
       
-      {/* Bilah aksi atas dengan posisi sticky */}
+      {/* Action header bar */}
       <div className="sticky top-0 z-[60] -mx-4 px-4 py-4 bg-brand-light/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between mb-8">
         <button 
           disabled={isUploading}
@@ -320,7 +354,7 @@ export default function ArticleEditor() {
 
       <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100">
         
-        {/* Bagian gambar sampul */}
+        {/* Cover image selector */}
         <div className="mb-8">
           <label className="block text-sm font-medium text-gray-500 mb-2">Gambar Sampul</label>
           {coverImg ? (
@@ -374,7 +408,7 @@ export default function ArticleEditor() {
           )}
         </div>
 
-        {/* Kontrol metadata artikel */}
+        {/* Metadata inputs */}
         <div className="space-y-6 mb-8">
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -421,7 +455,7 @@ export default function ArticleEditor() {
           </div>
         </div>
 
-        {/* Input judul artikel */}
+        {/* Title input */}
         <input
           type="text"
           placeholder="Judul Artikel"
@@ -430,7 +464,7 @@ export default function ArticleEditor() {
           className="w-full text-4xl md:text-5xl font-serif font-bold text-gray-900 border-none focus:outline-none focus:ring-0 placeholder:text-gray-300 mb-8 p-0"
         />
 
-        {/* Toolbar Tiptap sticky di bawah bilah aksi atas */}
+        {/* Tiptap Toolbar */}
         <div className="sticky top-20 z-40 flex flex-wrap items-center gap-1 bg-white/90 backdrop-blur-sm border border-gray-200 p-2 rounded-xl mb-6 shadow-sm">
           <button onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <Bold size={18} />
@@ -450,7 +484,7 @@ export default function ArticleEditor() {
           
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
-          {/* Kontrol perataan teks */}
+          {/* Text Alignment */}
           <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`p-2 rounded-lg hover:bg-gray-100 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-100 text-brand-primary' : 'text-gray-600'}`}>
             <AlignLeft size={18} />
           </button>
@@ -477,7 +511,7 @@ export default function ArticleEditor() {
             <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={addImageToEditor} />
           </label>
 
-          {/* Tombol sisip caption */}
+          {/* Insert caption */}
           <button 
             onClick={addCaptionPlaceholder} 
             className="p-2 text-gray-600 hover:text-brand-primary hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
@@ -486,15 +520,82 @@ export default function ArticleEditor() {
             <Type size={16} />
             <span className="text-[10px] font-bold uppercase tracking-tighter">Caption</span>
           </button>
+
+          {/* Dynamic Image Formatter (Size & Alignment) when an image node is selected */}
+          {editor.isActive('image') && (
+            <>
+              <div className="w-px h-6 bg-gray-200 mx-1"></div>
+              
+              <div className="flex items-center gap-1 bg-gray-50 px-2.5 py-1 rounded-xl border border-gray-100">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mr-1">Ukuran</span>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { width: '25%' }).run()} 
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').width === '25%' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                >
+                  25%
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { width: '50%' }).run()} 
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').width === '50%' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                >
+                  50%
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { width: '75%' }).run()} 
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').width === '75%' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                >
+                  75%
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { width: '100%' }).run()} 
+                  className={`px-2 py-0.5 text-[9px] font-bold rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').width === '100%' || !editor.getAttributes('image').width ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                >
+                  100%
+                </button>
+              </div>
+
+              <div className="flex items-center gap-0.5 bg-gray-50 px-1.5 py-1 rounded-xl border border-gray-100">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mr-1 pl-1">Posisi</span>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { alignment: 'left' }).run()} 
+                  className={`p-1 rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').alignment === 'left' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                  title="Rata Kiri"
+                >
+                  <AlignLeft size={14} />
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { alignment: 'center' }).run()} 
+                  className={`p-1 rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').alignment === 'center' || !editor.getAttributes('image').alignment ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                  title="Rata Tengah"
+                >
+                  <AlignCenter size={14} />
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => editor.chain().focus().updateAttributes('image', { alignment: 'right' }).run()} 
+                  className={`p-1 rounded-md hover:bg-white transition-colors ${editor.getAttributes('image').alignment === 'right' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500'}`}
+                  title="Rata Kanan"
+                >
+                  <AlignRight size={14} />
+                </button>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Area editor konten */}
+        {/* Editor content area */}
         <div className="min-h-[500px]">
           <EditorContent editor={editor} />
         </div>
       </div>
 
-      {/* Notifikasi toast editor */}
+      {/* Editor toast notifications */}
       <AnimatePresence>
         {toast && (
           <motion.div 

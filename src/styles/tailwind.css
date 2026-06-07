@@ -152,3 +152,11 @@ h4,
         gap: 2rem !important;
     }
 }
+
+/* Tiptap Editor selected image style */
+.ProseMirror img.ProseMirror-selectednode {
+    outline: 3px solid #d6a54a; /* brand-accent */
+    outline-offset: 2px;
+    box-shadow: 0 0 0 8px rgba(214, 165, 74, 0.25);
+    transition: all 0.2s ease;
+}
