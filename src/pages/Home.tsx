@@ -37,6 +37,7 @@ export default function Home() {
 
   useEffect(() => {
     let currentNewsCount = 0;
+    let currentStoriesCount = 0;
 
     const fetchData = () => {
       // Ambil data sinkron dari cache/service untuk render homepage cepat.
@@ -54,7 +55,9 @@ export default function Home() {
       const storyArticles = articles
         .filter(a => a.category === 'Pojok Carita')
         .sort((a, b) => b.createdAt - a.createdAt);
-      setStories(storyArticles.slice(0, 5));
+      const slicedStories = storyArticles.slice(0, 5);
+      setStories(slicedStories);
+      currentStoriesCount = slicedStories.length;
 
       setSchedules(getSchedules().slice(0, 3));
     };
@@ -83,8 +86,7 @@ export default function Home() {
 
     const cultureInterval = setInterval(() => {
       setActiveCultureIdx((prev) => {
-        const limit = stories.length > 0 ? stories.length : 0;
-        return limit > 0 ? (prev + 1) % limit : 0;
+        return currentStoriesCount > 0 ? (prev + 1) % currentStoriesCount : 0;
       });
     }, 7000);
 
