@@ -26,6 +26,7 @@ Panduan mengunggah kode web ke hosting umum, VPS, serta konfigurasi domain dan S
 
 ### 3. 🔌 Integrasi Layanan & API (`docs/integration/`)
 Panduan menghubungkan API eksternal, WhatsApp, dan layanan email:
+* [PANDUAN_INTEGRASI_LENGKAP.html](integration/PANDUAN_INTEGRASI_LENGKAP.html) - 🌟 **[HTML/PDF] Buku panduan gabungan dari keenam berkas di bawah ini, didesain khusus agar rapi saat diekspor ke PDF via browser (Ctrl + P).**
 * [TUTORIAL_INTEGRASI.md](integration/TUTORIAL_INTEGRASI.md) - Dokumentasi rincian integrasi API backend dan Supabase.
 * [tutorial_integrasi_lengkap.md](integration/tutorial_integrasi_lengkap.md) - Rangkuman alur integrasi seluruh modul sistem.
 * [panduan_integrasi_booking.md](integration/panduan_integrasi_booking.md) - Konfigurasi integrasi layanan booking arsip.

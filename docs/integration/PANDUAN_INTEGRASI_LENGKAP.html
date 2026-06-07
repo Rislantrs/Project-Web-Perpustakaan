@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan Komprehensif: Integrasi API & Layanan Eksternal - Disipusda Purwakarta</title>
+    <style>
+        /* Modern Reset and CSS Variables */
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #4f46e5; /* Indigo accent for API/Integration guides */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #f8f8f2;
+            --alert-tip: #0f766e;
+            --alert-note: #1d4ed8;
+            --alert-warning: #b45309;
+            --alert-caution: #be123c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout Architecture */
+        .wrapper {
+            width: 100%;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin: 2rem auto;
+            padding: 4rem 5rem;
+            max-width: 900px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Header Document Info */
+        .doc-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff !important;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-header h1 {
+            font-size: 2.25rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: #ffffff !important;
+        }
+
+        .doc-header p {
+            color: #cbd5e1 !important;
+            font-size: 1.1rem;
+        }
+
+        /* Typography Styles */
+        h1, h2, h3, h4 {
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alert Box Styles */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-left: 5px solid transparent;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-note {
+            background-color: #eff6ff;
+            border-left-color: var(--alert-note);
+            color: #1e3a8a;
+        }
+
+        .alert-tip {
+            background-color: #f0fdf4;
+            border-left-color: var(--alert-tip);
+            color: #115e59;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-left-color: var(--alert-warning);
+            color: #78350f;
+        }
+
+        .alert-caution {
+            background-color: #fff5f5;
+            border-left-color: var(--alert-caution);
+            color: #9b1c1c;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tables Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks & Coding Styling */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Syntax Highlight Colors */
+        .token-keyword { color: #f92672; font-weight: bold; }
+        .token-string { color: #e6db74; }
+        .token-comment { color: #75715e; font-style: italic; }
+        .token-number { color: #ae81ff; }
+        .token-type { color: #66d9ef; font-style: italic; }
+
+        /* Divider and spacing helpers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        .chapter-break {
+            margin-top: 5rem;
+        }
+
+        /* Dynamic Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent);
+            color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background-color: #3730a3;
+        }
+
+        /* PRINT STYLING - Optimize for PDF Generation */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+                font-size: 14px;
+            }
+
+            .back-to-top {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .doc-header {
+                border: 2px solid #000000;
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0;
+                padding: 2rem;
+            }
+
+            .doc-header h1 {
+                color: #000000 !important;
+            }
+
+            .doc-header p {
+                color: #333333 !important;
+            }
+
+            h1, h2, h3 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                border-bottom: 2px solid #000000;
+                margin-top: 2rem;
+            }
+
+            pre, table, blockquote, .alert {
+                page-break-inside: avoid;
+            }
+
+            pre {
+                border: 1px solid #94a3b8;
+                box-shadow: none !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            pre code {
+                color: #000000 !important;
+            }
+
+            code {
+                background-color: #f1f5f9;
+                border: 1px solid #cbd5e1;
+            }
+
+            .alert {
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            .alert-title {
+                color: #000000 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
+
+    <div class="wrapper">
+        <div class="main-content">
+            <!-- Cover Section -->
+            <div class="doc-header" id="cover">
+                <h1>Buku Panduan Komprehensif:<br>Integrasi API & Layanan Eksternal</h1>
+                <p>Panduan teknis menyeluruh untuk menghubungkan sistem otentikasi Google OAuth, SMTP Resend.com, Supabase Edge Functions, database pendaftaran, Telegram Bot, WhatsApp Gateway, dan sinkronisasi REST API WordPress.</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #cbd5e1 !important; font-weight: 500;">Diperbarui: Juni 2026 | Disusun oleh: M. Rislan Tristansyah (Mahasiswa Sistem Telekomunikasi)</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 1: GOOGLE OAUTH                       -->
+            <!-- ========================================== -->
+            <div id="ch1" class="chapter-break">
+                <h1>Bab 1: Integrasi Google OAuth (Google Sign-In)</h1>
+                <p>Fitur ini memungkinkan pemohon dan anggota perpustakaan untuk mendaftar dan masuk secara instan ke sistem web perpustakaan menggunakan akun Google mereka.</p>
+
+                <h2>1. Membuat Kredensial di Google Cloud Console</h2>
+                <ol>
+                    <li>Buka halaman <strong><a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></strong>.</li>
+                    <li>Buat proyek baru dengan nama <code>Disipusda Perpustakaan</code>, lalu masuk ke proyek tersebut.</li>
+                    <li>Buka menu <strong>OAuth consent screen</strong> di sidebar kiri:
+                        <ul>
+                            <li>Pilih <strong>External</strong> sebagai User Type agar dapat diakses oleh semua akun Gmail.</li>
+                            <li>Masukkan informasi nama aplikasi (<code>Disipusda Purwakarta</code>) dan isi email dukungan Anda.</li>
+                            <li>Klik <strong>Save and Continue</strong> hingga selesai, kemudian klik <strong>Publish App</strong> di halaman ringkasan agar statusnya menjadi aktif (Live).</li>
+                        </ul>
+                    </li>
+                    <li>Buka menu <strong>Credentials</strong> di sidebar kiri:
+                        <ul>
+                            <li>Klik tombol <strong>+ Create Credentials</strong> > pilih <strong>OAuth client ID</strong>.</li>
+                            <li>Pilih jenis aplikasi <strong>Web application</strong>.</li>
+                            <li><strong>Authorized JavaScript origins</strong>: Tambahkan domain asal Anda, misalnya:
+                                <ul>
+                                    <li><code>http://localhost:5173</code> (untuk pengembangan lokal)</li>
+                                    <li><code>https://lann.codes</code> (domain staging)</li>
+                                    <li><code>https://disipusda.purwakartakab.go.id</code> (domain produksi)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Authorized redirect URIs</strong>: Tambahkan URL Callback redirect dari Supabase Anda secara persis:
+                                <pre>https://anqopdxzdkpsmtxuultp.supabase.co/auth/v1/callback</pre>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Klik <strong>Create</strong>. Salin <strong>Client ID</strong> dan <strong>Client Secret</strong> yang muncul pada kotak dialog.</li>
+                </ol>
+
+                <h2>2. Memasang OAuth Keys di Dashboard Supabase</h2>
+                <ol>
+                    <li>Masuk ke dashboard <strong>Supabase > Auth > Providers > Google</strong>.</li>
+                    <li>Aktifkan sakelar <strong>Enable Google Provider</strong>.</li>
+                    <li>Tempelkan <strong>Client ID</strong> dan <strong>Client Secret</strong> yang telah disalin sebelumnya pada kolom input yang tersedia.</li>
+                    <li>Klik <strong>Save</strong>.</li>
+                </ol>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 2: RESEND SMTP & EDGE FUNCTIONS        -->
+            <!-- ========================================== -->
+            <div id="ch2" class="chapter-break">
+                <h1>Bab 2: Integrasi Resend SMTP & Edge Functions ke Supabase</h1>
+                <p>Supabase secara bawaan membatasi kuota pengiriman email otomatis. Untuk kebutuhan produksi, email dialihkan ke server **SMTP Resend.com** dan logika kustom di-deploy ke **Supabase Edge Functions**.</p>
+
+                <h2>1. Konfigurasi SMTP Resend pada Supabase Auth</h2>
+                <ol>
+                    <li>Masuk ke <strong>Resend.com > API Keys</strong>, lalu buat kunci API baru dengan izin pengiriman email (<em>Sending access</em>).</li>
+                    <li>Masuk ke dashboard <strong>Supabase > Auth > SMTP Settings</strong>.</li>
+                    <li>Aktifkan sakelar <strong>Enable Custom SMTP</strong>.</li>
+                    <li>Isi parameter SMTP di bawah ini secara tepat:
+                        <ul>
+                            <li><strong>Sender Email:</strong> Email domain resmi Anda yang sudah terverifikasi di Resend (contoh: <code>no-reply@lann.codes</code>).</li>
+                            <li><strong>Sender Name:</strong> <code>Disipusda Purwakarta</code></li>
+                            <li><strong>SMTP Host:</strong> <code>smtp.resend.com</code></li>
+                            <li><strong>Port:</strong> <code>465</code> (direkomendasikan) atau <code>587</code></li>
+                            <li><strong>SMTP Username:</strong> <code>resend</code> (wajib huruf kecil)</li>
+                            <li><strong>SMTP Password:</strong> Masukkan kunci API Key Resend Anda (berawalan <code>re_...</code>).</li>
+                        </ul>
+                    </li>
+                    <li>Klik <strong>Save Changes</strong>.</li>
+                </ol>
+
+                <h2>2. Mendaftarkan Custom Secrets (Environment Variables) di Supabase</h2>
+                <p>Edge Functions membutuhkan variabel lingkungan yang berisi kunci rahasia untuk memanggil API Resend and Telegram. Tambahkan rahasia ini di dashboard Supabase melalui menu <strong>Settings > Edge Functions > Custom Secrets</strong>:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Secret</th>
+                            <th>Nilai / Value</th>
+                            <th>Keterangan Fungsi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>RESEND_API_KEY</code></td>
+                            <td><code>re_xxxxxxxxxxx</code></td>
+                            <td>API Key akun Resend untuk pengiriman email transaksional kustom.</td>
+                        </tr>
+                        <tr>
+                            <td><code>RESEND_FROM_EMAIL</code></td>
+                            <td><code>Disipusda &lt;no-reply@lann.codes&gt;</code></td>
+                            <td>Alamat pengirim email sistem yang sudah disetujui di Resend.</td>
+                        </tr>
+                        <tr>
+                            <td><code>TELEGRAM_BOT_TOKEN</code></td>
+                            <td><code>123456:ABC-DEFxxxx</code></td>
+                            <td>Token bot Telegram dari @BotFather untuk notifikasi admin.</td>
+                        </tr>
+                        <tr>
+                            <td><code>TELEGRAM_ADMIN_CHAT_ID</code></td>
+                            <td><code>-100xxxxxx</code> atau <code>9876543</code></td>
+                            <td>ID chat atau ID grup Telegram admin penerima laporan.</td>
+                        </tr>
+                        <tr>
+                            <td><code>SITE_URL</code></td>
+                            <td><code>https://lann.codes</code></td>
+                            <td>URL utama frontend untuk menyusun tautan reschedule di dalam email.</td>
+                        </tr>
+                        <tr>
+                            <td><code>CRON_SECRET</code></td>
+                            <td><code>String_Acak_Rahasia_Panjang</code></td>
+                            <td>Token validasi untuk mengamankan eksekusi penjadwalan otomatis.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>Atau setel secara massal menggunakan perintah terminal Supabase CLI:</p>
+                <pre>supabase secrets set RESEND_API_KEY="re_..." RESEND_FROM_EMAIL="..." TELEGRAM_BOT_TOKEN="..." TELEGRAM_ADMIN_CHAT_ID="..." SITE_URL="..." CRON_SECRET="..."</pre>
+
+                <h2>3. Mendeploy 6 Custom Edge Functions ke Supabase</h2>
+                <p>Unggah program backend serverless dari direktori lokal <code>supabase/functions/</code> ke server awan Supabase:</p>
+                <ol>
+                    <li>Hubungkan terminal lokal ke proyek Supabase:
+                        <pre>supabase login
+supabase link --project-ref anqopdxzdkpsmtxuultp</pre>
+                    </li>
+                    <li>Jalankan perintah deploy untuk keenam fungsi:
+                        <pre>supabase functions deploy booking-notification
+supabase functions deploy booking-status-change
+supabase functions deploy send-booking-digest
+supabase functions deploy send-borrow-notification
+supabase functions deploy send-borrow-reminders
+supabase functions deploy telegram-webhook</pre>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 3: SUPABASE NATIVE CRON JOBS           -->
+            <!-- ========================================== -->
+            <div id="ch3" class="chapter-break">
+                <h1>Bab 3: Setup Supabase Native Cron Jobs (pg_cron & pg_net)</h1>
+                <p>Website memerlukan mekanisme pemanggilan tugas otomatis harian (Cron Job) tanpa mengandalkan pemicu eksternal.</p>
+
+                <h2>1. Mengaktifkan Ekstensi Database</h2>
+                <p>Masuk ke dashboard <strong>Supabase > Database > Extensions</strong>, lalu aktifkan dua modul berikut:</p>
+                <ul>
+                    <li><strong><code>pg_cron</code></strong>: Mengelola penjadwalan query berbasis ekspresi cron.</li>
+                    <li><strong><code>pg_net</code></strong>: Mengizinkan database melakukan pemanggilan request HTTP (POST/GET) secara asinkron.</li>
+                </ul>
+
+                <h2>2. Menjadwalkan Pengingat Peminjaman Harian via SQL Editor</h2>
+                <p>Buka menu <strong>SQL Editor</strong> di Supabase, buat query baru, lalu jalankan script berikut:</p>
+                <pre><span class="token-comment">-- Hapus job lama jika terdaftar agar tidak duplikasi</span>
+<span class="token-keyword">SELECT</span> cron.unschedule(<span class="token-string">'kirim-pengingat-peminjaman-harian'</span>);
+
+<span class="token-comment">-- Jadwalkan cron job baru (Berjalan otomatis setiap hari pukul 08:00 UTC)</span>
+<span class="token-keyword">SELECT</span> cron.schedule(
+  <span class="token-string">'kirim-pengingat-peminjaman-harian'</span>,
+  <span class="token-string">'0 8 * * *'</span>,
+  $$
+  <span class="token-keyword">SELECT</span> net.http_post(
+    url := <span class="token-string">'https://anqopdxzdkpsmtxuultp.supabase.co/functions/v1/send-borrow-reminders'</span>,
+    headers := <span class="token-string">'{"Content-Type": "application/json", "x-cron-secret": "MASUKKAN_CRON_SECRET_SAMA_DENGAN_SECRETS"}'</span>::jsonb,
+    body := <span class="token-string">'{}'</span>::jsonb
+  );
+  $$
+);</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 4: SETUP DOMAIN DI RESEND & CLOUDFLARE -->
+            <!-- ========================================== -->
+            <div id="ch4" class="chapter-break">
+                <h1>Bab 4: Panduan Setup Domain Resend di DNS Cloudflare & Registrar</h1>
+                <p>Verifikasi kepemilikan domain di Resend.com wajib dilakukan agar email dikirim atas nama domain Anda sendiri dan tidak diblokir oleh filter spam.</p>
+
+                <h2>1. Menambahkan Domain di Dashboard Resend</h2>
+                <ol>
+                    <li>Buka dashboard <strong>Resend > Domains > Add Domain</strong>.</li>
+                    <li>Masukkan domain utama Anda (contoh: <code>lann.codes</code>).</li>
+                    <li>Pilih Region terdekat (contoh: <strong>us-east-1</strong>), lalu klik <strong>Add</strong>.</li>
+                </ol>
+
+                <h2>2. Tabel DNS Records Verifikasi</h2>
+                <p>Tambahkan 4 baris records berikut pada manajer DNS domain Anda (Name.com atau Cloudflare):</p>
+                
+                <div class="alert alert-warning">
+                    <div class="alert-title">PERINGATAN PROXY CLOUDFLARE</div>
+                    Seluruh records verifikasi Resend (DKIM, SPF, MX) <strong>wajib diset ke status DNS Only (Awan Abu-abu)</strong>. Jangan gunakan status Proxied (Awan Oranye) agar server Resend dapat memvalidasi records tersebut.
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipe</th>
+                            <th>Host / Name</th>
+                            <th>Isi / Value / Target</th>
+                            <th>Prioritas</th>
+                            <th>Status Proxy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>resend._domainkey</code></td>
+                            <td><code>p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ...</code></td>
+                            <td>-</td>
+                            <td>DNS Only (Abu-abu)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>send</code></td>
+                            <td><code>v=spf1 include:amazonses.com ~all</code></td>
+                            <td>-</td>
+                            <td>DNS Only (Abu-abu)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MX</strong></td>
+                            <td><code>send</code></td>
+                            <td><code>feedback-smtp.us-east-1.amazonses.com</code></td>
+                            <td>10</td>
+                            <td>DNS Only (Abu-abu)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>_dmarc</code></td>
+                            <td><code>v=DMARC1; p=none;</code></td>
+                            <td>-</td>
+                            <td>DNS Only (Abu-abu)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>3. Cara Cek Hasil Autentikasi di Gmail</h2>
+                <p>Kirim email uji coba dari sistem Anda ke akun Gmail, buka email tersebut, klik tombol titik tiga di pojok kanan atas > pilih **Tampilkan Asli (Show Original)**. Pastikan tabel teratas menunjukkan:</p>
+                <ul>
+                    <li><strong>SPF:</strong> <code>PASS</code> (dengan domain <code>send.lann.codes</code>)</li>
+                    <li><strong>DKIM:</strong> <code>PASS</code> (dengan domain <code>lann.codes</code>)</li>
+                    <li><strong>DMARC:</strong> <code>PASS</code></li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 5: DEPLOY MODUL BOOKING                -->
+            <!-- ========================================== -->
+            <div id="ch5" class="chapter-break">
+                <h1>Bab 5: Integrasi & Deploy Modul Booking Enkapsulasi</h1>
+                <p>Panduan deployment modul pemesanan (booking) enkapsulasi arsip dan penanganan multi-domain.</p>
+
+                <h2>1. Skenario A: Modul Terpadu di Web Baru (Monolith)</h2>
+                <p>Ini adalah konfigurasi standar di mana modul booking berjalan langsung di dalam proyek React + Vite yang baru.</p>
+                <ul>
+                    <li>Pastikan variabel environment berikut terdaftar di hosting Anda:
+                        <pre>VITE_ENABLE_BOOKING=true
+VITE_BOOKING_DB_MODE=supabase</pre>
+                    </li>
+                    <li>Modul akan aktif di menu navigasi utama dan rute halaman <code>/booking-enkapsulasi</code> dapat diakses.</li>
+                </ul>
+
+                <h2>2. Skenario B: Memindahkan Modul ke Web Lama (React/PHP)</h2>
+                <ul>
+                    <li><strong>Untuk React / Next.js</strong>: Salin seluruh folder <code>src/modules/booking/</code> ke proyek web lama. Pasang dependensi yang dibutuhkan:
+                        <pre>npm install xlsx jspdf jspdf-autotable motion lucide-react sonner</pre>
+                    </li>
+                    <li><strong>Untuk PHP (Laravel / cPanel / HTML Statis)</strong>: Gunakan teknik Micro Frontend dengan menempelkan tag <code>&lt;iframe&gt;</code> ke halaman web lama Anda:
+                        <pre>&lt;iframe src="https://booking.domainbaru.com/booking-enkapsulasi" width="100%" height="900px" frameborder="0"&gt;&lt;/iframe&gt;</pre>
+                    </li>
+                </ul>
+
+                <h2>3. Skenario C: Menjalankan di Subdomain Terpisah (Berbagi Database)</h2>
+                <p>Anda dapat menjalankan halaman booking di domain tersendiri (misal: <code>booking.disipusda.com</code>) namun tetap merekam data ke database yang sama dengan web utama:</p>
+                <ol>
+                    <li>Arahkan subdomain baru ke build statis modul booking Anda.</li>
+                    <li>Pada file <code>.env</code> subdomain, arahkan parameter Supabase ke proyek Supabase milik website utama:
+                        <pre>VITE_SUPABASE_URL=https://project-web-utama.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5c... (Anon Key Web Utama)</pre>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 6: INTEGRASI WORDPRESS REST API        -->
+            <!-- ========================================== -->
+            <div id="ch6" class="chapter-break">
+                <h1>Bab 6: Integrasi Modul Booking React dengan WordPress REST API</h1>
+                <p>Jika instansi meminta data pemesanan disimpan langsung ke dalam database WordPress (MySQL) milik website utama, Anda dapat memfungsikan modul booking dalam mode REST API.</p>
+
+                <h2>1. Konfigurasi .env React (REST API Mode)</h2>
+                <p>Ubah pengaturan database driver di file <code>.env</code> modul booking dari Supabase menjadi API:</p>
+                <pre><span class="token-keyword">VITE_BOOKING_DB_MODE</span>=api
+<span class="token-keyword">VITE_BOOKING_API_URL</span>=https://web-utama-wordpress.com/wp-json/booking/v1
+<span class="token-keyword">VITE_BOOKING_API_TOKEN</span>=rahasia_token_keamanan_wp_disipusda</pre>
+
+                <h2>2. Membuat Tabel Database Kustom di WordPress (MySQL)</h2>
+                <p>Buka phpMyAdmin di server cPanel WordPress Anda, pilih database WordPress, lalu jalankan query SQL berikut:</p>
+                <pre><span class="token-keyword">CREATE TABLE IF NOT EXISTS</span> `wp_booking_enkapsulasi` (
+  `id` <span class="token-type">VARCHAR</span>(50) <span class="token-keyword">NOT NULL</span>,
+  `nama_lengkap` <span class="token-type">VARCHAR</span>(150) <span class="token-keyword">NOT NULL</span>,
+  `email` <span class="token-type">VARCHAR</span>(100) <span class="token-keyword">NOT NULL</span>,
+  `whatsapp` <span class="token-type">VARCHAR</span>(20) <span class="token-keyword">NOT NULL</span>,
+  `instansi` <span class="token-type">VARCHAR</span>(150) <span class="token-keyword">NOT NULL</span>,
+  `tanggal_booking` <span class="token-type">DATE</span> <span class="token-keyword">NOT NULL</span>,
+  `jumlah_dokumen` <span class="token-type">INT</span> <span class="token-keyword">NOT NULL DEFAULT</span> 1,
+  `status` <span class="token-type">VARCHAR</span>(20) <span class="token-keyword">NOT NULL DEFAULT</span> <span class="token-string">'pending'</span>,
+  `note` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `reschedule_date` <span class="token-type">DATE</span> <span class="token-keyword">NULL</span>,
+  `reschedule_note` <span class="token-type">TEXT</span> <span class="token-keyword">NULL</span>,
+  `token_reschedule` <span class="token-type">VARCHAR</span>(100) <span class="token-keyword">NULL</span>,
+  `created_at` <span class="token-type">TIMESTAMP</span> <span class="token-keyword">DEFAULT CURRENT_TIMESTAMP</span>,
+  <span class="token-keyword">PRIMARY KEY</span> (`id`)
+) <span class="token-keyword">ENGINE</span>=InnoDB <span class="token-keyword">DEFAULT CHARSET</span>=utf8mb4;</pre>
+
+                <h2>3. Menambahkan Custom Endpoint di WordPress Theme (`functions.php`)</h2>
+                <p>Buka berkas <code>wp-content/themes/[tema-aktif]/functions.php</code> dan tempelkan kode PHP berikut di baris paling akhir untuk menangani request API dari React:</p>
+                
+                <pre><span class="token-comment">// Registrasi Rute Endpoint Baru</span>
+add_action(<span class="token-string">'rest_api_init'</span>, <span class="token-keyword">function</span> () {
+    register_rest_route(<span class="token-string">'booking/v1'</span>, <span class="token-string">'/check-date'</span>, <span class="token-keyword">array</span>(
+        <span class="token-string">'methods'</span>             => <span class="token-string">'GET'</span>,
+        <span class="token-string">'callback'</span>            => <span class="token-string">'wp_booking_check_date'</span>,
+        <span class="token-string">'permission_callback'</span> => <span class="token-string">'wp_booking_check_auth'</span>,
+    ));
+    register_rest_route(<span class="token-string">'booking/v1'</span>, <span class="token-string">'/bookings'</span>, <span class="token-keyword">array</span>(
+        <span class="token-string">'methods'</span>             => <span class="token-string">'POST'</span>,
+        <span class="token-string">'callback'</span>            => <span class="token-string">'wp_booking_create_booking'</span>,
+        <span class="token-string">'permission_callback' => 'wp_booking_check_auth',
+    ));
+    register_rest_route('booking/v1', '/calendar', array(
+        'methods'             => 'GET',
+        'callback'            => 'wp_booking_get_calendar',
+        'permission_callback' => 'wp_booking_check_auth',
+    ));
+});
+
+// Fungsi Autentikasi Bearer Token
+function wp_booking_check_auth(WP_REST_Request $request) {
+    $secure_token = 'rahasia_token_keamanan_wp_disipusda';
+    $auth_header = $request->get_header('Authorization');
+    if (!$auth_header) {
+        return new WP_Error('no_auth', 'Token diperlukan.', array('status' => 401));
+    }
+    if (preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
+        if ($matches[1] === $secure_token) {
+            return true;
+        }
+    }
+    return new WP_Error('invalid_token', 'Token tidak valid.', array('status' => 403));
+}
+
+// Callback Cek Kuota Tanggal (GET /check-date?date=YYYY-MM-DD)
+function wp_booking_check_date(WP_REST_Request $request) {
+    global $wpdb;
+    $date = sanitize_text_field($request->get_param('date'));
+    if (empty($date)) {
+        return new WP_REST_Response(array('available' => false), 400);
+    }
+    $max_quota = 5;
+    $table_name = $wpdb->prefix . 'booking_enkapsulasi';
+    $count = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM $table_name WHERE tanggal_booking = %s AND status != 'rejected' AND status != 'cancelled'",
+        $date
+    ));
+    return new WP_REST_Response(array('available' => ($count < $max_quota)), 200);
+}
+
+// Callback Simpan Booking Baru (POST /bookings)
+function wp_booking_create_booking(WP_REST_Request $request) {
+    global $wpdb;
+    $params = $request->get_json_params();
+    if (empty($params['nama_lengkap']) || empty($params['tanggal_booking'])) {
+        return new WP_REST_Response(array('success' => false), 400);
+    }
+    $table_name = $wpdb->prefix . 'booking_enkapsulasi';
+    $booking_id = wp_generate_uuid4();
+    $data = array(
+        'id'              => $booking_id,
+        'nama_lengkap'    => sanitize_text_field($params['nama_lengkap']),
+        'email'           => sanitize_email($params['email']),
+        'whatsapp'        => sanitize_text_field($params['whatsapp']),
+        'instansi'        => sanitize_text_field($params['instansi']),
+        'tanggal_booking' => sanitize_text_field($params['tanggal_booking']),
+        'jumlah_dokumen'  => intval($params['jumlah_dokumen']),
+        'status'          => 'pending',
+    );
+    $wpdb->insert($table_name, $data);
+    return new WP_REST_Response(array('success' => true, 'id' => $booking_id), 201);
+}
+
+// Callback Data Kalender Keseluruhan (GET /calendar)
+function wp_booking_get_calendar(WP_REST_Request $request) {
+    global $wpdb;
+    $year  = intval($request->get_param('year'));
+    $month = intval($request->get_param('month'));
+    $table_name = $wpdb->prefix . 'booking_enkapsulasi';
+    $results = $wpdb->get_results($wpdb->prepare(
+        "SELECT tanggal_booking, COUNT(*) as total_count FROM $table_name 
+         WHERE YEAR(tanggal_booking) = %d AND MONTH(tanggal_booking) = %d AND status != 'rejected' AND status != 'cancelled'
+         GROUP BY tanggal_booking",
+        $year, $month
+    ), ARRAY_A);
+    $calendar_data = array();
+    foreach ($results as $row) {
+        $calendar_data[] = array(
+            'date'  => $row['tanggal_booking'],
+            'count' => intval($row['total_count']),
+            'isFull' => (intval($row['total_count']) >= 5)
+        );
+    }
+    return new WP_REST_Response(array('data' => $calendar_data), 200);
+}</span></pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 7: WHATSAPP GATEWAY                    -->
+            <!-- ========================================== -->
+            <div id="ch7" class="chapter-break">
+                <h1>Bab 7: Perencanaan Notifikasi WhatsApp Gateway</h1>
+                <p>Notifikasi via WhatsApp (WA) berjalan secara paralel di server-side untuk memastikan pemohon langsung mendapatkan pesan konfirmasi ke nomor HP mereka.</p>
+
+                <h2>1. Analisis Alur Kerja Perubahan</h2>
+                <ul>
+                    <li><strong>Tidak Ada Perubahan Kode Frontend:</strong> Frontend hanya bertugas menembak Supabase Edge Functions. Seluruh proses integrasi WA diselesaikan di backend server-side.</li>
+                    <li><strong>Secrets Baru di Supabase:</strong> Anda wajib mendaftarkan rahasia token API WhatsApp Gateway Anda dengan nama:
+                        <pre>WA_GATEWAY_TOKEN="token_dari_penyedia_gateway_anda"</pre>
+                    </li>
+                </ul>
+
+                <h2>2. Lokasi Komentar Placeholder di Berkas Kode Lokal</h2>
+                <p>Komentar petunjuk pemicu pengiriman notifikasi WhatsApp telah ditambahkan di dalam Edge Functions berikut:</p>
+                <ol>
+                    <li><code>supabase/functions/booking-notification/index.ts</code>: Terletak di dalam blok paralel <code>Promise.allSettled</code>.</li>
+                    <li><code>supabase/functions/booking-status-change/index.ts</code>: Terletak di bawah blok penyelesaian pengiriman email status perubahan.</li>
+                </ol>
+
+                <h2>3. Contoh Kode Implementasi Integrasi Deno & Fonnte.com</h2>
+                <p>Berikut adalah cuplikan kode pembantu (helper function) Deno untuk melakukan post data ke Fonnte WhatsApp Gateway:</p>
+                <pre><span class="token-keyword">async</span> <span class="token-keyword">function</span> sendWhatsApp(target: <span class="token-type">string</span>, message: <span class="token-type">string</span>, token: <span class="token-type">string</span>): <span class="token-type">Promise</span>&lt;<span class="token-type">void</span>&gt; {
+  <span class="token-keyword">let</span> cleanNumber <span class="token-keyword">=</span> target.replace(<span class="token-string">/[^0-9]/g</span>, <span class="token-string">''</span>);
+  <span class="token-keyword">if</span> (cleanNumber.startsWith(<span class="token-string">'0'</span>)) {
+    cleanNumber <span class="token-keyword">=</span> <span class="token-string">'62'</span> <span class="token-keyword">+</span> cleanNumber.slice(<span class="token-number">1</span>);
+  }
+
+  <span class="token-keyword">const</span> response <span class="token-keyword">=</span> <span class="token-keyword">await</span> fetch(<span class="token-string">'https://api.fonnte.com/send'</span>, {
+    method: <span class="token-string">'POST'</span>,
+    headers: {
+      <span class="token-string">'Authorization'</span>: token,
+      <span class="token-string">'Content-Type'</span>: <span class="token-string">'application/json'</span>,
+    },
+    body: JSON.stringify({
+      target: cleanNumber,
+      message: message,
+      countryCode: <span class="token-string">'62'</span>,
+    }),
+  });
+
+  <span class="token-keyword">if</span> (<span class="token-keyword">!</span>response.ok) {
+    <span class="token-keyword">const</span> errorBody <span class="token-keyword">=</span> <span class="token-keyword">await</span> response.text();
+    <span class="token-keyword">throw</span> <span class="token-keyword">new</span> Error(<span class="token-string">`Fonnte API Error: ${response.status} - ${errorBody}`</span>);
+  }
+}</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 8: MODE PROFILE & TROUBLESHOOTING      -->
+            <!-- ========================================== -->
+            <div id="ch8" class="chapter-break">
+                <h1>Bab 8: Mode Company Profile & Troubleshooting</h1>
+                <p>Bagian akhir untuk memandu sakelar fitur Company Profile dan pemecahan masalah integrasi.</p>
+
+                <h2>1. Mengubah Website Menjadi Company Profile Murni</h2>
+                <p>Apabila instansi meminta fitur perpustakaan dinonaktifkan sementara dan website hanya menampilkan company profile portal informasi:</p>
+                <ol>
+                    <li>Buka berkas konfigurasi lokal <code>src/config/siteConfig.ts</code>.</li>
+                    <li>Ubah properti <code>ENABLE_CATALOG</code> menjadi <code>false</code>:
+                        <pre>FEATURES: {
+  ENABLE_CATALOG: false, // Setel ke false
+  REQUIRE_NIK: false,
+  SHOW_DIGITAL_CARD: false,
+}</pre>
+                    </li>
+                    <li>Sistem secara otomatis akan menyembunyikan tombol catalog, menyembunyikan tombol login/register di header, serta memblokir paksa seluruh akses rute perpustakaan (seperti <code>/login</code>, <code>/register</code>, <code>/katalog</code>, dll.) dan mengarahkannya kembali ke halaman Beranda (Home).</li>
+                </ol>
+
+                <h2>2. Panduan Troubleshooting API</h2>
+                <ul>
+                    <li><strong>Eror "Redirect URI Mismatch" saat Login Google:</strong>
+                        Periksa kembali seting **Authorized Redirect URIs** di Google Cloud Console. Pastikan tidak ada kesalahan ketik dan URL Callback harus menggunakan domain Supabase Anda:
+                        <pre>https://anqopdxzdkpsmtxuultp.supabase.co/auth/v1/callback</pre>
+                    </li>
+                    <li><strong>Eror "401 Unauthorized" pada Cron Job / Webhook:</strong>
+                        Hal ini menandakan header token <code>x-cron-secret</code> tidak cocok. Periksa kembali dan pastikan string `CRON_SECRET` di **Supabase Secrets** sama persis dengan yang dimasukkan pada trigger cron atau GitHub Actions Secrets.</li>
+                    <li><strong>Tulisan "Hanya untuk pengujian" di Cloudflare Turnstile:</strong>
+                        Ini terjadi karena sistem masih mendeteksi site key pengujian. Daftarkan domain Anda di dashboard Turnstile Cloudflare, dapatkan site key produksi yang berawalan <code>0x4AAAAAA...</code>, lalu daftarkan di dashboard hosting Pages Anda sebagai variabel <code>VITE_TURNSTILE_SITE_KEY</code>.</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
