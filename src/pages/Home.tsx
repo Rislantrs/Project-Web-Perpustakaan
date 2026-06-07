@@ -444,19 +444,19 @@ export default function Home() {
 
             {/* Daftar jadwal dinamis */}
             <div className="lg:col-span-1 flex flex-col h-full">
-              <div className="space-y-4 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[420px]">
+              <div className="space-y-3 flex-grow overflow-y-auto pr-2 hide-scrollbar max-h-[440px]">
                 {schedules.length > 0 ? (
                   schedules.map((event, idx) => (
-                    <div key={event.id} className="bg-[#1f3e4e] text-white p-5 rounded-xl border border-[#0c2f3d] hover:border-[#d6a54a] transition-all cursor-pointer group shadow-lg">
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={event.id} className="bg-[#1f3e4e] text-white p-4 rounded-xl border border-[#0c2f3d] hover:border-[#d6a54a] transition-all cursor-pointer group shadow-lg">
+                      <div className="flex justify-between items-start mb-1.5">
                         <div className="flex items-center gap-2 text-[#d6a54a] font-medium text-xs">
                           <Calendar size={14} /> <span>{event.day}</span>
                         </div>
                         {idx === 0 && <span className="bg-[#0c2f3d] text-white text-[10px] px-2 py-0.5 rounded border border-white/10 uppercase tracking-widest">TERDEKAT</span>}
                       </div>
-                      <h4 className="font-bold text-lg mb-3 group-hover:text-[#d6a54a] transition-colors">{event.note || 'Layanan Disipusda'}</h4>
+                      <h4 className="font-bold text-lg mb-2 group-hover:text-[#d6a54a] transition-colors">{event.note || 'Layanan Disipusda'}</h4>
                       <div className="space-y-2 text-gray-400 text-xs">
-                        <div className="flex items-center gap-2 bg-white/5 w-fit px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
+                        <div className="flex items-center gap-2 bg-white/5 w-fit px-2 py-1 rounded-lg border border-white/5 shadow-inner">
                           <Clock size={12} className="text-[#d6a54a]" /> <span className="text-gray-200 font-medium">{event.hours}</span>
                         </div>
                       </div>
