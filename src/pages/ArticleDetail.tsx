@@ -277,7 +277,7 @@ export default function ArticleDetail() {
               {article.category}
             </span>
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-ink leading-tight mb-6">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-ink leading-tight mb-6">
             {article.title}
           </h1>
           
@@ -387,7 +387,7 @@ export default function ArticleDetail() {
           </div>
         ) : (
           <div 
-            className="prose prose-lg md:prose-xl max-w-none prose-p:font-serif prose-p:leading-relaxed prose-p:text-gray-800 prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-a:text-brand-accent"
+            className="prose prose-base md:prose-lg max-w-none prose-p:font-serif prose-p:leading-relaxed prose-p:text-gray-800 prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-a:text-brand-accent"
             dangerouslySetInnerHTML={{ __html: (DOMPurify.sanitize ?? (DOMPurify as any).default?.sanitize ?? ((s: string) => s))(article.content || '', {
               ALLOWED_TAGS: ['p','br','strong','em','u','s','h1','h2','h3','h4','h5','h6','ul','ol','li','blockquote','a','img','figure','figcaption','table','thead','tbody','tr','th','td','hr','pre','code','span','div'],
               ALLOWED_ATTR: ['href','src','alt','title','class','target','rel','width','height','style'],
