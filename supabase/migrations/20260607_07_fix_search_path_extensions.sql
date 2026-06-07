@@ -85,9 +85,10 @@ BEGIN
     false
   );
 
-  -- Sisipkan data ke auth.identities
+  -- Sisipkan data ke auth.identities (Mencegah error 500 di GoTrue/Supabase Auth)
   INSERT INTO auth.identities (
     id,
+    provider_id,
     user_id,
     identity_data,
     provider,
@@ -95,8 +96,9 @@ BEGIN
     created_at,
     updated_at
   ) VALUES (
-    new_user_id,
-    new_user_id,
+    new_user_id,         -- id (uuid)
+    new_user_id::text,   -- provider_id (text)
+    new_user_id,         -- user_id (uuid)
     jsonb_build_object('sub', new_user_id::text, 'email', lower(admin_email), 'email_verified', true, 'email_verified_at', now()),
     'email',
     now(),
