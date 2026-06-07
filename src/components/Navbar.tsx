@@ -11,6 +11,10 @@ const navLinks = SITE_CONFIG.FEATURES.ENABLE_CATALOG
   ? SITE_CONFIG.NAV_LINKS
   : SITE_CONFIG.NAV_LINKS.filter(link => link.path !== '/katalog' && link.name !== 'Katalog Buku');
 
+const homeUrl = (import.meta.env.VITE_MAIN_WEBSITE_URL as string) || '/';
+const isExternal = (path: string) => path.startsWith('http://') || path.startsWith('https://');
+const resolvePath = (path: string) => (path === '/' ? homeUrl : path);
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -52,7 +56,11 @@ export default function Navbar() {
     logout();
     setUser(null);
     setShowUserDropdown(false);
-    navigate('/');
+    if (isExternal(homeUrl)) {
+      window.location.href = homeUrl;
+    } else {
+      navigate(homeUrl);
+    }
   };
 
   return (
@@ -61,9 +69,15 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" width="167" height="56" />
-          </Link>
+          {isExternal(homeUrl) ? (
+            <a href={homeUrl} className="flex items-center">
+              <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" width="167" height="56" />
+            </a>
+          ) : (
+            <Link to={homeUrl} className="flex items-center">
+              <img src={logo} alt="Logo Disipusda" className="h-14 w-auto object-contain" width="167" height="56" />
+            </Link>
+          )}
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
@@ -88,13 +102,23 @@ export default function Navbar() {
                     </div>
                   </div>
                 ) : (
-                  <Link
-                    to={link.path}
-                    className={`py-4 text-sm font-medium hover:text-brand-accent transition-colors ${location.pathname === link.path ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-700'
-                      }`}
-                  >
-                    {link.name}
-                  </Link>
+                  isExternal(resolvePath(link.path)) ? (
+                    <a
+                      href={resolvePath(link.path)}
+                      className={`py-4 text-sm font-medium hover:text-brand-accent transition-colors ${location.pathname === link.path ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-700'
+                        }`}
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      to={resolvePath(link.path)}
+                      className={`py-4 text-sm font-medium hover:text-brand-accent transition-colors ${location.pathname === link.path ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-700'
+                        }`}
+                    >
+                      {link.name}
+                    </Link>
+                  )
                 )}
               </div>
             ))}
@@ -254,9 +278,15 @@ export default function Navbar() {
 
             {navLinks.map((item) => (
               <div key={item.name} className="border-b border-gray-50 last:border-0 pb-1">
-                <Link to={item.path} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-brand-primary hover:text-brand-accent transition-colors rounded-lg">
-                  {item.name}
-                </Link>
+                {isExternal(resolvePath(item.path)) ? (
+                  <a href={resolvePath(item.path)} className="block px-3 py-3 text-base font-semibold text-brand-primary hover:text-brand-accent transition-colors rounded-lg">
+                    {item.name}
+                  </a>
+                ) : (
+                  <Link to={resolvePath(item.path)} onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-3 text-base font-semibold text-brand-primary hover:text-brand-accent transition-colors rounded-lg">
+                    {item.name}
+                  </Link>
+                )}
                 {item.subLinks && (
                   <div className="pl-4 border-l-2 border-gray-100 ml-4 mb-2 space-y-1">
                     {item.subLinks.map(sub => (
