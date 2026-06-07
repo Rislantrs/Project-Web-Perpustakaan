@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { consumeAuthCallbackUrl, verifyAuthCallbackTokenHash } from '../services/supabaseAuthService';
+import { consumeAuthCallbackUrl, verifyAuthCallbackTokenHash, syncUserSession } from '../services/supabaseAuthService';
 import { isLoggedIn } from '../services/authService';
+import { supabase } from '../services/supabase';
 
 const getCallbackParams = () => {
   // Parser callback URL untuk 2 mode Supabase:
@@ -21,9 +22,6 @@ const getCallbackParams = () => {
   };
 };
 
-// Module-level lock to prevent double execution in Strict Mode
-let consumeInFlight = false;
-
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [state, setState] = useState<{ status: 'loading' | 'success' | 'error'; message: string }>({
@@ -32,71 +30,102 @@ export default function AuthCallback() {
   });
 
   useEffect(() => {
-    // 1. Jika admin sudah memiliki sesi aktif, langsung arahkan ke dashboard admin
-    if (sessionStorage.getItem('disipusda_current_admin')) {
-      setState({ status: 'success', message: 'Masuk sebagai Admin berhasil. Mengarahkan Anda...' });
-      setTimeout(() => navigate('/admin'), 1000);
-      return;
-    }
-
-    // 2. Jika member sudah login, arahkan ke katalog
-    if (isLoggedIn()) {
-      setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
-      setTimeout(() => navigate('/katalog'), 1000);
-      return;
-    }
-
-    if (consumeInFlight) return;
-    consumeInFlight = true;
+    let active = true;
 
     const process = async () => {
+      // 1. Cek sesi aktif Supabase terlebih dahulu (mencegah double-exchange di Strict Mode)
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const syncResult = await syncUserSession(session.user);
+          if (active) {
+            setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
+            setTimeout(() => {
+              if (active) navigate(syncResult.type === 'admin' ? '/admin' : '/katalog');
+            }, 1000);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn('Gagal memverifikasi sesi aktif:', err);
+      }
+
+      // 2. Jika tidak ada sesi aktif, baru lakukan penukaran token/code
       const { tokenHash, type } = getCallbackParams();
 
-      // Explicit OTP callback flow for email verification links (signup/magiclink).
-      const result = tokenHash && type
-        ? await verifyAuthCallbackTokenHash(tokenHash, type)
-        : await consumeAuthCallbackUrl();
+      try {
+        const result = tokenHash && type
+          ? await verifyAuthCallbackTokenHash(tokenHash, type)
+          : await consumeAuthCallbackUrl();
 
-      consumeInFlight = false; // Reset lock setelah proses selesai
+        if (!active) return;
 
-      if (!result.success) {
-        // Jika callback gagal, aktifkan fallback verifikasi manual (OTP input).
-        sessionStorage.setItem('allow_auth_verify', '1');
-        sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
-        setState({ status: 'error', message: result.message });
-        return;
+        if (!result.success) {
+          // Jika penukaran gagal, cek kembali sesi aktif (untuk kasus berhasil di thread sebelah)
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const syncResult = await syncUserSession(session.user);
+            setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
+            setTimeout(() => {
+              if (active) navigate(syncResult.type === 'admin' ? '/admin' : '/katalog');
+            }, 1000);
+            return;
+          }
+
+          sessionStorage.setItem('allow_auth_verify', '1');
+          sessionStorage.setItem('allow_auth_verify_at', String(Date.now()));
+          setState({ status: 'error', message: result.message });
+          return;
+        }
+
+        // 3. Arahkan berdasarkan tipe sesi hasil penukaran token/code
+        if (sessionStorage.getItem('disipusda_current_admin') || result.type === 'admin') {
+          setState({ status: 'success', message: 'Masuk sebagai Admin berhasil. Mengarahkan Anda...' });
+          setTimeout(() => { if (active) navigate('/admin'); }, 1000);
+          return;
+        }
+
+        if (isLoggedIn() || result.type === 'member') {
+          setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
+          setTimeout(() => { if (active) navigate('/katalog'); }, 1000);
+          return;
+        }
+
+        if (result.type === 'recovery') {
+          setState({ status: 'success', message: 'Verifikasi reset berhasil. Silakan buat password baru.' });
+          setTimeout(() => { if (active) navigate('/auth/update-password'); }, 1000);
+          return;
+        }
+
+        if (result.type === 'magiclink') {
+          setState({ status: 'success', message: 'Autentikasi berhasil. Anda akan diarahkan ke dashboard.' });
+          setTimeout(() => { if (active) navigate('/katalog'); }, 1000);
+          return;
+        }
+
+        setState({ status: 'success', message: 'Email berhasil diverifikasi. Anda bisa login sekarang.' });
+        setTimeout(() => { if (active) navigate('/login?verified=1'); }, 1200);
+      } catch (err: any) {
+        if (active) {
+          setState({ status: 'error', message: err?.message || 'Terjadi kesalahan saat memproses login.' });
+        }
       }
-
-      // 3. Arahkan berdasarkan tipe sesi hasil penukaran token/code
-      if (sessionStorage.getItem('disipusda_current_admin') || result.type === 'admin') {
-        setState({ status: 'success', message: 'Masuk sebagai Admin berhasil. Mengarahkan Anda...' });
-        setTimeout(() => navigate('/admin'), 1000);
-        return;
-      }
-
-      if (isLoggedIn() || result.type === 'member') {
-        setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
-        setTimeout(() => navigate('/katalog'), 1000);
-        return;
-      }
-
-      if (result.type === 'recovery') {
-        setState({ status: 'success', message: 'Verifikasi reset berhasil. Silakan buat password baru.' });
-        setTimeout(() => navigate('/auth/update-password'), 1000);
-        return;
-      }
-
-      if (result.type === 'magiclink') {
-        setState({ status: 'success', message: 'Autentikasi berhasil. Anda akan diarahkan ke dashboard.' });
-        setTimeout(() => navigate('/katalog'), 1000);
-        return;
-      }
-
-      setState({ status: 'success', message: 'Email berhasil diverifikasi. Anda bisa login sekarang.' });
-      setTimeout(() => navigate('/login?verified=1'), 1200);
     };
 
-    process();
+    // Arahkan jika sesi admin/member terdeteksi di cache lokal
+    if (sessionStorage.getItem('disipusda_current_admin')) {
+      setState({ status: 'success', message: 'Masuk sebagai Admin berhasil. Mengarahkan Anda...' });
+      setTimeout(() => { if (active) navigate('/admin'); }, 1000);
+    } else if (isLoggedIn()) {
+      setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
+      setTimeout(() => { if (active) navigate('/katalog'); }, 1000);
+    } else {
+      process();
+    }
+
+    return () => {
+      active = false;
+    };
   }, [navigate]);
 
   return (
