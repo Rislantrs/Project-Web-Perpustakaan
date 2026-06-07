@@ -21,8 +21,8 @@ BEGIN
     -- Delete from public.admins
     DELETE FROM public.admins WHERE id = target_user_id;
     
-    -- Delete from public.members
-    DELETE FROM public.members WHERE id = target_user_id;
+    -- Delete from public.members (cast target_user_id to text)
+    DELETE FROM public.members WHERE id = target_user_id::text;
     
     -- Delete from auth.users (authentication table)
     DELETE FROM auth.users WHERE id = target_user_id;
