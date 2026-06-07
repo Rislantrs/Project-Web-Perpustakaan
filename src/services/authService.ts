@@ -273,10 +273,35 @@ export const addAdmin = async (data: { namaLengkap: string; email: string; passw
   if (admins.find(a => a.email === data.email))
     return { success: false, message: 'Email admin sudah terdaftar.' };
 
+  const avatarColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+
+  // Coba jalankan RPC untuk membuat user dan admin secara terkonfirmasi
+  try {
+    const { data: rpcData, error: rpcError } = await supabase.rpc('create_new_admin_user', {
+      admin_email: data.email.toLowerCase().trim(),
+      admin_password: data.password,
+      admin_name: data.namaLengkap,
+      admin_role: data.role,
+      avatar_col: avatarColor,
+    });
+
+    if (!rpcError && rpcData) {
+      const refreshed = await getAdmins();
+      cacheAdmins(refreshed);
+      return { success: true, message: `Admin "${data.namaLengkap}" berhasil ditambahkan (Auto-Confirm).` };
+    }
+
+    if (rpcError && rpcError.code !== 'P0001' && rpcError.message && !rpcError.message.includes('function') && !rpcError.message.includes('does not exist')) {
+      return { success: false, message: `Gagal menambah admin: ${rpcError.message}` };
+    }
+  } catch (e) {
+    console.warn('RPC gagal, menggunakan fallback registrasi biasa:', e);
+  }
+
+  // Fallback ke registrasi biasa jika RPC belum terpasang di database
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  // Buat client terpisah tanpa persistent session agar admin yang sedang login tidak keluar
   const tempClient = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
@@ -300,13 +325,13 @@ export const addAdmin = async (data: { namaLengkap: string; email: string; passw
   }
 
   const payload = {
-    id: userId, // Gunakan UUID dari hasil signUp di auth.users!
+    id: userId,
     nama_lengkap: data.namaLengkap,
     email: data.email.toLowerCase().trim(),
     password_hash: bcrypt.hashSync(data.password, 10),
     role: data.role,
     tanggal_dibuat: formatDateNow(),
-    avatar_color: avatarColors[Math.floor(Math.random() * avatarColors.length)],
+    avatar_color: avatarColor,
   };
 
   const { error } = await supabase.from(ADMINS_TABLE).insert(payload);
@@ -320,10 +345,30 @@ export const addAdmin = async (data: { namaLengkap: string; email: string; passw
 };
 
 export const deleteAdmin = async (id: string): Promise<{ success: boolean; message: string }> => {
+  const currentAdmin = getCurrentAdmin();
+  if (!currentAdmin) {
+    return { success: false, message: 'Akses ditolak: Sesi tidak valid.' };
+  }
+
   const admins = await getAdmins();
   const target = admins.find(a => a.id === id);
-  if (target?.role === 'super_admin')
-    return { success: false, message: 'Super Admin tidak dapat dihapus.' };
+  
+  if (!target) {
+    return { success: false, message: 'Admin tidak ditemukan.' };
+  }
+
+  // Mencegah menghapus diri sendiri
+  if (id === currentAdmin.id) {
+    return { success: false, message: 'Anda tidak dapat menghapus akun Anda sendiri.' };
+  }
+
+  // Jika yang ingin dihapus adalah Super Admin
+  if (target.role === 'super_admin') {
+    const superAdminsCount = admins.filter(a => a.role === 'super_admin').length;
+    if (superAdminsCount <= 1) {
+      return { success: false, message: 'Super Admin terakhir tidak dapat dihapus.' };
+    }
+  }
 
   const { error } = await supabase.from(ADMINS_TABLE).delete().eq('id', id);
   if (error) {
