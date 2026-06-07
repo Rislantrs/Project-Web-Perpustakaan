@@ -230,11 +230,16 @@ const migrateArticleImageIfNeeded = async (article: Article): Promise<Article> =
 };
 
 const migrateArticleImageBatch = async (rows: Article[]): Promise<Article[]> => {
-  const migrated: Article[] = [];
-  for (const row of rows) {
-    migrated.push(await migrateArticleImageIfNeeded(row));
-  }
-  return migrated;
+  return Promise.all(
+    rows.map(async (row) => {
+      try {
+        return await migrateArticleImageIfNeeded(row);
+      } catch (err) {
+        console.error(`Gagal melakukan migrasi gambar batch untuk artikel ${row.id}:`, err);
+        return row;
+      }
+    })
+  );
 };
 
 // Helper filter query untuk daftar artikel (dipakai banyak halaman).
@@ -406,26 +411,32 @@ export const migrateLegacyArticleImages = async () => {
 
     if (error || !data || data.length === 0) return;
 
-    for (const row of data) {
-      const local = memoryCache.find(a => a.id === row.id);
-      const article = {
-        id: row.id,
-        slug: local?.slug || '',
-        title: local?.title || '',
-        excerpt: local?.excerpt || '',
-        category: local?.category || '',
-        author: local?.author || '',
-        date: local?.date || '',
-        year: local?.year || '',
-        readTime: local?.readTime || '',
-        img: row.img || '',
-        imgPosition: local?.imgPosition,
-        content: local?.content || '',
-        createdAt: local?.createdAt || Date.now(),
-        views: local?.views,
-      } as Article;
-      await migrateArticleImageIfNeeded(article);
-    }
+    await Promise.all(
+      data.map(async (row) => {
+        try {
+          const local = memoryCache.find(a => a.id === row.id);
+          const article = {
+            id: row.id,
+            slug: local?.slug || '',
+            title: local?.title || '',
+            excerpt: local?.excerpt || '',
+            category: local?.category || '',
+            author: local?.author || '',
+            date: local?.date || '',
+            year: local?.year || '',
+            readTime: local?.readTime || '',
+            img: row.img || '',
+            imgPosition: local?.imgPosition,
+            content: local?.content || '',
+            createdAt: local?.createdAt || Date.now(),
+            views: local?.views,
+          } as Article;
+          await migrateArticleImageIfNeeded(article);
+        } catch (err) {
+          console.error(`Gagal melakukan migrasi gambar artikel legacy untuk ${row.id}:`, err);
+        }
+      })
+    );
   } catch (err) {
     console.error('Migrasi gambar artikel legacy gagal:', err);
   }

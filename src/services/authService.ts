@@ -108,6 +108,7 @@ export const getMembers = (): Member[] => {
 
 export const logout = (): void => {
   clearCurrentMember();
+  void supabase.auth.signOut();
 };
 
 export const getCurrentUser = (): Member | null => {
@@ -388,13 +389,43 @@ export const updateAdmin = async (id: string, updates: Partial<Admin>): Promise<
   const payload: Record<string, any> = {};
   if (updates.namaLengkap !== undefined) payload.nama_lengkap = updates.namaLengkap;
   if (updates.email !== undefined) payload.email = updates.email.toLowerCase().trim();
-  if (updates.password !== undefined) payload.password_hash = bcrypt.hashSync(updates.password, 10);
   if (updates.role !== undefined) payload.role = updates.role;
   if (updates.avatarColor !== undefined) payload.avatar_color = updates.avatarColor;
 
-  const { error } = await supabase.from(ADMINS_TABLE).update(payload).eq('id', id);
-  if (error) {
-    return { success: false, message: `Gagal memperbarui admin: ${error.message}` };
+  if (updates.password !== undefined) {
+    // 1. Jika memperbarui password diri sendiri, sinkronkan juga via auth client
+    const currentAdmin = getCurrentAdmin();
+    if (currentAdmin && currentAdmin.id === id) {
+      const { error: authError } = await supabase.auth.updateUser({ password: updates.password });
+      if (authError) {
+        console.warn('Gagal memperbarui password via auth client (mencoba via RPC):', authError.message);
+      }
+    }
+
+    // 2. Gunakan RPC update_admin_password untuk memperbarui password di auth.users dan public.admins secara atomik
+    try {
+      const { data: rpcSuccess, error: rpcError } = await supabase.rpc('update_admin_password', {
+        target_user_id: id,
+        new_password: updates.password
+      });
+
+      if (rpcError) {
+        console.warn('RPC update_admin_password gagal atau belum dipasang di Supabase:', rpcError.message);
+        // Fallback: simpan bcrypt hash secara lokal ke tabel admins saja
+        payload.password_hash = bcrypt.hashSync(updates.password, 10);
+      }
+    } catch (err) {
+      console.warn('Gagal memanggil RPC update_admin_password:', err);
+      payload.password_hash = bcrypt.hashSync(updates.password, 10);
+    }
+  }
+
+  // Jika payload memiliki field untuk diperbarui, jalankan query update
+  if (Object.keys(payload).length > 0) {
+    const { error } = await supabase.from(ADMINS_TABLE).update(payload).eq('id', id);
+    if (error) {
+      return { success: false, message: `Gagal memperbarui admin: ${error.message}` };
+    }
   }
 
   cacheAdmins(await getAdmins());

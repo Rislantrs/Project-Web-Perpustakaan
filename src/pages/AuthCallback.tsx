@@ -21,28 +21,43 @@ const getCallbackParams = () => {
   };
 };
 
+// Module-level lock to prevent double execution in Strict Mode
+let consumeInFlight = false;
+
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [state, setState] = useState<{ status: 'loading' | 'success' | 'error'; message: string }>({
     status: 'loading',
-    message: 'Memproses autentikasi dari email...',
+    message: 'Memproses autentikasi...',
   });
 
   useEffect(() => {
-    const process = async () => {
-      // 1. Jika sudah login (misal dari session yang sudah aktif atau auto-recovery), langsung arahkan ke /katalog
-      if (isLoggedIn()) {
-        setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
-        setTimeout(() => navigate('/katalog'), 1000);
-        return;
-      }
+    // 1. Jika admin sudah memiliki sesi aktif, langsung arahkan ke dashboard admin
+    if (sessionStorage.getItem('disipusda_current_admin')) {
+      setState({ status: 'success', message: 'Masuk sebagai Admin berhasil. Mengarahkan Anda...' });
+      setTimeout(() => navigate('/admin'), 1000);
+      return;
+    }
 
+    // 2. Jika member sudah login, arahkan ke katalog
+    if (isLoggedIn()) {
+      setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
+      setTimeout(() => navigate('/katalog'), 1000);
+      return;
+    }
+
+    if (consumeInFlight) return;
+    consumeInFlight = true;
+
+    const process = async () => {
       const { tokenHash, type } = getCallbackParams();
 
       // Explicit OTP callback flow for email verification links (signup/magiclink).
       const result = tokenHash && type
         ? await verifyAuthCallbackTokenHash(tokenHash, type)
         : await consumeAuthCallbackUrl();
+
+      consumeInFlight = false; // Reset lock setelah proses selesai
 
       if (!result.success) {
         // Jika callback gagal, aktifkan fallback verifikasi manual (OTP input).
@@ -52,8 +67,14 @@ export default function AuthCallback() {
         return;
       }
 
-      // 2. Periksa lagi setelah bertukar code/token. Jika sekarang sudah login (seperti dari Google OAuth), langsung ke katalog.
-      if (isLoggedIn()) {
+      // 3. Arahkan berdasarkan tipe sesi hasil penukaran token/code
+      if (sessionStorage.getItem('disipusda_current_admin') || result.type === 'admin') {
+        setState({ status: 'success', message: 'Masuk sebagai Admin berhasil. Mengarahkan Anda...' });
+        setTimeout(() => navigate('/admin'), 1000);
+        return;
+      }
+
+      if (isLoggedIn() || result.type === 'member') {
         setState({ status: 'success', message: 'Masuk berhasil. Mengarahkan Anda...' });
         setTimeout(() => navigate('/katalog'), 1000);
         return;

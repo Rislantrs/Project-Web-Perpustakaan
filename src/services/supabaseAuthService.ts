@@ -453,6 +453,10 @@ export const resendSignupVerification = async (email: string): Promise<{ success
  * MANUAL OTP VERIFICATION: 
  * Digunakan jika user memasukkan kode angka 8-digit dari email secara manual.
  */
+/** 
+ * MANUAL OTP VERIFICATION: 
+ * Digunakan jika user memasukkan kode angka 8-digit dari email secara manual.
+ */
 export const verifySignupOtp = async (email: string, token: string): Promise<{ success: boolean; message: string }> => {
   const { data, error } = await supabase.auth.verifyOtp({
     email,
@@ -461,7 +465,7 @@ export const verifySignupOtp = async (email: string, token: string): Promise<{ s
   });
 
   if (error) return { success: false, message: error.message };
-  if (data.user) syncMemberFromAuthUser(data.user);
+  if (data.user) await syncUserSession(data.user);
   return { success: true, message: 'Verifikasi berhasil. Akun Anda sudah aktif.' };
 };
 
@@ -471,6 +475,76 @@ export const updatePasswordAfterRecovery = async (password: string): Promise<{ s
   return { success: true, message: 'Password berhasil diperbarui. Silakan login kembali.' };
 };
 
+/**
+ * Sinkronisasi Sesi Pengguna:
+ * Menentukan apakah pengguna yang masuk (via Google/OAuth/OTP) adalah Admin atau Member.
+ * Ini mencegah tercampurnya hak akses dan membersihkan session storage agar tidak bentrok.
+ */
+export const syncUserSession = async (user: User): Promise<{ type: 'admin' | 'member' }> => {
+  const emailNormalized = (user.email || '').toLowerCase().trim();
+
+  // 1. Cek apakah email user terdaftar di tabel members (sebagai Anggota)
+  // Menggunakan query tanpa maybeSingle agar kompatibel dengan unit test mock
+  const responseMembers = await supabase
+    .from('members')
+    .select('id')
+    .eq('email', emailNormalized);
+  const memberData = responseMembers?.data;
+  const memberRow = Array.isArray(memberData) ? memberData[0] : null;
+
+  // 2. Cek apakah email user terdaftar di tabel admins (sebagai Admin)
+  const responseAdmins = await supabase
+    .from('admins')
+    .select('*')
+    .eq('email', emailNormalized);
+  const adminData = responseAdmins?.data;
+  const adminRow = Array.isArray(adminData) ? adminData[0] : null;
+
+  // Aturan Otorisasi:
+  // - Jika dia terdaftar sebagai Member (baik dia Admin juga atau bukan), log in sebagai Member.
+  // - Jika dia TIDAK terdaftar sebagai Member, tetapi terdaftar sebagai Admin, log in sebagai Admin.
+  // - Jika tidak terdaftar di keduanya (User baru), daftarkan dan log in sebagai Member.
+  if (memberRow) {
+    // Log in sebagai member biasa
+    syncMemberFromAuthUser(user);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('disipusda_current_admin');
+    }
+    return { type: 'member' };
+  } else if (adminRow) {
+    // Log in sebagai admin
+    const admin = {
+      id: adminRow.id,
+      namaLengkap: adminRow.nama_lengkap,
+      email: adminRow.email,
+      password: adminRow.password_hash,
+      role: adminRow.role,
+      tanggalDibuat: adminRow.tanggal_dibuat || formatDateNow(),
+      avatarColor: adminRow.avatar_color || avatarColors[0],
+    };
+    const sessionData = {
+      admin,
+      expiresAt: Date.now() + 12 * 60 * 60 * 1000 // 12 jam
+    };
+    
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('disipusda_current_admin', JSON.stringify(sessionData));
+    }
+    
+    // Bersihkan sesi member jika ada agar tidak bentrok
+    localStorage.removeItem('disipusda_current_member');
+    
+    return { type: 'admin' };
+  } else {
+    // User baru: daftarkan dan log in sebagai member
+    syncMemberFromAuthUser(user);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('disipusda_current_admin');
+    }
+    return { type: 'member' };
+  }
+};
+
 export const consumeAuthCallbackUrl = async (): Promise<AuthCallbackResult> => {
   try {
     const { code, type, tokenHash, accessToken, refreshToken } = parseAuthUrl(window.location.href);
@@ -478,8 +552,15 @@ export const consumeAuthCallbackUrl = async (): Promise<AuthCallbackResult> => {
     if (code) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) return { success: false, message: error.message };
-      if (data.user) syncMemberFromAuthUser(data.user);
-      return { success: true, message: 'Autentikasi berhasil.', type };
+      
+      let sessionType = type || 'signup';
+      if (data.user) {
+        const sessionResult = await syncUserSession(data.user);
+        if (sessionResult.type === 'admin') {
+          sessionType = 'admin';
+        }
+      }
+      return { success: true, message: 'Autentikasi berhasil.', type: sessionType };
     }
 
     if (tokenHash && type) {
@@ -488,8 +569,15 @@ export const consumeAuthCallbackUrl = async (): Promise<AuthCallbackResult> => {
         type: type as EmailOtpType,
       });
       if (error) return { success: false, message: error.message };
-      if (data.user) syncMemberFromAuthUser(data.user);
-      return { success: true, message: 'Verifikasi link berhasil.', type };
+      
+      let sessionType = type;
+      if (data.user) {
+        const sessionResult = await syncUserSession(data.user);
+        if (sessionResult.type === 'admin') {
+          sessionType = 'admin';
+        }
+      }
+      return { success: true, message: 'Verifikasi link berhasil.', type: sessionType };
     }
 
     if (accessToken && refreshToken) {
@@ -498,8 +586,15 @@ export const consumeAuthCallbackUrl = async (): Promise<AuthCallbackResult> => {
         refresh_token: refreshToken,
       });
       if (error) return { success: false, message: error.message };
-      if (data.user) syncMemberFromAuthUser(data.user);
-      return { success: true, message: 'Sesi autentikasi berhasil dipulihkan.', type };
+      
+      let sessionType = type || 'recovery';
+      if (data.user) {
+        const sessionResult = await syncUserSession(data.user);
+        if (sessionResult.type === 'admin') {
+          sessionType = 'admin';
+        }
+      }
+      return { success: true, message: 'Sesi autentikasi berhasil dipulihkan.', type: sessionType };
     }
 
     return { success: false, message: 'Link autentikasi tidak valid atau sudah kedaluwarsa.' };
@@ -522,11 +617,15 @@ export const verifyAuthCallbackTokenHash = async (
     return { success: false, message: error.message, type };
   }
 
+  let sessionType = type as string;
   if (data.user) {
-    syncMemberFromAuthUser(data.user);
+    const sessionResult = await syncUserSession(data.user);
+    if (sessionResult.type === 'admin') {
+      sessionType = 'admin';
+    }
   }
 
-  return { success: true, message: 'Link verifikasi berhasil diproses.', type };
+  return { success: true, message: 'Link verifikasi berhasil diproses.', type: sessionType };
 };
 
 export const consumeAuthCallbackFromLink = async (link: string): Promise<AuthCallbackResult> => {
@@ -536,8 +635,15 @@ export const consumeAuthCallbackFromLink = async (link: string): Promise<AuthCal
     if (code) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) return { success: false, message: error.message };
-      if (data.user) syncMemberFromAuthUser(data.user);
-      return { success: true, message: 'Link berhasil diverifikasi.', type };
+      
+      let sessionType = type || 'signup';
+      if (data.user) {
+        const sessionResult = await syncUserSession(data.user);
+        if (sessionResult.type === 'admin') {
+          sessionType = 'admin';
+        }
+      }
+      return { success: true, message: 'Link berhasil diverifikasi.', type: sessionType };
     }
 
     if (tokenHash && type) {
@@ -546,8 +652,15 @@ export const consumeAuthCallbackFromLink = async (link: string): Promise<AuthCal
         type: type as EmailOtpType,
       });
       if (error) return { success: false, message: error.message };
-      if (data.user) syncMemberFromAuthUser(data.user);
-      return { success: true, message: 'Link berhasil diverifikasi.', type };
+      
+      let sessionType = type;
+      if (data.user) {
+        const sessionResult = await syncUserSession(data.user);
+        if (sessionResult.type === 'admin') {
+          sessionType = 'admin';
+        }
+      }
+      return { success: true, message: 'Link berhasil diverifikasi.', type: sessionType };
     }
 
     if (accessToken && refreshToken) {
@@ -556,8 +669,15 @@ export const consumeAuthCallbackFromLink = async (link: string): Promise<AuthCal
         refresh_token: refreshToken,
       });
       if (error) return { success: false, message: error.message };
-      if (data.user) syncMemberFromAuthUser(data.user);
-      return { success: true, message: 'Sesi autentikasi berhasil dipulihkan.', type };
+      
+      let sessionType = type || 'recovery';
+      if (data.user) {
+        const sessionResult = await syncUserSession(data.user);
+        if (sessionResult.type === 'admin') {
+          sessionType = 'admin';
+        }
+      }
+      return { success: true, message: 'Sesi autentikasi berhasil dipulihkan.', type: sessionType };
     }
 
     return { success: false, message: 'Link verifikasi tidak valid.' };

@@ -156,10 +156,16 @@ export const migrateLegacyBookCovers = async () => {
 
     if (error || !data || data.length === 0) return;
 
-    for (const row of data) {
-      const localBook = getBookById(row.id) || normalizeBookRow(row as Partial<Book>);
-      await migrateBookCoverIfNeeded({ ...localBook, cover: row.cover || '' });
-    }
+    await Promise.all(
+      data.map(async (row) => {
+        try {
+          const localBook = getBookById(row.id) || normalizeBookRow(row as Partial<Book>);
+          await migrateBookCoverIfNeeded({ ...localBook, cover: row.cover || '' });
+        } catch (err) {
+          console.error(`Gagal melakukan migrasi cover buku legacy untuk ${row.id}:`, err);
+        }
+      })
+    );
   } catch (err) {
     console.error('Migrasi cover buku gagal:', err);
   }
@@ -879,10 +885,16 @@ export const refreshBooks = async (force: boolean = false) => {
       const { data: books } = await supabase.from('books').select(BOOK_LIST_COLUMNS);
       if (books && books.length > 0) {
         const normalized = (books as Partial<Book>[]).map(normalizeBookRow);
-        const migrated: Book[] = [];
-        for (const book of normalized) {
-          migrated.push(await migrateBookCoverIfNeeded(book));
-        }
+        const migrated = await Promise.all(
+          normalized.map(async (book) => {
+            try {
+              return await migrateBookCoverIfNeeded(book);
+            } catch (err) {
+              console.error(`Gagal melakukan migrasi cover untuk buku ${book.id}:`, err);
+              return book;
+            }
+          })
+        );
         dbSave(BOOKS_KEY, migrated);
       } else {
         // Seed default books if empty
