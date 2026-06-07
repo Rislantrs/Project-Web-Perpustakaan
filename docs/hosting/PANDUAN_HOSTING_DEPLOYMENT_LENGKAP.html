@@ -539,6 +539,64 @@ sudo certbot --nginx -d api.disipusda.purwakartakab.go.id</pre>
 
                 <h2>3. Mendaftarkan Variabel Environment untuk Keamanan API Key</h2>
                 <p>Daftarkan Anon Key dan URL Supabase Anda di Vercel Dashboard demi keamanan. Jangan pernah mengunggah file <code>.env</code> lokal Anda ke repositori GitHub karena file tersebut diabaikan secara default oleh <code>.gitignore</code> demi mencegah pencurian API Key.</p>
+
+                <h2>4. Konfigurasi DNS Resend.com untuk Domain dari Registrar Luar</h2>
+                <p>Saat menggunakan email transaksional (notifikasi dan OTP) melalui Resend.com dengan domain luar (seperti Name.com, Hostinger, Niagahoster, dll.), Anda wajib menambahkan DNS Records berikut agar email terkirim langsung ke kotak masuk (Inbox) dan tidak terdeteksi sebagai spam.</p>
+
+                <div class="alert alert-note">
+                    <div class="alert-title">PENTING: Gunakan Subdomain "send" untuk Email Transaksional</div>
+                    Resend merekomendasikan penggunaan subdomain seperti <code>send.domainanda.com</code> untuk record SPF dan MX. Ini bertujuan menghindari konflik dengan email utama instansi Anda (seperti Google Workspace atau Microsoft 365) serta mengisolasi reputasi pengiriman email website Anda.
+                </div>
+
+                <h3>Daftar DNS Records yang Wajib Dimasukkan</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipe Record</th>
+                            <th>Nama / Host</th>
+                            <th>Nilai / Value / Content</th>
+                            <th>Prioritas</th>
+                            <th>Fungsi Utama</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>resend._domainkey</code></td>
+                            <td><code>p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ...</code> (Sesuai kunci dari Resend)</td>
+                            <td>-</td>
+                            <td><strong>DKIM</strong>: Membubuhi tanda tangan digital agar email tidak dipalsukan.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>send</code></td>
+                            <td><code>v=spf1 include:amazonses.com ~all</code></td>
+                            <td>-</td>
+                            <td><strong>SPF</strong>: Menyatakan server pengirim yang sah atas nama domain Anda.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MX</strong></td>
+                            <td><code>send</code></td>
+                            <td><code>feedback-smtp.us-east-1.amazonses.com</code> (Sesuai region Resend Anda)</td>
+                            <td><strong>10</strong></td>
+                            <td><strong>MX</strong>: Mengelola email memantul (bounce back) secara otomatis.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>_dmarc</code></td>
+                            <td><code>v=DMARC1; p=none;</code></td>
+                            <td>-</td>
+                            <td><strong>DMARC</strong>: Kebijakan keamanan untuk mencegah penipuan email (Sangat Direkomendasikan).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Panduan Pengisian di Dashboard Domain Luar (Name.com, Hostinger, dll.)</h3>
+                <ul>
+                    <li><strong>Name.com:</strong> Buka menu <em>DNS Management</em>. Saat mengisi kolom <strong>Host</strong>, cukup masukkan subdomain saja (misalnya <code>send</code> atau <code>resend._domainkey</code>). Sistem Name.com akan melengkapinya di belakang secara otomatis. Pastikan memilih tipe yang sesuai (TXT/MX).</li>
+                    <li><strong>Hostinger (hPanel):</strong> Buka menu <em>DNS / Nameservers</em>. Masukkan tipe (TXT/MX), nama (<code>resend._domainkey</code> atau <code>send</code>), nilai/konten, dan isi prioritas 10 khusus untuk record MX. Klik <strong>Tambah Record</strong>.</li>
+                    <li><strong>Cloudflare:</strong> Jika DNS Anda dikelola oleh Cloudflare, klik <strong>Add Record</strong> dan masukkan datanya. ⚠️ <strong>PENTING:</strong> Pastikan status Proxy disetel ke <strong>DNS Only (Awan Abu-abu / Grey Cloud)</strong>. Jika disetel ke Proxied (Awan Oranye), verifikasi domain di Resend akan gagal.</li>
+                </ul>
             </div>
 
             <!-- ========================================== -->
