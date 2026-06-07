@@ -509,94 +509,172 @@ sudo certbot --nginx -d api.disipusda.purwakartakab.go.id</pre>
             </div>
 
             <!-- ========================================== -->
-            <!-- CHAPTER 3: CUSTOM DOMAIN & VERCEL          -->
+            <!-- CHAPTER 3: CUSTOM DOMAIN & CLOUDFLARE PAGES -->
             <!-- ========================================== -->
             <div id="ch3" class="chapter-break">
-                <h1>Bab 3: Custom Domain, Vercel, dan Integrasi Supabase</h1>
-                <p>Panduan hosting alternatif yang cepat menggunakan Vercel (Frontend React) dan Supabase Cloud (Backend Database).</p>
+                <h1>Bab 3: Deployment Cloudflare Pages, DNS Name.com ke Cloudflare, dan Integrasi Resend</h1>
+                <p>Panduan lengkap cara mendeploy frontend React ke platform global <strong>Cloudflare Pages</strong>, memindahkan manajemen DNS dari registrar luar (seperti Name.com) ke Cloudflare, dan mengonfigurasi email transaksional Resend.</p>
 
-                <h2>1. Hosting Website React ke Vercel via GitHub</h2>
-                <ol>
-                    <li>Push kode proyek frontend Anda ke dalam repositori **GitHub**.</li>
-                    <li>Buka dashboard [Vercel](https://vercel.com) > hubungkan akun GitHub Anda.</li>
-                    <li>Klik **Add New** > **Project** > Import repositori website perpustakaan Anda.</li>
-                    <li>Pada bagian **Environment Variables**, masukkan <code>VITE_SUPABASE_URL</code> dan <code>VITE_SUPABASE_ANON_KEY</code>.</li>
-                    <li>Klik **Deploy**. Website Anda akan aktif di subdomain vercel gratis (contoh: <code>disipusda.vercel.app</code>).</li>
-                </ol>
-
-                <h2>2. Menghubungkan Domain Name.com ke Vercel</h2>
-                <ol>
-                    <li>Masuk ke proyek Anda di dashboard Vercel > **Settings** > **Domains** > tambahkan domain resmi Anda (contoh: <code>perpustakaandaerah.com</code>).</li>
-                    <li>Masuk ke akun [Name.com](https://www.name.com) > klik nama domain Anda > buka menu **DNS Management**.</li>
-                    <li>Tambahkan 2 records berikut di DNS Name.com:
-                        <ul>
-                            <li><strong>A Record:</strong> Host/Name = <code>@</code>, Value = <code>76.76.21.21</code> (IP Vercel)</li>
-                            <li><strong>CNAME Record:</strong> Host/Name = <code>www</code>, Value = <code>cname.vercel-dns.com</code></li>
-                        </ul>
-                    </li>
-                    <li>Tunggu proses penyebaran DNS (propagasi) selama 15 menit hingga 1 jam hingga status di Vercel berubah menjadi hijau (Active).</li>
-                </ol>
-
-                <h2>3. Mendaftarkan Variabel Environment untuk Keamanan API Key</h2>
-                <p>Daftarkan Anon Key dan URL Supabase Anda di Vercel Dashboard demi keamanan. Jangan pernah mengunggah file <code>.env</code> lokal Anda ke repositori GitHub karena file tersebut diabaikan secara default oleh <code>.gitignore</code> demi mencegah pencurian API Key.</p>
-
-                <h2>4. Konfigurasi DNS Resend.com untuk Domain dari Registrar Luar</h2>
-                <p>Saat menggunakan email transaksional (notifikasi dan OTP) melalui Resend.com dengan domain luar (seperti Name.com, Hostinger, Niagahoster, dll.), Anda wajib menambahkan DNS Records berikut agar email terkirim langsung ke kotak masuk (Inbox) dan tidak terdeteksi sebagai spam.</p>
-
-                <div class="alert alert-note">
-                    <div class="alert-title">PENTING: Gunakan Subdomain "send" untuk Email Transaksional</div>
-                    Resend merekomendasikan penggunaan subdomain seperti <code>send.domainanda.com</code> untuk record SPF dan MX. Ini bertujuan menghindari konflik dengan email utama instansi Anda (seperti Google Workspace atau Microsoft 365) serta mengisolasi reputasi pengiriman email website Anda.
+                <h2>1. Mengapa Menggunakan Cloudflare Pages?</h2>
+                <div class="alert alert-tip">
+                    <div class="alert-title">Kelebihan Cloudflare Pages</div>
+                    Cloudflare Pages menawarkan hosting statis gratis dengan CDN tercepat di dunia, SSL otomatis, build tak terbatas dari GitHub, perlindungan DDoS bawaan, dan fitur <strong>Variables and Secrets</strong> untuk mengamankan API Key Anda (seperti Supabase URL dan Turnstile Site Key).
                 </div>
 
-                <h3>Daftar DNS Records yang Wajib Dimasukkan</h3>
+                <h2>2. Langkah-Langkah Deploy React ke Cloudflare Pages (via GitHub)</h2>
+                <ol>
+                    <li>Push kode proyek website Anda ke repositori **GitHub** (bisa privat atau publik).</li>
+                    <li>Buka dashboard [Cloudflare](https://dash.cloudflare.com) > buka menu **Workers & Pages** > klik **Create Application** > pilih tab **Pages**.</li>
+                    <li>Klik **Connect to Git** > hubungkan akun GitHub Anda dan pilih repositori website perpustakaan Anda.</li>
+                    <li>Pada halaman **Build settings**:
+                        <ul>
+                            <li><strong>Framework preset:</strong> Pilih <code>Vite</code> atau <code>React</code>.</li>
+                            <li><strong>Build command:</strong> <code>npm run build</code></li>
+                            <li><strong>Build output directory:</strong> <code>dist</code></li>
+                        </ul>
+                    </li>
+                    <li>Klik **Save and Deploy**. Cloudflare akan membangun website Anda dan memberikan domain gratis bawaan (contoh: <code>project-web-perpustakaan.pages.dev</code>).</li>
+                </ol>
+
+                <h2>3. Memindahkan DNS Domain Luar (Name.com) ke Cloudflare</h2>
+                <p>Agar domain yang dibeli dari Name.com dapat terintegrasi sempurna dengan Cloudflare Pages dan Resend, Anda harus memindahkan Nameserver Name.com ke Cloudflare:</p>
+                <ol>
+                    <li>Pada dashboard Cloudflare, klik **Add a Site** > masukkan domain Anda (contoh: <code>lann.codes</code>).</li>
+                    <li>Pilih paket **Free** (Gratis).</li>
+                    <li>Cloudflare akan memindai records DNS lama Anda dan memberikan dua buah **Cloudflare Nameservers**:
+                        <ul>
+                            <li><code>daniella.ns.cloudflare.com</code></li>
+                            <li><code>dimitris.ns.cloudflare.com</code></li>
+                        </ul>
+                    </li>
+                    <li>Buka akun [Name.com](https://www.name.com) > klik domain Anda > cari menu **Nameservers** (atau *Change Nameservers*).</li>
+                    <li>Hapus nameserver bawaan Name.com, lalu masukkan kedua **Cloudflare Nameservers** di atas. Klik **Save**.</li>
+                    <li>Tunggu proses pemindahan nameserver (propagasi DNS) sekitar 10 menit hingga 1 jam hingga status domain Anda di Cloudflare menjadi **Active**.</li>
+                </ol>
+
+                <h2>4. Menghubungkan Custom Domain di Cloudflare Pages & DNS Records</h2>
+                <ol>
+                    <li>Buka proyek Pages Anda di Cloudflare > pilih tab **Custom Domains** > klik **Set up a custom domain**.</li>
+                    <li>Masukkan domain Anda (contoh: <code>lann.codes</code>) > ikuti petunjuknya. Cloudflare secara otomatis akan menambahkan record **CNAME** di tab DNS Anda dan membuat sertifikat SSL gratis (HTTPS).</li>
+                    <li>Di menu **DNS > Records** Cloudflare, pastikan Anda memiliki record domain utama:
+                        <ul>
+                            <li><strong>Type:</strong> <code>CNAME</code> | <strong>Name:</strong> <code>lann.codes</code> | <strong>Target:</strong> <code>project-web-perpustakaan.pages.dev</code> | <strong>Proxy status:</strong> <code>Proxied (Awan Oranye)</code></li>
+                        </ul>
+                    </li>
+                    <li>⚠️ **Mengatasi Peringatan www (Rekomendasi Utama):**
+                        Jika ada rekomendasi/peringatan dari Cloudflare bahwa pengunjung tidak dapat mengakses domain menggunakan <code>www</code> (seperti <em>"Visitors cannot reach www.lann.codes"</em>), tambahkan record baru berikut di DNS Cloudflare:
+                        <ul>
+                            <li><strong>Type:</strong> <code>CNAME</code> | <strong>Name:</strong> <code>www</code> | <strong>Target:</strong> <code>lann.codes</code> atau <code>project-web-perpustakaan.pages.dev</code> | <strong>Proxy status:</strong> <code>Proxied (Awan Oranye)</code></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h2>5. Konfigurasi DNS Resend.com di Dashboard Cloudflare</h2>
+                <p>Buka dashboard **Resend.com > Domains** > salin records verifikasi Anda. Lalu buka dashboard **Cloudflare > DNS > Records** dan masukkan records berikut satu per satu:</p>
+                
+                <div class="alert alert-warning">
+                    <div class="alert-title">PERINGATAN PROXY: GUNAKAN "DNS ONLY" (AWAN ABU-ABU)</div>
+                    Semua records verifikasi Resend (MX dan TXT) <strong>WAJIB</strong> diatur dengan Proxy Status = <strong>DNS Only (Grey Cloud)</strong>. Jika Anda menyalakan Proxy (Awan Oranye), server Resend tidak akan mendeteksi records DNS tersebut dan status verifikasi akan tertunda selamanya.
+                </div>
+
                 <table>
                     <thead>
                         <tr>
-                            <th>Tipe Record</th>
+                            <th>Tipe</th>
                             <th>Nama / Host</th>
-                            <th>Nilai / Value / Content</th>
-                            <th>Prioritas</th>
-                            <th>Fungsi Utama</th>
+                            <th>Target / Value / Content</th>
+                            <th>Proxy Status</th>
+                            <th>TTL</th>
+                            <th>Prioritas / Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>TXT</strong></td>
-                            <td><code>resend._domainkey</code></td>
-                            <td><code>p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ...</code> (Sesuai kunci dari Resend)</td>
-                            <td>-</td>
-                            <td><strong>DKIM</strong>: Membubuhi tanda tangan digital agar email tidak dipalsukan.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>TXT</strong></td>
-                            <td><code>send</code></td>
-                            <td><code>v=spf1 include:amazonses.com ~all</code></td>
-                            <td>-</td>
-                            <td><strong>SPF</strong>: Menyatakan server pengirim yang sah atas nama domain Anda.</td>
+                            <td><strong>CNAME</strong></td>
+                            <td><code>lann.codes</code></td>
+                            <td><code>project-web-perpustakaan.pages.dev</code></td>
+                            <td><span style="color: #ea580c; font-weight: bold;">Proxied (Oranye)</span></td>
+                            <td>Auto</td>
+                            <td>Untuk mengarahkan domain utama ke aplikasi React.</td>
                         </tr>
                         <tr>
                             <td><strong>MX</strong></td>
                             <td><code>send</code></td>
-                            <td><code>feedback-smtp.us-east-1.amazonses.com</code> (Sesuai region Resend Anda)</td>
-                            <td><strong>10</strong></td>
-                            <td><strong>MX</strong>: Mengelola email memantul (bounce back) secara otomatis.</td>
+                            <td><code>feedback-smtp.us-east-1.amazonses.com</code></td>
+                            <td><span style="color: #64748b; font-weight: bold;">DNS Only (Abu-abu)</span></td>
+                            <td>Auto</td>
+                            <td>Prioritas: <strong>10</strong> (Penanganan email memantul).</td>
                         </tr>
                         <tr>
                             <td><strong>TXT</strong></td>
                             <td><code>_dmarc</code></td>
-                            <td><code>v=DMARC1; p=none;</code></td>
-                            <td>-</td>
-                            <td><strong>DMARC</strong>: Kebijakan keamanan untuk mencegah penipuan email (Sangat Direkomendasikan).</td>
+                            <td><code>"v=DMARC1; p=none;"</code></td>
+                            <td><span style="color: #64748b; font-weight: bold;">DNS Only (Abu-abu)</span></td>
+                            <td>Auto</td>
+                            <td>Kebijakan keamanan dasar email.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>resend._domainkey</code></td>
+                            <td><code>"p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ..."</code></td>
+                            <td><span style="color: #64748b; font-weight: bold;">DNS Only (Abu-abu)</span></td>
+                            <td>Auto</td>
+                            <td>DKIM: Kunci tanda tangan email dari Resend.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TXT</strong></td>
+                            <td><code>send</code></td>
+                            <td><code>"v=spf1 include:amazonses.com ~all"</code></td>
+                            <td><span style="color: #64748b; font-weight: bold;">DNS Only (Abu-abu)</span></td>
+                            <td>Auto</td>
+                            <td>SPF: Server resmi pengirim email.</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h3>Panduan Pengisian di Dashboard Domain Luar (Name.com, Hostinger, dll.)</h3>
-                <ul>
-                    <li><strong>Name.com:</strong> Buka menu <em>DNS Management</em>. Saat mengisi kolom <strong>Host</strong>, cukup masukkan subdomain saja (misalnya <code>send</code> atau <code>resend._domainkey</code>). Sistem Name.com akan melengkapinya di belakang secara otomatis. Pastikan memilih tipe yang sesuai (TXT/MX).</li>
-                    <li><strong>Hostinger (hPanel):</strong> Buka menu <em>DNS / Nameservers</em>. Masukkan tipe (TXT/MX), nama (<code>resend._domainkey</code> atau <code>send</code>), nilai/konten, dan isi prioritas 10 khusus untuk record MX. Klik <strong>Tambah Record</strong>.</li>
-                    <li><strong>Cloudflare:</strong> Jika DNS Anda dikelola oleh Cloudflare, klik <strong>Add Record</strong> dan masukkan datanya. ⚠️ <strong>PENTING:</strong> Pastikan status Proxy disetel ke <strong>DNS Only (Awan Abu-abu / Grey Cloud)</strong>. Jika disetel ke Proxied (Awan Oranye), verifikasi domain di Resend akan gagal.</li>
-                </ul>
+                <h2>6. Pengaturan Environment Variables dan Secrets di Cloudflare Pages</h2>
+                <p>Website React Anda membutuhkan API Keys untuk mengakses Supabase dan Cloudflare Turnstile (Captcha). Jangan hardcode nilai ini di dalam kode program, melainkan daftarkan di dashboard Cloudflare Pages:</p>
+                <ol>
+                    <li>Di dashboard Cloudflare, buka menu **Workers & Pages** > klik proyek aplikasi Anda (contoh: <code>project-web-perpustakaan</code>).</li>
+                    <li>Masuk ke menu **Settings** (di tab atas) > pilih **Configuration** > cari bagian **Variables and Secrets**.</li>
+                    <li>Pada bagian **Environment variables**, klik **Add** (atau **Edit**) untuk menambahkan variabel berikut:</li>
+                </ol>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipe Variabel</th>
+                            <th>Nama Variabel (Variable Name)</th>
+                            <th>Nilai Variabel (Value)</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Plaintext / Secret</td>
+                            <td><code>VITE_SUPABASE_URL</code></td>
+                            <td><code>https://anqopdxzdkpsmtxuultp.supabase.co</code></td>
+                            <td>URL endpoint API proyek Supabase Anda.</td>
+                        </tr>
+                        <tr>
+                            <td>Plaintext / Secret</td>
+                            <td><code>VITE_SUPABASE_ANON_KEY</code></td>
+                            <td><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></td>
+                            <td>Kunci publik anonim Supabase (Anon Key).</td>
+                        </tr>
+                        <tr>
+                            <td>Plaintext / Secret</td>
+                            <td><code>VITE_TURNSTILE_SITE_KEY</code></td>
+                            <td><code>0x4AAAAAAADDtG5PHsGg6YoP2</code></td>
+                            <td>Site Key publik Cloudflare Turnstile untuk verifikasi anti-bot login.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-important">
+                    <div class="alert-title">PENTING: LAKUKAN DEPLOY ULANG SETELAH UBAH VARIABEL</div>
+                    Setelah menambahkan atau mengubah nilai variabel di dashboard Cloudflare Pages, perubahan tersebut tidak akan langsung aktif di web live. Anda wajib memicu build ulang (misalnya melakukan push commit kecil baru ke GitHub atau memicu redeploy dari dashboard) agar Cloudflare mengompilasi ulang website dengan nilai variabel yang baru.
+                </div>
             </div>
 
             <!-- ========================================== -->

@@ -1,160 +1,126 @@
-# 📖 Panduan Lengkap: Hosting, Domain Custom, dan Integrasi Supabase
+# 📖 Panduan Lengkap: Hosting Cloudflare Pages, Domain Custom, dan Integrasi Supabase / Resend
 
-Panduan ini menjelaskan langkah demi langkah untuk melakukan *deployment* (hosting) website perpustakaan, menghubungkan domain kustom dari luar (seperti Name.com), mengonfigurasi database Supabase, dan mengatur keamanan API keys.
+Panduan ini menjelaskan langkah demi langkah untuk melakukan *deployment* (hosting) website perpustakaan ke **Cloudflare Pages**, memindahkan domain kustom dari luar (seperti Name.com) ke Cloudflare DNS, mengonfigurasi email transaksional Resend, dan mengatur variabel lingkungan (Environment Variables & Secrets).
 
 ---
 
 ## 🗺️ DAFTAR ISI
-1. [Bagian 1: Hosting & Pengaturan Custom Domain](#-bagian-1-hosting--pengaturan-custom-domain)
-2. [Bagian 2: Integrasi Supabase & Manajemen API Key](#-bagian-2-integrasi-supabase--manajemen-api-key)
-3. [Bagian 3: Pengaturan Secrets & CI/CD di Platform Deployment](#-bagian-3-pengaturan-secrets--cicd-di-platform-deployment)
-4. [FAQ (Pertanyaan Umum)](#-faq-pertanyaan-umum)
+1. [Bagian 1: Hosting di Cloudflare Pages (via GitHub)](#-bagian-1-hosting-di-cloudflare-pages-via-github)
+2. [Bagian 2: Memindahkan DNS Name.com ke Cloudflare](#-bagian-2-memindahkan-dns-namecom-ke-cloudflare)
+3. [Bagian 3: Menghubungkan Custom Domain & Mengatasi www](#-bagian-3-menghubungkan-custom-domain--mengatasi-www)
+4. [Bagian 4: Pengaturan DNS Resend.com di Cloudflare](#-bagian-4-pengaturan-dns-resendcom-di-cloudflare)
+5. [Bagian 5: Mengatur Variables and Secrets di Cloudflare Pages](#-bagian-5-mengatur-variables-and-secrets-di-cloudflare-pages)
+6. [FAQ (Pertanyaan Umum)](#-faq-pertanyaan-umum)
 
 ---
 
-## 🚀 BAGIAN 1: HOSTING & PENGATURAN CUSTOM DOMAIN
+## 🚀 BAGIAN 1: HOSTING DI CLOUDFLARE PAGES (VIA GITHUB)
 
-Untuk aplikasi berbasis React + Vite (SPA/Single Page Application), platform hosting gratis terbaik, tercepat, dan paling stabil adalah **Vercel** atau **Netlify**. Panduan ini menggunakan **Vercel** sebagai contoh utama karena mendukung integrasi otomatis yang sangat baik dengan GitHub.
+Untuk aplikasi berbasis React + Vite (SPA/Single Page Application), **Cloudflare Pages** adalah platform hosting terbaik karena menyediakan CDN global tercepat secara gratis, SSL otomatis, dan integrasi repositori git langsung.
 
-### Langkah 1: Hosting Website ke Vercel (via GitHub)
-1. Unggah (*push*) proyek Anda ke repositori GitHub (publik atau privat).
-2. Buka dan login ke [Vercel Dashboard](https://vercel.com).
-3. Klik tombol **"Add New"** > **"Project"**.
-4. Hubungkan akun GitHub Anda, lalu cari nama repositori website perpustakaan Anda dan klik **"Import"**.
-5. Pada bagian **Environment Variables**, masukkan variabel environment Supabase Anda (baca [Bagian 2](#-bagian-2-integrasi-supabase--manajemen-api-key) untuk detailnya).
-6. Klik tombol **"Deploy"**. Tunggu 1–2 menit sampai website Anda selesai di-build dan mendapatkan domain gratis bawaan (contoh: `web-perpustakaan.vercel.app`).
-
----
-
-### Langkah 2: Membeli Domain di Name.com
-Jika Anda ingin menggunakan domain kustom komersial (seperti `.com`, `.net`, `.id`):
-1. Kunjungi situs [Name.com](https://www.name.com) dan buat akun.
-2. Cari nama domain yang Anda inginkan pada kolom pencarian (misal: `perpustakaandaerah.com`).
-3. Tambahkan ke keranjang belanja (*Add to Cart*), lakukan pembayaran (*Checkout*), dan selesaikan transaksi hingga domain resmi menjadi milik Anda.
+1. Unggah (*push*) proyek Anda ke repositori **GitHub** (publik atau privat).
+2. Masuk ke [Cloudflare Dashboard](https://dash.cloudflare.com) > buka menu **Workers & Pages** > pilih tab **Pages**.
+3. Klik **Connect to Git** > hubungkan akun GitHub Anda dan pilih repositori website perpustakaan Anda.
+4. Pada halaman **Build settings**:
+   * **Framework preset:** Pilih **Vite** atau **React**.
+   * **Build command:** `npm run build`
+   * **Build output directory:** `dist`
+5. Klik **Save and Deploy**. Cloudflare akan mem-build proyek Anda dan memberikan subdomain bawaan gratis (contoh: `project-web-perpustakaan.pages.dev`).
 
 ---
 
-### Langkah 3: Menghubungkan Domain dari Name.com ke Vercel (DNS Setting)
+## 🌐 BAGIAN 2: MEMINDAHKAN DNS NAME.COM KE CLOUDFLARE
 
-Setelah membeli domain, Anda harus memberi tahu Name.com agar mengarahkan lalu lintas domain tersebut ke server Vercel.
+Agar domain dari Name.com (atau registrar luar lainnya) dapat diatur dengan mudah untuk website Pages dan verifikasi email Resend, pindahkan pengelolaan DNS ke Cloudflare:
 
-#### A. Daftarkan Domain Anda di Vercel
-1. Buka Vercel Dashboard, masuk ke proyek website Anda.
-2. Navigasi ke menu **Settings** (di bagian atas) > **Domains** (di sidebar kiri).
-3. Pada kolom input, masukkan nama domain yang telah Anda beli (contoh: `perpustakaandaerah.com`), lalu klik **"Add"**.
-4. Pilih opsi rekomendasi: **"Redirect perpustakaandaerah.com to www.perpustakaandaerah.com"** atau sebaliknya.
-5. Vercel akan menampilkan status **"Invalid Configuration"** dengan warna merah. Jangan khawatir, Vercel sedang menampilkan **nilai DNS** yang harus Anda pasang di Name.com:
-   * **A Record** untuk `perpustakaandaerah.com` mengarah ke IP: `76.76.21.21`
-   * **CNAME Record** untuk `www.perpustakaandaerah.com` mengarah ke: `cname.vercel-dns.com`
+1. Pada dashboard Cloudflare, klik **Add a Site** > masukkan domain Anda (contoh: `lann.codes`).
+2. Pilih paket **Free** (Gratis) > klik Continue.
+3. Cloudflare akan menampilkan **Nameservers** yang ditunjuk untuk Anda, contoh:
+   * `daniella.ns.cloudflare.com`
+   * `dimitris.ns.cloudflare.com`
+4. Login ke [Name.com](https://www.name.com) > masuk ke **My Domains** > klik domain Anda.
+5. Cari menu **Nameservers** > klik **Edit Nameservers**.
+6. Hapus nameserver lama milik Name.com, lalu masukkan kedua **Cloudflare Nameservers** di atas. Klik **Save**.
+7. Tunggu propagasi DNS (biasanya 10 menit hingga beberapa jam) sampai status domain Anda di Cloudflare menjadi hijau (**Active**).
 
-#### B. Konfigurasi DNS di Dashboard Name.com
-1. Login ke akun Anda di [Name.com](https://www.name.com).
-2. Klik tombol **"My Domains"** di pojok kanan atas untuk melihat daftar domain Anda.
-3. Klik nama domain Anda (misal: `perpustakaandaerah.com`).
-4. Pada panel sebelah kiri atau tengah, cari dan klik menu **"DNS Management"** atau **"Manage DNS Records"**.
-5. Anda akan melihat tabel daftar record DNS. Tambahkan dua record baru seperti petunjuk dari Vercel berikut:
+---
 
-##### 1. Menambahkan A Record (Untuk Domain Utama / Tanpa www)
-* **Type:** Pilih **A**
-* **Host / Name:** Biarkan kosong, atau isi dengan simbol **`@`**
-* **Answer / Value (IP Address):** Masukkan IP Vercel: **`76.76.21.21`**
-* **TTL:** Biarkan default (misal: `300` atau `3600`)
-* Klik **"Add Record"** atau **"Save"**.
+## 🔗 BAGIAN 3: MENGHUBUNGKAN CUSTOM DOMAIN & MENGATASI www
 
-##### 2. Menambahkan CNAME Record (Untuk Subdomain www)
-* **Type:** Pilih **CNAME**
-* **Host / Name:** Isi dengan **`www`**
-* **Answer / Value (Target Host):** Masukkan CNAME Vercel: **`cname.vercel-dns.com`**
-* **TTL:** Biarkan default (misal: `300` atau `3600`)
-* Klik **"Add Record"** atau **"Save"**.
+Setelah status domain di Cloudflare aktif:
+1. Buka dashboard Cloudflare > **Workers & Pages** > klik nama proyek Anda > pilih tab **Custom Domains**.
+2. Klik **Set up a custom domain** > masukkan domain utama Anda (misal: `lann.codes`) > ikuti instruksinya hingga selesai. Cloudflare akan otomatis membuat CNAME record dan menerbitkan sertifikat SSL (HTTPS).
+3. ⚠️ **Mengatasi Peringatan www:**
+   Jika muncul peringatan *“Visitors cannot reach www.lann.codes”* di tab DNS, Anda wajib menambahkan record baru di menu **DNS > Records**:
+   * **Type:** `CNAME`
+   * **Name:** `www`
+   * **Target:** `lann.codes` (atau `project-web-perpustakaan.pages.dev`)
+   * **Proxy status:** **Proxied (Awan Oranye)**
+   * **TTL:** `Auto`
+
+---
+
+## 📧 BAGIAN 4: PENGATURAN DNS RESEND.COM DI CLOUDFLARE
+
+Buka dashboard **Resend.com > Domains** dan pastikan Anda memasukkan records berikut pada dashboard **Cloudflare > DNS > Records**:
 
 > [!WARNING]
-> Hapus record DNS lama yang bertipe **A** atau **CNAME** jika ada yang berbenturan dengan nilai baru di atas (terutama jika ada record default bawaan dari Name.com).
+> **PENTING: MATIKAN PROXY (GUNAKAN DNS ONLY / AWAN ABU-ABU)**
+> Untuk seluruh record verifikasi Resend (DKIM, SPF, MX), pastikan status Proxy-nya dinonaktifkan (**DNS Only / Grey Cloud**). Jika di-proxy, verifikasi Resend tidak akan pernah berhasil!
 
-#### C. Verifikasi Koneksi
-1. Kembali ke halaman **Settings > Domains** di Vercel Dashboard.
-2. Vercel akan otomatis melakukan pengecekan berkala. Jika konfigurasi Anda benar, status merah akan berubah menjadi **hijau (Active)** dengan ikon gembok SSL (HTTPS) aktif.
-3. > [!NOTE]
-   > Proses pembaruan DNS (propagasi) membutuhkan waktu berkisar antara **15 menit hingga maksimal 24 jam**. Jika belum langsung aktif, harap tunggu beberapa saat.
+### Records yang Wajib Dimasukkan:
 
----
+1. **DKIM Record (TXT)**
+   * **Type:** `TXT`
+   * **Name:** `resend._domainkey`
+   * **Content/Value:** Tempel kode kunci `p=MIGf...` yang didapatkan dari Resend.
+   * **Proxy status:** **DNS Only**
 
-## 🔑 BAGIAN 2: INTEGRASI SUPABASE & MANAJEMEN API KEY
+2. **SPF Record (TXT)**
+   * **Type:** `TXT`
+   * **Name:** `send`
+   * **Content/Value:** `v=spf1 include:amazonses.com ~all`
+   * **Proxy status:** **DNS Only**
 
-Website Anda berkomunikasi dengan Supabase melalui API menggunakan dua variabel lingkungan (*environment variables*).
+3. **MX Record (MX)**
+   * **Type:** `MX`
+   * **Name:** `send`
+   * **Mail Server:** `feedback-smtp.us-east-1.amazonses.com` (sesuai region Anda di Resend)
+   * **Priority:** `10`
+   * **Proxy status:** **DNS Only**
 
-### Variabel Environment yang Digunakan
-Di dalam proyek lokal Anda, variabel ini disimpan di dalam file `.env` (atau `.env.secrets`):
-```env
-VITE_SUPABASE_URL=https://xxxxxxxxxxxxxxxxxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-* **`VITE_SUPABASE_URL`**: URL endpoint API unik milik proyek Supabase Anda.
-* **`VITE_SUPABASE_ANON_KEY`**: Kunci publik (Anon Key) yang digunakan untuk melakukan operasi dasar database dengan batasan keamanan yang ketat.
-
----
-
-### Cara Mendapatkan API Keys di Dashboard Supabase
-1. Login ke [Supabase Dashboard](https://supabase.com).
-2. Klik proyek database perpustakaan Anda.
-3. Di sidebar sebelah kiri paling bawah, klik ikon roda gigi (**Project Settings**).
-4. Klik menu **API**.
-5. Salin nilai yang Anda butuhkan:
-   * **Project URL**: Salin URL di kolom **Project URL** dan tempel sebagai nilai `VITE_SUPABASE_URL`.
-   * **Anon Key (Public)**: Cari bagian **Project API keys**, temukan baris bertuliskan **`anon` `public`**, salin kuncinya yang panjang dan tempel sebagai nilai `VITE_SUPABASE_ANON_KEY`.
-
-> [!CAUTION]
-> **PENTING:** Jangan pernah menggunakan kunci **`service_role` `secret`** di dalam file front-end Anda. Kunci `service_role` memiliki akses admin penuh yang dapat menembus sistem keamanan RLS (Row Level Security) dan memanipulasi database tanpa batas. Jika kunci ini bocor ke publik, database Anda bisa dihapus oleh orang asing.
+4. **DMARC Record (TXT - Sangat Direkomendasikan)**
+   * **Type:** `TXT`
+   * **Name:** `_dmarc`
+   * **Content/Value:** `v=DMARC1; p=none;`
+   * **Proxy status:** **DNS Only**
 
 ---
 
-### Hubungan Client React dengan Supabase
-Aplikasi React berjalan langsung di browser pengguna (*client-side*). Saat aplikasi melakukan *request* data (seperti daftar buku atau anggota), aplikasi akan mengirimkan permintaan HTTPS ke URL Supabase dengan melampirkan Anon Key di header request. Supabase kemudian memeriksa aturan **RLS (Row Level Security)** pada tabel Anda untuk menentukan apakah request tersebut diizinkan atau ditolak.
+## 🔑 BAGIAN 5: MENGATUR VARIABLES AND SECRETS DI CLOUDFLARE PAGES
 
----
+Website React Anda membutuhkan API key agar dapat berkomunikasi dengan database Supabase dan Cloudflare Turnstile Captcha secara aman. Daftarkan variabel ini di dashboard Cloudflare Pages:
 
-## ⚙️ BAGIAN 3: PENGATURAN SECRETS & CI/CD DI PLATFORM DEPLOYMENT
-
-Agar website versi produksi (live) dapat terhubung ke Supabase, variabel environment harus didaftarkan di platform hosting.
-
-### A. Konfigurasi Environment Variables di Vercel
-1. Buka dashboard proyek Anda di Vercel.
-2. Masuk ke tab **Settings** > **Environment Variables**.
-3. Tambahkan variabel satu per satu:
-   * **Key:** `VITE_SUPABASE_URL` | **Value:** *[URL Supabase Anda]*
-   * **Key:** `VITE_SUPABASE_ANON_KEY` | **Value:** *[Anon Key Supabase Anda]*
-4. Pastikan centang pada **Production**, **Preview**, dan **Development** tetap aktif.
+1. Di dashboard Cloudflare, buka **Workers & Pages** > klik proyek website Anda (contoh: `project-web-perpustakaan`).
+2. Masuk ke tab **Settings** (di menu atas) > pilih menu **Configuration** (atau **Variables and Secrets**).
+3. Pada bagian **Environment variables**, klik **Add** atau **Edit**.
+4. Tambahkan variabel-variabel berikut:
+   * **Name:** `VITE_SUPABASE_URL` | **Value:** `https://anqopdxzdkpsmtxuultp.supabase.co` (URL Supabase Anda)
+   * **Name:** `VITE_SUPABASE_ANON_KEY` | **Value:** *[Anon Key Supabase Anda]*
+   * **Name:** `VITE_TURNSTILE_SITE_KEY` | **Value:** `0x4AAAAAAADDtG5PHsGg6YoP2` (Site Key Turnstile Anda)
 5. Klik **Save**.
 6. > [!IMPORTANT]
-   > Setelah menambahkan variabel baru, Anda harus melakukan redeploy proyek (bisa dengan push perubahan kecil ke GitHub) agar Vercel membangun ulang website dengan variabel environment yang baru.
-
----
-
-### B. Konfigurasi GitHub Secrets untuk CI/CD (GitHub Actions)
-Jika Anda menggunakan GitHub Actions untuk menguji kode atau mendeploy otomatis secara mandiri:
-
-1. Buka repositori GitHub proyek Anda.
-2. Klik tab **Settings** (ikon roda gigi di bagian atas).
-3. Pada menu sebelah kiri, cari bagian **Security** > klik **Secrets and variables** > pilih **Actions**.
-4. Klik tombol **"New repository secret"** (berwarna hijau).
-5. Masukkan nama secret dan nilainya:
-   * **Name:** `VITE_SUPABASE_URL` | **Secret:** *[Masukkan URL Supabase]* -> Klik **Add secret**.
-   * **Name:** `VITE_SUPABASE_ANON_KEY` | **Secret:** *[Masukkan Anon Key]* -> Klik **Add secret**.
-6. GitHub Actions sekarang dapat membaca variabel tersebut secara aman selama proses build menggunakan sintaks `${{ secrets.VITE_SUPABASE_URL }}` tanpa perlu menuliskan kuncinya secara mentah di kode sumber.
+   > **DEPLOY ULANG:** Setelah mengubah/menambahkan variabel lingkungan, lakukan redeploy (misalnya memicu push commit baru di GitHub) agar Cloudflare Pages mengompilasi ulang website dengan nilai variabel yang baru disuntikkan.
 
 ---
 
 ## ❓ FAQ (PERTANYAAN UMUM)
 
-### T: Mengapa GitHub Actions tidak bisa dibuat langsung di dalam Dashboard Supabase?
-**J:** Supabase adalah penyedia layanan backend (**Backend-as-a-Service / BaaS**). Tugas utama Supabase adalah menyediakan database PostgreSQL, autentikasi user, penyimpanan file (storage), dan fungsi API. 
+### T: Mengapa domain saya berstatus "Invalid Configuration" saat pertama kali ditambahkan?
+**J:** Hal ini disebabkan karena pembaruan DNS (propagasi) memerlukan waktu untuk menyebar ke seluruh server global. Biasanya memakan waktu 10 hingga 30 menit. Silakan tunggu beberapa saat, lalu klik tombol Refresh/Verify pada dashboard Cloudflare atau Vercel.
 
-Supabase tidak memiliki server komputasi umum (seperti runner/compiler) yang dirancang untuk mem-build kode aplikasi web (seperti React/Vite) atau menjalankan alur kerja CI/CD. 
+### T: Apa gunanya `VITE_TURNSTILE_SITE_KEY`?
+**J:** Ini adalah kunci situs publik untuk Cloudflare Turnstile, sistem perlindungan Captcha modern yang gratis dan tidak mengganggu kenyamanan pengguna (tidak perlu mengklik gambar lampu lalu lintas/zebra cross) untuk mencegah bot melakukan brute force di halaman login admin.
 
-Proses kompilasi website memerlukan compiler Node.js/Vite untuk mengubah kode React Anda menjadi file HTML, CSS, dan JS statis yang siap saji. Tugas build inilah yang dikerjakan oleh platform seperti **GitHub Actions** (sebagai compiler otomatis) dan **Vercel** (sebagai server hosting file statis). Supabase hanya bertindak sebagai database tujuan saat website yang sudah ter-deploy meminta data.
-
-### T: Apa bedanya file `.env` lokal dengan Environment Variables di Vercel?
-**J:** 
-* File `.env` lokal digunakan saat Anda menjalankan perintah pengembangan mandiri di komputer Anda (`npm run dev`). File ini **tidak boleh diunggah ke GitHub** karena berisi konfigurasi privat.
-* Environment Variables di Vercel adalah pengganti file `.env` untuk website versi produksi yang bisa diakses secara publik. Vercel akan menyuntikkan (*inject*) variabel-variabel tersebut ke dalam kode website Anda saat proses build terjadi di server cloud mereka.
+### T: Apakah berkas `.env` lokal perlu diunggah ke GitHub?
+**J:** **Sama sekali TIDAK.** File `.env` berisi kunci rahasia yang bersifat sensitif. Mengunggahnya ke GitHub memicu risiko kebocoran data. Cloudflare Pages telah menyediakan menu *Variables and Secrets* di dashboard untuk menyimpannya secara aman pada versi produksi.
