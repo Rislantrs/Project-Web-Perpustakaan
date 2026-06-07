@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan Komprehensif: Fitur Aplikasi, Struktur Berkas & Manajemen Admin - Disipusda Purwakarta</title>
+    <style>
+        /* Modern Reset and CSS Variables */
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #e11d48; /* Rose accent for features and admin controls */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #f8f8f2;
+            --alert-tip: #0f766e;
+            --alert-note: #1d4ed8;
+            --alert-warning: #b45309;
+            --alert-caution: #be123c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout Architecture */
+        .wrapper {
+            width: 100%;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin: 2rem auto;
+            padding: 4rem 5rem;
+            max-width: 900px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Header Document Info */
+        .doc-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff !important;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-header h1 {
+            font-size: 2.25rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: #ffffff !important;
+        }
+
+        .doc-header p {
+            color: #cbd5e1 !important;
+            font-size: 1.1rem;
+        }
+
+        /* Typography Styles */
+        h1, h2, h3, h4 {
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alert Box Styles */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-left: 5px solid transparent;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-note {
+            background-color: #eff6ff;
+            border-left-color: var(--alert-note);
+            color: #1e3a8a;
+        }
+
+        .alert-tip {
+            background-color: #f0fdf4;
+            border-left-color: var(--alert-tip);
+            color: #115e59;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-left-color: var(--alert-warning);
+            color: #78350f;
+        }
+
+        .alert-caution {
+            background-color: #fff5f5;
+            border-left-color: var(--alert-caution);
+            color: #9b1c1c;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tables Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks & Coding Styling */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Syntax Highlight Colors */
+        .token-keyword { color: #f92672; font-weight: bold; }
+        .token-string { color: #e6db74; }
+        .token-comment { color: #75715e; font-style: italic; }
+        .token-number { color: #ae81ff; }
+        .token-type { color: #66d9ef; font-style: italic; }
+
+        /* Divider and spacing helpers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        .chapter-break {
+            margin-top: 5rem;
+        }
+
+        /* Dynamic Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent);
+            color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background-color: #be123c;
+        }
+
+        /* PRINT STYLING - Optimize for PDF Generation */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+                font-size: 14px;
+            }
+
+            .back-to-top {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .doc-header {
+                border: 2px solid #000000;
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0;
+                padding: 2rem;
+            }
+
+            .doc-header h1 {
+                color: #000000 !important;
+            }
+
+            .doc-header p {
+                color: #333333 !important;
+            }
+
+            h1, h2, h3 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                border-bottom: 2px solid #000000;
+                margin-top: 2rem;
+            }
+
+            pre, table, blockquote, .alert {
+                page-break-inside: avoid;
+            }
+
+            pre {
+                border: 1px solid #94a3b8;
+                box-shadow: none !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            pre code {
+                color: #000000 !important;
+            }
+
+            code {
+                background-color: #f1f5f9;
+                border: 1px solid #cbd5e1;
+            }
+
+            .alert {
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            .alert-title {
+                color: #000000 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
+
+    <div class="wrapper">
+        <div class="main-content">
+            <!-- Cover Section -->
+            <div class="doc-header" id="cover">
+                <h1>Buku Panduan Komprehensif:<br>Struktur Berkas, Sakelar Fitur, & Kelola Admin</h1>
+                <p>Panduan lengkap memahami letak berkas, penggantian aset gambar lokal, pengaktifan/penyembunyian fitur sirkulasi buku (katalog), otentikasi admin auto-confirm database, serta atribusi lisensi.</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #cbd5e1 !important; font-weight: 500;">Diperbarui: Juni 2026 | Disusun oleh: M. Rislan Tristansyah (Mahasiswa Sistem Telekomunikasi)</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 1: FILE STRUCTURE                      -->
+            <!-- ========================================== -->
+            <div id="ch1" class="chapter-break">
+                <h1>Bab 1: Struktur Direktori & Fungsi Berkas Kode</h1>
+                <p>Berikut adalah peta lengkap struktur folder proyek website perpustakaan digital Disipusda Purwakarta beserta fungsi utamanya:</p>
+
+                <h2>1. Struktur Direktori Proyek</h2>
+                <pre>Library Website Design/
+├── .env                       # Variabel lingkungan untuk konfigurasi umum
+├── .env.secrets               # Variabel lingkungan rahasia (diabaikan oleh git)
+├── ATTRIBUTIONS.md            # Informasi lisensi aset pihak ketiga
+├── package.json               # Daftar pustaka Node.js dan perintah build
+├── vite.config.ts             # Konfigurasi compiler Vite
+├── public/                    # Folder aset statis publik (seperti favicon)
+├── supabase/                  # Konfigurasi dan migrasi database Supabase
+└── src/                       # Folder utama kode sumber aplikasi frontend
+    ├── App.tsx                # Sistem rute utama aplikasi
+    ├── main.tsx               # Titik masuk utama aplikasi React
+    ├── assets/                # Aset gambar lokal
+    ├── components/            # Komponen UI global yang digunakan berulang kali
+    ├── config/                # Konfigurasi parameter, warna, dan navigasi
+    ├── layouts/               # Struktur tata letak halaman (publik/admin)
+    ├── modules/               # Folder berisi modul-modul modular mandiri
+    │   └── booking/           # Modul Enkapsulasi Booking (Pages, Repo, Types)
+    ├── pages/                 # File halaman web untuk pengunjung
+    │   └── admin/             # File halaman khusus admin
+    ├── security/              # Modul pemantauan keamanan dan audit
+    ├── services/              # Modul penghubung database dan otentikasi
+    ├── styles/                # File gaya desain global (CSS)
+    └── utils/                 # Kumpulan fungsi pembantu (helper)</pre>
+
+                <h2>2. Rincian Fungsi Berkas src/</h2>
+                <ul>
+                    <li><strong>App.tsx</strong>: Mengatur sistem rute utama website, menentukan pembukaan halaman berdasarkan URL, dan memproteksi rute admin dari akses publik non-login.</li>
+                    <li><strong>Navbar.tsx & Footer.tsx</strong>: Komponen navigasi atas (responsive dropdown) dan bagian kaki halaman (memuat kontak dinas & jam operasional).</li>
+                    <li><strong>MemberCardQR.tsx</strong>: Menampilkan kartu anggota digital lengkap dengan sensor barcode / QR code dinamis.</li>
+                    <li><strong>siteConfig.ts</strong>: Pusat parameter dinamis instansi, pengaturan nama dinas, logo, warna primer, dan sakelar fitur global.</li>
+                    <li><strong>modules/booking/</strong>: Seluruh file modular yang melayani pengajuan enkapsulasi dokumen secara mandiri, baik menggunakan Supabase Repo maupun API Repo.</li>
+                    <li><strong>security/monitoring.ts</strong>: Memantau error javascript dan performa Core Web Vitals saat situs diakses oleh masyarakat.</li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 2: IMAGE REPLACEMENT                  -->
+            <!-- ========================================== -->
+            <div id="ch2" class="chapter-break">
+                <h1>Bab 2: Panduan Penggantian Aset Gambar Lokal</h1>
+                <p>Panduan teknis mengganti file gambar yang terpasang langsung (hardcoded) di dalam tampilan halaman website.</p>
+
+                <h2>1. Tiga Metode Penggantian Gambar</h2>
+                
+                <h3>Metode A: Mengganti File Gambar Fisik (Paling Praktis)</h3>
+                <p>Anda hanya perlu menimpa berkas gambar lama di direktori <code>src/assets/</code> dengan file baru tanpa mengubah kode program. Syaratnya, nama file, ekstensi file (misal <code>.webp</code>), dan folder penyimpanan harus sama persis.</p>
+                <p><em>Contoh mengganti foto Gedung Arsip:</em> Siapkan file baru, konversi ke format WebP, beri nama <code>Gedung_Arsip.webp</code>, lalu timpa file lama di folder <code>src/assets/layanan/kearsipan/</code>.</p>
+
+                <h3>Metode B: Mengubah Import Path di Kode</h3>
+                <p>Jika ingin menggunakan nama file baru atau memindahkannya ke folder lain, edit kode import komponen bersangkutan:</p>
+                <pre><span class="token-comment">// Sebelum:</span>
+<span class="token-keyword">import</span> gedungArsip <span class="token-keyword">from</span> <span class="token-string">'../assets/layanan/kearsipan/Gedung_Arsip.webp'</span>;
+
+<span class="token-comment">// Sesudah:</span>
+<span class="token-keyword">import</span> gedungArsip <span class="token-keyword">from</span> <span class="token-string">'../assets/layanan/kearsipan/Gedung_Arsip_Baru.webp'</span>;</pre>
+
+                <h3>Metode C: Menggunakan URL Gambar Dinamis</h3>
+                <p>Unggah file gambar ke **Supabase Storage bucket public** (misal: <code>public-assets</code>), salin URL publiknya, lalu ubah tag image di React:</p>
+                <pre>&lt;<span class="token-keyword">img</span> <span class="token-keyword">src</span>=<span class="token-string">"https://[PROJECT_ID].supabase.co/storage/v1/object/public/assets/gedung-baru.webp"</span> <span class="token-keyword">alt</span>=<span class="token-string">"Gedung"</span> /&gt;</pre>
+
+                <h2>2. Tabel Lokasi Gambar di Kode Program</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Halaman / Fitur</th>
+                            <th>Berkas Tampilan</th>
+                            <th>Variabel & Folder Aset Asli</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Logo Utama Dinas</strong></td>
+                            <td><code>siteConfig.ts</code></td>
+                            <td><code>logoUtama</code> (<code>src/assets/logo/logoDisispuda.webp</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kartu Anggota Digital</strong></td>
+                            <td><code>MemberCardQR.tsx</code></td>
+                            <td><code>logo</code> (<code>src/assets/logo/logoDisispuda.webp</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Beranda (Home Hero)</strong></td>
+                            <td><code>Home.tsx</code></td>
+                            <td><code>gedungArsip</code> (<code>src/assets/layanan/kearsipan/Gedung_Arsip.webp</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Galeri Diorama</strong></td>
+                            <td><code>Diorama.tsx</code></td>
+                            <td>Aset diorama nusantara (<code>n1</code>-<code>n12</code>) dan purwakarta (<code>p1</code>-<code>p9</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Layanan Kearsipan</strong></td>
+                            <td><code>Kearsipan.tsx</code></td>
+                            <td><code>heroImg</code> (<code>Gedung_Arsip.webp</code>), <code>depoImg</code> (<code>Ruang-Depo...webp</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Halaman Login Member</strong></td>
+                            <td><code>Login.tsx</code></td>
+                            <td><code>libIndoor</code> (<code>src/assets/image/lib-indoor.webp</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Naskah Kuno</strong></td>
+                            <td><code>Galendo.tsx</code></td>
+                            <td>Berkas galendo (<code>galendo1</code>-<code>galendo3</code>) di <code>src/assets/lainLain/galendo/</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 3: FEATURE TOGGLE                      -->
+            <!-- ========================================== -->
+            <div id="ch3" class="chapter-break">
+                <h1>Bab 3: Sakelar Fitur (Feature Flags) & Konfigurasi Terpusat</h1>
+                <p>Website ini dirancang fleksibel. Jika di masa depan instansi ingin menyembunyikan katalog buku dan pendaftaran anggota (merubah web menjadi profil dinas murni), Anda hanya perlu mengubah satu flag saja.</p>
+
+                <h2>1. Mengubah Status Fitur di siteConfig.ts</h2>
+                <p>Buka berkas **<code>src/config/siteConfig.ts</code>**, temukan objek **`FEATURES`** (sekitar baris 114):</p>
+                <pre><span class="token-keyword">FEATURES</span>: {
+  <span class="token-comment">// true  = Mengaktifkan katalog buku & peminjaman</span>
+  <span class="token-comment">// false = Menonaktifkan katalog & login secara total</span>
+  <span class="token-keyword">ENABLE_CATALOG</span>: <span class="token-keyword">true</span>, 
+  
+  <span class="token-keyword">REQUIRE_NIK</span>: <span class="token-keyword">false</span>,
+  <span class="token-keyword">SHOW_DIGITAL_CARD</span>: <span class="token-keyword">false</span>,
+}</pre>
+
+                <h2>2. Penyesuaian Otomatis Saat Parameter Diubah (false)</h2>
+                <ul>
+                    <li><strong>Sisi Pengunjung (Web Publik)</strong>: Tautan menu "Katalog Buku", "Pabukon OPAC", serta tombol "Login / Register" otomatis disembunyikan dari navigasi header dan menu mobile.</li>
+                    <li><strong>Rute Terproteksi</strong>: Akses langsung via URL ke <code>/katalog</code>, <code>/login</code>, <code>/profil</code>, dsb. akan ditolak dan otomatis dialihkan ke halaman utama (Beranda).</li>
+                    <li><strong>Sisi Dashboard Admin</strong>: Menu kelola buku, kategori, peminjaman, dan kelola anggota disembunyikan dari sidebar navigasi. Statistik "Peminjaman Aktif" dan "Total Anggota" pada dashboard utama admin juga disembunyikan secara dinamis.</li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 4: DISABLING FEATURES STEP-BY-STEP     -->
+            <!-- ========================================== -->
+            <div id="ch4" class="chapter-break">
+                <h1>Bab 4: Panduan Langkah demi Langkah Menonaktifkan Fitur Sistem</h1>
+                <p>Berikut adalah rincian kode yang diubah jika Anda menonaktifkan fitur secara manual di proyek:</p>
+
+                <h2>Langkah 1: Mengubah Konfigurasi Global (siteConfig.ts)</h2>
+                <pre><span class="token-keyword">FEATURES</span>: {
+<span class="token-keyword">- ENABLE_CATALOG</span>: <span class="token-keyword">true</span>,
+<span class="token-keyword">+ ENABLE_CATALOG</span>: <span class="token-keyword">false</span>,</pre>
+
+                <h2>Langkah 2: Menyembunyikan Menu Admin (AdminLayout.tsx)</h2>
+                <p>Menu Kelola Buku dan Kelola Member di sidebar admin dibungkus menggunakan kondisi javascript operator spread:</p>
+                <pre>const navGroups = [
+  ...
+  {
+    id: 'konten',
+    title: 'Konten & Koleksi',
+    items: [
+<span class="token-keyword">-     { name: 'Kelola Buku', path: '/admin/books', icon: &lt;BookOpen size={20} /&gt; },</span>
+<span class="token-keyword">-     { name: 'Kelola Kategori', path: '/admin/categories', icon: &lt;Tags size={20} /&gt; },</span>
+<span class="token-keyword">+     ...(SITE_CONFIG.FEATURES.ENABLE_CATALOG ? [</span>
+<span class="token-keyword">+       { name: 'Kelola Buku', path: '/admin/books', icon: &lt;BookOpen size={20} /&gt; },</span>
+<span class="token-keyword">+       { name: 'Kelola Kategori', path: '/admin/categories', icon: &lt;Tags size={20} /&gt; },</span>
+<span class="token-keyword">+     ] : []),</span>
+      { name: 'Semua Artikel', path: '/admin/articles', icon: &lt;FileText size={20} /&gt; },
+    ]
+  }
+];</pre>
+
+                <h2>Langkah 3: Mengamankan Akses URL Admin (App.tsx)</h2>
+                <p>Gunakan komponen <code>&lt;Navigate&gt;</code> untuk memblokir pengetikan URL langsung ke halaman kelola buku oleh admin:</p>
+                <pre>&lt;<span class="token-keyword">Route</span> <span class="token-keyword">path</span>=<span class="token-string">"books"</span> <span class="token-keyword">element</span>={
+  SITE_CONFIG.FEATURES.ENABLE_CATALOG ? &lt;<span class="token-keyword">ManageBooks</span> /&gt; : &lt;<span class="token-keyword">Navigate</span> <span class="token-keyword">to</span>=<span class="token-string">"/admin"</span> <span class="token-keyword">replace</span> /&gt;
+} /&gt;</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 5: ADMIN MANAGEMENT & AUTO CONFIRM     -->
+            <!-- ========================================== -->
+            <div id="ch5" class="chapter-break">
+                <h1>Bab 5: Pembuatan Akun Admin Baru & Verifikasi Supabase</h1>
+                <p>Panduan mendaftarkan akun pengelola/petugas perpustakaan baru ke dalam sistem.</p>
+
+                <h2>1. Pilihan Metode Verifikasi Pembuatan Admin</h2>
+                <ul>
+                    <li><strong>Opsi A: Auto-Confirm (Sangat Direkomendasikan)</strong>
+                        <br>Menggunakan fungsi RPC database PostgreSQL. Email admin langsung berstatus aktif/terverifikasi saat disimpan. **Kelebihan**: Bisa menggunakan email bebas/dummy (contoh: <code>adminbaru@test.com</code>) tanpa perlu email asli.
+                    </li>
+                    <li><strong>Opsi B: Verifikasi Email Asli (Bawaan Client-side)</strong>
+                        <br>Menggunakan pendaftaran standar. Pemilik akun admin baru wajib membuka inbox email aslinya dan mengklik link konfirmasi dari Supabase sebelum bisa login.
+                    </li>
+                </ul>
+
+                <h2>2. Script SQL Pembuatan Admin Auto-Confirm (RPC)</h2>
+                <p>Buka **SQL Editor** pada dashboard Supabase Anda, buka query kosong baru, tempel kode SQL berikut, lalu klik **Run**:</p>
+                <pre><span class="token-comment">-- RPC FUNCTION: PEMBUATAN AKUN ADMIN AUTO-CONFIRM</span>
+CREATE OR REPLACE FUNCTION public.create_new_admin_user(
+  admin_email text,
+  admin_password text,
+  admin_name text,
+  admin_role text,
+  avatar_col text
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  new_user_id uuid;
+  encrypted_pw text;
+BEGIN
+  -- 1. Validasi Akses: Hanya super_admin yang boleh memanggil fungsi ini
+  IF NOT public.is_super_admin_from_admins() THEN
+    RAISE EXCEPTION 'Akses ditolak: Hanya Super Admin yang dapat membuat admin baru.';
+  END IF;
+
+  -- 2. Cek Duplikasi
+  IF EXISTS (SELECT 1 FROM public.admins WHERE lower(email) = lower(admin_email)) THEN
+    RAISE EXCEPTION 'Email admin sudah terdaftar.';
+  END IF;
+
+  new_user_id := gen_random_uuid();
+  encrypted_pw := crypt(admin_password, gen_salt('bf', 10)); -- Blowfish Hashing
+
+  -- 3. Masukkan ke tabel Auth Users (langkah auto-confirm email)
+  INSERT INTO auth.users (
+    id, instance_id, aud, role, email, encrypted_password,
+    email_confirmed_at, -- Mengisi waktu konfirmasi langsung saat ini
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at, is_super_admin
+  ) VALUES (
+    new_user_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+    lower(admin_email), encrypted_pw, now(), -- Akun langsung terverifikasi!
+    '{"provider":"email","providers":["email"]}', jsonb_build_object('namaLengkap', admin_name),
+    now(), now(), false
+  );
+
+  -- 4. Masukkan ke profil admins
+  INSERT INTO public.admins (
+    id, nama_lengkap, email, password_hash, role, tanggal_dibuat, avatar_color
+  ) VALUES (
+    new_user_id, admin_name, lower(admin_email), encrypted_pw, admin_role,
+    (EXTRACT(DAY FROM now())::text || ' ' ||
+      CASE EXTRACT(MONTH FROM now())::int
+        WHEN 1 THEN 'Januari' WHEN 2 THEN 'Februari' WHEN 3 THEN 'Maret'
+        WHEN 4 THEN 'April' WHEN 5 THEN 'Mei' WHEN 6 THEN 'Juni'
+        WHEN 7 THEN 'Juli' WHEN 8 THEN 'Agustus' WHEN 9 THEN 'September'
+        WHEN 10 THEN 'Oktober' WHEN 11 THEN 'November' WHEN 12 THEN 'Desember'
+      END || ' ' || EXTRACT(YEAR FROM now())::text),
+    avatar_col
+  );
+
+  RETURN new_user_id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_new_admin_user(text, text, text, text, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.create_new_admin_user(text, text, text, text, text) TO authenticated;</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 6: ATTRIBUTIONS                        -->
+            <!-- ========================================== -->
+            <div id="ch6" class="chapter-break">
+                <h1>Bab 6: Lisensi & Atribusi Aset Pihak Ketiga</h1>
+                <p>Website ini dikembangkan menggunakan beberapa pustaka dan aset berlisensi resmi:</p>
+                <ul>
+                    <li><strong>shadcn/ui</strong>: Komponen desain UI dan fungsionalitas diadaptasi dari pustaka shadcn/ui di bawah lisensi resmi <strong>MIT License</strong>.</li>
+                    <li><strong>Unsplash</strong>: Seluruh media foto/gambar bertema perpustakaan dan buku diperoleh secara legal dari situs penyedia gambar gratis Unsplash di bawah lisensi resmi <strong>Unsplash License</strong>.</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

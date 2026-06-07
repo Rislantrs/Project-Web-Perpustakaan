@@ -36,6 +36,7 @@ Panduan menghubungkan API eksternal, WhatsApp, dan layanan email:
 
 ### 4. ⚙️ Panduan Fitur & Admin (`docs/features/`)
 Panduan fungsionalitas aplikasi, manajemen administrator, sakelar fitur, dan daftar aset:
+* [PANDUAN_FITUR_ADMIN_LENGKAP.html](features/PANDUAN_FITUR_ADMIN_LENGKAP.html) - 🌟 **[HTML/PDF] Buku panduan gabungan dari kelima berkas di bawah ini, didesain khusus agar rapi saat diekspor ke PDF via browser (Ctrl + P).**
 * [PANDUAN_FILE.md](features/PANDUAN_FILE.md) - Penjelasan struktur berkas proyek frontend React dan cara mengganti aset gambar statis dalam kode.
 * [TUTORIAL_MANAJEMEN_ADMIN.md](features/TUTORIAL_MANAJEMEN_ADMIN.md) - Prosedur penambahan, pengelolaan, dan hak akses admin/super-admin.
 * [PANDUAN_TOGGLE_FITUR.md](features/PANDUAN_TOGGLE_FITUR.md) - Mengaktifkan atau menonaktifkan fitur tertentu secara fleksibel di file konfigurasi.
