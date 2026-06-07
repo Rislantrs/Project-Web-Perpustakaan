@@ -7,7 +7,9 @@ Panduan ini disusun untuk memberikan kejelasan mengenai struktur pemisahan datab
 ## 📋 DAFTAR ISI
 1. [Bagian 1: Pemisahan Skema SQL per Fitur](#1-bagian-1-pemisahan-skema-sql-per-fitur)
 2. [Bagian 2: Ekstraksi Skema Minimalis (Hanya Auth, Admin, atau Bucket)](#2-bagian-2-ekstraksi-skema-minimalis-hanya-auth-admin-atau-bucket)
-3. [Bagian 3: Rekomendasi Kode Dynamic Storage Bucket (Bebas Hardcoding)](#3-bagian-3-rekomendasi-kode-dynamic-storage-bucket-bebas-hardcoding)
+3. [Bagian 3: Kebijakan RLS (Row Level Security) untuk Storage Bucket](#3-bagian-3-kebijakan-rls-row-level-security-untuk-storage-bucket)
+4. [Bagian 4: Kode Dinamis Storage Bucket (Bebas Hardcoding)](#4-bagian-4-kode-dinamis-storage-bucket-bebas-hardcoding)
+5. [Bagian 5: Skrip Backend Upload File Dinamis (PHP & Node.js Express)](#5-bagian-5-skrip-backend-upload-file-dinamis-php--nodejs-express)
 
 ---
 
@@ -84,11 +86,14 @@ END;
 $$;
 ```
 
-### C. Jika Hanya Butuh Penyiapan Storage Bucket
-Supabase menggunakan skema internal `storage.buckets` dan `storage.objects`. Anda tidak perlu membuat tabel secara manual di SQL Editor, cukup jalankan perintah ini di SQL Editor untuk membuat Bucket secara otomatis:
+---
+
+## 3. Kebijakan RLS (Row Level Security) untuk Storage Bucket
+
+Untuk mengamankan berkas gambar portal berita, sampul buku, atau lampiran dokumen laporan warga, buat dan aktifkan kebijakan keamanan berikut di Dashboard Supabase atau SQL Editor:
 
 ```sql
--- Membuat bucket untuk sampul buku & gambar artikel jika belum ada
+-- 1. Membuat Bucket Secara Aman
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('articles', 'articles', true)
 ON CONFLICT (id) DO NOTHING;
@@ -96,15 +101,28 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('book-covers', 'book-covers', true)
 ON CONFLICT (id) DO NOTHING;
-```
 
-*Jangan lupa mengonfigurasi kebijakan RLS pada dashboard Supabase -> Storage -> Policies agar publik diizinkan membaca file (`SELECT`) dan admin diizinkan mengunggah file (`INSERT/UPDATE`).*
+-- 2. Mengaktifkan RLS untuk storage.objects
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- 3. Kebijakan Membaca File secara Publik (Bisa diakses siapa saja)
+CREATE POLICY "Akses_Publik_Membaca_File" ON storage.objects FOR SELECT TO public
+  USING (bucket_id IN ('articles', 'book-covers'));
+
+-- 4. Kebijakan Menulis/Mengunggah File (Hanya Admin yang Terautentikasi)
+CREATE POLICY "Hanya_Admin_Bisa_Upload" ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id IN ('articles', 'book-covers') AND public.is_admin());
+
+-- 5. Kebijakan Menghapus File (Hanya Admin yang Terautentikasi)
+CREATE POLICY "Hanya_Admin_Bisa_Hapus" ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id IN ('articles', 'book-covers') AND public.is_admin());
+```
 
 ---
 
-## 3. Rekomendasi Kode Dynamic Storage Bucket (Bebas Hardcoding)
+## 4. Kode Dinamis Storage Bucket (Bebas Hardcoding)
 
-Pada file bawaan [storageService.ts](file:///c:/Users/Rislan/Downloads/Library%20Website%20Design/src/services/storageService.ts), nama bucket default diatur secara statis:
+Pada file bawaan [storageService.ts](file:///c:/Users/Rislan/Downloads/Library%20Website Design/src/services/storageService.ts), nama bucket default diatur secara statis:
 ```typescript
 const DEFAULT_BUCKET = 'articles';
 ```
@@ -112,7 +130,6 @@ const DEFAULT_BUCKET = 'articles';
 Agar sistem lebih fleksibel dan terhindar dari *hardcoding* (sehingga nama bucket dapat diatur melalui file `.env`), terapkan rekomendasi perubahan kode berikut:
 
 ### A. Ubah di Sisi Kode React (Frontend)
-
 Ubah pendefinisian nama bucket agar membaca variabel dari environment:
 
 ```typescript
@@ -127,68 +144,234 @@ VITE_SUPABASE_BUCKET_NAME=nama_bucket_kustom_anda
 
 ---
 
-### B. Solusi Upload Gambar jika Migrasi ke Hosting Sendiri (Non-Supabase)
+## 5. Skrip Backend Upload File Dinamis & Keamanan (PHP & Node.js Express)
 
-Apabila Anda tidak lagi menggunakan Supabase dan ingin menyimpan file gambar langsung di folder web server Anda sendiri secara dinamis tanpa hardcode URL domain:
+Apabila Anda beralih dari Supabase, berikut adalah skrip upload gambar yang telah diamankan dari serangan Remote Code Execution (RCE) dan Path Traversal:
 
-#### 1) Di Sisi Backend PHP (Contoh: `upload.php`):
-Jangan menuliskan alamat URL domain website secara kaku di PHP. Gunakan global variable server PHP agar URL bersifat dinamis mengikuti domain tempat ia di-deploy:
+### Opsi A: Skrip PHP (`upload.php` - cPanel Hosting)
+Skrip ini memverifikasi tipe mime asli file, melakukan sanitasi nama, dan memastikan file yang diunggah benar-benar berkas gambar (bukan script PHP yang disamarkan):
 
 ```php
 <?php
-header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Content-Type: application/json; charset=UTF-8");
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
-    $file = $_FILES['image'];
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $new_filename = uniqid() . '.' . $ext;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$headers = getallheaders();
+$authToken = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : '';
+$expectedToken = "GANTI_DENGAN_TOKEN_KEAMANAN_RAHASIA_ANDA";
+
+if (empty($authToken) || $authToken !== $expectedToken) {
+    http_response_code(403);
+    echo json_encode(["success" => false, "message" => "Akses Ditolak: Token tidak sah."]);
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
+    $file = $_FILES['file'];
     
-    // Folder penyimpanan di server hosting
-    $upload_dir = 'uploads/';
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
+    // 1. Validasi Error Upload
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "Gagal mengunggah berkas. Kode error: " . $file['error']]);
+        exit();
+    }
+
+    // 2. Batasi Ukuran File (Contoh: Maksimal 2MB)
+    $maxSize = 2 * 1024 * 1024;
+    if ($file['size'] > $maxSize) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "Ukuran berkas terlalu besar. Maksimal 2MB."]);
+        exit();
+    }
+
+    // 3. Validasi Ekstensi & Tipe Mime Asli (Mencegah Ekstensi Ganda seperti 'shell.php.jpg')
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    
+    $fileName = basename($file['name']);
+    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Cek mime type real menggunakan finfo
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $realMimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+
+    if (!in_array($ext, $allowedExtensions) || !in_array($realMimeType, $allowedMimeTypes)) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "Format berkas dilarang! Hanya mendukung gambar (JPG, PNG, GIF, WEBP)."]);
+        exit();
+    }
+
+    // 4. Verifikasi apakah berkas benar-benar gambar menggunakan GD Library
+    $imageInfo = @getimagesize($file['tmp_name']);
+    if ($imageInfo === false) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "Berkas terdeteksi korup atau bukan gambar asli."]);
+        exit();
+    }
+
+    // 5. Generate Nama Baru Acak
+    $newFilename = uniqid('IMG-', true) . '.' . $ext;
+    
+    $uploadDir = 'uploads/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+        // Buat file .htaccess di folder uploads untuk menonaktifkan eksekusi script PHP
+        file_put_contents($uploadDir . '.htaccess', "removehandler .php\nAddType text/plain .php");
     }
     
-    $target_file = $upload_dir . $new_filename;
+    $targetPath = $uploadDir . $newFilename;
     
-    if (move_uploaded_file($file['tmp_name'], $target_file)) {
-        // AMBIL DOMAIN SECARA DINAMIS (Anti Hardcoding URL)
+    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
         $host = $_SERVER['HTTP_HOST'];
-        $public_url = $protocol . $host . '/' . $target_file;
+        $publicUrl = $protocol . $host . '/api/' . $targetPath;
         
-        echo json_encode([
-            "success" => true,
-            "url" => $public_url
-        ]);
+        echo json_encode(["success" => true, "url" => $publicUrl]);
         exit();
     }
 }
 
-echo json_encode(["success" => false, "message" => "Gagal mengunggah berkas."]);
+http_response_code(500);
+echo json_encode(["success" => false, "message" => "Gagal menyimpan berkas di server."]);
+?>
 ```
 
-#### 2) Di Sisi Frontend React:
-Cukup ubah endpoint target upload di `storageService.ts` untuk mengarah ke API kustom Anda:
+### Opsi B: Skrip Node.js Express (`uploadRoute.js` - VPS/Hostinger Node)
+Menggunakan module `multer` dengan batasan ketat untuk mencegah serangan Denial of Service (DoS) dan RCE:
 
-```typescript
-export const uploadImage = async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append('image', file);
+```javascript
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const router = express.Router();
 
-  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload.php`, {
-    method: 'POST',
-    body: formData,
-  });
+const uploadDir = 'public/uploads/';
+if (!fs.existsSync(uploadDir)){
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.message || 'Gagal upload gambar');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    // Bersihkan nama file asli dan buat string unik
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, 'IMG-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // Maksimal 2MB
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|webp|gif/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Format file tidak didukung! Harus berupa gambar.'));
+  }
+});
+
+// Endpoint Upload Express
+router.post('/api/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'Berkas tidak ditemukan.' });
+  }
+  
+  const publicUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  res.json({ success: true, url: publicUrl });
+});
+
+// Global Error Handler untuk Multer (misal ukuran file melebihi limit)
+router.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ success: false, message: `Kesalahan upload: ${err.message}` });
+  } else if (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  next();
+});
+
+module.exports = router;
+```
+
+---
+
+## 6. Otomatisasi Unduh Seluruh Gambar dari Supabase Storage
+
+Apabila data gambar Anda di Supabase Storage sudah banyak, sangat melelahkan jika harus mengunduhnya satu-persatu. Gunakan skrip otomatisasi Node.js di bawah ini pada komputer lokal Anda untuk mengunduh semua file di bucket `articles` dan `book-covers`:
+
+```javascript
+// Simpan sebagai download_supabase.js
+// Jalankan: npm install @supabase/supabase-js fs path
+const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
+const path = require('path');
+
+const SUPABASE_URL = 'https://anqopdxzdkpsmtxuultp.supabase.co';
+const SUPABASE_KEY = 'GANTI_DENGAN_SERVICE_ROLE_KEY_SUPABASE_ANDA'; // Gunakan service role key agar bypass RLS untuk backup
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const BUCKETS = ['articles', 'book-covers'];
+const OUTPUT_DIR = './downloaded_assets';
+
+async function downloadFile(bucket, filePath) {
+  const { data, error } = await supabase.storage.from(bucket).download(filePath);
+  if (error) {
+    console.error(`Gagal unduh ${filePath}:`, error.message);
+    return;
+  }
+  
+  const destPath = path.join(OUTPUT_DIR, bucket, filePath);
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  const buffer = Buffer.from(await data.arrayBuffer());
+  fs.writeFileSync(destPath, buffer);
+  console.log(`Berhasil unduh: ${bucket}/${filePath}`);
+}
+
+async function listAndDownload(bucket, folder = '') {
+  const { data, error } = await supabase.storage.from(bucket).list(folder);
+  if (error) {
+    console.error(`Gagal membaca bucket ${bucket}:`, error.message);
+    return;
   }
 
-  // Mengembalikan URL publik gambar dinamis dari server Anda
-  return result.url; 
-};
+  for (const item of data) {
+    const itemPath = folder ? `${folder}/${item.name}` : item.name;
+    if (item.id === null) {
+      // Jika id null, berarti ini adalah folder, lakukan rekursif
+      await listAndDownload(bucket, itemPath);
+    } else {
+      // Berupa file, lakukan download
+      await downloadFile(bucket, itemPath);
+    }
+  }
+}
+
+async function run() {
+  console.log('Memulai pencadangan berkas Supabase Storage...');
+  for (const bucket of BUCKETS) {
+    await listAndDownload(bucket);
+  }
+  console.log('Pencadangan Selesai! Berkas disimpan di folder ./downloaded_assets/');
+}
+
+run();
 ```
-Dengan menerapkan langkah-langkah di atas, baik skema basis data maupun penanganan penyimpanan berkas Anda akan terbebas dari keterikatan kaku (*loose coupling*), aman, dan sangat mudah untuk dimigrasikan ke platform hosting mana pun.
+
+Setelah terunduh ke folder lokal, Anda tinggal mengunggah folder tersebut ke server hosting baru Anda melalui **cPanel File Manager** atau **FTP Client (FileZilla)** ke direktori `/public/uploads/` atau `/api/uploads/`.
+
