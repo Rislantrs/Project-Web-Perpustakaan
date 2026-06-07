@@ -17,10 +17,12 @@ Panduan pemetaan, skema database, dan migrasi basis data dari PostgreSQL/Supabas
 
 ### 2. 📦 Hosting & Deployment (`docs/hosting/`)
 Panduan mengunggah kode web ke hosting umum, VPS, serta konfigurasi domain dan SSL:
+* [PANDUAN_HOSTING_DEPLOYMENT_LENGKAP.html](hosting/PANDUAN_HOSTING_DEPLOYMENT_LENGKAP.html) - 🌟 **[HTML/PDF] Buku panduan gabungan dari keempat berkas di bawah ini, didesain khusus agar rapi saat diekspor ke PDF via browser (Ctrl + P).**
 * [panduan_migrasi_hosting_terpadu.md](hosting/panduan_migrasi_hosting_terpadu.md) - Strategi lengkap migrasi mandiri ke Hostinger / VPS (Nginx, SSL, PM2, SMTP, Cron).
 * [deployment_guide.md](hosting/deployment_guide.md) - Panduan umum deployment aplikasi frontend dan backend.
 * [penjelasan_bahasa_dan_hosting.md](hosting/penjelasan_bahasa_dan_hosting.md) - Penjelasan arsitektur web dan pilihan hosting menggunakan bahasa sederhana/analogi untuk pembaca non-teknis.
 * [panduan_navigasi_subdomain.md](hosting/panduan_navigasi_subdomain.md) - Tata cara pengaturan DNS dan navigasi antar subdomain.
+
 
 ### 3. 🔌 Integrasi Layanan & API (`docs/integration/`)
 Panduan menghubungkan API eksternal, WhatsApp, dan layanan email:
