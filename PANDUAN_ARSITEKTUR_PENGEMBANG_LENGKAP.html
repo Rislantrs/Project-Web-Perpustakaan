@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan Komprehensif: Arsitektur, Keamanan, Migrasi & Handover - Disipusda Purwakarta</title>
+    <style>
+        /* Modern Reset and CSS Variables */
+        :root {
+            --primary: #0c2f3d;
+            --primary-light: #1a4254;
+            --accent: #c09440; /* Library Warm Beige/Gold brand accent */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #f8f8f2;
+            --alert-tip: #0f766e;
+            --alert-note: #1d4ed8;
+            --alert-warning: #b45309;
+            --alert-caution: #be123c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout Architecture */
+        .wrapper {
+            width: 100%;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin: 2rem auto;
+            padding: 4rem 5rem;
+            max-width: 950px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Header Document Info */
+        .doc-header {
+            background: linear-gradient(135deg, #0c2f3d 0%, #1a4254 100%);
+            color: #ffffff !important;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-header h1 {
+            font-size: 2.25rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: #ffffff !important;
+        }
+
+        .doc-header p {
+            color: #cbd5e1 !important;
+            font-size: 1.1rem;
+        }
+
+        /* Typography Styles */
+        h1, h2, h3, h4 {
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.35rem;
+            margin-top: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-top: 1.75rem;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.75rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alert Box Styles */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-left: 5px solid transparent;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-note {
+            background-color: #eff6ff;
+            border-left-color: var(--alert-note);
+            color: #1e3a8a;
+        }
+
+        .alert-tip {
+            background-color: #f0fdf4;
+            border-left-color: var(--alert-tip);
+            color: #115e59;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-left-color: var(--alert-warning);
+            color: #78350f;
+        }
+
+        .alert-caution {
+            background-color: #fff5f5;
+            border-left-color: var(--alert-caution);
+            color: #9b1c1c;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tables Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks & Coding Styling */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Syntax Highlight Colors */
+        .token-keyword { color: #f92672; font-weight: bold; }
+        .token-string { color: #e6db74; }
+        .token-comment { color: #75715e; font-style: italic; }
+        .token-number { color: #ae81ff; }
+        .token-type { color: #66d9ef; font-style: italic; }
+
+        /* Divider and spacing helpers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        .chapter-break {
+            margin-top: 5rem;
+        }
+
+        /* Table of Contents Styling */
+        .toc-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .toc-box h3 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        .toc-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .toc-list li {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .toc-list li a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .toc-list li a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+        .toc-list ul {
+            list-style: circle;
+            padding-left: 1.5rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .toc-list ul li {
+            font-weight: normal;
+            font-size: 0.95rem;
+        }
+
+        /* Dynamic Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent);
+            color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background-color: #a1782f;
+        }
+
+        /* PRINT STYLING - Optimize for PDF Generation */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+                font-size: 14px;
+            }
+
+            .back-to-top, .toc-box {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .doc-header {
+                border: 2px solid #000000;
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0;
+                padding: 2rem;
+            }
+
+            .doc-header h1 {
+                color: #000000 !important;
+            }
+
+            .doc-header p {
+                color: #333333 !important;
+            }
+
+            h1, h2, h3, h4 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                border-bottom: 2px solid #000000;
+                margin-top: 2rem;
+            }
+
+            pre, table, blockquote, .alert {
+                page-break-inside: avoid;
+            }
+
+            pre {
+                border: 1px solid #94a3b8;
+                box-shadow: none !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            pre code {
+                color: #000000 !important;
+            }
+
+            code {
+                background-color: #f1f5f9;
+                border: 1px solid #cbd5e1;
+            }
+
+            .alert {
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            .alert-title {
+                color: #000000 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
+
+    <div class="wrapper">
+        <div class="main-content">
+            <!-- Cover Section -->
+            <div class="doc-header" id="cover">
+                <h1>Buku Panduan Komprehensif:<br>Arsitektur, Keamanan, Migrasi & Handover</h1>
+                <p>Panduan pengembang tingkat lanjut yang merangkum spesifikasi arsitektur keamanan (CSP & RLS), migrasi skema database Supabase, petunjuk pengamanan kredensial admin, serta panduan serah terima kode (developer handover) portal Disipusda Purwakarta.</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #cbd5e1 !important; font-weight: 500;">Diperbarui: Juni 2026 | Disusun oleh: M. Rislan Tristansyah (Mahasiswa Sistem Telekomunikasi)</p>
+            </div>
+
+            <!-- Table of Contents -->
+            <div class="toc-box">
+                <h3>Daftar Isi Panduan</h3>
+                <ul class="toc-list">
+                    <li><a href="#ch1">Bab 1: Panduan Memulai & Sistem Desain Portal</a>
+                        <ul>
+                            <li>Desain System & Palet Warna</li>
+                            <li>Fitur Utama Live System</li>
+                            <li>Teknologi Produksi (Tech Stack)</li>
+                            <li>Notifikasi Email Otomatis (SMTP Resend)</li>
+                        </ul>
+                    </li>
+                    <li><a href="#ch2">Bab 2: Panduan Pengamanan Kredensial Admin Pasca-Deployment</a>
+                        <ul>
+                            <li>Status Risiko Kredensial Default</li>
+                            <li>Pilihan A: Mengubah Sandi via Dashboard</li>
+                            <li>Pilihan B: Menonaktifkan Seeder Otomatis di Kode</li>
+                            <li>Tips Sesi Demo Presentasi</li>
+                        </ul>
+                    </li>
+                    <li><a href="#ch3">Bab 3: Arsitektur Keamanan: React + Supabase + Cloudflare Pages</a>
+                        <ul>
+                            <li>Data Integrity: Mengunci Kolom Sensitif</li>
+                            <li>Access Control: RLS vs Middleware</li>
+                            <li>CSP (Content Security Policy) & Cloudflare Turnstile</li>
+                            <li>Risk Management: Testing & Monitoring</li>
+                        </ul>
+                    </li>
+                    <li><a href="#ch4">Bab 4: Kumpulan SQL Migrasi Database Supabase & Perbaikan Auth</a>
+                        <ul>
+                            <li>Trigger Hapus Otomatis Auth User</li>
+                            <li>RPC Hapus Bersih User Berdasarkan Email</li>
+                            <li>RPC Pembuat Akun Admin Auto-Confirm</li>
+                            <li>RPC Pembaru Sandi Admin Terenkripsi</li>
+                            <li>Bypass Strict Mode Login Dobel</li>
+                        </ul>
+                    </li>
+                    <li><a href="#ch5">Bab 5: Panduan Serah Terima Pengembang (Developer Handover Pages + Services)</a>
+                        <ul>
+                            <li>Alur Pembacaan Kode Cepat</li>
+                            <li>Konvensi Angka Batas Hardcoded</li>
+                            <li>Dokumentasi Per Berkas Service (Services)</li>
+                            <li>Dokumentasi Per Berkas Halaman (Pages & Admin Pages)</li>
+                            <li>Checklist Ganti Desain & Arah Refaktorisasi</li>
+                        </ul>
+                    </li>
+                    <li><a href="#ch6">Bab 6: Panduan Modul Mandiri (Standalone Booking Micro-Frontend)</a>
+                        <ul>
+                            <li>Keuntungan Modul Mandiri Kearsipan</li>
+                            <li>Konfigurasi Terpusat bookingConfig.ts</li>
+                            <li>Langkah Menjalankan di Lokal</li>
+                            <li>Langkah Deployment & Iframe WordPress</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 1: PANDUAN MEMULAI & SISTEM DESAIN     -->
+            <!-- ========================================== -->
+            <div id="ch1" class="chapter-break">
+                <h1>Bab 1: Panduan Memulai & Sistem Desain Portal</h1>
+                <p>Website Perpustakaan Digital & Kearsipan Kabupaten Purwakarta dirancang sebagai portal modern, hangat, dan berstandar dinas nasional yang terinspirasi dari sistem desain Elsevier dan New York Public Library.</p>
+
+                <h2>1. Sistem Desain (Design System)</h2>
+                <h3>Palet Warna (Color Palette)</h3>
+                <ul>
+                    <li><strong>Warna Primer (Primary):</strong> Deep Navy (<code>#1E3A5F</code> atau <code>#0c2f3d</code>) - Memberikan kesan profesional, akademis, tepercaya, dan berwibawa.</li>
+                    <li><strong>Warna Sekunder:</strong> Light Gray (<code>#F5F5F5</code>) - Bersih dan minimalis sebagai pemisah konten secara visual.</li>
+                    <li><strong>Warna Aksen (Accent):</strong> Warm Beige (<code>#C8A97E</code> atau <code>#c09440</code>) - Memberikan atmosfer ruang baca perpustakaan yang hangat, nyaman, dan bersahabat.</li>
+                    <li><strong>Warna Latar Belakang (Background):</strong> Soft White (<code>#FFFFFF</code> / <code>#f8fafc</code>).</li>
+                    <li><strong>Sage Green:</strong> (<code>#9DAD97</code>) - Warna penyeimbang untuk aksen tenang dan detail visual.</li>
+                </ul>
+
+                <h3>Tipografi (Typography)</h3>
+                <ul>
+                    <li><strong>Judul Halaman (Headings):</strong> Playfair Display (Serif, anggun, formal, dan mencerminkan kewibawaan literatur).</li>
+                    <li><strong>Teks Utama (Body):</strong> Inter (Modern, bersih, tingkat keterbacaan tinggi di layar HP/Android).</li>
+                    <li><strong>Aksen Budaya:</strong> Noto Sans Sundanese (Digunakan untuk penulisan aksara Sunda pada detail ornamen visual khas daerah).</li>
+                </ul>
+
+                <h3>Prinsip Desain (Design Principles)</h3>
+                <ul>
+                    <li>Minimalis, bersih, dan elegan dengan memanfaatkan whitespace secara seimbang.</li>
+                    <li>Atmosfer membaca yang nyaman ("warm and cozy reading atmosphere").</li>
+                    <li>Kesan akademis, tepercaya, dan ramah pengguna (user-friendly).</li>
+                    <li>Animasi halus (smooth transitions) dan interaksi mikro (micro-interactions) untuk meningkatkan keterlibatan pengguna.</li>
+                    <li>Layout berbasis kartu (card-based layout) dengan bayangan lembut (soft shadows) dan sudut melengkung di seluruh komponen.</li>
+                </ul>
+
+                <h2>2. Fitur Utama Sistem (Live Implementation)</h2>
+                <h3>Sistem Autentikasi & Anggota (Fully Integrated)</h3>
+                <ul>
+                    <li><strong>Real Supabase Auth:</strong> Sistem login, logout, dan pendaftaran anggota yang terintegrasi penuh secara real-time dengan cloud database Supabase.</li>
+                    <li><strong>Email Verification (SMTP Resend):</strong> Pengiriman kode OTP (One Time Password) dan magic link verifikasi melalui provider pihak ketiga Resend.com.</li>
+                    <li><strong>Premium Verification Flow:</strong> Halaman verifikasi khusus dengan UI Glassmorphism modern, memiliki hitung mundur cooldown pengiriman ulang OTP selama 60 detik, serta verifikasi kode aman 8-digit.</li>
+                    <li><strong>NIK Masking:</strong> Proteksi privasi secara otomatis menyensor data Nomor Induk Kependudukan (NIK) anggota di seluruh dashboard admin maupun profil user.</li>
+                </ul>
+
+                <h3>Katalog & Perpustakaan Digital</h3>
+                <ul>
+                    <li><strong>Katalog Buku Dinamis:</strong> Sistem pencarian, pengurutan, dan penyaringan kategori buku yang tersinkronisasi langsung dengan tabel database PostgreSQL.</li>
+                    <li><strong>Numbered Pagination:</strong> Sistem navigasi halaman bernomor profesional (1, 2, 3...) untuk menggantikan tombol "Muat Lebih Banyak" yang kurang ramah SEO dan menyulitkan pencarian halaman spesifik.</li>
+                    <li><strong>Manajemen Kategori:</strong> Dashboard admin canggih untuk mengelola kategori buku perpustakaan secara mudah dengan desain antarmuka yang efisien.</li>
+                </ul>
+
+                <h3>Konten & Artikel</h3>
+                <ul>
+                    <li><strong>Cinematic Media View:</strong> Tampilan galeri khusus untuk kategori "Media Mewarnai" dengan fitur unduhan PDF yang dioptimalkan agar file tidak rusak (anti-corrupt).</li>
+                    <li><strong>Dashboard Admin Terpadu:</strong> Content Management System (CMS) lengkap untuk mengelola Artikel berita, Buku, Kategori, Aset Media, Pengaduan, dan Data Anggota.</li>
+                </ul>
+
+                <h2>3. Stack Teknologi Produksi (Production Ready)</h2>
+                <ul>
+                    <li><strong>Frontend Framework:</strong> React 18, TypeScript, compiler Vite.</li>
+                    <li><strong>Styling Layout:</strong> Tailwind CSS v4, Lucide Icons.</li>
+                    <li><strong>Animasi:</strong> Motion (Framer Motion).</li>
+                    <li><strong>Backend Engine:</strong> Supabase (Real-time Database, Storage, Edge Functions, & Authentication).</li>
+                    <li><strong>Layanan Email:</strong> Resend SMTP.</li>
+                    <li><strong>Notifikasi:</strong> Sonner (Toast notification melayang).</li>
+                </ul>
+
+                <h2>4. Notifikasi Email Otomatis (Resend API + Supabase Edge Functions)</h2>
+                <p>Implementasi notifikasi email untuk sirkulasi buku anggota dirancang dengan arsitektur server-side yang aman:</p>
+                <ul>
+                    <li>Frontend React memanggil Edge Function Supabase secara tidak langsung melalui <code>src/services/emailService.ts</code>.</li>
+                    <li>Edge Function memproses logika dan memicu Resend API secara server-side.</li>
+                    <li>Kredensial <code>RESEND_API_KEY</code> disimpan dengan aman di environment variable Supabase Secrets, sehingga tidak bocor ke browser klien.</li>
+                </ul>
+
+                <h3>Komponen Berkas Tambahan:</h3>
+                <ul>
+                    <li><code>src/services/emailService.ts</code></li>
+                    <li><code>supabase/functions/send-borrow-notification/index.ts</code></li>
+                    <li><code>supabase/functions/send-borrow-reminders/index.ts</code></li>
+                    <li><code>supabase/functions/_shared/emailTemplates.ts</code></li>
+                    <li><code>supabase/migrations/20260428_borrow-notification-logs.sql</code></li>
+                </ul>
+
+                <h3>Langkah Pengaturan Environment Variable (Supabase Secrets):</h3>
+                <p>Jalankan perintah berikut di CLI atau atur melalui dashboard Supabase Project Settings:</p>
+                <pre>supabase secrets set RESEND_API_KEY="re_your_api_key"
+supabase secrets set RESEND_FROM_EMAIL="Disipusda &lt;no-reply@domain-anda.com&gt;"
+supabase secrets set CRON_SECRET="token_rahasia_cron_anda"</pre>
+
+                <h3>Perintah Deploy Edge Function:</h3>
+                <pre>supabase functions deploy send-borrow-notification
+supabase functions deploy send-borrow-reminders</pre>
+
+                <h3>Penjadwalan Cron Harian (Daily Reminders):</h3>
+                <p>Dapat dijadwalkan menggunakan modul pg_cron Supabase atau HTTP Cron service eksternal:</p>
+                <ul>
+                    <li><strong>Method:</strong> <code>POST</code></li>
+                    <li><strong>URL:</strong> <code>https://&lt;project-ref&gt;.supabase.co/functions/v1/send-borrow-reminders</code></li>
+                    <li><strong>Header:</strong> <code>x-cron-secret: &lt;CRON_SECRET&gt;</code></li>
+                </ul>
+                <p>Job otomatis harian akan mengirimkan notifikasi:</p>
+                <ol>
+                    <li>Pengingat buku belum diambil setelah dipesan (H+1 dari tanggal pinjam).</li>
+                    <li>Pengingat jatuh tempo pengembalian buku (H-2 sebelum batas waktu).</li>
+                    <li>Pengingat denda dan keterlambatan (maksimal sekali sehari per transaksi bermasalah).</li>
+                </ol>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 2: PENGAMANAN KREDENSIAL ADMIN         -->
+            <!-- ========================================== -->
+            <div id="ch2" class="chapter-break">
+                <h1>Bab 2: Panduan Pengamanan Kredensial Admin Pasca-Deployment</h1>
+                <p>Dokumen ini menjelaskan langkah cepat untuk mengamankan akun administrator default bawaan sistem setelah kode web dipublikasikan secara online agar tidak disalahgunakan oleh pihak asing.</p>
+
+                <h2>1. Status Risiko Kredensial Default</h2>
+                <p>Saat database pertama kali diinisialisasi melalui seeder otomatis di lokal, sistem mendaftarkan akun administratif Super Admin bawaan:</p>
+                <ul>
+                    <li><strong>Email Utama:</strong> <code>admin@disipusda.go.id</code></li>
+                    <li><strong>Sandi Bawaan:</strong> <code>admin123</code></li>
+                </ul>
+                <div class="alert alert-warning">
+                    <div class="alert-title">PERINGATAN RISIKO KEAMANAN</div>
+                    Jika tautan website sudah online (misal di Cloudflare Pages) dan password bawaan ini tidak segera diganti, orang asing dapat dengan mudah masuk ke dashboard admin dan memanipulasi seluruh isi database portal.
+                </div>
+
+                <h2>2. Dua Pilihan Pengamanan Pasca-Deployment</h2>
+                
+                <h3>Pilihan A: Mengubah Password via Dashboard Admin (Sangat Direkomendasikan)</h3>
+                <p>Langkah tercepat dan termudah tanpa perlu menyentuh atau melakukan build ulang kode program:</p>
+                <ol>
+                    <li>Buka situs web produksi Anda yang telah aktif di internet.</li>
+                    <li>Navigasikan ke halaman login admin di alamat <code>/login-admin</code>.</li>
+                    <li>Login menggunakan akun bawaan: Email <code>admin@disipusda.go.id</code> dan password <code>admin123</code>.</li>
+                    <li>Setelah diarahkan masuk ke halaman dashboard, pilih menu <strong>Kelola Admin</strong> atau <strong>Pengaturan Profil</strong>.</li>
+                    <li>Pilih profil Super Admin Anda, klik tombol <strong>Ubah Password / Edit Sandi</strong>.</li>
+                    <li>Masukkan sandi baru yang kuat dan unik (contoh: <code>DisipusdaPwk2026!</code>).</li>
+                    <li>Simpan perubahan. Sandi default <code>admin123</code> kini telah terhapus permanen dari Supabase Cloud.</li>
+                </ol>
+
+                <h3>Pilihan B: Menonaktifkan Seeder Otomatis di Kode Program (Langkah Permanen)</h3>
+                <p>Jika Anda tidak ingin akun default ini dibuat sama sekali pada database baru di masa mendatang, Anda bisa menghapus pendaftarannya di kode sumber:</p>
+                <ol>
+                    <li>Buka berkas <a href="file:///c:/Users/Rislan/Downloads/Library%20Website%20Design/src/services/db.ts#L89-L107">src/services/db.ts</a>.</li>
+                    <li>Temukan fungsi <code>initializeDB()</code> pada sekitar baris ke-89.</li>
+                    <li>Hapus atau komentari blok kode inisialisasi default admin:
+                        <pre><span class="token-comment">// Hapus atau komentari bagian ini jika dideploy ke produksi:</span>
+<span class="token-keyword">const</span> admins = dbGet(DB_KEYS.ADMINS, []);
+<span class="token-keyword">if</span> (admins.length === 0) {
+  <span class="token-comment">// Blok inisialisasi data admin default</span>
+}</pre>
+                    </li>
+                    <li>Lakukan kompilasi build ulang dan upload ulang ke platform hosting/Cloudflare Pages.</li>
+                </ol>
+
+                <h2>3. Tips Sesi Demo / Presentasi</h2>
+                <div class="alert alert-note">
+                    <div class="alert-title">REKOMENDASI DEMO</div>
+                    Apabila website ini sedang diuji oleh dosen penguji atau dinas terkait dalam waktu terbatas (1-2 hari), Anda dapat membiarkan sandi default agar penguji mudah masuk. Namun, setelah demo berakhir, wajib segera mengganti sandi tersebut demi keamanan data.
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 3: ARSITEKTUR KEAMANAN SISTEM          -->
+            <!-- ========================================== -->
+            <div id="ch3" class="chapter-break">
+                <h1>Bab 3: Arsitektur Keamanan: React + Supabase + Cloudflare Pages</h1>
+                <p>Spesifikasi teknis arsitektur keamanan tingkat lanjut untuk menjaga integritas data transaksi dan perlindungan akses API.</p>
+
+                <h2>1. Integritas Data (Data Integrity): Mengunci Kolom Sensitif</h2>
+                <p>Jika mengandalkan validasi di sisi browser saja, peretas dengan mudah dapat membypass JavaScript lewat console. Oleh karena itu, kita menerapkan <strong>Server-Driven Immutability</strong> di level database.</p>
+
+                <h3>Desain Skema SQL PostgreSQL (Supabase)</h3>
+                <pre><span class="token-comment">-- Tabel Berita/Artikel</span>
+<span class="token-keyword">CREATE TABLE</span> public.articles (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    
+    <span class="token-comment">-- Immutable: Hanya boleh ditulis saat INSERT, haram di-UPDATE</span>
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+    created_by TEXT NOT NULL,
+    
+    <span class="token-comment">-- Server-controlled: Hanya dimodifikasi via trigger database</span>
+    status TEXT DEFAULT 'draft' NOT NULL,
+    published_at TIMESTAMP WITH TIME ZONE,
+    
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_by TEXT,
+    
+    CONSTRAINT valid_status CHECK (status IN ('draft', 'published', 'archived'))
+);
+
+<span class="token-comment">-- Trigger: Mengisi published_at otomatis saat status berubah menjadi 'published'</span>
+<span class="token-keyword">CREATE OR REPLACE FUNCTION</span> public.set_published_timestamp()
+<span class="token-keyword">RETURNS TRIGGER AS</span> $$
+<span class="token-keyword">BEGIN</span>
+    IF NEW.status = 'published' AND OLD.status != 'published' THEN
+        NEW.published_at = now();
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+<span class="token-keyword">CREATE TRIGGER</span> trigger_set_published_timestamp
+BEFORE UPDATE ON public.articles
+FOR EACH ROW
+EXECUTE FUNCTION public.set_published_timestamp();
+
+<span class="token-comment">-- Kebijakan RLS (Row Level Security) untuk kolom Immutable</span>
+<span class="token-keyword">CREATE POLICY</span> "Created at immutable"
+ON public.articles
+FOR UPDATE
+USING (auth.uid()::text = created_by)
+WITH CHECK (
+    created_at = OLD.created_at
+    AND created_by = OLD.created_by
+    AND (
+        (NEW.status = 'published' AND OLD.status != 'published')
+        OR (NEW.status = OLD.status)
+    )
+);</pre>
+
+                <h3>Implementasi Sisi Frontend (TypeScript)</h3>
+                <p>Jangan pernah mengirim kolom immutable saat melakukan update agar tidak memicu pemblokiran RLS di level PostgreSQL:</p>
+                <pre><span class="token-comment">// ✅ CARA YANG BENAR: Hanya kirim kolom yang boleh diubah</span>
+<span class="token-keyword">const</span> saveArticle = <span class="token-keyword">async</span> (article: Article) => {
+  <span class="token-keyword">const</span> { error } = <span class="token-keyword">await</span> supabase
+    .from(<span class="token-string">'articles'</span>)
+    .update({
+      title: article.title,
+      content: article.content
+      <span class="token-comment">// Kolom created_at, created_by, status tidak dikirim</span>
+    })
+    .eq(<span class="token-string">'id'</span>, article.id);
+
+  <span class="token-keyword">if</span> (error?.code === <span class="token-string">'42501'</span>) {
+    console.error(<span class="token-string">'Akses RLS ditolak: Kolom terkunci!'</span>);
+  }
+};</pre>
+
+                <h3>Middleware Validasi di Edge Function</h3>
+                <p>Pemeriksaan immutable juga diperkuat di layer Supabase Edge Function:</p>
+                <pre><span class="token-comment">// supabase/functions/update-article/index.ts</span>
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+serve(async (req) => {
+  if (req.method !== "PATCH") return new Response("Method not allowed", { status: 405 });
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return new Response("Unauthorized", { status: 401 });
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser(
+    authHeader.replace("Bearer ", "")
+  );
+  if (authError || !user) return new Response("Unauthorized", { status: 401 });
+
+  const { id, title, content } = await req.json();
+
+  const { data: current, error: fetchError } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (fetchError) return new Response("Not found", { status: 404 });
+  if (current.created_by !== user.id) {
+    return new Response("Unauthorized: Not the author", { status: 403 });
+  }
+
+  const allowedUpdate = {
+    title: title || current.title,
+    content: content || current.content,
+    updated_at: new Date().toISOString(),
+    updated_by: user.id
+  };
+
+  const { error } = await supabase.from("articles").update(allowedUpdate).eq("id", id);
+  return new Response(JSON.stringify({ success: !error }), { status: error ? 400 : 200 });
+});</pre>
+
+                <h2>2. Kontrol Akses (Access Control): RLS vs Middleware</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspek</th>
+                            <th>Row-Level Security (RLS)</th>
+                            <th>Edge Middleware</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Kecepatan</strong></td>
+                            <td>Sangat cepat (filter di level query database).</td>
+                            <td>Ada sedikit latensi jaringan serverless.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kompleksitas Logika</strong></td>
+                            <td>Terbatas pada ekspresi SQL.</td>
+                            <td>Sangat fleksibel (TypeScript & Deno).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audit Logs</strong></td>
+                            <td>Harus diatur manual via trigger SQL.</td>
+                            <td>Dapat langsung dicatat ke log audit.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Risiko Bypass</strong></td>
+                            <td>Sangat aman, dipaksa di level engine database.</td>
+                            <td>Bergantung pada keamanan kode API endpoint.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><strong>Rekomendasi Terbaik (Hybrid Approach):</strong> Gunakan RLS untuk penyaringan dasar kepemilikan baris data (misal: <code>created_by = auth.uid()::text</code>), dan gunakan Edge Function untuk otorisasi yang membutuhkan audit log atau verifikasi captcha.</p>
+
+                <h2>3. Content Security Policy (CSP) & Cloudflare Turnstile</h2>
+                <p>Untuk menghindari celah XSS, file header Cloudflare Pages (<code>public/_headers</code>) dikonfigurasi dengan kebijakan CSP yang ketat:</p>
+                <pre>Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net; frame-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.googleapis.com https://fonts.gstatic.com; form-action 'self' https://*.supabase.co; frame-ancestors 'none'; upgrade-insecure-requests;</pre>
+
+                <h3>Integrasi Widget Cloudflare Turnstile Captcha</h3>
+                <pre><span class="token-comment">// React Component untuk memuat Turnstile dengan aman</span>
+import { useEffect, useRef, useState } from 'react';
+
+export function TurnstileWidget() {
+  const containerRef = useRef&lt;HTMLDivElement&gt;(null);
+  const [token, setToken] = useState&lt;string&gt;('');
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    
+    script.onload = () => {
+      if (window.turnstile) {
+        window.turnstile.render('#turnstile-container', {
+          sitekey: import.meta.env.VITE_TURNSTILE_SITEKEY,
+          theme: 'light',
+          callback: (token: string) => {
+            setToken(token);
+            verifyTurnstile(token);
+          }
+        });
+      }
+    };
+    document.head.appendChild(script);
+    return () => {
+      if (window.turnstile) window.turnstile.reset();
+    };
+  }, []);
+
+  return &lt;div id="turnstile-container" ref={containerRef} /&gt;;
+}</pre>
+
+                <h2>4. Manajemen Risiko: Checklist Pra-Produksi</h2>
+                <ul>
+                    <li>[ ] Semua kebijakan RLS (Row-Level Security) telah aktif pada seluruh tabel di Supabase.</li>
+                    <li>[ ] CSP header telah diuji di staging dan tidak memblokir plugin eksternal penting.</li>
+                    <li>[ ] Environment variables database key disimpan di panel cloud hosting (bukan hardcoded).</li>
+                    <li>[ ] HTTPS redirect dipaksa menyala otomatis di pengaturan Cloudflare.</li>
+                    <li>[ ] Backup database Supabase harian telah diaktifkan secara otomatis.</li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 4: SQL MIGRATIONS & AUTH FIXES         -->
+            <!-- ========================================== -->
+            <div id="ch4" class="chapter-break">
+                <h1>Bab 4: Kumpulan SQL Migrasi Database & Perbaikan Auth</h1>
+                <p>Semua query SQL berikut wajib dijalankan di <strong>SQL Editor Supabase</strong> agar sistem manajemen autentikasi dapat berfungsi tanpa kesalahan di server hosting produksi.</p>
+
+                <h2>1. Trigger: Hapus Otomatis Auth User (<code>trigger_handle_member_deleted</code>)</h2>
+                <p><strong>Fungsi:</strong> Menghapus kredensial login di <code>auth.users</code> secara otomatis saat admin menghapus anggota dari tabel member, mencegah adanya email anggota tersangkut:</p>
+                <pre><span class="token-keyword">CREATE OR REPLACE FUNCTION</span> public.handle_member_deleted()
+<span class="token-keyword">RETURNS TRIGGER AS</span> $$
+<span class="token-keyword">BEGIN</span>
+  <span class="token-comment">-- Hapus akun user di auth.users secara otomatis</span>
+  <span class="token-keyword">DELETE FROM</span> auth.users <span class="token-keyword">WHERE</span> id <span class="token-keyword">=</span> OLD.id::uuid;
+  <span class="token-keyword">RETURN</span> OLD;
+<span class="token-keyword">END</span>;
+$$ <span class="token-keyword">LANGUAGE</span> plpgsql <span class="token-keyword">SECURITY DEFINER</span>;
+
+<span class="token-keyword">DROP TRIGGER IF EXISTS</span> trigger_handle_member_deleted <span class="token-keyword">ON</span> public.members;
+<span class="token-keyword">CREATE TRIGGER</span> trigger_handle_member_deleted
+  <span class="token-keyword">AFTER DELETE ON</span> public.members
+  <span class="token-keyword">FOR EACH ROW</span>
+  <span class="token-keyword">EXECUTE FUNCTION</span> public.handle_member_deleted();</pre>
+
+                <h2>2. RPC: Hapus Bersih User Berdasarkan Email (<code>force_delete_user_by_email</code>)</h2>
+                <p><strong>Fungsi:</strong> Fungsi pembersihan darurat untuk menghapus total data pengguna (Admin, Member, Transaksi Pinjam, Antrian, dan Autentikasi Auth) hanya menggunakan parameter email:</p>
+                <pre><span class="token-keyword">CREATE OR REPLACE FUNCTION</span> public.force_delete_user_by_email(target_email text)
+<span class="token-keyword">RETURNS</span> void
+<span class="token-keyword">LANGUAGE</span> plpgsql
+<span class="token-keyword">SECURITY DEFINER</span>
+<span class="token-keyword">SET</span> search_path <span class="token-keyword">=</span> public, auth
+<span class="token-keyword">AS</span> $$
+<span class="token-keyword">DECLARE</span>
+  target_user_id uuid;
+<span class="token-keyword">BEGIN</span>
+  <span class="token-keyword">SELECT</span> id <span class="token-keyword">INTO</span> target_user_id <span class="token-keyword">FROM</span> auth.users <span class="token-keyword">WHERE</span> lower(email) <span class="token-keyword">=</span> lower(target_email);
+  
+  <span class="token-keyword">IF</span> target_user_id <span class="token-keyword">IS NOT NULL THEN</span>
+    <span class="token-keyword">DELETE FROM</span> public.borrows <span class="token-keyword">WHERE</span> "memberId" <span class="token-keyword">=</span> target_user_id::text;
+    <span class="token-keyword">DELETE FROM</span> public.queue <span class="token-keyword">WHERE</span> "memberId" <span class="token-keyword">=</span> target_user_id::text;
+    <span class="token-keyword">DELETE FROM</span> public.admins <span class="token-keyword">WHERE</span> id <span class="token-keyword">=</span> target_user_id;
+    <span class="token-keyword">DELETE FROM</span> public.members <span class="token-keyword">WHERE</span> id <span class="token-keyword">=</span> target_user_id::text;
+    <span class="token-keyword">DELETE FROM</span> auth.users <span class="token-keyword">WHERE</span> id <span class="token-keyword">=</span> target_user_id;
+  <span class="token-keyword">END IF;</span>
+<span class="token-keyword">END;</span>
+$$;
+
+<span class="token-comment">-- Contoh penggunaan:</span>
+<span class="token-comment">-- SELECT public.force_delete_user_by_email('email_warga@gmail.com');</span></pre>
+
+                <h2>3. RPC: Pembuatan Akun Admin Auto-Confirm dengan Sinkronisasi Identitas</h2>
+                <p><strong>Fungsi:</strong> Membuat admin baru langsung aktif (Auto-Confirm) sekaligus mendaftarkan data ke tabel <code>auth.identities</code> agar Supabase GoTrue Auth tidak mengembalikan error status 500:</p>
+                <pre><span class="token-keyword">CREATE OR REPLACE FUNCTION</span> public.create_new_admin_user(
+  admin_email text, admin_password text, admin_name text, admin_role text, avatar_col text
+)
+<span class="token-keyword">RETURNS</span> uuid <span class="token-keyword">LANGUAGE</span> plpgsql <span class="token-keyword">SECURITY DEFINER</span>
+<span class="token-keyword">SET</span> search_path <span class="token-keyword">=</span> public, auth, extensions
+<span class="token-keyword">AS</span> $$
+<span class="token-keyword">DECLARE</span>
+  new_user_id uuid;
+  encrypted_pw text;
+<span class="token-keyword">BEGIN</span>
+  <span class="token-keyword">IF NOT</span> public.is_super_admin_from_admins() <span class="token-keyword">THEN</span>
+    <span class="token-keyword">RAISE EXCEPTION</span> <span class="token-string">'Akses ditolak.'</span>;
+  <span class="token-keyword">END IF;</span>
+
+  new_user_id := gen_random_uuid();
+  encrypted_pw := crypt(admin_password, gen_salt('bf', 10));
+
+  <span class="token-comment">-- Insert ke auth.users</span>
+  <span class="token-keyword">INSERT INTO</span> auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, is_super_admin, is_anonymous)
+  <span class="token-keyword">VALUES</span> (new_user_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', lower(admin_email), encrypted_pw, now(), '{"provider":"email","providers":["email"]}', jsonb_build_object('namaLengkap', admin_name), now(), now(), false, false);
+
+  <span class="token-comment">-- Insert ke auth.identities (Pencegah Error 500)</span>
+  <span class="token-keyword">INSERT INTO</span> auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+  <span class="token-keyword">VALUES</span> (new_user_id, new_user_id::text, new_user_id, jsonb_build_object('sub', new_user_id::text, 'email', lower(admin_email), 'email_verified', true, 'email_verified_at', now()), 'email', now(), now(), now());
+
+  <span class="token-comment">-- Insert ke public.admins</span>
+  <span class="token-keyword">INSERT INTO</span> public.admins (id, nama_lengkap, email, password_hash, role, tanggal_dibuat, avatar_color)
+  <span class="token-keyword">VALUES</span> (new_user_id, admin_name, lower(admin_email), encrypted_pw, admin_role, (EXTRACT(DAY FROM now())::text || ' ' || 'Juni' || ' ' || EXTRACT(YEAR FROM now())::text), avatar_col);
+
+  <span class="token-keyword">RETURN</span> new_user_id;
+<span class="token-keyword">END;</span>
+$$;
+
+<span class="token-keyword">REVOKE ALL ON FUNCTION</span> public.create_new_admin_user(text, text, text, text, text) <span class="token-keyword">FROM PUBLIC</span>;
+<span class="token-keyword">GRANT EXECUTE ON FUNCTION</span> public.create_new_admin_user(text, text, text, text, text) <span class="token-keyword">TO</span> authenticated;</pre>
+
+                <h2>4. RPC: Pembaru Sandi Admin Terenkripsi (<code>update_admin_password</code>)</h2>
+                <p><strong>Fungsi:</strong> Mengupdate sandi admin secara terenkripsi baik di tabel profil <code>public.admins</code> maupun tabel kredensial auth Supabase:</p>
+                <pre><span class="token-keyword">CREATE OR REPLACE FUNCTION</span> public.update_admin_password(
+  target_user_id uuid,
+  new_password text
+)
+<span class="token-keyword">RETURNS</span> boolean
+<span class="token-keyword">LANGUAGE</span> plpgsql
+<span class="token-keyword">SECURITY DEFINER</span>
+<span class="token-keyword">SET</span> search_path <span class="token-keyword">=</span> public, auth, extensions
+<span class="token-keyword">AS</span> $$
+<span class="token-keyword">DECLARE</span>
+  encrypted_pw text;
+<span class="token-keyword">BEGIN</span>
+  <span class="token-keyword">IF NOT</span> (public.is_super_admin_from_admins() <span class="token-keyword">OR</span> auth.uid() <span class="token-keyword">=</span> target_user_id) <span class="token-keyword">THEN</span>
+    <span class="token-keyword">RAISE EXCEPTION</span> <span class="token-string">'Akses ditolak.'</span>;
+  <span class="token-keyword">END IF;</span>
+
+  <span class="token-keyword">IF</span> new_password <span class="token-keyword">IS NULL OR</span> length(new_password) <span class="token-keyword">&lt;</span> 6 <span class="token-keyword">THEN</span>
+    <span class="token-keyword">RAISE EXCEPTION</span> <span class="token-string">'Password minimal 6 karakter.'</span>;
+  <span class="token-keyword">END IF;</span>
+
+  encrypted_pw := crypt(new_password, gen_salt('bf', 10));
+
+  <span class="token-keyword">UPDATE</span> auth.users <span class="token-keyword">SET</span> encrypted_password <span class="token-keyword">=</span> encrypted_pw, updated_at <span class="token-keyword">=</span> now() <span class="token-keyword">WHERE</span> id <span class="token-keyword">=</span> target_user_id;
+  <span class="token-keyword">UPDATE</span> public.admins <span class="token-keyword">SET</span> password_hash <span class="token-keyword">=</span> encrypted_pw <span class="token-keyword">WHERE</span> id <span class="token-keyword">=</span> target_user_id;
+
+  <span class="token-keyword">RETURN</span> true;
+<span class="token-keyword">END;</span>
+$$;
+
+<span class="token-keyword">REVOKE ALL ON FUNCTION</span> public.update_admin_password(uuid, text) <span class="token-keyword">FROM PUBLIC</span>;
+<span class="token-keyword">GRANT EXECUTE ON FUNCTION</span> public.update_admin_password(uuid, text) <span class="token-keyword">TO</span> authenticated;</pre>
+
+                <h2>5. Workaround React Strict Mode Login Dobel (<code>AuthCallback.tsx</code>)</h2>
+                <p>Dalam mode development, React 18 memicu <code>useEffect</code> dua kali secara beruntun. Hal ini menyebabkan pertukaran token Google OAuth (<code>exchangeCodeForSession</code>) terkirim dua kali, memicu error <i>"Link kedaluwarsa"</i> pada render kedua karena token sekali pakai tersebut telah ditukarkan pada render pertama.</p>
+                <p><strong>Solusi:</strong> Kode <a href="file:///c:/Users/Rislan/Downloads/Library%20Website%20Design/src/pages/AuthCallback.tsx">src/pages/AuthCallback.tsx</a> telah dimodifikasi untuk memeriksa ketersediaan sesi aktif via <code>supabase.auth.getSession()</code> terlebih dahulu. Jika session sudah terbentuk, proses penukaran token yang kedua langsung dilewati (bypass) dan user diarahkan ke dashboard.</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 5: DEVELOPER HANDOVER GUIDE            -->
+            <!-- ========================================== -->
+            <div id="ch5" class="chapter-break">
+                <h1>Bab 5: Panduan Serah Terima Pengembang (Developer Handover)</h1>
+                <p>Panduan bagi programmer baru untuk memahami arsitektur berkas <code>src/services/</code> dan <code>src/pages/</code> secara cepat dan efisien.</p>
+
+                <h2>1. Alur Pembacaan Cepat Kode Sumber</h2>
+                <ol>
+                    <li>Buka file <code>src/App.tsx</code> sebagai peta rute navigasi dan pelindung rute login.</li>
+                    <li>Pelajari modul layanan sirkulasi data di direktori <code>src/services/</code> untuk interaksi dengan Supabase.</li>
+                    <li>Telusuri kode halaman portal user di <code>src/pages/</code> dan panel administrator di <code>src/pages/admin/</code>.</li>
+                </ol>
+
+                <h2>2. Nilai Batasan dan Konstanta Operasional (Hardcoded Limits)</h2>
+                <ul>
+                    <li><strong>Batas Halaman Artikel Berita:</strong> Dibatasi maksimal 10 item per muatan halaman (<code>PAGE_SIZE = 10</code>).</li>
+                    <li><strong>Batas Katalog Buku:</strong> Dibatasi maksimal 12 buku per muatan halaman (<code>BOOKS_PER_PAGE = 12</code>).</li>
+                    <li><strong>Batas Waktu Cooldown OTP:</strong> Pemicu kirim ulang email verifikasi OTP dikunci minimal selang waktu 60 detik.</li>
+                    <li><strong>Keamanan Sesi Login Admin:</strong> Sesi JWT aktif maksimal selama 12 jam (<code>ADMIN_SESSION_TTL = 12 * 60 * 60 * 1000 ms</code>). Jika sandi salah dimasukkan 5 kali berturut-turut, akun dikunci (lockout) selama 15 menit.</li>
+                </ul>
+
+                <h2>3. Dokumentasi Ringkas Berkas Modul Layanan (Services)</h2>
+                <ul>
+                    <li><strong>authService.ts & supabaseAuthService.ts:</strong> Mengatur pemeliharaan session login lokal, cookie keamanan, lockout, update profil member, dan pendaftaran ke Supabase Auth.</li>
+                    <li><strong>bookService.ts:</strong> Mengatur fungsi sirkulasi peminjaman buku, sinkronisasi stok buku fisik di database, wishlist, rating, dan antrean otomatis buku habis.</li>
+                    <li><strong>dataService.ts:</strong> Mengelola CMS artikel berita, pencarian kata kunci, kategori, dan sinkronisasi data cloud ke penyimpanan lokal cache browser.</li>
+                    <li><strong>settingsService.ts:</strong> Memuat pengaturan portal statis instansi (PPID, Struktur, Jadwal) secara paralel saat loading awal website.</li>
+                    <li><strong>db.ts:</strong> Wrapper untuk local storage browser yang bertindak sebagai database cadangan lokal.</li>
+                    <li><strong>imageUtils.ts & storageService.ts:</strong> Utilitas upload aset gambar, konversi tipe file, dan bucket policy Supabase Storage.</li>
+                </ul>
+
+                <h2>4. Dokumentasi Berkas Halaman (Pages)</h2>
+                <h3>Halaman Utama & Portal Warga (User Pages)</h3>
+                <ul>
+                    <li><strong>Home.tsx:</strong> Halaman landing page utama dengan galeri cinematic, review buku populer, dan link internal.</li>
+                    <li><strong>KatalogBuku.tsx:</strong> Antarmuka eksplorasi buku digital dengan pencarian pintar, filter kategori, dan tombol aksi peminjaman.</li>
+                    <li><strong>BlogList.tsx & ArticleDetail.tsx:</strong> Daftar berita dan pembaca artikel dinamis yang dilengkapi tombol bagikan dan unduhan file lampiran.</li>
+                    <li><strong>LaporWarga.tsx:</strong> Form pengaduan publik yang terintegrasi dengan Telegram Bot API untuk notifikasi instan admin.</li>
+                    <li><strong>AuthVerifyCode.tsx:</strong> Input kode OTP dengan proteksi rute session guard dan visual Glassmorphism.</li>
+                </ul>
+                <h3>Halaman Panel Administrator (Admin Pages)</h3>
+                <ul>
+                    <li><strong>AdminDashboard.tsx:</strong> Panel ringkasan data statistik sistem (total transaksi, buku dipinjam, member aktif).</li>
+                    <li><strong>ArticleEditor.tsx & BookEditor.tsx:</strong> Halaman editor interaktif untuk input/edit artikel (dilengkapi caption style) dan katalog buku baru.</li>
+                    <li><strong>ManageBorrows.tsx:</strong> Panel pengelolaan status sirkulasi buku (konfirmasi pinjam, buku dikembalikan, hitung denda telat).</li>
+                    <li><strong>ManageMembers.tsx:</strong> Fitur penghapusan anggota secara aman yang otomatis memicu pembersihan user di Supabase Auth.</li>
+                </ul>
+
+                <h2>5. Checklist Modifikasi Desain Portal</h2>
+                <ol>
+                    <li>Gunakan pencarian kata kunci (Ctrl+Shift+F) untuk menemukan warna hardcode dinas lama (<code>#0c2f3d</code>, <code>#d6a54a</code>, <code>#1a4254</code>) untuk diganti.</li>
+                    <li>Pastikan semua asset gambar statis telah dikonversi ke format <strong>WebP</strong> dengan rasio aspek yang responsif untuk menghemat bandwidth server.</li>
+                    <li>Uji fungsionalitas tombol kembali pada layar smartphone Android dengan memanfaatkan simulasi DevTools browser.</li>
+                </ol>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- BAB 6: STANDALONE BOOKING MODUL MANDIRI    -->
+            <!-- ========================================== -->
+            <div id="ch6" class="chapter-break">
+                <h1>Bab 6: Panduan Modul Mandiri (Standalone Booking Micro-Frontend)</h1>
+                <p>Direktori <code>standalone-booking/</code> menyimpan versi enkapsulasi mandiri (micro-frontend) dari modul pendaftaran booking restorasi arsip warga.</p>
+
+                <h2>1. Keuntungan Penggunaan Modul Mandiri</h2>
+                <ul>
+                    <li><strong>Performa Optimal:</strong> Bundle kompilasi sangat ringan karena tidak memuat visual dan logika modul utama perpustakaan digital.</li>
+                    <li><strong>Kemandirian Sistem:</strong> Jika website utama WordPress mengalami crash atau pemeliharaan server, portal booking arsip tetap aktif melayani masyarakat.</li>
+                    <li><strong>Pusat Konfigurasi Tunggal:</strong> Parameter alamat web utama, warna, kontak, dan logo diatur di satu file pusat.</li>
+                </ul>
+
+                <h2>2. Konfigurasi Terpusat (<code>src/config/bookingConfig.ts</code>)</h2>
+                <p>Sesuaikan file branding berikut sebelum meng-compile aplikasi:</p>
+                <pre><span class="token-keyword">export const</span> BOOKING_CONFIG = {
+  <span class="token-comment">// 1. BRANDING & IDENTITAS</span>
+  BRAND: {
+    NAME: <span class="token-string">'Disipusda Purwakarta'</span>,
+    SHORT_NAME: <span class="token-string">'Disipusda'</span>,
+    SLOGAN: <span class="token-string">'Layanan Booking Enkapsulasi & Pemeliharaan Arsip'</span>,
+    LOGO: logoUtama,
+  },
+
+  <span class="token-comment">// 2. REDIRECT TOMBOL KEMBALI</span>
+  MAIN_WEBSITE_URL: import.meta.env.VITE_MAIN_WEBSITE_URL || <span class="token-string">'https://disipusda.purwakartakab.go.id'</span>,
+
+  <span class="token-comment">// 3. KETERANGAN FOOTER</span>
+  FOOTER: {
+    ADDRESS: <span class="token-string">'Jl. Veteran No. 1, Ciseureuh, Purwakarta'</span>,
+    TELEPHONE: <span class="token-string">'+62 812-3456-7890'</span>,
+    EMAIL: <span class="token-string">'arsip@disipusda.purwakarta.go.id'</span>,
+  }
+};</pre>
+
+                <h2>3. Langkah Menjalankan dan Melakukan Deployment</h2>
+                <h3>Menjalankan di Lokal (Development)</h3>
+                <pre>cd standalone-booking
+npm install
+cp .env.example .env
+npm run dev</pre>
+
+                <h3>Deploy ke Server Subdomain (Hosting)</h3>
+                <ol>
+                    <li>Jalankan proses build produksi di folder <code>standalone-booking/</code>:
+                        <pre>npm run build</pre>
+                    </li>
+                    <li>Unggah isi folder hasil kompilasi <strong><code>dist/</code></strong> ke subdomain hosting Anda (contoh: <code>booking.purwakartakab.go.id</code>).</li>
+                    <li>Pasang Iframe pada website utama WordPress Anda untuk mengintegrasikan widget booking secara langsung:
+                        <pre>&lt;iframe 
+  src="https://booking.purwakartakab.go.id" 
+  width="100%" 
+  height="950px" 
+  style="border: none; overflow: hidden;"
+  scrolling="no"&gt;
+&lt;/iframe&gt;</pre>
+                    </li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -50,6 +50,16 @@ Panduan visual, perbaikan tata letak layar HP, serta optimasi ukuran aset gambar
 * [PANDUAN_RESPONSIVITAS_ADMIN.md](design/PANDUAN_RESPONSIVITAS_ADMIN.md) - Dokumentasi perbaikan tampilan grid dan dashboard admin agar nyaman dibuka di layar HP.
 * [IMAGE_OPTIMIZATION_GUIDE.md](design/IMAGE_OPTIMIZATION_GUIDE.md) - Cara memperkecil dan mengonversi format gambar ke WebP guna mempercepat loading website.
 
+### 6. 🛠️ Arsitektur Keamanan & Serah Terima Pengembang (Berkas Luar `docs/`)
+Panduan arsitektur keamanan, perbaikan skema auth Supabase, serah terima pengembang (handover), dan panduan modul mandiri booking arsip:
+* [PANDUAN_ARSITEKTUR_PENGEMBANG_LENGKAP.html](../PANDUAN_ARSITEKTUR_PENGEMBANG_LENGKAP.html) - 🌟 **[HTML/PDF] Buku panduan gabungan dari berkas di luar folder docs, didesain khusus agar rapi saat diekspor ke PDF via browser (Ctrl + P).**
+* [README.md](../README.md) - Dokumentasi awal dan ringkasan sistem desain perpustakaan.
+* [SECURITY_GUIDE.md](../SECURITY_GUIDE.md) - Panduan cepat pengamanan akun administrator bawaan pasca-deployment.
+* [SUPABASE_MIGRATIONS_AND_FIXES.md](../SUPABASE_MIGRATIONS_AND_FIXES.md) - Query SQL editor untuk perbaikan autentikasi dan sinkronisasi data user.
+* [guidelines/Developer-Handover-Pages-Services.md](../guidelines/Developer-Handover-Pages-Services.md) - Penjelasan detail kode program per berkas layanan dan halaman.
+* [guidelines/SECURITY-ARCHITECTURE.md](../guidelines/SECURITY-ARCHITECTURE.md) - Kebijakan CSP, kontrol akses, dan pembatasan integritas data.
+* [standalone-booking/PANDUAN_STANDALONE.md](../standalone-booking/PANDUAN_STANDALONE.md) - Cara menjalankan dan mendeploy modul mandiri booking restorasi arsip warga.
+
 ---
 
 *Catatan: Seluruh berkas dokumentasi di atas ditulis dalam format Markdown (.md) dan dapat dibaca dengan mudah menggunakan text editor seperti VS Code, GitHub Viewer, maupun aplikasi penampil markdown lainnya.*
