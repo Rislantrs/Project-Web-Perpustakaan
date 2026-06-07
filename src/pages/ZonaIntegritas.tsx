@@ -11,31 +11,58 @@ export default function ZonaIntegritas() {
     <div className="bg-white min-h-screen pb-24">
       
       {/* Bagian hero halaman */}
-      <section className="relative bg-[#0c2f3d] py-24 pb-32 border-b-8 border-[#d6a54a] overflow-hidden">
-        {/* Pola atau gambar latar */}
-        <div className="absolute inset-0">
-           <img src={zonaImg} className="w-full h-full object-cover opacity-20" alt="Background" />
-        </div>
+      <section className="relative bg-[#0c2f3d] py-16 md:py-24 pb-28 md:pb-36 border-b-8 border-[#d6a54a] overflow-hidden">
+        {/* Latar belakang gradient premium */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0c2f3d] via-[#103a4b] to-[#08222b]"></div>
         
-        <div className="max-w-5xl mx-auto px-4 relative z-10 text-center md:text-left">
+        {/* Subtle grid pattern background */}
+        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        
+        {/* Glow effects */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#d6a54a]/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#e63946]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="max-w-5xl mx-auto px-4 relative z-10">
           {/* Navigasi jejak halaman */}
-          <div className="flex items-center justify-center md:justify-start text-sm text-gray-300 mb-10">
-            <Link to="/" className="hover:text-white">Home</Link>
-            <ChevronRight size={14} className="mx-2" />
+          <div className="flex items-center justify-center md:justify-start text-sm text-gray-300 mb-8 md:mb-10">
+            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <ChevronRight size={14} className="mx-2 text-[#d6a54a]" />
             <span className="text-white font-medium">Zona Integritas</span>
           </div>
 
-          <div className="md:w-3/4">
-            <h1 className="font-serif text-white text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-              Anda Memasuki <br/>
-              <span className="text-[#d6a54a]">Zona Integritas</span>
-            </h1>
-            <p className="text-xl text-gray-200 mb-10">
-              Dinas Kearsipan dan Perpustakaan Kabupaten Purwakarta berkomitmen mewujudkan reformasi birokrasi yang bersih dan melayani.
-            </p>
-            <div className="inline-flex items-center gap-3 bg-[#e63946] text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-red-900/20">
-              <AlertOctagon size={24} /> STOP PUNGLI !
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+            
+            {/* Kolom Teks */}
+            <div className="md:col-span-7 text-center md:text-left order-2 md:order-1">
+              <h1 className="font-serif text-white text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                Anda Memasuki <br className="hidden sm:inline" />
+                <span className="text-[#d6a54a]">Zona Integritas</span>
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl text-gray-200 mb-8 leading-relaxed">
+                Dinas Kearsipan dan Perpustakaan Kabupaten Purwakarta berkomitmen mewujudkan reformasi birokrasi yang bersih dan melayani.
+              </p>
+              <div className="inline-flex items-center gap-3 bg-[#e63946] text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-red-900/20 hover:bg-[#d62839] transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                <AlertOctagon size={22} className="animate-pulse" /> STOP PUNGLI !
+              </div>
             </div>
+
+            {/* Kolom Gambar/Logo */}
+            <div className="md:col-span-5 flex justify-center order-1 md:order-2">
+              <div className="relative group">
+                {/* Decorative border/glow behind the card */}
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#d6a54a] to-[#e63946] rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                
+                {/* Logo card container */}
+                <div className="relative bg-white p-6 rounded-2xl shadow-2xl flex items-center justify-center w-[240px] sm:w-[300px] aspect-[4/3] overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
+                  <img 
+                    src={zonaImg} 
+                    className="w-full h-full object-contain" 
+                    alt="Zona Integritas Logo" 
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
