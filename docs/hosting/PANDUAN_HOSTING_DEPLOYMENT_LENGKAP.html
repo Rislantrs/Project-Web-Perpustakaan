@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan Komprehensif: Server, Hosting, dan Deployment - Disipusda Purwakarta</title>
+    <style>
+        /* Modern Reset and CSS Variables */
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0284c7; /* Sky blue accent for deployment guides */
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-heading: #0f172a;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+            --code-text: #f8f8f2;
+            --alert-tip: #0f766e;
+            --alert-note: #1d4ed8;
+            --alert-warning: #b45309;
+            --alert-caution: #be123c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Layout Architecture */
+        .wrapper {
+            width: 100%;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin: 2rem auto;
+            padding: 4rem 5rem;
+            max-width: 900px;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Header Document Info */
+        .doc-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff !important;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-header h1 {
+            font-size: 2.25rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: #ffffff !important;
+        }
+
+        .doc-header p {
+            color: #cbd5e1 !important;
+            font-size: 1.1rem;
+        }
+
+        /* Typography Styles */
+        h1, h2, h3, h4 {
+            color: var(--text-heading);
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 3.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.35rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Alert Box Styles */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-left: 5px solid transparent;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-note {
+            background-color: #eff6ff;
+            border-left-color: var(--alert-note);
+            color: #1e3a8a;
+        }
+
+        .alert-tip {
+            background-color: #f0fdf4;
+            border-left-color: var(--alert-tip);
+            color: #115e59;
+        }
+
+        .alert-warning {
+            background-color: #fffbeb;
+            border-left-color: var(--alert-warning);
+            color: #78350f;
+        }
+
+        .alert-caution {
+            background-color: #fff5f5;
+            border-left-color: var(--alert-caution);
+            color: #9b1c1c;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Database Tables Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-heading);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Code Blocks & Coding Styling */
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            font-size: 0.9rem;
+            background-color: #e2e8f0;
+            color: #0f172a;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+        }
+
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Syntax Highlight Colors (Simplified CSS) */
+        .token-keyword { color: #f92672; font-weight: bold; }
+        .token-string { color: #e6db74; }
+        .token-comment { color: #75715e; font-style: italic; }
+        .token-number { color: #ae81ff; }
+        .token-type { color: #66d9ef; font-style: italic; }
+
+        /* Diagrams with Mermaid styling fallback */
+        .flow-diagram {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+            color: #334155;
+        }
+
+        /* Divider and spacing helpers */
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        .chapter-break {
+            margin-top: 5rem;
+        }
+
+        /* Dynamic Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--accent);
+            color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            z-index: 99;
+            transition: all 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            background-color: #0369a1;
+        }
+
+        /* ---------------------------------------------------- */
+        /* PRINT STYLING - Optimize for PDF Generation          */
+        /* ---------------------------------------------------- */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+                font-size: 14px;
+            }
+
+            .back-to-top {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .doc-header {
+                border: 2px solid #000000;
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0;
+                padding: 2rem;
+            }
+
+            .doc-header h1 {
+                color: #000000 !important;
+            }
+
+            .doc-header p {
+                color: #333333 !important;
+            }
+
+            h1, h2, h3 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            h1 {
+                page-break-before: always;
+                border-bottom: 2px solid #000000;
+                margin-top: 2rem;
+            }
+
+            pre, table, blockquote, .alert {
+                page-break-inside: avoid;
+            }
+
+            pre {
+                border: 1px solid #94a3b8;
+                box-shadow: none !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            pre code {
+                color: #000000 !important;
+            }
+
+            code {
+                background-color: #f1f5f9;
+                border: 1px solid #cbd5e1;
+            }
+
+            .alert {
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+                color: #000000 !important;
+            }
+
+            .alert-title {
+                color: #000000 !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#" class="back-to-top" title="Kembali ke atas">▲</a>
+
+    <div class="wrapper">
+        <div class="main-content">
+            <!-- Cover / Header Section -->
+            <div class="doc-header" id="cover">
+                <h1>Buku Panduan Komprehensif:<br>Server, Hosting, dan Deployment</h1>
+                <p>Panduan teknis lengkap penyebaran (deployment) aplikasi React, konfigurasi domain, setup server VPS Linux mandiri, SSL, manajemen daemon PM2, SMTP transaksional, dan integrasi subdomain.</p>
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; color: #cbd5e1 !important; font-weight: 500;">Diperbarui: Juni 2026 | Disusun oleh: M. Rislan Tristansyah (Mahasiswa Sistem Telekomunikasi)</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 1: NON-TECHNICAL INTRO            -->
+            <!-- ========================================== -->
+            <div id="ch1" class="chapter-break">
+                <h1>Bab 1: Penjelasan Sederhana Teknologi & Pilihan Hosting</h1>
+                <p>Bab ini ditujukan bagi pembaca non-teknis atau pihak manajemen instansi untuk memahami arsitektur website Disipusda menggunakan analogi sederhana sehari-hari.</p>
+
+                <h2>1. Analogi Restoran: Bagaimana Website Bekerja?</h2>
+                <p>Bayangkan website perpustakaan digital Anda seperti sebuah <strong>Rumah Makan (Restoran)</strong> yang melayani pelanggan:</p>
+
+                <h3>A. Frontend (React / TypeScript) ➡️ "Ruang Makan & Pelayan"</h3>
+                <ul>
+                    <li>Ini adalah area visual yang disentuh oleh pelanggan (seperti meja, kursi, lampu hias, daftar menu, dan pelayan yang mencatat pesanan).</li>
+                    <li>Di website, bagian inilah yang menampilkan gambar, tombol booking, form register, dan teks artikel secara rapi di layar HP pengunjung.</li>
+                </ul>
+
+                <h3>B. Backend API (Skrip Server) ➡️ "Juru Masak / Koki di Dapur"</h3>
+                <ul>
+                    <li>Ini adalah dapur tempat koki mengolah bahan makanan. Pelanggan di ruang makan tidak dapat melihat dapur, tetapi mereka menerima makanan matang lewat pelayan.</li>
+                    <li>Di server, dapur ini memproses keamanan password, memeriksa sisa kuota booking tanggal tertentu, dan mengirimkan email notifikasi.</li>
+                </ul>
+
+                <h3>C. Database (MySQL / PostgreSQL / Supabase) ➡️ "Gudang Bahan Makanan"</h3>
+                <ul>
+                    <li>Ini adalah kulkas besar di belakang dapur tempat menyimpan seluruh persediaan bahan mentah secara teratur.</li>
+                    <li>Di server, lemari arsip ini menyimpan data anggota, daftar buku, log denda, dan token keamanan.</li>
+                </ul>
+
+                <h2>2. Penting: Apakah Kode Program Harus Dirombak Total?</h2>
+                <div class="alert alert-note">
+                    <div class="alert-title">Jawabannya: SAMA SEKALI TIDAK.</div>
+                    Kode tampilan (React) tidak perlu dibuang atau ditulis ulang ke bahasa PHP jika Anda pindah hosting ke Hostinger. Ketika proses pengembangan selesai, program React dikompilasi menjadi file statis biasa (HTML, CSS, JS) di folder <code>dist/</code>. File ini bersifat mandiri dan dapat diunggah ke server web manapun di seluruh dunia, termasuk Hostinger.
+                </div>
+
+                <h2>3. Kamus Sederhana Istilah Teknologi (Glossary)</h2>
+                <ul>
+                    <li><strong>Vite / React:</strong> Mesin perancang tampilan agar web terasa responsif, cepat, dan "hidup".</li>
+                    <li><strong>Database (MySQL / PostgreSQL):</strong> Lemari arsip digital tempat menyimpan semua tulisan data website.</li>
+                    <li><strong>API (Application Programming Interface):</strong> Jembatan pos surat yang mengantarkan data dari layar browser ke database.</li>
+                    <li><strong>CORS:</strong> Satpam browser yang membatasi agar web server Anda tidak dapat diakses sembarangan oleh website asing.</li>
+                    <li><strong>SMTP:</strong> Sistem pengiriman email notifikasi otomatis agar tidak masuk ke folder SPAM.</li>
+                    <li><strong>Cron Job:</strong> Alarm otomatis yang berbunyi secara terjadwal untuk memicu fungsi harian (seperti cek denda telat buku).</li>
+                    <li><strong>PM2:</strong> Penjaga backend di server VPS agar server Node.js tidak mati saat terminal ditutup.</li>
+                </ul>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 2: VPS AND HOSTINGER DEPLOYMENT    -->
+            <!-- ========================================== -->
+            <div id="ch2" class="chapter-break">
+                <h1>Bab 2: Panduan Migrasi Hosting Terpadu (Hostinger & VPS)</h1>
+                <p>Strategi memigrasikan website Disipusda (React Frontend + Database & Server API) secara mandiri ke penyedia hosting terpadu seperti Hostinger atau VPS.</p>
+
+                <h2>1. Alur Deployment Server Backend Node.js di Hostinger (hPanel)</h2>
+                <ol>
+                    <li>Masuk ke panel **Hostinger hPanel** > buka menu **Node.js Configuration**.</li>
+                    <li>Buat folder baru di luar folder publik utama Anda, misalnya: <code>/home/user/apps/backend-api/</code>.</li>
+                    <li>Unggah berkas backend Express Anda beserta <code>package.json</code> dan file <code>.env</code> ke folder tersebut.</li>
+                    <li>Setel konfigurasi Node.js di hPanel:
+                        <ul>
+                            <li><strong>App Directory:</strong> <code>/home/user/apps/backend-api/</code></li>
+                            <li><strong>Entry File:</strong> <code>server.js</code></li>
+                            <li><strong>Node.js Version:</strong> Pilih versi terbaru (misal: 18 atau 20).</li>
+                        </ul>
+                    </li>
+                    <li>Klik **Install NPM Modules** untuk menginstal semua dependency.</li>
+                    <li>Klik **Start** untuk menyalakan server API Anda.</li>
+                </ol>
+
+                <h2>2. Konfigurasi VPS Linux Mandiri (Ubuntu/Debian)</h2>
+                <h3>A. Menjalankan Aplikasi dengan PM2 (Daemon)</h3>
+                <p>PM2 memastikan aplikasi backend Node.js Anda tetap berjalan di latar belakang secara terus-menerus:</p>
+                <pre><span class="token-comment"># 1. Install Node.js dan PM2 di VPS</span>
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
+npm install pm2 -g
+
+<span class="token-comment"># 2. Masuk ke folder proyek dan jalankan aplikasi</span>
+cd /var/www/disipusda-api
+npm install
+pm2 start server.js --name "disipusda-backend-api"
+
+<span class="token-comment"># 3. Simpan konfigurasi agar auto-start saat reboot</span>
+pm2 startup systemd
+pm2 save</pre>
+
+                <h3>B. Konfigurasi Nginx Reverse Proxy</h3>
+                <p>Nginx bertugas menangkap lalu lintas port publik 80/443 dan mengarahkannya ke port internal Node.js (misal: 3000):</p>
+                <pre><span class="token-comment"># Buat berkas konfigurasi virtual host Nginx baru</span>
+sudo nano /etc/nginx/sites-available/api.conf</pre>
+
+                <p>Tempel konfigurasi server block berikut:</p>
+                <pre><span class="token-keyword">server</span> {
+    <span class="token-keyword">listen</span> 80;
+    <span class="token-keyword">server_name</span> api.disipusda.purwakartakab.go.id;
+
+    <span class="token-keyword">location</span> / {
+        <span class="token-keyword">proxy_pass</span> http://127.0.0.1:3000;
+        <span class="token-keyword">proxy_http_version</span> 1.1;
+        <span class="token-keyword">proxy_set_header</span> Upgrade $http_upgrade;
+        <span class="token-keyword">proxy_set_header</span> Connection 'upgrade';
+        <span class="token-keyword">proxy_set_header</span> Host $host;
+        <span class="token-keyword">proxy_cache_bypass</span> $http_upgrade;
+        <span class="token-keyword">proxy_set_header</span> X-Real-IP $remote_addr;
+        <span class="token-keyword">proxy_set_header</span> X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}</pre>
+
+                <pre><span class="token-comment"># Aktifkan konfigurasi dan restart Nginx</span>
+sudo ln -s /etc/nginx/sites-available/api.conf /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx</pre>
+
+                <h3>C. Memasang SSL Let's Encrypt Gratis</h3>
+                <pre>sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d api.disipusda.purwakartakab.go.id</pre>
+
+                <h2>3. Konfigurasi Pengiriman Email SMTP</h2>
+                <p>Agar notifikasi email sirkulasi dapat dikirimkan secara mandiri tanpa Supabase/Resend API cloud:</p>
+
+                <h3>Skrip Node.js (Nodemailer)</h3>
+                <pre><span class="token-keyword">const</span> nodemailer <span class="token-keyword">=</span> <span class="token-keyword">require</span>(<span class="token-string">'nodemailer'</span>);
+
+<span class="token-keyword">const</span> transporter <span class="token-keyword">=</span> nodemailer.createTransport({
+  host: <span class="token-string">'smtp.hostinger.com'</span>,
+  port: <span class="token-number">465</span>,
+  secure: <span class="token-keyword">true</span>, <span class="token-comment">// SSL</span>
+  auth: {
+    user: <span class="token-string">'no-reply@disipusda.purwakartakab.go.id'</span>,
+    pass: <span class="token-string">'Password_SMTP_Anda'</span>
+  }
+});</pre>
+
+                <h2>4. Setup Cron Jobs (Tugas Harian Sirkulasi)</h2>
+                <p>Gunakan crontab bawaan Linux VPS dengan perintah <code>crontab -e</code> untuk memicu pengecekan denda harian setiap jam 07:00 pagi secara lokal:</p>
+                <pre>0 7 * * * /usr/bin/node /var/www/disipusda-api/cron/overdueCheck.js >> /var/log/cron-overdue.log 2>&1</pre>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 3: CUSTOM DOMAIN & VERCEL          -->
+            <!-- ========================================== -->
+            <div id="ch3" class="chapter-break">
+                <h1>Bab 3: Custom Domain, Vercel, dan Integrasi Supabase</h1>
+                <p>Panduan hosting alternatif yang cepat menggunakan Vercel (Frontend React) dan Supabase Cloud (Backend Database).</p>
+
+                <h2>1. Hosting Website React ke Vercel via GitHub</h2>
+                <ol>
+                    <li>Push kode proyek frontend Anda ke dalam repositori **GitHub**.</li>
+                    <li>Buka dashboard [Vercel](https://vercel.com) > hubungkan akun GitHub Anda.</li>
+                    <li>Klik **Add New** > **Project** > Import repositori website perpustakaan Anda.</li>
+                    <li>Pada bagian **Environment Variables**, masukkan <code>VITE_SUPABASE_URL</code> dan <code>VITE_SUPABASE_ANON_KEY</code>.</li>
+                    <li>Klik **Deploy**. Website Anda akan aktif di subdomain vercel gratis (contoh: <code>disipusda.vercel.app</code>).</li>
+                </ol>
+
+                <h2>2. Menghubungkan Domain Name.com ke Vercel</h2>
+                <ol>
+                    <li>Masuk ke proyek Anda di dashboard Vercel > **Settings** > **Domains** > tambahkan domain resmi Anda (contoh: <code>perpustakaandaerah.com</code>).</li>
+                    <li>Masuk ke akun [Name.com](https://www.name.com) > klik nama domain Anda > buka menu **DNS Management**.</li>
+                    <li>Tambahkan 2 records berikut di DNS Name.com:
+                        <ul>
+                            <li><strong>A Record:</strong> Host/Name = <code>@</code>, Value = <code>76.76.21.21</code> (IP Vercel)</li>
+                            <li><strong>CNAME Record:</strong> Host/Name = <code>www</code>, Value = <code>cname.vercel-dns.com</code></li>
+                        </ul>
+                    </li>
+                    <li>Tunggu proses penyebaran DNS (propagasi) selama 15 menit hingga 1 jam hingga status di Vercel berubah menjadi hijau (Active).</li>
+                </ol>
+
+                <h2>3. Mendaftarkan Variabel Environment untuk Keamanan API Key</h2>
+                <p>Daftarkan Anon Key dan URL Supabase Anda di Vercel Dashboard demi keamanan. Jangan pernah mengunggah file <code>.env</code> lokal Anda ke repositori GitHub karena file tersebut diabaikan secara default oleh <code>.gitignore</code> demi mencegah pencurian API Key.</p>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- CHAPTER 4: SUBDOMAIN NAVIGATION            -->
+            <!-- ========================================== -->
+            <div id="ch4" class="chapter-break">
+                <h1>Bab 4: Konfigurasi Navigasi Balik Subdomain ke Website Utama</h1>
+                <p>Strategi mengarahkan tautan beranda subdomain booking kembali ke website portal utama instansi.</p>
+
+                <h2>1. Langkah 1: Pengaturan URL Web Utama di .env</h2>
+                <p>Buka file <code>.env</code> pada subdomain Anda, lalu daftarkan alamat URL portal web utama (misal: WordPress):</p>
+                <pre>VITE_MAIN_WEBSITE_URL=https://web-utama-wordpress.com</pre>
+
+                <h2>2. Langkah 2: Cara Kerja Navbar Dinamis</h2>
+                <p>Logika navbar telah dimodifikasi agar mendeteksi apabila tautan beranda mengarah ke luar subdomain:</p>
+                <pre><span class="token-keyword">const</span> homeUrl <span class="token-keyword">=</span> (<span class="token-keyword">import</span>.meta.env.VITE_MAIN_WEBSITE_URL <span class="token-keyword">as</span> <span class="token-type">string</span>) || <span class="token-string">'/'</span>;
+<span class="token-keyword">const</span> isExternal <span class="token-keyword">=</span> (path) <span class="token-keyword">=></span> path.startsWith(<span class="token-string">'http://'</span>) || path.startsWith(<span class="token-string">'https://'</span>);</pre>
+
+                <p>Jika terdeteksi eksternal, menu navigasi akan memicu pemanggilan tag jangkar HTML biasa (<code>&lt;a href="..."&gt;</code>) untuk melompat keluar dari aplikasi React Router secara aman.</p>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
