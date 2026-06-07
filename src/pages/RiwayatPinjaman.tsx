@@ -5,6 +5,30 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getCurrentUser, isLoggedIn } from '../services/authService';
 import { getMemberBorrows, returnBook, getBookById, getMemberQueues, cancelQueue, rateBook, type BorrowRecord, type QueueRecord } from '../services/bookService';
 
+const parseIndonesianDateTime = (value?: string): Date | null => {
+  if (!value) return null;
+  const parts = value.split(',');
+  const datePart = parts[0].trim();
+  const timePart = parts[1] ? parts[1].trim() : '00:00';
+  
+  const match = datePart.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const monthName = match[2].toLowerCase();
+  const year = Number(match[3]);
+  
+  const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
+  const monthIndex = months.indexOf(monthName);
+  if (monthIndex < 0) return null;
+
+  const timeMatch = timePart.match(/^(\d{1,2}):(\d{1,2})$/);
+  const hours = timeMatch ? Number(timeMatch[1]) : 0;
+  const minutes = timeMatch ? Number(timeMatch[2]) : 0;
+
+  return new Date(year, monthIndex, day, hours, minutes);
+};
+
 export default function RiwayatPinjaman() {
   const navigate = useNavigate();
   const [borrows, setBorrows] = useState<BorrowRecord[]>([]);
@@ -28,8 +52,12 @@ export default function RiwayatPinjaman() {
     const user = getCurrentUser();
     if (user) {
       const userBorrows = getMemberBorrows(user.id);
-      // Urutkan riwayat peminjaman agar yang terbaru selalu berada di paling atas
-      const sortedBorrows = [...userBorrows].reverse();
+      // Urutkan riwayat peminjaman agar yang terbaru (tanggal & jam) selalu berada di paling atas
+      const sortedBorrows = [...userBorrows].sort((a, b) => {
+        const timeA = parseIndonesianDateTime(a.tanggalPinjam)?.getTime() || 0;
+        const timeB = parseIndonesianDateTime(b.tanggalPinjam)?.getTime() || 0;
+        return timeB - timeA; // Descending: dari terbaru ke terlama
+      });
       setBorrows(sortedBorrows);
       setQueues(getMemberQueues(user.id));
     }
