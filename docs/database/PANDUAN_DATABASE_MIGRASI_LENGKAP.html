@@ -945,7 +945,37 @@ $authToken = isset(getallheaders()[<span class="token-string">'Authorization'</s
                     <li>Buka repo GitHub proyek Anda > **Settings** > **Secrets and variables** > **Actions** > edit secret **`CRON_SECRET`** dengan nilai baru tersebut.</li>
                 </ol>
 
-                <h2 id="ch4-3">3. Skrip SQL pg_cron untuk Laporan Booking Harian</h2>
+                <h2>3. Langkah Deploy Edge Functions & Setup Custom Secrets</h2>
+                <p>Agar backend notifikasi email (Resend) dan Telegram bekerja secara harmonis dengan database Supabase, lakukan konfigurasi berikut:</p>
+                
+                <h3>A. Mendaftarkan Custom Secrets di Dashboard Supabase</h3>
+                <p>Masuk ke <strong>Supabase Dashboard > Settings > Edge Functions</strong>, lalu tambahkan variabel rahasia berikut di bagian <strong>Custom Secrets</strong>:</p>
+                <ul>
+                    <li><code>RESEND_API_KEY</code>: Kunci API dari dashboard Resend.com.</li>
+                    <li><code>RESEND_FROM_EMAIL</code>: Email pengirim terverifikasi (misal: <code>Disipusda &lt;no-reply@lann.codes&gt;</code>).</li>
+                    <li><code>TELEGRAM_BOT_TOKEN</code>: Token bot Telegram dari @BotFather.</li>
+                    <li><code>TELEGRAM_ADMIN_CHAT_ID</code>: ID chat Telegram admin penerima notifikasi.</li>
+                    <li><code>SITE_URL</code>: URL utama frontend website Anda (misal: <code>https://lann.codes</code>).</li>
+                    <li><code>CRON_SECRET</code>: Token keamanan acak untuk mengamankan jalannya tugas otomatis (Cron).</li>
+                </ul>
+
+                <h3>B. Cara Deploy 6 Edge Functions via Supabase CLI</h3>
+                <p>Buka terminal di folder proyek lokal Anda, lalu jalankan perintah berikut:</p>
+                <pre><span class="token-comment"># 1. Login ke akun Supabase Anda</span>
+supabase login
+
+<span class="token-comment"># 2. Hubungkan ke Project Reference ID Anda</span>
+supabase link --project-ref &lt;PROJECT_REF_ID&gt;
+
+<span class="token-comment"># 3. Deploy keenam Edge Functions secara bergantian</span>
+supabase functions deploy booking-notification
+supabase functions deploy booking-status-change
+supabase functions deploy send-booking-digest
+supabase functions deploy send-borrow-notification
+supabase functions deploy send-borrow-reminders
+supabase functions deploy telegram-webhook</pre>
+
+                <h2 id="ch4-3">4. Skrip SQL pg_cron untuk Laporan Booking Harian</h2>
                 <p>Buka <strong>SQL Editor</strong> di dashboard Supabase Anda, lalu jalankan query berikut (ganti <code>TOKEN_BARU_ANDA</code> dengan token baru Anda):</p>
 
                 <pre><span class="token-keyword">CREATE EXTENSION IF NOT EXISTS</span> pg_cron;
