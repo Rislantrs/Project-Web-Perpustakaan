@@ -99,7 +99,6 @@ export const SITE_CONFIG = {
         { name: 'Zona Integritas', path: '/zona-integritas' }
       ]
     },
-    { name: 'Cari Arsip', path: '/cari-arsip' },
   ],
 
   // --------------------------------------------------------------------------

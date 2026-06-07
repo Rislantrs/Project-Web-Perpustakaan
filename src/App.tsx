@@ -60,8 +60,6 @@ const BookingPage = lazy(() => import('./modules/booking/pages/BookingPage'));
 const RescheduleConfirm = lazy(() => import('./modules/booking/pages/RescheduleConfirm'));
 const AdminBookings = lazy(() => import('./modules/booking/pages/admin/AdminBookings'));
 
-// Cari Arsip Module (Lazy Loaded — Modul Mandiri)
-const CariArsip = lazy(() => import('./modules/arsip/pages/CariArsip'));
 
 import { refreshHomeArticles, refreshCategories } from './services/dataService';
 import { refreshSettings } from './services/settingsService';
@@ -176,12 +174,7 @@ function App() {
              } />
             <Route path="jasa-kearsipan" element={<JasaKearsipan />} />
             <Route path="layanan-rentan" element={<LayananRentan />} />
-            {/* Cari Arsip — Smart Search Redirect ke JIKN (Modul Mandiri) */}
-            <Route path="cari-arsip" element={
-              <Suspense fallback={<div className="py-20 flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#0c2f3d]/20 border-t-[#d6a54a] rounded-full animate-spin"/></div>}>
-                <CariArsip />
-              </Suspense>
-            } />
+
             {/* Booking Enkapsulasi Arsip — Modul Mandiri */}
             <Route path="booking-enkapsulasi" element={
               SITE_CONFIG.FEATURES.ENABLE_BOOKING ? (
